@@ -39,7 +39,7 @@ export default async function handler(req, res) {
   const { cacheFirst } = req.query;
 
   const { DOLA, INV, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.4.4`;
+  const cacheKey = `dao-cache-v1.4.5`;
 
   try {
     const cacheDuration = 360;
@@ -114,11 +114,7 @@ export default async function handler(req, res) {
       mainnetTokens.INV, mainnetTokens.WETH, mainnetTokens.WBTC, mainnetTokens.INVETHLP, mainnetTokens.INVETHSLP, mainnetTokens.CRV, mainnetTokens.CVX, mainnetTokens.BAL, mainnetTokens.AURA, mainnetTokens.DBR, mainnetTokens.YFI,
       ...Object.values(mainnetTokens).map(ad => getToken(TOKENS, ad)).filter(t => t.isStable).map(t => t.address)
     ];
-    const [treasuryBalances, anchorReserves] = await getGroupedMulticallOutputs([
-      treasuryFundsToCheck.map((ad: string) => {
-        const contract = new Contract(ad, ERC20_ABI, provider);
-        return { contract, functionName: 'balanceOf', params: [TREASURY] };
-      }),
+    const [anchorReserves] = await getGroupedMulticallOutputs([
       ANCHOR_TOKENS.map((ad: string) => {
         const contract = new Contract(ad, CTOKEN_ABI, provider);
         return { contract, functionName: 'totalReserves', params: [], forceFallback: !ANCHOR_RESERVES_TO_CHECK.includes(ad), fallbackValue: BigNumber.from('0') };
@@ -252,11 +248,14 @@ export default async function handler(req, res) {
       await redisSetWithTimestamp(cacheMulAllKey, multisigsAllowanceValues);
     }
 
-    const multisigsFunds = await Promise.all(
-      multisigsToShow.map(multisig => {
-        const net = getNetwork(multisig.chainId);
-        return fetchZerionWithRetry(multisig.address, net.zerionId || net.codename)
-      })
+    const [treasuryBalances, ...multisigsFunds] = await Promise.all(
+      [
+        fetchZerionWithRetry(TREASURY, NetworkIds.mainnet),
+        multisigsToShow.map(multisig => {
+          const net = getNetwork(multisig.chainId);
+          return fetchZerionWithRetry(multisig.address, net.zerionId || net.codename)
+        }),
+      ]
     );
 
     multisigsAllowanceValues.map((bns, i) => {
