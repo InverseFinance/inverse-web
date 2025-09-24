@@ -249,6 +249,18 @@ export const deleveragePosition = async (
     dbrTuple: any[],
     value: string,
 ) => {
+    console.log('DEBUG: deleveragePosition');
+    console.log(JSON.stringify({
+        dolaToRepay: dolaToRepay.toString(),
+        marketAd,
+        exchangeProxy,
+        amountToWithdraw: amountToWithdraw.toString(),
+        swapData,
+        permitTuple,
+        helperTransformData,
+        dbrTuple,
+        value,
+    }));
     return callWithHigherGL(
         getAleContract(signer),
         'deleveragePosition',
