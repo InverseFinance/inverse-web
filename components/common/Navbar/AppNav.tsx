@@ -69,7 +69,6 @@ import { useMultisig } from '@app/hooks/useSafeMultisig'
 import { FirmGovDelegationModal } from '@app/components/F2/GovToken/FirmGovToken'
 import { TOKEN_IMAGES } from '@app/variables/images'
 import { VampireModal } from '../Modal/VampireModal'
-import { LiquidationGrantsModal } from '../Modal/LiquidationGrantsModal'
 import useStorage from '@app/hooks/useStorage'
 import { ReferralModal } from '../Modal/ReferralModal'
 import { ReferToModal } from '../Modal/ReferToModal'
@@ -703,11 +702,6 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   //   <Text cursor="pointer" onClick={openRefund} ml="1" textDecoration="underline" fontSize="12px">Redeem</Text>
   // </NavBadge>;
 
-  const liquidationProgram = <NavBadge position="relative">
-    <Text ml="0" fontSize="12px">💰 Liquidator Grants Program started!</Text>
-    <Text cursor="pointer" onClick={openRefund} ml="1" textDecoration="underline" fontSize="12px">Apply</Text>
-  </NavBadge>;
-
   return (
     <VStack w='full' spacing="0">
       <SlideModal closeOnOutsideClick={false} closeIconInside={true} isOpen={isReferralPopOpen} onClose={handleCloseRefPop} contentProps={{ maxW: '500px', className: '', backgroundColor: 'navBarBackgroundColor' }}>
@@ -725,7 +719,6 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         isOpen={isWrongNetOpen && !isBlog}
         onClose={onWrongNetClose}
       />
-      {isCampaignOpen && <LiquidationGrantsModal isOpen={isCampaignOpen} onClose={onCampaignClose} />}
       {/* <VampireModal isOpen={isCampaignOpen} onClose={onCampaignClose} /> */}
       {/* <ReferToModal isOpen={isReferToOpen} onClose={onReferToClose} /> */}
       {
@@ -824,9 +817,6 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
               </Stack>
 
               <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
-                {
-                  isLargerThan1150 && inited && liquidationProgram
-                }
                 {
                   isLargerThan1300 && <INVBalance />
                 }
