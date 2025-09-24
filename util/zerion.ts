@@ -2,6 +2,7 @@ import { NETWORKS } from "@app/config/networks";
 import { PROTOCOL_IMAGES, PROTOCOL_ZERION_MAPPING } from "@app/variables/images";
 import { CHAIN_TOKENS, getToken } from "@app/variables/tokens";
 import { isAddress } from "ethers/lib/utils";
+import { uniqueBy } from "./misc";
 
 const WALLET_ZERION_URL = 'https://api.zerion.io/v1/wallets';
 
@@ -61,13 +62,16 @@ export const formatZerionWalletResponse = async (response) => {
         const chainCodeName = splitData[1].toLowerCase().replace('binance', 'binance-smart-chain');
         const chainTokens = CHAIN_TOKENS[NETWORKS.find(net => (net.zerionId || net.codename) === chainCodeName)?.id] || {};
         const veNftToken = getToken(chainTokens, `ve${item.attributes.fungible_info.symbol.replace('THE', 'THENA')}`);
-        const firstToken = getToken(chainTokens, item.attributes.fungible_info.symbol);
+        const firstToken = getToken(chainTokens, item.attributes.pool_address || item.attributes.fungible_info.symbol);
         const token = isVeNft && veNftToken?.symbol ? veNftToken : {
             decimals: 18,
-            name: item.attributes.name === 'Asset' ? item.attributes.fungible_info.name : item.attributes.name,
-            symbol: item.attributes.name === 'Asset' ? item.attributes.fungible_info.symbol : item.attributes.name,
+            name: firstToken?.name || (item.attributes.name === 'Asset' ? item.attributes.fungible_info.name : item.attributes.name),
+            symbol: firstToken?.symbol || (item.attributes.name === 'Asset' ? item.attributes.fungible_info.symbol : item.attributes.name),
             image: firstToken?.image,
-            protocolImage: PROTOCOL_IMAGES[(PROTOCOL_ZERION_MAPPING[(item.attributes.protocol || '')]||'')],
+            protocolImage: firstToken?.protocolImage || PROTOCOL_IMAGES[(PROTOCOL_ZERION_MAPPING[(item.attributes.protocol || '')]||'')],
+            isStable: firstToken?.isStable,
+            isLP: firstToken?.isLP,
+            address: firstToken?.address,
         };
         return {
             balance: totalValue,
@@ -75,6 +79,7 @@ export const formatZerionWalletResponse = async (response) => {
             onlyUsdValue: true,
             allowance: 0,
             token,
+            chainCodeName,
         }
     })
 
@@ -102,7 +107,11 @@ export const formatZerionWalletResponse = async (response) => {
                 balance: position.attributes?.quantity?.float || 0,
                 price: position.attributes?.price,
                 allowance: 0,
+                chainCodeName,
             };
         });
-    return [...walletPositions, ...nonWalletPositions];
+    return uniqueBy(
+        [...nonWalletPositions, ...walletPositions],
+        (a, b) => a.chainCodeName === b.chainCodeName && (a.token.address === b.token.address || (a.token.symbol === b.token.symbol && a.protocolImage === b.protocolImage)),
+    );
 }

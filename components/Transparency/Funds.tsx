@@ -7,6 +7,7 @@ import { RTOKEN_SYMBOL } from '@app/variables/tokens';
 import { MarketImage } from '@app/components/common/Assets/MarketImage';
 import { PieChartRecharts } from './PieChartRecharts';
 import { useAppTheme } from '@app/hooks/useAppTheme';
+import { useState } from 'react';
 
 const FundLine = ({
     token,
@@ -49,7 +50,7 @@ const FundLine = ({
             </Text>
         }
     </>
-    const limitLeftSideProps = leftSideMaxW ? { maxW: { lg: leftSideMaxW }, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace:{ base: 'normal', lg: 'nowrap' } } : {};
+    const limitLeftSideProps = leftSideMaxW ? { maxW: { lg: leftSideMaxW }, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: { base: 'normal', lg: 'nowrap' } } : {};
     return (
         <Flex direction="row" w='full' alignItems="center" justify="space-between">
             <Flex alignItems="center">
@@ -163,13 +164,15 @@ export const Funds = ({
     chartProps,
     useRecharts = false,
     leftSideMaxW,
+    showMoreThreshold = 10,
 }: FundsProps) => {
     const { themeStyles } = useAppTheme();
+    const [isShowingMore, setIsShowingMore] = useState(false);
     const usdTotals = { balance: 0, allowance: 0, overall: 0 };
 
     const positiveFunds = (funds || [])
         .map(({ token, balance, allowance, usdPrice, price: _price, ctoken, label, drill, chartFillColor, chartLabelFillColor, textColor, onlyUsdValue, asStable }) => {
-            const price = showAsAmountOnly ? 1 : (usdPrice||_price) ?? getPrice(prices, token);
+            const price = showAsAmountOnly ? 1 : (usdPrice || _price) ?? getPrice(prices, token);
             const usdBalance = price && balance ? balance * price : 0;
             const usdAllowance = price && allowance ? allowance * price : 0;
             const totalBalance = balance || 0 + (allowance || 0);
@@ -194,17 +197,27 @@ export const Funds = ({
     const positiveBalances = fundsWithPerc.filter(({ balance }) => balance > 0);
     positiveBalances.sort((a, b) => b.usdBalance - a.usdBalance);
 
-    const balancesContent = positiveBalances
+    const balancesContent = positiveBalances.slice(0, showMoreThreshold)
         .map(({ token, balance, usdBalance, balancePerc, onlyUsdValue, usdPrice, ctoken, label, textColor }) => {
-            return <FundLine color={textColor} leftSideMaxW={leftSideMaxW} noImage={noImage||(!token)} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} asStable={asStable} label={label} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
+            return <FundLine color={textColor} leftSideMaxW={leftSideMaxW} noImage={noImage || (!token)} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} asStable={asStable} label={label} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
+        })
+
+    const moreBalancesContent = positiveBalances.slice(showMoreThreshold)
+        .map(({ token, balance, usdBalance, balancePerc, onlyUsdValue, usdPrice, ctoken, label, textColor }) => {
+            return <FundLine color={textColor} leftSideMaxW={leftSideMaxW} noImage={noImage || (!token)} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} asStable={asStable} label={label} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
         })
 
     const positiveAllowances = fundsWithPerc.filter(({ allowance }) => (allowance || 0) > 0);
     positiveAllowances.sort((a, b) => b.usdAllowance - a.usdAllowance);
 
-    const allowancesContent = positiveAllowances
+    const allowancesContent = positiveAllowances.slice(0, showMoreThreshold)
         .map(({ token, allowance, usdAllowance, allowancePerc, onlyUsdValue, usdPrice, ctoken, label }) => {
-            return <FundLine leftSideMaxW={leftSideMaxW} noImage={noImage||(!token)} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} asStable={asStable} label={label} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
+            return <FundLine leftSideMaxW={leftSideMaxW} noImage={noImage || (!token)} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} asStable={asStable} label={label} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
+        })
+
+    const moreAllowancesContent = positiveAllowances.slice(showMoreThreshold)
+        .map(({ token, allowance, usdAllowance, allowancePerc, onlyUsdValue, usdPrice, ctoken, label }) => {
+            return <FundLine leftSideMaxW={leftSideMaxW} noImage={noImage || (!token)} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} asStable={asStable} label={label} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
         })
 
     const chartData = fundsWithPerc
@@ -241,7 +254,7 @@ export const Funds = ({
                             activeFill={themeStyles.colors.mainTextColor}
                             activeTextFill={themeStyles.colors.mainTextColor}
                             activeSubtextFill={themeStyles.colors.mainTextColorLight2}
-                            {...chartProps}                            
+                            {...chartProps}
                         />
                         : <PieChart innerRadius={innerRadius} showTotalUsd={showChartTotal} handleDrill={handleDrill} showAsAmountOnly={showAsAmountOnly} asStable={asStable}
                             data={chartData}
@@ -255,14 +268,30 @@ export const Funds = ({
                                 <Text fontWeight="bold">Holdings:</Text>
                             </Flex>
                         }
-                        {['both', 'balance'].includes(type) && balancesContent}
+                        {['both', 'balance'].includes(type) && <>
+                            {balancesContent}
+                            {moreBalancesContent.length > 0 && <Flex direction="row" w='full' justify="space-between">
+                                <Text fontWeight="bold" textDecoration="underline" cursor="pointer" onClick={() => setIsShowingMore(!isShowingMore)}>
+                                    Show {isShowingMore ? 'less' : 'more'} ({moreBalancesContent.length})
+                                </Text>
+                            </Flex>}
+                            {isShowingMore && moreBalancesContent}
+                        </>}
                         {
                             positiveAllowances.length > 0 && ['allowance', 'both'].includes(type) &&
                             <Flex direction="row" w='full' justify="space-between">
                                 <Text fontWeight="bold">Allowances:</Text>
                             </Flex>
                         }
-                        {['both', 'allowance'].includes(type) && allowancesContent}
+                        {['both', 'allowance'].includes(type) && <>
+                            {allowancesContent}
+                            {moreAllowancesContent.length > 0 && <Flex direction="row" w='full' justify="space-between">
+                                <Text fontWeight="bold" textDecoration="underline" cursor="pointer" onClick={() => setIsShowingMore(!isShowingMore)}>
+                                    Show {isShowingMore ? 'less' : 'more'} ({moreAllowancesContent.length})
+                                </Text>
+                            </Flex>}
+                            {isShowingMore && moreAllowancesContent}
+                        </>}
                     </>
             }
             {

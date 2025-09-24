@@ -164,6 +164,7 @@ export const PROTOCOL_IMAGES = {
     "CVX": TOKEN_IMAGES.CVX,
     "SOLISNEK": TOKEN_IMAGES.SOLISNEK,
     "YEARN": TOKEN_IMAGES.YFI,
+    "MORPHO": "https://assets.coingecko.com/coins/images/29837/standard/Morpho-token-icon.png?1726771230",
     "FENIX": "https://www.fenixfinance.io/favicon.ico",
     "THRUSTER": "https://assets.coingecko.com/markets/images/1460/small/thrusterfi.jpeg?1709253847",
     "SUSHI": "https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png?1606986688",

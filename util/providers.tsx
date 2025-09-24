@@ -78,7 +78,14 @@ export const getHistoricValue = (contract: Contract, block: number, functionName
 
 export const getHistoricalProvider = (chainId: string) => {
     if (chainId?.toString() === NetworkIds.optimism) {
-        return new AlchemyProvider(Number(chainId), process.env.OP_ALCHEMY_KEY);
+        return new JsonRpcProvider(`https://opt-mainnet.g.alchemy.com/v2/${process.env.OP_ALCHEMY_KEY}`);
+    } else if (chainId?.toString() === NetworkIds.base) {
+        return new JsonRpcProvider(`https://base-mainnet.g.alchemy.com/v2/${process.env.OP_ALCHEMY_KEY}`);
+    } else if (chainId?.toString() === NetworkIds.arbitrum) {
+        return new JsonRpcProvider(`https://arb-mainnet.g.alchemy.com/v2/${process.env.OP_ALCHEMY_KEY}`);
+    }
+    else if (chainId?.toString() === NetworkIds.polygon) {
+        return new JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${process.env.OP_ALCHEMY_KEY}`);
     }
     return getProvider(chainId);
 }

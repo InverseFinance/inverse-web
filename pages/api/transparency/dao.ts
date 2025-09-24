@@ -6,7 +6,7 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, Multisig, NetworkIds, Token } from '@app/types';
 import { getBnToNumber, getNumberToBn } from '@app/util/markets'
-import { CHAIN_TOKENS, CHAIN_TOKEN_ADDRESSES } from '@app/variables/tokens';
+import { CHAIN_TOKENS, CHAIN_TOKEN_ADDRESSES, getToken } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
 import { DOLA_BRIDGED_CHAINS, INV_BRIDGED_CHAINS, ONE_DAY_SECS } from '@app/config/constants';
 import { liquidityCacheKey } from './liquidity';
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
   const { cacheFirst } = req.query;
 
   const { DOLA, INV, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.4.3`;
+  const cacheKey = `dao-cache-v1.4.5`;
 
   try {
     const cacheDuration = 360;
@@ -53,6 +53,9 @@ export default async function handler(req, res) {
     const provider = getProvider(NetworkIds.mainnet);
     const dolaContract = new Contract(DOLA, DOLA_ABI, provider);
     const invContract = new Contract(INV, INV_ABI, provider);
+
+    const mainnet = getNetwork(NetworkIds.mainnet);
+    const multisigsToShow = MULTISIGS;
 
     let dolaBridgedSupplies = [];
     let invBridgedSupplies = [];
@@ -110,21 +113,13 @@ export default async function handler(req, res) {
     const invTotalSupplyNum = getBnToNumber(BigNumber.from(invTotalSupply));
 
     const mainnetTokens = CHAIN_TOKEN_ADDRESSES["1"];
-    const treasuryFundsToCheck = [
-      mainnetTokens.INV, mainnetTokens.DOLA, mainnetTokens.SDOLA, mainnetTokens.DAI, mainnetTokens.USDC, mainnetTokens.USDT, mainnetTokens.WETH, mainnetTokens.WBTC, mainnetTokens.INVETHLP, mainnetTokens.INVETHSLP, mainnetTokens.CRV, mainnetTokens.CVX, mainnetTokens.BAL, mainnetTokens.AURA, mainnetTokens.DBR, mainnetTokens.YFI, mainnetTokens.FRAX
-    ];
-    const [treasuryBalances, anchorReserves] = await getGroupedMulticallOutputs([
-      treasuryFundsToCheck.map((ad: string) => {
-        const contract = new Contract(ad, ERC20_ABI, provider);
-        return { contract, functionName: 'balanceOf', params: [TREASURY] };
-      }),
+
+    const [anchorReserves] = await getGroupedMulticallOutputs([
       ANCHOR_TOKENS.map((ad: string) => {
         const contract = new Contract(ad, CTOKEN_ABI, provider);
         return { contract, functionName: 'totalReserves', params: [], forceFallback: !ANCHOR_RESERVES_TO_CHECK.includes(ad), fallbackValue: BigNumber.from('0') };
       })
     ]);
-
-    const multisigsToShow = MULTISIGS;
 
     // Multisigs
     const multisigMetaCache = await getCacheFromRedis(cacheMultisigMetaKey, true, ONE_DAY_SECS);
@@ -251,11 +246,16 @@ export default async function handler(req, res) {
       await redisSetWithTimestamp(cacheMulAllKey, multisigsAllowanceValues);
     }
 
-    const multisigsFunds = await Promise.all(
-      multisigsToShow.map(multisig => {
-        const net = getNetwork(multisig.chainId);
-        return fetchZerionWithRetry(multisig.address, net.zerionId || net.codename)
-      })
+    const [treasuryBalances, multisigsFunds] = await Promise.all(
+      [
+        fetchZerionWithRetry(TREASURY, mainnet.zerionId || mainnet.codename),
+        Promise.all(
+          multisigsToShow.map(multisig => {
+            const net = getNetwork(multisig.chainId);
+            return fetchZerionWithRetry(multisig.address, net.zerionId || net.codename)
+          })
+        ),
+      ]
     );
 
     multisigsAllowanceValues.map((bns, i) => {
@@ -344,7 +344,7 @@ export default async function handler(req, res) {
         balances: []//bondManagerBalances.map((bn, i) => formatBn(bn, TOKENS[bondTokens[i]])),
       },
       anchorReserves: anchorReserves.map((bn, i) => formatBn(bn, UNDERLYING[ANCHOR_TOKENS[i]])).filter(d => d.balance > 0),
-      treasury: treasuryBalances.map((bn, i) => formatBn(bn, TOKENS[treasuryFundsToCheck[i]])).filter(d => d.balance > 0),
+      treasury: treasuryBalances.filter(d => d.balance > 0),
       dolaSupplies,
       invSupplies,
       multisigs: multisigData,
