@@ -39,6 +39,22 @@ export type HandleTxOptions = {
     onPending?: (tx: TransactionResponse) => void,
 }
 
+// some rpc providers might throws this error like more recent Geth versions
+async function waitIgnoringIndexingErr(tx: TransactionResponse, confirms = 1, pollMs = 4000) {
+    while (true) {
+        try {
+            return await tx.wait(confirms);
+        } catch (e: any) {
+            const msg = (e?.message || "").toLowerCase();
+            if (msg.includes("transaction indexing is in progress")) {
+                await new Promise(r => setTimeout(r, pollMs));
+                continue; // keep polling
+            }
+            throw e; // bubble up other errors
+        }
+    }
+}
+
 export const handleTx = async (
     tx: TransactionResponse,
     options?: HandleTxOptions,
@@ -47,7 +63,7 @@ export const handleTx = async (
     try {
         if (options?.onPending) { options.onPending(tx) }
         showTxToast(tx.hash, "pending", "loading");
-        const receipt: TransactionReceipt = await tx.wait();
+        const receipt: TransactionReceipt = await waitIgnoringIndexingErr(tx);
 
         let hasOpaqueFailure = false;
         if (receipt?.logs?.length) {
@@ -88,7 +104,7 @@ export const getTransactionEvents = (receipt: TransactionReceipt, chainId: strin
 }
 
 export const parseLog = (log: Log, abi: any) => {
-    try {        
+    try {
         const iface = new Interface(abi);
         return iface.parseLog(log);
     }
