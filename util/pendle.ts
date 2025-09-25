@@ -102,7 +102,7 @@ export const getPendleSwapData = async (
     let queryParams = `receiver=${receiver}&slippage=${slippage}&enableAggregator=true&tokenOut=${buyToken}&amountIn=${sellAmount}`;
 
     if(isExpired) {
-        const ytToken = ytTokens[buyToken] || ytTokens[sellToken];
+        const ytToken = Object.entries(ytTokens).find(([col, yt]) => [buyToken.toLowerCase(), sellToken.toLowerCase()].includes(col.toLowerCase()))[1];
         queryParams = queryParams + `&yt=${ytToken}`;
     }
     else {
