@@ -241,7 +241,11 @@ export const MENUS = {
         {
           label: 'Research',
           href: '/research',
-        },     
+        },
+        {
+          label: 'PSM',
+          href: '/psm',
+        },
         {
           label: 'Frontier - Debt Converter',
           href: '/frontier/debt-converter',
