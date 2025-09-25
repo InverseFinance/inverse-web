@@ -1,6 +1,6 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
-import { SVAULT_ABI } from '@app/config/abis'
+import { DOLA3POOLCRV_ABI, SVAULT_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
@@ -14,7 +14,25 @@ import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { parseEther } from '@ethersproject/units';
 import { BURN_ADDRESS } from '@app/config/constants';
 
-export const stableReservesCacheKey = `stable-reserves-history-v1.0.0`;
+export const stableReservesCacheKey = `stable-reserves-history-v1.0.3`;
+
+const getLlamalendMarkets = async () => {
+    const llamaRes = await fetch('https://api.curve.finance/api/getLendingVaults/ethereum/oneway');
+    const llamaData = await llamaRes.json();
+    return llamaData.data.lendingVaultData
+        .filter(m => m.assets.borrowed.symbol === 'crvUSD' && m.assets.borrowed.blockchainId === 'ethereum' && ['sUSDe', 'USDe', 'sFRAX', 'sDOLA', 'sfrxUSD', 'sUSDS', 'sUSDf', 'fxSAVE', 'sdeUSD', 'sreUSD', 'yvUSDC-1', 'yvUSDS-1'].includes(m.assets.collateral.symbol))
+        .map(m => {
+            return {
+                id: m.id,
+                // will get collateral price
+                amm: m.ammAddress,
+                // will get collateral amount & debt amount
+                controller: m.controllerAddress,
+                collateral: m.assets.collateral.address,
+                collateralDecimals: m.assets.collateral.decimals,
+            }
+        });
+}
 
 const getChainStableBalances = async (archivedTimeData, chainId, snapshotsStart, snapshotsEnd, ad1, ad2?: string) => {
     const blockValues = Object.entries(archivedTimeData[chainId]).map(([date, block]) => {
@@ -23,7 +41,12 @@ const getChainStableBalances = async (archivedTimeData, chainId, snapshotsStart,
 
     const blocks = blockValues.map(d => d.block);
 
-    const stables = Object.values(CHAIN_TOKENS[chainId]).filter(t => t.isStable && !t.isLP);
+    const stables = Object.values(CHAIN_TOKENS[chainId]).filter(t => t.isStable);
+    let llamaStables = [];
+    console.log(chainId, 'len', stables.length)
+    if (chainId === NetworkIds.mainnet) {
+        llamaStables = await getLlamalendMarkets();
+    }
 
     const results = await throttledPromises(
         (block: number) => {
@@ -48,13 +71,13 @@ const getChainStableBalances = async (archivedTimeData, chainId, snapshotsStart,
                         fallbackValue: BigNumber.from('0'),
                     }
                 }),
-                // handle ERC4626 stable vaults by converting to assets
+                // handle ERC4626 stable vaults by converting to assets & curve LPs
                 stables.map(token => {
-                    const contract = new Contract(token.address, SVAULT_ABI, getProvider(chainId));
+                    const contract = new Contract(token.address, token.isLP ? DOLA3POOLCRV_ABI : SVAULT_ABI, getProvider(chainId));
                     return {
                         contract,
-                        functionName: 'convertToAssets',
-                        params: [parseEther('1')],
+                        functionName: token.isLP ? 'get_virtual_price' : 'convertToAssets',
+                        params: token.isLP ? undefined : [parseEther('1')],
                         forceFallback: chainId !== NetworkIds.mainnet,
                         fallbackValue: parseEther('1'),
                     }
@@ -68,6 +91,34 @@ const getChainStableBalances = async (archivedTimeData, chainId, snapshotsStart,
                         fallbackValue: BURN_ADDRESS,
                     }
                 }),
+                llamaStables.map(ls => {
+                    const contract = new Contract(ls.controller, ["function user_state(address) public view returns (uint,uint,uint,uint)"], getProvider(chainId));
+                    return {
+                        contract,
+                        functionName: 'user_state',
+                        params: [ad1 || BURN_ADDRESS],
+                        forceFallback: !ad1 || ad1 === BURN_ADDRESS,
+                        fallbackValue: [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0')],
+                    }
+                }),
+                llamaStables.map(ls => {
+                    const contract = new Contract(ls.controller, ["function user_state(address) public view returns (uint,uint,uint,uint)"], getProvider(chainId));
+                    return {
+                        contract,
+                        functionName: 'user_state',
+                        params: [ad2 || BURN_ADDRESS],
+                        forceFallback: !ad2 || ad2 === BURN_ADDRESS,
+                        fallbackValue: [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0')],
+                    }
+                }),
+                llamaStables.map(ls => {
+                    const contract = new Contract(ls.amm, ["function price_oracle() public view returns (uint)"], getProvider(chainId));
+                    return {
+                        contract,
+                        functionName: 'price_oracle',
+                        fallbackValue: BigNumber.from('0'),
+                    }
+                }),
             ],
                 Number(chainId),
                 block,
@@ -79,7 +130,7 @@ const getChainStableBalances = async (archivedTimeData, chainId, snapshotsStart,
         5,
         100,
     );
-
+    console.log('ok')
     const stableBalances = results.map((d, i) => {
         const exRatesToStableAssetsRaw = d[2].map((bal, i) => bal);
         const underlyingStableAssetAddresses = d[3].map((asset, i) => asset);
@@ -89,6 +140,12 @@ const getChainStableBalances = async (archivedTimeData, chainId, snapshotsStart,
         const treasuryBalances = d[0].map((bal, i) => getBnToNumber(bal, stables[i].decimals) * exRatesToStableAssets[i]);
         const twgBalances = d[1].map((bal, i) => getBnToNumber(bal, stables[i].decimals) * exRatesToStableAssets[i]);
         const combinedBalances = treasuryBalances.map((bal, i) => bal + twgBalances[i]);
+
+        // llama stables
+        const llamaCollateralPrices = d[6].map((bal, i) => getBnToNumber(bal, 18));
+        const llamaTreasuryBalances = d[4].map((bal, i) => getBnToNumber(bal[0], llamaStables[i].collateralDecimals) * llamaCollateralPrices[i] - getBnToNumber(bal[2]));
+        const llamaTwgBalances = d[5].map((bal, i) => getBnToNumber(bal[0], llamaStables[i].collateralDecimals) * llamaCollateralPrices[i] - getBnToNumber(bal[2]));
+        const llamaCombinedBalances = llamaTreasuryBalances.map((bal, i) => bal + llamaTwgBalances[i]);
 
         const namedBalances = {};
         const namedBalancesT1 = {};
@@ -109,12 +166,20 @@ const getChainStableBalances = async (archivedTimeData, chainId, snapshotsStart,
                 namedBalances[stables[i].symbol] = bal;
             }
         });
+        llamaCombinedBalances.forEach((bal, i) => {
+            if (bal > 0) {
+                namedBalances[`llama-${llamaStables[i].id}`] = bal;
+            }
+        });
 
         const sum = combinedBalances.reduce((prev, curr) => prev + curr, 0);
+        const llamaSum = llamaCombinedBalances.reduce((prev, curr) => prev + curr, 0);
         return {
             utcDate: timestampToUTC(blockValues[i].timestamp),
             timestamp: blockValues[i].timestamp,
-            sum,
+            simpleSum: sum,
+            sum: sum + llamaSum,
+            llamaSum,
             namedBalances,
             namedBalancesT1,
             namedBalancesT2,
@@ -130,6 +195,7 @@ export default async function handler(req, res) {
         const cacheDuration = 999999;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
         const { data: cachedData, isValid } = await getCacheFromRedisAsObj(stableReservesCacheKey, cacheFirst !== 'true', cacheDuration);
+        const archivedData = cachedData || { totalEvolution: [], snapshotsEnd: '2025-09-10' };
         if (isValid && cachedData) {
             res.status(200).json(cachedData);
             return
@@ -154,11 +220,15 @@ export default async function handler(req, res) {
                 // byChainId,
             }
         })
-            .filter(d => d.utcDate > cachedData?.snapshotsEnd)
-            // .slice(-360);
+            .filter(d => d.utcDate > archivedData?.snapshotsEnd)
+        // .slice(-360);
 
+        console.log(archivedData?.snapshotsEnd);
+        console.log(lpHistory.length);
         const snapshotsStart = lpHistory[0].utcDate;
         const snapshotsEnd = lpHistory[lpHistory.length - 1].utcDate;
+
+        console.log(snapshotsStart, snapshotsEnd);
 
         const { data: archivedTimeData } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, false) || { data: ARCHIVED_UTC_DATES_BLOCKS };
 
@@ -169,6 +239,7 @@ export default async function handler(req, res) {
             NetworkIds.base, NetworkIds.optimism, NetworkIds.polygon, NetworkIds.arbitrum
         ];
 
+        console.log('here')
         const chainStableBalancesResults = await Promise.all([
             getChainStableBalances(archivedTimeData, NetworkIds.mainnet, snapshotsStart, snapshotsEnd, TREASURY, twgs[NetworkIds.mainnet]),
             getChainStableBalances(archivedTimeData, NetworkIds.base, snapshotsStart, snapshotsEnd, twgs[NetworkIds.base]),
@@ -176,21 +247,22 @@ export default async function handler(req, res) {
             getChainStableBalances(archivedTimeData, NetworkIds.polygon, snapshotsStart, snapshotsEnd, twgs[NetworkIds.polygon]),
             getChainStableBalances(archivedTimeData, NetworkIds.arbitrum, snapshotsStart, snapshotsEnd, arbMultisigs[0], arbMultisigs[1]),
         ]);
+        console.log('there')
 
         const flatChainStableBalancesResults = chainStableBalancesResults.flat();
 
-        const past = cachedData?.totalEvolution || [];
+        const past = archivedData?.totalEvolution || [];
 
         const newEntries = lpHistory.map((d, i) => {
             const dayChainStableBalances = flatChainStableBalancesResults.filter(sb => sb.utcDate === d.utcDate);
             const nonLpReserves = dayChainStableBalances.reduce((prev, curr) => prev + curr.sum, 0);
-            const stablesByChainId = chainStableBalancesResults.reduce((prev, curr, chainIdIndex) => ({ ...prev, [chainIds[chainIdIndex]]: curr }), {});
+            // const stablesByChainId = chainStableBalancesResults.reduce((prev, curr, chainIdIndex) => ({ ...prev, [chainIds[chainIdIndex]]: curr }), {});
             return {
                 timestamp: d.timestamp,
                 utcDate: d.utcDate,
-                totalReserves: d.ownedStableLpsTvl + nonLpReserves,
-                lpReserves: d.ownedStableLpsTvl,
-                nonLpReserves,
+                totalReserves: nonLpReserves,
+                // lpReserves: d.ownedStableLpsTvl,
+                // nonLpReserves,
                 // stablesByChainId,
                 // lpsByChainId: d.byChainId,
             }
@@ -205,7 +277,7 @@ export default async function handler(req, res) {
             totalEvolution,
         }
 
-        await redisSetWithTimestamp(stableReservesCacheKey, resultData);
+        // await redisSetWithTimestamp(stableReservesCacheKey, resultData);
 
         res.status(200).json(resultData)
     } catch (err) {
