@@ -49,7 +49,7 @@ export const Overview = () => {
   const { prices, isLoading: isLoadingPrices } = usePricesV2(true)
   const { treasury, anchorReserves, multisigs, isLoading: isLoadingDao } = useDAO();
   // const { liquidity, isLoading: isLoadingLiquidity } = useLiquidityPools();
-  // const { stableReservesEvolution, isLoading: isLoadingStableReserves } = useStableReserves();
+  const { stableReservesEvolution, isLoading: isLoadingStableReserves } = useStableReserves();
   const { currentPayrolls } = useCompensations();
   const [excludeOwnTokens, setExcludeOwnTokens] = useState(false);
   const [excludeOwnTokens2, setExcludeOwnTokens2] = useState(false);
@@ -96,9 +96,9 @@ export const Overview = () => {
   const runwayInYears = totalCurrentPayrolls ? totalCurrentStableReserves / totalCurrentPayrolls : 0;
   const runwayInMonths = runwayInYears * 12;
 
-  // const stableAndRunwayEvolution = stableReservesEvolution.map(d => {
-  //   return { ...d, runway: totalCurrentPayrolls ? d.y / totalCurrentPayrolls * 12 : 0 };
-  // });
+  const stableAndRunwayEvolution = stableReservesEvolution.map(d => {
+    return { ...d, runway: totalCurrentPayrolls ? d.y / totalCurrentPayrolls * 12 : 0 };
+  });
 
   // if (totalCurrentStableReserves) {
   //   stableAndRunwayEvolution.push({ x: now, timestamp: now, y: totalCurrentStableReserves, runway: runwayInMonths, totalReserves: totalCurrentStableReserves, utcDate: timestampToUTC(now) });
@@ -157,7 +157,7 @@ export const Overview = () => {
               {...dashboardCardProps} w='full' p="0">
               <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance?treasury=true&tvl=false&events=false&groupBy=daily&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
             </DashBoardCard>
-            {/* <VStack w='full' alignItems="center" py="10">
+            <VStack w='full' alignItems="center" py="10">
               <DashBoardCard cardTitle="Stable Reserves & Runway" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w='full'>
                 <DefaultCharts
                   chartData={stableAndRunwayEvolution}
@@ -183,7 +183,7 @@ export const Overview = () => {
                   }}
                 />
               </DashBoardCard>
-            </VStack> */}
+            </VStack>
             <SimpleGrid columns={{ base: 1, xl: 2 }} spacingX="50px" spacingY="40px">
               <DashBoardCard cardTitle="Total Treasury Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <ExcludeOwnTokens label="Exclude Treasury INV & DBR" setter={setExcludeOwnTokens} value={excludeOwnTokens} id='exclude-1' />

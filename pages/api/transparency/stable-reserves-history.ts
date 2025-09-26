@@ -14,7 +14,12 @@ import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { parseEther } from '@ethersproject/units';
 import { BURN_ADDRESS } from '@app/config/constants';
 
-export const stableReservesCacheKey = `stable-reserves-history-v1.0.3`;
+export const stableReservesCacheKey = `stable-reserves-history-v1.0.91`;
+
+const convexCurveLendingDepositMapping = {
+    "oneway-30": "0x6095EC5De7acA5e8938F4ED92E1F868Cab243f5E",
+    "oneway-17": "0x7fC1B3BC96EF0D1C63F48504743e6c013BDE0324",
+}
 
 const getLlamalendMarkets = async () => {
     const llamaRes = await fetch('https://api.curve.finance/api/getLendingVaults/ethereum/oneway');
@@ -24,6 +29,8 @@ const getLlamalendMarkets = async () => {
         .map(m => {
             return {
                 id: m.id,
+                // vault where crvUSD is supplied
+                vault: m.address,
                 // will get collateral price
                 amm: m.ammAddress,
                 // will get collateral amount & debt amount
@@ -111,11 +118,53 @@ const getChainStableBalances = async (archivedTimeData, chainId, snapshotsStart,
                         fallbackValue: [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0')],
                     }
                 }),
+                // collateral price
                 llamaStables.map(ls => {
                     const contract = new Contract(ls.amm, ["function price_oracle() public view returns (uint)"], getProvider(chainId));
                     return {
                         contract,
                         functionName: 'price_oracle',
+                        fallbackValue: parseEther('1'),
+                    }
+                }),
+                // crvUsd supplied for lending
+                llamaStables.map(ls => {
+                    const contract = new Contract(ls.vault, ["function balanceOf(address) public view returns (uint)"], getProvider(chainId));
+                    return {
+                        contract,
+                        functionName: 'balanceOf',
+                        params: [ad1 || BURN_ADDRESS],
+                        forceFallback: !ad1 || ad1 === BURN_ADDRESS,
+                        fallbackValue: BigNumber.from('0'),
+                    }
+                }),
+                llamaStables.map(ls => {
+                    const contract = new Contract(ls.vault, ["function balanceOf(address) public view returns (uint)"], getProvider(chainId));
+                    return {
+                        contract,
+                        functionName: 'balanceOf',
+                        params: [ad2 || BURN_ADDRESS],
+                        forceFallback: !ad2 || ad2 === BURN_ADDRESS,
+                        fallbackValue: BigNumber.from('0'),
+                    }
+                }),
+                // share price in lending vault
+                llamaStables.map(ls => {
+                    const contract = new Contract(ls.vault, ["function pricePerShare() public view returns (uint)"], getProvider(chainId));
+                    return {
+                        contract,
+                        functionName: 'pricePerShare',
+                        fallbackValue: BigNumber.from('0'),
+                    }
+                }),
+                // llama, check if lending receipt token is deposited in Convex
+                llamaStables.map(ls => {
+                    const contract = new Contract(convexCurveLendingDepositMapping[ls.id] || BURN_ADDRESS, ["function balanceOf(address) public view returns (uint)"], getProvider(chainId));
+                    return {
+                        contract,
+                        functionName: 'balanceOf',
+                        params: [ad1 || BURN_ADDRESS],
+                        forceFallback: !ad1 || ad1 === BURN_ADDRESS || contract.address === BURN_ADDRESS,
                         fallbackValue: BigNumber.from('0'),
                     }
                 }),
@@ -130,7 +179,7 @@ const getChainStableBalances = async (archivedTimeData, chainId, snapshotsStart,
         5,
         100,
     );
-    console.log('ok')
+    console.log('ok ', chainId)
     const stableBalances = results.map((d, i) => {
         const exRatesToStableAssetsRaw = d[2].map((bal, i) => bal);
         const underlyingStableAssetAddresses = d[3].map((asset, i) => asset);
@@ -141,11 +190,20 @@ const getChainStableBalances = async (archivedTimeData, chainId, snapshotsStart,
         const twgBalances = d[1].map((bal, i) => getBnToNumber(bal, stables[i].decimals) * exRatesToStableAssets[i]);
         const combinedBalances = treasuryBalances.map((bal, i) => bal + twgBalances[i]);
 
-        // llama stables
+        // llama stables, equity if borrow position
         const llamaCollateralPrices = d[6].map((bal, i) => getBnToNumber(bal, 18));
         const llamaTreasuryBalances = d[4].map((bal, i) => getBnToNumber(bal[0], llamaStables[i].collateralDecimals) * llamaCollateralPrices[i] - getBnToNumber(bal[2]));
         const llamaTwgBalances = d[5].map((bal, i) => getBnToNumber(bal[0], llamaStables[i].collateralDecimals) * llamaCollateralPrices[i] - getBnToNumber(bal[2]));
         const llamaCombinedBalances = llamaTreasuryBalances.map((bal, i) => bal + llamaTwgBalances[i]);
+
+        // llama stables, supplied for lending
+        const llamaVaultSharePrices = d[9].map((bal, i) => getBnToNumber(bal));
+        const llamaTreasurySupplied = d[7].map((bal, i) => getBnToNumber(bal) * llamaVaultSharePrices[i]);
+        const llamaTwgSupplied = d[8].map((bal, i) => getBnToNumber(bal) * llamaVaultSharePrices[i]);
+        const llamaCombinedLendingSupplied = llamaTreasurySupplied.map((bal, i) => bal + llamaTwgSupplied[i]);
+
+        // llama stables, check if lending receipt token is deposited in Convex
+        const llamaLendingConvexTokenBalances = d[10].map((bal, i) => getBnToNumber(bal) * llamaVaultSharePrices[i]);
 
         const namedBalances = {};
         const namedBalancesT1 = {};
@@ -168,18 +226,35 @@ const getChainStableBalances = async (archivedTimeData, chainId, snapshotsStart,
         });
         llamaCombinedBalances.forEach((bal, i) => {
             if (bal > 0) {
-                namedBalances[`llama-${llamaStables[i].id}`] = bal;
+                namedBalances[`llama-B-${llamaStables[i].id}`] = bal;
+            }
+        });
+        llamaCombinedLendingSupplied.forEach((bal, i) => {
+            if (bal > 0) {
+                namedBalances[`llama-L-${llamaStables[i].id}`] = bal;
+            }
+        });
+        llamaLendingConvexTokenBalances.forEach((bal, i) => {
+            if (bal > 0) {
+                namedBalances[`llama-L-${llamaStables[i].id}-convex`] = bal;
             }
         });
 
         const sum = combinedBalances.reduce((prev, curr) => prev + curr, 0);
-        const llamaSum = llamaCombinedBalances.reduce((prev, curr) => prev + curr, 0);
+        const llamaEquitySum = llamaCombinedBalances.reduce((prev, curr) => prev + curr, 0);
+        const llamaLendingSum = llamaCombinedLendingSupplied.reduce((prev, curr) => prev + curr, 0);
+        const llamaLendingConvexSum = llamaLendingConvexTokenBalances.reduce((prev, curr) => prev + curr, 0);
+        const llamaSum = llamaLendingSum + llamaEquitySum + llamaLendingConvexSum;
+
         return {
             utcDate: timestampToUTC(blockValues[i].timestamp),
             timestamp: blockValues[i].timestamp,
             simpleSum: sum,
             sum: sum + llamaSum,
             llamaSum,
+            llamaEquitySum,
+            llamaLendingSum,
+            llamaLendingConvexSum,
             namedBalances,
             namedBalancesT1,
             namedBalancesT2,
@@ -195,7 +270,8 @@ export default async function handler(req, res) {
         const cacheDuration = 999999;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
         const { data: cachedData, isValid } = await getCacheFromRedisAsObj(stableReservesCacheKey, cacheFirst !== 'true', cacheDuration);
-        const archivedData = cachedData || { totalEvolution: [], snapshotsEnd: '2025-09-10' };
+        const archivedData = cachedData || { totalEvolution: [], snapshotsEnd: '2024-11-01' };
+
         if (isValid && cachedData) {
             res.status(200).json(cachedData);
             return
@@ -256,14 +332,18 @@ export default async function handler(req, res) {
         const newEntries = lpHistory.map((d, i) => {
             const dayChainStableBalances = flatChainStableBalancesResults.filter(sb => sb.utcDate === d.utcDate);
             const nonLpReserves = dayChainStableBalances.reduce((prev, curr) => prev + curr.sum, 0);
-            // const stablesByChainId = chainStableBalancesResults.reduce((prev, curr, chainIdIndex) => ({ ...prev, [chainIds[chainIdIndex]]: curr }), {});
+            const llamaSum = dayChainStableBalances.reduce((prev, curr) => prev + curr.llamaSum, 0);
+            const sumByChainId = chainStableBalancesResults.reduce((prev, curr, chainIdIndex) => ({ ...prev, [chainIds[chainIdIndex]]: curr.filter(ss => ss.utcDate === d.utcDate).reduce((sp, sc) => sp + sc.sum, 0) }), {});
+            const detailsByChainId = chainStableBalancesResults.reduce((prev, curr, chainIdIndex) => ({ ...prev, [chainIds[chainIdIndex]]: curr.filter(ss => ss.utcDate === d.utcDate).reduce((sp, sc) => ({ ...sp, [chainIds[chainIdIndex]]: sc.namedBalances }), {}) }), {});
             return {
                 timestamp: d.timestamp,
                 utcDate: d.utcDate,
+                llamaSum,
                 totalReserves: nonLpReserves,
                 // lpReserves: d.ownedStableLpsTvl,
                 // nonLpReserves,
-                // stablesByChainId,
+                sumByChainId,
+                detailsByChainId,
                 // lpsByChainId: d.byChainId,
             }
         });
@@ -277,7 +357,7 @@ export default async function handler(req, res) {
             totalEvolution,
         }
 
-        // await redisSetWithTimestamp(stableReservesCacheKey, resultData);
+        await redisSetWithTimestamp(stableReservesCacheKey, resultData);
 
         res.status(200).json(resultData)
     } catch (err) {
