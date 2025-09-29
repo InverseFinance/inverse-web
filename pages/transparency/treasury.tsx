@@ -50,7 +50,7 @@ export const Overview = () => {
   const { treasury, anchorReserves, multisigs, isLoading: isLoadingDao } = useDAO();
   // const { liquidity, isLoading: isLoadingLiquidity } = useLiquidityPools();
   const { stableReservesEvolution, isLoading: isLoadingStableReserves } = useStableReserves();
-  const { currentPayrolls } = useCompensations();
+  const { currentPayrolls, payrollEvolution } = useCompensations();
   const [excludeOwnTokens, setExcludeOwnTokens] = useState(false);
   const [excludeOwnTokens2, setExcludeOwnTokens2] = useState(false);
   const [now, setNow] = useState(Date.now());
@@ -96,8 +96,11 @@ export const Overview = () => {
   const runwayInYears = totalCurrentPayrolls ? totalCurrentStableReserves / totalCurrentPayrolls : 0;
   const runwayInMonths = runwayInYears * 12;
 
+  console.log(payrollEvolution)
+
   const stableAndRunwayEvolution = stableReservesEvolution.map(d => {
-    return { ...d, runway: totalCurrentPayrolls ? d.y / totalCurrentPayrolls * 12 : 0 };
+    const runway = payrollEvolution?.length ? payrollEvolution.find(e => e.utcDate <= d.utcDate)?.total ? d.y / payrollEvolution.find(e => e.utcDate <= d.utcDate)?.total * 12 : 0 : totalCurrentPayrolls ? d.y / totalCurrentPayrolls * 12 : 0;
+    return { ...d, runway };
   });
 
   // if (totalCurrentStableReserves) {

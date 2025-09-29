@@ -19,7 +19,7 @@ const defaultFedsData = FEDS.map(((fed) => {
 }))
 
 export const useStableReserves = (): SWR & { stableReservesEvolution: any[] } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/stable-reserves-history`, fetcher)
+  const { data, error } = useCacheFirstSWR(`/api/transparency/stable-reserves-history?v=c2`, fetcher)
   return {
     stableReservesEvolution: (data?.totalEvolution || [])
       .filter(d => d.utcDate !== (new Date().toISOString().substring(0, 10)))
@@ -91,7 +91,7 @@ export const useCompensations = (): SWR & {
   currentInvBalances: { address: string, totalInvBalance: number }[]
   payrollEvolution: { timestamp: number, utcDate: string, total: number, nbRecipients: number, x: number, y: number }[]
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/compensations?v=4`, fetcher)
+  const { data, error } = useCacheFirstSWR(`/api/transparency/compensations?v=`, fetcher)
 
   return {
     isLoading: !error && !data,

@@ -2775,6 +2775,7 @@ const chainTokens = {
       image: TOKEN_IMAGES['USD+'],
       decimals: 6,
       coingeckoId: 'usd',
+      isStable: true,
     },
     [chainTokenAddresses["42161"].VECHRONOS]: {
       address: chainTokenAddresses["42161"].VECHRONOS,
