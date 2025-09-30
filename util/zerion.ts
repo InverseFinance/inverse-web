@@ -8,6 +8,33 @@ const WALLET_ZERION_URL = 'https://api.zerion.io/v1/wallets';
 
 const SOLIDLY_PROTOCOLS = ['AERODROME', 'VELODROME', 'THENA', 'RAMSES', 'SOLIDLIZARD'];
 
+export const fetchZerionTransactionsWithRetry = async (
+    wallet = '',
+    chainCodeName = 'ethereum',
+    maxRetries = 1,
+    currentRetry = 0,
+): Promise<Response | undefined> => {
+    let response;
+    const url = `${WALLET_ZERION_URL}/${wallet}/transactions/?currency=usd&page[size]=100&filter[operation_types]=receive&filter[chain_ids]=base&filter[trash]=only_non_trash&filter[chain_ids]=${chainCodeName}`;
+    try {
+        const bearer = btoa(`${process.env.ZERION_KEY}:`);
+        response = await fetch(url, {
+            headers: {
+                'Authorization': `Basic ${bearer}`,
+                'accept': 'application/json',
+            },
+        });
+    } catch (e) {
+        console.log(e)
+    }
+
+    if (response?.status !== 200 && currentRetry < maxRetries) {
+        await new Promise((r) => setTimeout(() => r(true), 1050));
+        return await fetchZerionTransactionsWithRetry(wallet, chainCodeName, maxRetries, currentRetry + 1);
+    };
+    return await response.json();
+}
+
 export const fetchZerionWithRetry = async (
     wallet = '',
     chainCodeName = 'ethereum',
