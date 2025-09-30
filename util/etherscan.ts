@@ -25,3 +25,9 @@ export const getTransactions = async (address: string, startBlock = 0, chainId =
     const res = await fetcher(`${baseUrl}${path}`);
     return res?.status === "1" ? res?.result : [];
 }
+
+export const getLogs = async (address: string, chainId = 1, fromBlock = 0, toBlock = 99999999) => {
+    const path = `?chainid=${chainId}&module=logs&action=getLogs&address=${address}&fromBlock=${fromBlock}&toBlock=${toBlock}&sort=desc&apikey=DTIA41KB2WXUKK8DY8H59YJFIQD246SH4V`
+    const res = await fetcher(`${baseUrl}${path}`);
+    return res?.status === "1" ? res?.result : [];
+}
