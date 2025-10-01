@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react'
+import { Flex, Text } from '@chakra-ui/react'
 import {
   Breakdown,
   DelegatesPreview,
@@ -26,11 +26,9 @@ export const Governance = () => {
       <AppNav active="Governance" activeSubmenu="Archived Drafts" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column">
-          {
-            archivedDrafts?.length > 0 && <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
-              <PublicDraftProposals isArchived={true} drafts={archivedDrafts} />
-            </Flex>
-          }
+          <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+            <PublicDraftProposals isArchived={true} drafts={archivedDrafts} />
+          </Flex>
         </Flex>
         <Flex direction="column">
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">

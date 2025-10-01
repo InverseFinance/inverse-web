@@ -59,7 +59,7 @@ export const PublicDraftProposals = ({ drafts, isArchived = false }: { drafts: a
       label={isArchived ? "Archived Draft Proposals" : "Draft Proposals"}
       contentBgColor="gradient3"
       description={
-        <Flex fontSize="14px">
+        !isArchived && <Flex fontSize="14px">
           <Text color={themeStyles.colors.secondaryTextColor} fontSize="14px">
             Off-Chain Draft Proposals
           </Text>
@@ -77,7 +77,9 @@ export const PublicDraftProposals = ({ drafts, isArchived = false }: { drafts: a
     >
       <Stack w="full" spacing={1}>
         {
-          previews.map((proposal: Proposal) => <ProposalPreview key={proposal.id} prefersEditLinks={prefersEditMode} isPublicDraft={true} proposal={proposal} />)
+          previews.length > 0 ? 
+            previews.map((proposal: Proposal) => <ProposalPreview key={proposal.id} prefersEditLinks={prefersEditMode} isPublicDraft={true} proposal={proposal} />)
+            : <Text>No Archived Draft</Text>
         }
       </Stack>
     </Container>
