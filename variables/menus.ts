@@ -85,6 +85,10 @@ export const MENUS = {
           href: '/governance/propose?proposalLinkData=%7B"title"%3A"Draft"%2C"description"%3A"Forum+post+link,+Draft+content"%2C"actions"%3A%5B%5D%7D#',
         },
         {
+          label: 'Archived Drafts',
+          href: '/governance/archived-drafts',
+        },
+        {
           label: 'Delegates',
           href: '/governance/delegates',
         },

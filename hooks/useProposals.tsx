@@ -30,11 +30,11 @@ export const useLocalDraftProposals = (): SWR & { drafts: DraftProposal[] } => {
   }
 }
 
-export const usePublicDraftProposals = (): SWR & { drafts: PublicDraftProposal[] } => {
+export const usePublicDraftProposals = (archived = false): SWR & { drafts: PublicDraftProposal[] } => {
   const { data, error } = useCustomSWR(`/api/drafts`, fetcher)
 
   return {
-    drafts: data?.drafts || [],
+    drafts: (data?.drafts || []).filter(d => archived === (!!d.isArchived)),
     isLoading: !error && !data,
     isError: error,
   }

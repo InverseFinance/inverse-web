@@ -10,13 +10,20 @@ import { AppNav } from '@app/components/common/Navbar'
 import { useRouter } from 'next/dist/client/router'
 import { Proposal, GovEra, ProposalStatus } from '@app/types';
 import Head from 'next/head'
-import { getProposalActionFromFunction, updateReadGovernanceNotifs } from '@app/util/governance'
+import { archiveDraft, getProposalActionFromFunction, updateReadGovernanceNotifs } from '@app/util/governance'
 import { useEffect } from 'react';
 import { ProofOfReviews } from '@app/components/Governance/ProofOfReviews'
 import { getRedisClient } from '@app/util/redis'
+import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
+import { useWeb3React } from '@web3-react/core'
+import { Web3Provider } from '@ethersproject/providers'
+import { showToast } from '@app/util/notify'
+import { DRAFT_WHITELIST } from '@app/config/constants'
 
 export const Drafts = ({ proposal }) => {
-  const { asPath, isFallback } = useRouter();
+  const router = useRouter();
+  const { asPath, isFallback } = router
+  const { provider, account } = useWeb3React<Web3Provider>()
 
   const slug = asPath.replace('/governance/drafts/', '').replace(/\?.*$/, '').split('/');
 
@@ -29,6 +36,16 @@ export const Drafts = ({ proposal }) => {
     if (!proposal?.id) { return }
     updateReadGovernanceNotifs(`draft-${proposal.id}`);
   }, [proposal?.id]);
+
+  const handleArchiveDraft = async () => {
+    if (!provider?.getSigner()) {
+      showToast({ description: 'Not connected', status: 'info' });
+      return;
+    }
+    return archiveDraft(proposal?.id, provider.getSigner(), !proposal.isArchived, () => location.href = !proposal.isArchived ? `/governance/archived-drafts` : `/governance`);
+  }
+
+  const canDraft = DRAFT_WHITELIST.includes((account || '')?.toLowerCase());
 
   return (
     <Layout>
@@ -74,6 +91,13 @@ export const Drafts = ({ proposal }) => {
                 <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
                   {!!id && <ProofOfReviews id={id} isDraft={true} />}
                 </Flex>
+                <Flex w={{ base: 'full', xl: '4xl' }} mt="10" justify="center">
+                  {
+                    !notFound && canDraft && <RSubmitButton fontSize="14px" themeColor="orange.500" w='fit-content' onClick={handleArchiveDraft}>
+                      {proposal.isArchived ? 'Unarchive Draft' : 'Archive Draft'}
+                    </RSubmitButton>
+                  }
+                </Flex>
               </Flex>
               <Flex direction="column">
                 <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
@@ -110,6 +134,7 @@ export async function getStaticProps(context) {
       startTimestamp: Date.now(),
       endTimestamp: (new Date()).setDate(now.getDate() + 3),
       status: ProposalStatus.draft,
+      isArchived: !!d.isArchived,
     }
   })
 

@@ -18,9 +18,8 @@ import { getProposalTags } from './ProposalTags'
 import { namedAddress } from '@app/util'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 
-export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
+export const PublicDraftProposals = ({ drafts, isArchived = false }: { drafts: any[], isArchived?: boolean }) => {
   const { account } = useWeb3React<Web3Provider>()
-  const { nbDraftNotif } = useGovernanceNotifs()
   const { value: draftLinkPrefStored, setter: saveDraftLinkPref } = useStorage('draft-link-pref');
   const [prefersEditMode, setPrefersEditMode] = useState(!!draftLinkPrefStored);
   const now = new Date()
@@ -57,9 +56,8 @@ export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
 
   return (
     <Container
-      label="Draft Proposals"
+      label={isArchived ? "Archived Draft Proposals" : "Draft Proposals"}
       contentBgColor="gradient3"
-      nbNotif={nbDraftNotif}
       description={
         <Flex fontSize="14px">
           <Text color={themeStyles.colors.secondaryTextColor} fontSize="14px">
