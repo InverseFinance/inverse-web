@@ -54,10 +54,17 @@ export default async function handler(req, res) {
 
                 drafts = JSON.parse(await client.get('drafts') || '[]');
                 const index = drafts.findIndex((d) => d.publicDraftId.toString() === id);
+                const isArchiveChangeCase = typeof updatedData.archiveBool !== 'undefined';
 
                 if (method === 'PUT') {
+                    if(isArchiveChangeCase){
+                        drafts.splice(index, 1, {
+                            ...draft,
+                            isArchived: updatedData.archiveBool,
+                        });
+                    }
                     // submitted the proposal
-                    if (proposalId) {
+                    else if (proposalId) {
                         const draftReviews = JSON.parse(await client.get(`reviews-${id}`) || '[]');
                         const prKey = `proposal-reviews-${CURRENT_ERA}-${proposalId}`;
                         const draftLinkedData = await client.get(prKey);
@@ -67,7 +74,7 @@ export default async function handler(req, res) {
                         await client.set(`proposal-reviews-${CURRENT_ERA}-${proposalId}`, JSON.stringify(draftReviews));
                         drafts.splice(index, 1);
                         client.del(`reviews-${id}`);
-                    } else {
+                    } else {// udpated the draft OR archived it
                         const updatedDraft = {
                             ...updatedData,
                             publicDraftId: id,
@@ -99,7 +106,7 @@ export default async function handler(req, res) {
 
                 await client.set('drafts', JSON.stringify(drafts));
 
-                res.status(200).json({ status: 'success', message: `Draft ${method === 'PUT' ? 'updated' : 'removed'}` })
+                res.status(200).json({ status: 'success', message: `Draft ${isArchiveChangeCase ? updatedData.archiveBool ? 'archived' : 'unarchived' : method === 'PUT' ? 'updated' : 'removed'}` })
             } catch (e) {
                 res.status(200).json({ status: 'error', message: 'An error occured' })
             }
