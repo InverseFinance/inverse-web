@@ -18,9 +18,8 @@ import { getProposalTags } from './ProposalTags'
 import { namedAddress } from '@app/util'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 
-export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
+export const PublicDraftProposals = ({ drafts, isArchived = false }: { drafts: any[], isArchived?: boolean }) => {
   const { account } = useWeb3React<Web3Provider>()
-  const { nbDraftNotif } = useGovernanceNotifs()
   const { value: draftLinkPrefStored, setter: saveDraftLinkPref } = useStorage('draft-link-pref');
   const [prefersEditMode, setPrefersEditMode] = useState(!!draftLinkPrefStored);
   const now = new Date()
@@ -57,11 +56,10 @@ export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
 
   return (
     <Container
-      label="Draft Proposals"
+      label={isArchived ? "Archived Draft Proposals" : "Draft Proposals"}
       contentBgColor="gradient3"
-      nbNotif={nbDraftNotif}
       description={
-        <Flex fontSize="14px">
+        !isArchived && <Flex fontSize="14px">
           <Text color={themeStyles.colors.secondaryTextColor} fontSize="14px">
             Off-Chain Draft Proposals
           </Text>
@@ -79,7 +77,9 @@ export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
     >
       <Stack w="full" spacing={1}>
         {
-          previews.map((proposal: Proposal) => <ProposalPreview key={proposal.id} prefersEditLinks={prefersEditMode} isPublicDraft={true} proposal={proposal} />)
+          previews.length > 0 ? 
+            previews.map((proposal: Proposal) => <ProposalPreview key={proposal.id} prefersEditLinks={prefersEditMode} isPublicDraft={true} proposal={proposal} />)
+            : <Text>No Archived Draft</Text>
         }
       </Stack>
     </Container>
