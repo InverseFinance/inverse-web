@@ -80,85 +80,52 @@ export default async function handler(req, res) {
             //     .map((lp) => ({ chainId: NetworkIds.arbitrum, ...lp })),
         ];
 
-        // const claimEvents = await Promise.all(
-        //     veNfts.map(v => {
-        //         const contract = new Contract(rewardAddresses[v.chainId], claimAbi, getPaidProvider(8453));
-        //         return contract.queryFilter(contract.filters.Claimed(v.veNftId), startingBlocks[NetworkIds.base])
-        //     })
-        // );
+        const claimEvents = await Promise.all(
+            veNfts.map(v => {
+                const contract = new Contract(rewardAddresses[v.chainId], claimAbi, getPaidProvider(v.chainId));
+                return contract.queryFilter(contract.filters.Claimed(v.veNftId), startingBlocks[NetworkIds.base])
+            })
+        );
 
-        const [
-            // zerionData,
-            covalentData,
-        ] = await Promise.all(
-            [
-                // Promise.all(
-                //     veNfts.map(v => {
-                //         const multisig = MULTISIGS.find(m => m.chainId === v.chainId && m.shortName.includes('TWG'));
-                //         return fetchZerionTransactionsWithRetry(
-                //             v?.twgAddress || multisig?.address,
-                //             codes[v.chainId],
-                //             2,
-                //         )
-                //     })
-                // ),
-                // Promise.all(
-                //     veNfts.map(v => {
-                //         const multisig = MULTISIGS.find(m => m.chainId === v.chainId && m.shortName.includes('TWG'));
-                //         return getLast100TxsOf(
-                //             v?.twgAddress || multisig?.address,
-                //             v.chainId,
-                //             true,
-                //             false,
-                //         )
-                //     })
-                // ),
-                Promise.all(
-                    veNfts.map(v => {
-                        const multisig = MULTISIGS.find(m => m.chainId === v.chainId && m.shortName.includes('TWG'));
-                        return getLogs(
-                            v?.twgAddress || multisig?.address,
-                            v.chainId,
-                        )
-                    })
-                ),
-            ]
+        const claimTxHashes = [...new Set(claimEvents.map(veNftClaims => veNftClaims.map(e => e.transactionHash)).flat())];
+
+        const zerionData = await Promise.all(
+            veNfts.map(v => {
+                const multisig = MULTISIGS.find(m => m.chainId === v.chainId && m.shortName.includes('TWG'));
+                return fetchZerionTransactionsWithRetry(
+                    v?.twgAddress || multisig?.address,
+                    codes[v.chainId],
+                    2,
+                )
+            })
         );
 
         const results = {
             timestamp: now,
-            veNfts,
-            covalentData,
-            // test: covalentData
-            //     .map((veNftData, vIndex) => veNftData.data.items
-            //         .filter(i => (i.log_events || [])
-            //             .some(le => le.sender_address === rewardAddresses[veNfts[vIndex].chainId].toLowerCase()
-            //             ))
-            //         // .some(le => le.decoded?.name === 'Claimed' 
-            //         //     && le.decoded?.params?.[0]?.value === veNfts[vIndex].veNftId
-            //         // ))
-            //     ),
-            // responses,
-            // claimEvents,
-            // responseData,
-            // temp: responseData.data
-            //     .filter(t => t.attributes.status === 'confirmed')
-            //     .map(t => {
-            //         const timestamp = new Date(t.attributes.mined_at).getTime();
-            //         return {
-            //             txHash: t.attributes.hash,
-            //             block: t.attributes.mined_at_block,
-            //             timestamp,
-            //             utcDate: timestampToUTC(timestamp),
-            //             totalValue: t.attributes.transfers
-            //                 .filter(tf => tf.direction === 'in' 
-            //                     && tf.recipient === '0x586cf50c2874f3e3997660c0fd0996b090fb9764' 
-            //                     && !DRAFT_WHITELIST.includes(tf.sender))
-            //                 .reduce((prev, curr) => prev + curr.value, 0),
-            //         }
-            //     }),
-            //   temp: temp.data.items,
-            //   veNfts,
+            claimTxHashes,
+            veNfts: veNfts
+                .map((veNft, vi) => {
+                    return {
+                        ...veNft,
+                        claims: zerionData[vi]?.data
+                            ?.filter(t => t.attributes.status === 'confirmed' && claimTxHashes.includes(t.attributes.hash))
+                            .map(t => {
+                                const timestamp = new Date(t.attributes.mined_at).getTime();
+                                const multisig = MULTISIGS.find(m => m.chainId === veNft.chainId && m.shortName.includes('TWG'));
+                                return {
+                                    txHash: t.attributes.hash,
+                                    block: t.attributes.mined_at_block,
+                                    timestamp,
+                                    utcDate: timestampToUTC(timestamp),
+                                    totalValue: t.attributes.transfers
+                                        .filter(tf => tf.direction === 'in'
+                                            && tf.recipient.toLowerCase() === (veNft.twgAddress || multisig?.address).toLowerCase()
+                                        )
+                                        .reduce((prev, curr) => prev + curr.value, 0),
+                                }
+                            })
+                    }
+                })
         };
 
         // await redisSetWithTimestamp(cacheKey, results);    
