@@ -11,11 +11,14 @@ const SOLIDLY_PROTOCOLS = ['AERODROME', 'VELODROME', 'THENA', 'RAMSES', 'SOLIDLI
 export const fetchZerionTransactionsWithRetry = async (
     wallet = '',
     chainCodeName = 'ethereum',
-    maxRetries = 1,
+    isGetAll = false,
+    previousData = [],
+    nextUrl = '',
+    maxRetries = 2,
     currentRetry = 0,
-): Promise<Response | undefined> => {
+): Promise<any[]> => {
     let response;
-    const url = `${WALLET_ZERION_URL}/${wallet}/transactions/?currency=usd&page[size]=100&filter[operation_types]=receive&filter[trash]=only_non_trash&filter[chain_ids]=${chainCodeName}`;
+    const url = nextUrl || `${WALLET_ZERION_URL}/${wallet}/transactions/?currency=usd&page[size]=100&filter[operation_types]=receive,trade&filter[trash]=only_non_trash&filter[chain_ids]=${chainCodeName}`;
     try {
         const bearer = btoa(`${process.env.ZERION_KEY}:`);
         response = await fetch(url, {
@@ -30,9 +33,18 @@ export const fetchZerionTransactionsWithRetry = async (
 
     if (response?.status !== 200 && currentRetry < maxRetries) {
         await new Promise((r) => setTimeout(() => r(true), 1050));
-        return await fetchZerionTransactionsWithRetry(wallet, chainCodeName, maxRetries, currentRetry + 1);
+        return await fetchZerionTransactionsWithRetry(wallet, chainCodeName, isGetAll, previousData, nextUrl, maxRetries, currentRetry + 1);
     };
-    return await response.json();
+
+    const responseData = await response.json();
+
+    if(isGetAll && !!responseData?.links?.next) {
+        console.log('next url', responseData?.links?.next);
+        await new Promise((r) => setTimeout(() => r(true), 1050));
+        return await fetchZerionTransactionsWithRetry(wallet, chainCodeName, isGetAll, [...previousData, ...responseData.data], responseData?.links?.next, maxRetries, currentRetry);
+    } else {
+        return [...previousData, ...responseData.data];
+    }
 }
 
 export const fetchZerionWithRetry = async (

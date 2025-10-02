@@ -87,7 +87,7 @@ export default async function handler(req, res) {
             })
         );
 
-        const claimTxHashes = [...new Set(claimEvents.map(veNftClaims => veNftClaims.map(e => e.transactionHash)).flat())];
+        const claimTxHashes = [...new Set(claimEvents.map(veNftClaims => veNftClaims.map(e => e.transactionHash)).flat())].map(h => h.toLowerCase());
 
         const zerionData = await Promise.all(
             veNfts.map(v => {
@@ -95,7 +95,7 @@ export default async function handler(req, res) {
                 return fetchZerionTransactionsWithRetry(
                     v?.twgAddress || multisig?.address,
                     codes[v.chainId],
-                    2,
+                    true,
                 )
             })
         );
@@ -103,12 +103,13 @@ export default async function handler(req, res) {
         const results = {
             timestamp: now,
             claimTxHashes,
+            // zerionData,
             veNfts: veNfts
                 .map((veNft, vi) => {
                     return {
                         ...veNft,
-                        claims: zerionData[vi]?.data
-                            ?.filter(t => t.attributes.status === 'confirmed' && claimTxHashes.includes(t.attributes.hash))
+                        claims: zerionData[vi]
+                            ?.filter(t => t.attributes.status === 'confirmed' && claimTxHashes.includes(t.attributes.hash.toLowerCase()))
                             .map(t => {
                                 const timestamp = new Date(t.attributes.mined_at).getTime();
                                 const multisig = MULTISIGS.find(m => m.chainId === veNft.chainId && m.shortName.includes('TWG'));
