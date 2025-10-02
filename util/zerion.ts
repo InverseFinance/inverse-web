@@ -15,7 +15,7 @@ export const fetchZerionTransactionsWithRetry = async (
     currentRetry = 0,
 ): Promise<Response | undefined> => {
     let response;
-    const url = `${WALLET_ZERION_URL}/${wallet}/transactions/?currency=usd&page[size]=100&filter[operation_types]=receive&filter[chain_ids]=base&filter[trash]=only_non_trash&filter[chain_ids]=${chainCodeName}`;
+    const url = `${WALLET_ZERION_URL}/${wallet}/transactions/?currency=usd&page[size]=100&filter[operation_types]=receive&filter[trash]=only_non_trash&filter[chain_ids]=${chainCodeName}`;
     try {
         const bearer = btoa(`${process.env.ZERION_KEY}:`);
         response = await fetch(url, {
