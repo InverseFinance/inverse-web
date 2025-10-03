@@ -40,35 +40,50 @@ export default async function handler(req, res) {
         //   return res.status(200).json(cachedData);
         // }
 
-        // if (ignoreCache !== 'true' && isValid) {
-        //   res.status(200).send(cachedData);
-        //   return
-        // }
+        if (ignoreCache !== 'true' && isValid) {
+          res.status(200).send(cachedData);
+          return
+        }
 
         const now = Date.now();
         const utcDateNow = timestampToUTC(now);
 
         const claimAbi = ["event Claimed(uint256 indexed tokenId, uint256 indexed epochStart, uint256 indexed epochEnd, uint256 amount)"];
 
+        const abis = {
+            // '0xAAA86B908A3B500A0DE661301ea63966923a97b1': ["event Claimed(uint256 indexed tokenId, uint256 amount, uint256 indexed epochStart, uint256 indexed epochEnd)"],
+            // fucking not indexed :/
+            '0xA6e0e731Cb1E99AedE0f9C9128d04F948E18727D': ["event Claimed(uint256 tokenId, uint256 amount, uint256 epochStart, uint256 epochEnd)"],
+        }
+
         const codes = {
             [NetworkIds.optimism]: 'optimism',
             [NetworkIds.base]: 'base',
-            [NetworkIds.bsc]: 'bsc',
-            [NetworkIds.arbitrum]: 'arbitrum',
+            // [NetworkIds.bsc]: 'bsc',
+            // [NetworkIds.arbitrum]: 'arbitrum',
         }
 
+        // RewardDistributors
         const rewardAddresses = {
-            [NetworkIds.base]: '0x227f65131A261548b057215bB1D5Ab2997964C7d', // RewardDistributor
-            // [NetworkIds.base]: [
-            //     '0xCCff5627cd544b4cBb7d048139C1A6b6Bde67885', // Gauge
-            //     '0x685b5173e002B2eC55A8cd02C74d5ee77043Eb1e', // BribeVotingReward
+            [NetworkIds.base]: ['0x227f65131A261548b057215bB1D5Ab2997964C7d'],
+            [NetworkIds.optimism]: [
+                '0x9D4736EC60715e71aFe72973f7885DCBC21EA99b',
+                //'0x5d5Bea9f0Fc13d967511668a60a3369fD53F784F'
+            ],
+            // [NetworkIds.arbitrum]: [
+            //     '0xAAA86B908A3B500A0DE661301ea63966923a97b1',
+            //     '0xF6e540DCe09baA7B37A75011ca253c0C889d8aE5',
+            //     '0xa5Deb72bB260CEe71379A8C9eaB51d5e24Eb4263',// claimrewards
+            // ],
+            // [NetworkIds.bsc]: ['0xA6e0e731Cb1E99AedE0f9C9128d04F948E18727D'
+            //     //'0xE9fE83aA430Ace4b703C299701142f9dFdde730E'
             // ],
         }
 
         const veNfts = [
-            // ...Object
-            //     .values(CHAIN_TOKENS[NetworkIds.optimism]).filter(({ veNftId }) => !!veNftId)
-            //     .map((lp) => ({ chainId: NetworkIds.optimism, ...lp })),
+            ...Object
+                .values(CHAIN_TOKENS[NetworkIds.optimism]).filter(({ veNftId }) => !!veNftId)
+                .map((lp) => ({ chainId: NetworkIds.optimism, ...lp })),
             ...Object
                 .values(CHAIN_TOKENS[NetworkIds.base]).filter(({ veNftId }) => !!veNftId)
                 .map((lp) => ({ chainId: NetworkIds.base, ...lp })),
@@ -76,19 +91,31 @@ export default async function handler(req, res) {
             //     .values(CHAIN_TOKENS[NetworkIds.bsc]).filter(({ veNftId }) => !!veNftId)
             //     .map((lp) => ({ chainId: NetworkIds.bsc, ...lp })),
             // ...Object
-            //     .values(CHAIN_TOKENS[NetworkIds.arbitrum]).filter(({ veNftId }) => !!veNftId)
+            //     .values(CHAIN_TOKENS[NetworkIds.arbitrum]).filter(({ veNftId }) => veNftId === '31')
             //     .map((lp) => ({ chainId: NetworkIds.arbitrum, ...lp })),
         ];
 
         const claimEvents = await Promise.all(
             veNfts.map(v => {
-                const contract = new Contract(rewardAddresses[v.chainId], claimAbi, getPaidProvider(v.chainId));
-                return contract.queryFilter(contract.filters.Claimed(v.veNftId), startingBlocks[NetworkIds.base])
+                const rewardDistributors = rewardAddresses[v.chainId];
+                return Promise.all(
+                    rewardDistributors.map(rd => {
+                        const contract = new Contract(rd, abis[rd] || claimAbi, getPaidProvider(v.chainId));
+                        return contract.queryFilter(contract.filters.Claimed(v.veNftId), startingBlocks[v.chainId])
+                        // return contract.queryFilter(contract.filters.Claimed(), 42940125, 42940135)
+                    })
+                )
             })
         );
 
-        const claimTxHashes = [...new Set(claimEvents.map(veNftClaims => veNftClaims.map(e => e.transactionHash)).flat())].map(h => h.toLowerCase());
+        // return res.status(200).send({
+        //     veNfts,
+        //     // eth: await getLogs('0xA6e0e731Cb1E99AedE0f9C9128d04F948E18727D', NetworkIds.bsc),
+        //     // claimEvents,
+        // });
 
+        const claimTxHashes = [...new Set(claimEvents.map(veNftClaims => veNftClaims.flat().map(e => e.transactionHash)).flat())].map(h => h.toLowerCase());
+   
         const zerionData = await Promise.all(
             veNfts.map(v => {
                 const multisig = MULTISIGS.find(m => m.chainId === v.chainId && m.shortName.includes('TWG'));
@@ -102,7 +129,7 @@ export default async function handler(req, res) {
 
         const results = {
             timestamp: now,
-            claimTxHashes,
+            // claimTxHashes,
             // zerionData,
             veNfts: veNfts
                 .map((veNft, vi) => {
@@ -129,7 +156,7 @@ export default async function handler(req, res) {
                 })
         };
 
-        // await redisSetWithTimestamp(cacheKey, results);    
+        await redisSetWithTimestamp(cacheKey, results);    
 
         return res.status(200).send(results);
     } catch (err) {
