@@ -4,6 +4,7 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { VeNftEvolutionWrapper } from '@app/components/Transparency/VeNftEvolution'
+import { VeNftClaimsWrapper } from '@app/components/Transparency/VeNftClaims'
 import { VStack } from '@chakra-ui/react'
 
 export const veNftsPage = () => {
@@ -18,6 +19,7 @@ export const veNftsPage = () => {
                 <VStack pt="4" spacing="4" w='full' maxW={{ base: '100%', sm: '94%', '2xl': '90rem' }}>
                     <ErrorBoundary description="Failed to Dashboard">
                         <VeNftEvolutionWrapper />
+                        <VeNftClaimsWrapper />
                     </ErrorBoundary>
                 </VStack>
             </ErrorBoundary>
