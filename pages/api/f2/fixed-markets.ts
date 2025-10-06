@@ -15,7 +15,7 @@ import { estimateBlockTimestamp } from '@app/util/misc';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.6.92`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.6.93`;
 
 export default async function handler(req, res) {
   const cacheDuration = 90;

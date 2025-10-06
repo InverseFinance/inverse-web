@@ -747,6 +747,9 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getPendleMarketApy('0x6d98a2b6cdbf44939362a3e99793339ba2016af4'),
         getPendleMarketApy('0xb6ac3d5da138918ac4e84441e924a20daa60dbdd'),
         getPendleMarketApy('0x4eaa571eafcd96f51728756bd7f396459bb9b869'),
+        // wstUSR
+        getDefiLlamaApy('d6667b26-1e1f-44bd-92a2-9ed56003ef36'),
+        getYearnVaultApy('0x8A5f20dA6B393fE25aCF1522C828166D22eF8321'),
     ]);
 
     let [
