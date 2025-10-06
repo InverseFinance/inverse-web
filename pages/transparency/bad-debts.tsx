@@ -14,7 +14,7 @@ import { usePrices } from '@app/hooks/usePrices'
 import { useEventsAsChartData } from '@app/hooks/misc'
 import { DefaultCharts } from '@app/components/Transparency/DefaultCharts'
 import { useState } from 'react'
- 
+
 import { shortenNumber, smartShortNumber } from '@app/util/markets'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { Timestamp } from '@app/components/common/BlockTimestamp/Timestamp'
@@ -24,6 +24,7 @@ import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
 import { InfoMessage } from '@app/components/common/Messages'
 import Link from '@app/components/common/Link'
 import { timeSince } from '@app/util/time'
+import { ONE_DAY_MS } from '@app/config/constants'
 
 const ColHeader = ({ ...props }) => {
   return <Flex justify="center" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -375,6 +376,7 @@ const formatToBarData = (data: any, item: any, index: number, key: string, isDol
 const totalRepaymentKeys = ['wbtcRepaidByDAO', 'ethRepaidByDAO', 'yfiRepaidByDAO', 'totalDolaRepaidByDAO', 'dolaForIOUsRepaidByDAO'];
 
 export const BadDebtPage = () => {
+  const [now, setNow] = useState(new Date());
   const { data, isLoading } = useRepayments();
   const [useUsd, setUseUsd] = useState(true);
   const [useHistorical, setUseHistorical] = useState(false);
@@ -399,6 +401,10 @@ export const BadDebtPage = () => {
 
   const { chartData: barChartData } = useEventsAsChartData(chartSourceData, '_acc_', useUsd || isAllCase ? 'worth' : 'amount', false, false);
   const { chartData: dolaBadDebtEvo } = useEventsAsChartData(data?.dolaBadDebtEvolution || [], 'badDebt', 'delta', false, false);
+
+  const repaidLast60Days = totalDirectRepaymentsForTable.filter(d => d.timestamp >= (now.getTime() - ONE_DAY_MS * 60)).reduce((prev, curr) => prev + curr.amount, 0);
+  const totalDolaRemaining = dolaBadDebtEvo?.length > 0 ? dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y : null;
+  const fullRepaymentProjectionInDays = totalDolaRemaining !== null ? totalDolaRemaining / (repaidLast60Days / 60) : null;
 
   const items = Object.values(data?.badDebts || {}).map(item => {
     const priceUsd = prices[item.coingeckoId]?.usd || 1;
@@ -489,12 +495,20 @@ export const BadDebtPage = () => {
                 align: { base: 'flex-start', md: 'flex-end' },
               }}
               right={
-                <VStack spacing="0" alignItems={{ base: 'flex-start', md: 'flex-end' }}>
-                  <Text fontSize="14px">Current DOLA bad debt:</Text>
-                  {
-                    isLoading ? <SmallTextLoader /> : <Text fontWeight="bold">{dolaBadDebtEvo.length > 0 && !!dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y ? shortenNumber(Math.floor(dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y/1_0000)*1_0000, 2) : ''}</Text>
-                  }
-                </VStack>
+                <HStack spacing="4">
+                  <VStack spacing="0" alignItems={{ base: 'flex-start', md: 'flex-end' }}>
+                    <Text fontSize="14px">Full Repayment projection:</Text>
+                    {
+                      isLoading ? <SmallTextLoader /> : <Text fontWeight="bold">{fullRepaymentProjectionInDays ? `${shortenNumber(fullRepaymentProjectionInDays, 0)} days` : ''}</Text>
+                    }
+                  </VStack>
+                  <VStack spacing="0" alignItems={{ base: 'flex-start', md: 'flex-end' }}>
+                    <Text fontSize="14px">Current DOLA bad debt:</Text>
+                    {
+                      isLoading ? <SmallTextLoader /> : <Text fontWeight="bold">{dolaBadDebtEvo.length > 0 && !!dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y ? shortenNumber(Math.floor(dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y / 1_0000) * 1_0000, 2) : ''}</Text>
+                    }
+                  </VStack>
+                </HStack>
               }
             >
               <VStack w='full' spacing="6" mt="2">
