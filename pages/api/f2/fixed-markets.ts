@@ -35,10 +35,10 @@ export default async function handler(req, res) {
 
   try {
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
-    // if (cachedData && isValid) {
-    //   res.status(200).json(cachedData);
-    //   return
-    // }
+    if (cachedData && isValid) {
+      res.status(200).json(cachedData);
+      return
+    }
 
     let provider;
     if (vnetPublicId) {
