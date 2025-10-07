@@ -15,7 +15,7 @@ import { estimateBlockTimestamp } from '@app/util/misc';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.6.94`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.6.95`;
 
 export default async function handler(req, res) {
   const cacheDuration = 90;
@@ -35,10 +35,10 @@ export default async function handler(req, res) {
 
   try {
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
-    if (cachedData && isValid) {
-      res.status(200).json(cachedData);
-      return
-    }
+    // if (cachedData && isValid) {
+    //   res.status(200).json(cachedData);
+    //   return
+    // }
 
     let provider;
     if (vnetPublicId) {

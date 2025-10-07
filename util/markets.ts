@@ -787,6 +787,8 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         ptUSDe25SEP25Data,
         ptSUSDe27NOV25Data,
         ptUSDe27NOV25Data,
+        wstUSRDOLAConvexData,
+        yvwstUSRDOLAData,
     ] = externalYieldResults.map(r => {
         return r.status === 'fulfilled' ? r.value : {};
     });
@@ -838,5 +840,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'PT-USDe-25SEP25': ptUSDe25SEP25Data?.apy || 0,
         'PT-sUSDe-27NOV25': ptSUSDe27NOV25Data?.apy || 0,
         'PT-USDe-27NOV25': ptUSDe27NOV25Data?.apy || 0,
+        'wstUSR-DOLA': wstUSRDOLAConvexData?.apy || 0,
+        'yv-wstUSR-DOLA': yvwstUSRDOLAData?.apy || 0,
     };
 }
