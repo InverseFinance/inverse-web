@@ -29,11 +29,11 @@ const ANCHOR_RESERVES_TO_CHECK = [
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
 
-  const { DOLA, INV, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const { ANCHOR_TOKENS, UNDERLYING, TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
   const cacheKey = `treasury-assets-cache-v1.0.0`;
 
   try {
-    const cacheDuration = 360;
+    const cacheDuration = 120;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
     if (validCache) {
