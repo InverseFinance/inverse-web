@@ -5,7 +5,7 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { usePricesV2 } from '@app/hooks/usePrices'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
-import { useCompensations, useDAO, useLiquidityPools, useStableReserves } from '@app/hooks/useDAO'
+import { useCompensations, useTreasuryAssets } from '@app/hooks/useDAO'
 import { getFundsTotalUsd } from '@app/components/Transparency/Funds'
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
 import { DashBoardCard } from '@app/components/F2/UserDashboard'
@@ -47,7 +47,7 @@ const maxChartWidth = 1350;
 export const Overview = () => {
   const { themeName } = useAppTheme();
   const { prices, isLoading: isLoadingPrices } = usePricesV2(true)
-  const { treasury, anchorReserves, multisigs, isLoading: isLoadingDao } = useDAO();
+  const { treasury, anchorReserves, multisigs, isLoading: isLoadingTreasuryAssets } = useTreasuryAssets();
   // const { liquidity, isLoading: isLoadingLiquidity } = useLiquidityPools();
   // const { stableReservesEvolution, isLoading: isLoadingStableReserves } = useStableReserves();
   const { currentPayrolls } = useCompensations();
@@ -128,7 +128,7 @@ export const Overview = () => {
 
   const treasuryHoldings = excludeOwnTokens2 ? treasury.filter(t => !OWN_TOKENS.includes(t.token.symbol)) : treasury;
 
-  const isLoading = isLoadingDao || isLoadingPrices;
+  const isLoading = isLoadingTreasuryAssets || isLoadingPrices;
   const mainFontSize = { base: '16px', sm: '20px', md: '26px' };
   const dashboardCardTitleProps = { w: 'fit-content', position: 'static', fontSize: mainFontSize, fontWeight: 'extrabold' };
   const dashboardCardProps = { direction: 'column', mx: '0', w: { base: '100vw', sm: '95vw', lg: '600px' }, borderRadius: { base: '0', sm: '8' } };

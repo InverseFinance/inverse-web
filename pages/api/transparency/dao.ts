@@ -39,7 +39,7 @@ export default async function handler(req, res) {
   const { cacheFirst } = req.query;
 
   const { DOLA, INV, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.4.5`;
+  const cacheKey = `dao-cache-v1.4.6`;
 
   try {
     const cacheDuration = 360;

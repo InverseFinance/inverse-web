@@ -49,6 +49,19 @@ export const useDAO = (): SWR & DAO => {
   }
 }
 
+export const useTreasuryAssets = (): SWR & { treasury: any[], anchorReserves: any[], multisigs: any[] } => {
+  const { data, error } = useCacheFirstSWR(`/api/transparency/treasury-assets`, fetcher)
+
+  return {
+    treasury: data?.treasury || [],
+    bonds: data?.bonds || { balances: [] },
+    anchorReserves: data?.anchorReserves || [],
+    multisigs: (data?.multisigs?.sort((a, b) => a.order - b.order) || []),
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 export const useLiquidityPools = (): SWR & { liquidity: any[], timestamp: number } => {
   const { data, error } = useCacheFirstSWR(`/api/transparency/liquidity?v=1`)
 
