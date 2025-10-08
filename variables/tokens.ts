@@ -779,7 +779,7 @@ const chainTokens = {
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].wstUSR
       ],
       image: TOKEN_IMAGES.DOLA,
-      link: 'https://yearn.fi/vaults/1/0x57a2c7925bAA1894a939f9f6721Ea33F2EcFD0e2',
+      link: 'https://yearn.fi/vaults/1/0x8A5f20dA6B393fE25aCF1522C828166D22eF8321',
     },
     [chainTokenAddresses["1"].DOLAwstUSRCRVLP]: {
       address: chainTokenAddresses["1"].DOLAwstUSRCRVLP,
