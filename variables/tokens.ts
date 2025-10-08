@@ -173,6 +173,8 @@ const chainTokenAddresses = {
     YUSDSDOLACLP: '0x9353976A6B6E7A9e1E9B1F2aaaBA629aD310947f',
     MORPHOYEARNUSDCVAULT: '0xdC2Dd5189F70Fe2832D9caf7b17d27AA3D79dbE1',
     yvUSDS: '0x0868076663Bbc6638ceDd27704cc8F0Fa53d5b81',
+    DOLAfxSAVECLP: '0x2b854e225d7282854819327D0CA5b8D8AA8CAaED',
+    fxSAVE: '0x7743e50F534a7f9F1791DdE7dCD89F7783Eefc39',
     // PAL: '0xAB846Fb6C81370327e784Ae7CbB6d6a6af6Ff4BF',
   },
   "250": {
@@ -913,6 +915,30 @@ const chainTokens = {
       ],
       image: TOKEN_IMAGES.DOLA,
       link: 'https://curve.finance/dex/#/ethereum/pools/factory-stable-ng-351/deposit',
+    },
+    [chainTokenAddresses["1"].DOLAfxSAVECLP]: {
+      address: chainTokenAddresses["1"].DOLAfxSAVECLP,
+      name: 'DOLA-fxSAVE',
+      symbol: 'DOLA-fxSAVE clp', 
+      protocolImage: PROTOCOL_IMAGES.CRV,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isCrvLP: true,
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].fxSAVE
+      ],
+      image: TOKEN_IMAGES.DOLA,
+      link: 'https://www.curve.finance/dex/ethereum/pools/factory-stable-ng-569/deposit',
+    },
+    [chainTokenAddresses["1"].fxSAVE]: {
+      address: chainTokenAddresses["1"].fxSAVE,
+      name: 'fxSAVE',
+      symbol: 'fxSAVE', 
+      protocolImage: PROTOCOL_IMAGES.FXN,
+      decimals: 18,
+      isStable: true,
+      image: TOKEN_IMAGES.fxSAVE,
     },
     [chainTokenAddresses["1"].INVDOLALIQUIS]: {
       address: chainTokenAddresses["1"].INVDOLALIQUIS,
