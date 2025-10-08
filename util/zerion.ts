@@ -63,16 +63,19 @@ export const formatZerionWalletResponse = async (response) => {
         const chainTokens = CHAIN_TOKENS[NETWORKS.find(net => (net.zerionId || net.codename) === chainCodeName)?.id] || {};
         const veNftToken = getToken(chainTokens, `ve${item.attributes.fungible_info.symbol.replace('THE', 'THENA')}`);
         const exactToken = getToken(chainTokens, item.attributes.pool_address) || {};
-        const firstToken = getToken(chainTokens, item.attributes.pool_address || item.attributes.fungible_info.symbol);
+        const firstToken = getToken(chainTokens, item.attributes.pool_address || item.attributes.fungible_info.symbol) || {};
+        const symbolToken = getToken(chainTokens, item.attributes.fungible_info.symbol);
+        const isStable = !!exactToken?.symbol ? exactToken.isStable : !!firstToken?.isStable || (!!symbolToken?.isStable && symbolToken.symbol === 'DOLA' && Math.abs(1-item.attributes.price) <= 0.005);
         const token = isVeNft && veNftToken?.symbol ? veNftToken : {
             decimals: 18,
             name: exactToken?.name || (item.attributes.name === 'Asset' ? item.attributes.fungible_info.name : item.attributes.name),
             symbol: exactToken?.symbol || (item.attributes.name === 'Asset' ? item.attributes.fungible_info.symbol : item.attributes.name),
             image: firstToken?.image,
             protocolImage: firstToken?.protocolImage || PROTOCOL_IMAGES[(PROTOCOL_ZERION_MAPPING[(item.attributes.protocol || '')]||'')],
-            isStable: firstToken?.isStable,
+            isStable: isStable,
             isLP: exactToken?.isLP,
             address: item.attributes.pool_address,
+            _price: item.attributes.price,
         };
         return {
             balance: totalValue,
