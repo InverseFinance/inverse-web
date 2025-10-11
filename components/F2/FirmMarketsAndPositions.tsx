@@ -1,5 +1,5 @@
 import { useFirmPositions } from "@app/hooks/useFirm";
-import { HStack, InputGroup, InputLeftElement, Select, Stack, useMediaQuery, VStack, Input as ChakraInput } from "@chakra-ui/react"
+import { HStack, InputGroup, InputLeftElement, Select, Stack, useMediaQuery, VStack, Input as ChakraInput, Text } from "@chakra-ui/react"
 import { SkeletonBlob } from "../common/Skeleton";
 import { F2MarketsParams } from "./F2MarketsParams";
 import { NavButtons } from "../common/Button";
@@ -8,6 +8,7 @@ import { RadioCardGroup } from "../common/Input/RadioCardGroup";
 import { SearchIcon } from "@chakra-ui/icons";
 import { FirmMarketsStats, FirmPositions } from "./liquidations/firm-positions";
 import { F2Market } from "@app/types";
+import { shortenNumber } from "@app/util/markets";
 
 export const FirmMarketsAndPositions = ({
     vnetPublicId,
@@ -89,6 +90,8 @@ export const FirmMarketsAndPositionsRenderer = ({
 
         return searchCondition && categoryCondition;
     }, [search, category]);
+
+    const badDebt = positions?.filter(p => p.seizableWorth > p.depositsUsd).reduce((acc, p) => acc + p.debt, 0) || 0;
 
     return <VStack w='full'>
         <HStack alignItems="center" w='full' justify='space-between'>
@@ -184,7 +187,10 @@ export const FirmMarketsAndPositionsRenderer = ({
                         ((onlyShowDefaultTab && defaultTab === 'Positions') || !onlyShowDefaultTab) &&
                         <VStack w="full" display={activeTab === 'Positions' ? 'block' : 'none'}>
                             <FirmPositions
-                                containerProps={{ label: '', description: '', noPadding: true, p: 0 }}
+                                containerProps={{ description: '', noPadding: true, p: 0, right: badDebt > 0 &&<HStack>
+                                    <Text>Bad debt:</Text>
+                                    <Text>{shortenNumber(badDebt, 2)} DOLA</Text>
+                                </HStack> }}
                                 isLoading={isLoading} timestamp={timestamp} positions={positions?.filter(p => marketFilter(p.market))}
                             />
                         </VStack>

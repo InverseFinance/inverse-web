@@ -139,10 +139,10 @@ const columns = [
         field: 'liquidatableDebt',
         label: 'Seizable',
         header: ({ ...props }) => <ColHeader minWidth="100px" alignItems="center" justify="center"  {...props} />,
-        value: ({ seizableWorth, liquidatableDebt }) => {
+        value: ({ seizableWorth, liquidatableDebt, depositsUsd }) => {
             return <Cell minWidth="100px" justify="center" direction="column" alignItems="center">
                 {
-                    liquidatableDebt > 0 ? <>
+                    seizableWorth > depositsUsd ? <><CellText>Bad debt</CellText></> : liquidatableDebt > 0 ? <>
                         <CellText>{shortenNumber(seizableWorth, 2, true)}</CellText>
                         <CellText>for {shortenNumber(liquidatableDebt, 2)} DOLA</CellText>
                     </> : <CellText>-</CellText>
