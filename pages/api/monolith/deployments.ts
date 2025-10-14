@@ -12,7 +12,7 @@ import { ERC20_ABI, SVAULT_ABI } from '@app/config/abis';
 import { theGraphFetch } from '@app/util/the-graph';
 import { getEnsName } from '@app/util';
 
-const FACTORY_ABI = [{ "type": "constructor", "inputs": [{ "name": "_operator", "type": "address", "internalType": "address" }], "stateMutability": "nonpayable" }, { "type": "function", "name": "MAX_FEE_BPS", "inputs": [], "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }], "stateMutability": "view" }, { "type": "function", "name": "acceptOperator", "inputs": [], "outputs": [], "stateMutability": "nonpayable" }, { "type": "function", "name": "customFeeBps", "inputs": [{ "name": "", "type": "address", "internalType": "address" }], "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }], "stateMutability": "view" }, { "type": "function", "name": "deploy", "inputs": [{ "name": "_name", "type": "string", "internalType": "string" }, { "name": "_symbol", "type": "string", "internalType": "string" }, { "name": "_collateral", "type": "address", "internalType": "address" }, { "name": "_feed", "type": "address", "internalType": "address" }, { "name": "_collateralFactor", "type": "uint256", "internalType": "uint256" }, { "name": "_minDebt", "type": "uint256", "internalType": "uint256" }, { "name": "_timeUntilImmutability", "type": "uint256", "internalType": "uint256" }, { "name": "_operator", "type": "address", "internalType": "address" }], "outputs": [{ "name": "lender", "type": "address", "internalType": "address" }, { "name": "coin", "type": "address", "internalType": "address" }, { "name": "vault", "type": "address", "internalType": "address" }], "stateMutability": "nonpayable" }, { "type": "function", "name": "deployments", "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }], "outputs": [{ "name": "", "type": "address", "internalType": "address" }], "stateMutability": "view" }, { "type": "function", "name": "deploymentsLength", "inputs": [], "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }], "stateMutability": "view" }, { "type": "function", "name": "feeBps", "inputs": [], "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }], "stateMutability": "view" }, { "type": "function", "name": "feeRecipient", "inputs": [], "outputs": [{ "name": "", "type": "address", "internalType": "address" }], "stateMutability": "view" }, { "type": "function", "name": "getFeeOf", "inputs": [{ "name": "_lender", "type": "address", "internalType": "address" }], "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }], "stateMutability": "view" }, { "type": "function", "name": "interestModel", "inputs": [], "outputs": [{ "name": "", "type": "address", "internalType": "address" }], "stateMutability": "view" }, { "type": "function", "name": "isDeployed", "inputs": [{ "name": "", "type": "address", "internalType": "address" }], "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }], "stateMutability": "view" }, { "type": "function", "name": "operator", "inputs": [], "outputs": [{ "name": "", "type": "address", "internalType": "address" }], "stateMutability": "view" }, { "type": "function", "name": "pendingOperator", "inputs": [], "outputs": [{ "name": "", "type": "address", "internalType": "address" }], "stateMutability": "view" }, { "type": "function", "name": "pullReserves", "inputs": [{ "name": "_deployment", "type": "address", "internalType": "address" }], "outputs": [], "stateMutability": "nonpayable" }, { "type": "function", "name": "setCustomFeeBps", "inputs": [{ "name": "_address", "type": "address", "internalType": "address" }, { "name": "_feeBps", "type": "uint256", "internalType": "uint256" }], "outputs": [], "stateMutability": "nonpayable" }, { "type": "function", "name": "setFeeBps", "inputs": [{ "name": "_feeBps", "type": "uint256", "internalType": "uint256" }], "outputs": [], "stateMutability": "nonpayable" }, { "type": "function", "name": "setFeeRecipient", "inputs": [{ "name": "_feeRecipient", "type": "address", "internalType": "address" }], "outputs": [], "stateMutability": "nonpayable" }, { "type": "function", "name": "setPendingOperator", "inputs": [{ "name": "_pendingOperator", "type": "address", "internalType": "address" }], "outputs": [], "stateMutability": "nonpayable" }, { "type": "event", "name": "CustomFeeBpsSet", "inputs": [{ "name": "lender", "type": "address", "indexed": true, "internalType": "address" }, { "name": "feeBps", "type": "uint256", "indexed": false, "internalType": "uint256" }], "anonymous": false }, { "type": "event", "name": "Deployed", "inputs": [{ "name": "lender", "type": "address", "indexed": true, "internalType": "address" }, { "name": "coin", "type": "address", "indexed": true, "internalType": "address" }, { "name": "vault", "type": "address", "indexed": true, "internalType": "address" }], "anonymous": false }];
+const FACTORY_ABI = [{"type":"constructor","inputs":[{"name":"_operator","type":"address","internalType":"address"}],"stateMutability":"nonpayable"},{"type":"function","name":"MAX_FEE_BPS","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"type":"function","name":"acceptOperator","inputs":[],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"customFeeBps","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"type":"function","name":"deploy","inputs":[{"name":"params","type":"tuple","internalType":"struct Factory.DeployParams","components":[{"name":"name","type":"string","internalType":"string"},{"name":"symbol","type":"string","internalType":"string"},{"name":"collateral","type":"address","internalType":"address"},{"name":"psmAsset","type":"address","internalType":"address"},{"name":"psmVault","type":"address","internalType":"address"},{"name":"feed","type":"address","internalType":"address"},{"name":"collateralFactor","type":"uint256","internalType":"uint256"},{"name":"minDebt","type":"uint256","internalType":"uint256"},{"name":"timeUntilImmutability","type":"uint256","internalType":"uint256"},{"name":"operator","type":"address","internalType":"address"},{"name":"manager","type":"address","internalType":"address"},{"name":"halfLife","type":"uint64","internalType":"uint64"},{"name":"targetFreeDebtRatioStartBps","type":"uint16","internalType":"uint16"},{"name":"targetFreeDebtRatioEndBps","type":"uint16","internalType":"uint16"},{"name":"redeemFeeBps","type":"uint16","internalType":"uint16"}]}],"outputs":[{"name":"lender","type":"address","internalType":"address"},{"name":"coin","type":"address","internalType":"address"},{"name":"vault","type":"address","internalType":"address"}],"stateMutability":"nonpayable"},{"type":"function","name":"deployments","inputs":[{"name":"","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"type":"function","name":"deploymentsLength","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"type":"function","name":"feeBps","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"type":"function","name":"feeRecipient","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"type":"function","name":"getFeeOf","inputs":[{"name":"_lender","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"type":"function","name":"interestModel","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"type":"function","name":"isDeployed","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"type":"function","name":"operator","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"type":"function","name":"pendingOperator","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"type":"function","name":"pullReserves","inputs":[{"name":"_deployment","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"setCustomFeeBps","inputs":[{"name":"_address","type":"address","internalType":"address"},{"name":"_feeBps","type":"uint256","internalType":"uint256"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"setFeeBps","inputs":[{"name":"_feeBps","type":"uint256","internalType":"uint256"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"setFeeRecipient","inputs":[{"name":"_feeRecipient","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"setPendingOperator","inputs":[{"name":"_pendingOperator","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"event","name":"CustomFeeBpsSet","inputs":[{"name":"lender","type":"address","indexed":true,"internalType":"address"},{"name":"feeBps","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"type":"event","name":"Deployed","inputs":[{"name":"lender","type":"address","indexed":true,"internalType":"address"},{"name":"coin","type":"address","indexed":true,"internalType":"address"},{"name":"vault","type":"address","indexed":true,"internalType":"address"}],"anonymous":false}]
 const INTEREST_MODEL_ABI = [{ "type": "function", "name": "calculateInterest", "inputs": [{ "name": "_totalPaidDebt", "type": "uint256", "internalType": "uint256" }, { "name": "_lastRate", "type": "uint256", "internalType": "uint256" }, { "name": "_timeElapsed", "type": "uint256", "internalType": "uint256" }, { "name": "_expRate", "type": "uint256", "internalType": "uint256" }, { "name": "_lastFreeDebtRatioBps", "type": "uint256", "internalType": "uint256" }, { "name": "_targetFreeDebtRatioStartBps", "type": "uint256", "internalType": "uint256" }, { "name": "_targetFreeDebtRatioEndBps", "type": "uint256", "internalType": "uint256" }], "outputs": [{ "name": "currBorrowRate", "type": "uint256", "internalType": "uint256" }, { "name": "interest", "type": "uint256", "internalType": "uint256" }], "stateMutability": "pure" }]
 
 export default async function handler(req, res) {
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
   if (!monolithSupportedChainIds.includes(chainId) || !factory || factory === BURN_ADDRESS || (!!factory && !isAddress(factory))) {
     return res.status(400).json({ success: false, error: 'Invalid factory address' });
   }
-  const cacheKey = `monolith-deployments-${chainId}-${factory}-v1.0.7`;
+  const cacheKey = `monolith-deployments-${chainId}-${factory}-v1.0.8`;
   try {
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
     if (isValid) {
@@ -151,6 +151,7 @@ export default async function handler(req, res) {
       accruedLocalReserves,
       accruedGlobalReserves,
       operator,
+      manager,
       feeBps,
       lastAccrue,
       lastBorrowRateMantissa,
@@ -160,6 +161,9 @@ export default async function handler(req, res) {
       expRate,
       staked,
       feedDescription,
+      psmAsset,
+      psmVault,
+      deployTimestamp,
     ] = await getGroupedMulticallOutputs(
       [
         deployments.map(e => {
@@ -205,6 +209,9 @@ export default async function handler(req, res) {
           return { contract: new Contract(e.lender, LENDER_ABI, provider), functionName: 'operator' }
         }),
         deployments.map(e => {
+          return { contract: new Contract(e.lender, LENDER_ABI, provider), functionName: 'manager' }
+        }),
+        deployments.map(e => {
           return { contract: new Contract(e.lender, LENDER_ABI, provider), functionName: 'feeBps' }
         }),
         deployments.map(e => {
@@ -230,6 +237,15 @@ export default async function handler(req, res) {
         }),
         deployments.map(e => {
           return { contract: new Contract(e.feed, ['function description() public view returns (string memory)'], provider), fallbackValue: '', functionName: 'description' }
+        }),
+        deployments.map(e => {
+          return { contract: new Contract(e.lender, LENDER_ABI, provider), functionName: 'psmAsset' }
+        }),
+        deployments.map(e => {
+          return { contract: new Contract(e.lender, LENDER_ABI, provider), functionName: 'psmVault' }
+        }), 
+        deployments.map(e => {
+          return { contract: new Contract(e.lender, LENDER_ABI, provider), functionName: 'deployTimestamp' }
         }),
       ],
       Number(chainId),
@@ -269,6 +285,9 @@ export default async function handler(req, res) {
       e.staked = getBnToNumber(staked[i], 18);
       e.totalDebt = e.totalPaidDebt + e.totalFreeDebt;
       e.feedDescription = feedDescription[i];
+      e.psmAsset = psmAsset[i];
+      e.psmVault = psmVault[i];
+      e.deployTimestamp = getBnToNumber(deployTimestamp[i], 0) * 1000;
     });
 
     const disctinctOperators = [...new Set(deployments.map(e => e.operator.toLowerCase()))];
