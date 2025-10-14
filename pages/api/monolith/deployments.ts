@@ -117,8 +117,6 @@ export default async function handler(req, res) {
         })
       );
 
-    
-
     // const ensGraphQl = `{
     //     wrappedDomains(
     //       where: { owner_in: ${JSON.stringify(deployments.map(e => e.operator.toLowerCase()))} }
@@ -274,6 +272,7 @@ export default async function handler(req, res) {
       e.accruedLocalReserves = getBnToNumber(accruedLocalReserves[i], 18);
       e.accruedGlobalReserves = getBnToNumber(accruedGlobalReserves[i], 18);
       e.operator = operator[i];
+      e.manager = manager[i];
       e.feePerc = getBnToNumber(feeBps[i], 2);
       e.lastAccrue = getBnToNumber(lastAccrue[i], 0);
       e.lastBorrowRateMantissa = getBnToNumber(lastBorrowRateMantissa[i], 18);
