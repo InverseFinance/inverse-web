@@ -359,9 +359,9 @@ export default async function handler(req, res) {
         });
 
         // TODO: handle FiRM bad debt logic
-        badDebts.DOLA.nonFrontierBadDebtBalance = 110310;
+        badDebts.DOLA.nonFrontierBadDebtBalance = 0;
         badDebts.DOLA.frontierBadDebtBalance = dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].badDebt;//dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].frontierBadDebt;
-        dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].badDebt = dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].badDebt + 110310;
+        dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].badDebt = dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].badDebt + badDebts.DOLA.nonFrontierBadDebtBalance;
         badDebts.DOLA.badDebtBalance = dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].badDebt;
         
         const iousHeld = iouHoldersData?.data?.items?.map(d => d.balance)
