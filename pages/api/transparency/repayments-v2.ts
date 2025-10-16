@@ -215,14 +215,14 @@ export default async function handler(req, res) {
 
         // const nonFrontierDolaRepaidByDAO = dolaB1RepaidByDAO.concat(dolaFuse6RepaidByDAO).concat(dolaBadgerRepaidByDAO).concat(dolaEulerRepaidByDAO).sort((a, b) => a.timestamp - b.timestamp);
         const firmDolaRepaidByDAO = [
-            {
-                "blocknumber": 23590296,
-                "amount": 110310,
-                "timestamp": 1760604167000,
-                "date": "2025-10-16",
-                "txHash": "0x3fbe1d8acd10627e490eae0b5b1ca3abed6b22a7ed764f99292f1836838f0240",
-                "logIndex": 74
-            }
+            // {
+            //     "blocknumber": 23590296,
+            //     "amount": 110310,
+            //     "timestamp": 1760604167000,
+            //     "date": "2025-10-16",
+            //     "txHash": "0x3fbe1d8acd10627e490eae0b5b1ca3abed6b22a7ed764f99292f1836838f0240",
+            //     "logIndex": 74
+            // }
         ];
         const totalDolaRepaidByDAO = archivedData
             .totalDolaRepaidByDAO
