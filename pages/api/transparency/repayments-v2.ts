@@ -86,7 +86,7 @@ export default async function handler(req, res) {
         const currentBlock = await provider.getBlockNumber();
         const currentTotalDolaFrontierBorrows = getBnToNumber(await anDola.callStatic.totalBorrowsCurrent({ blockTag: currentBlock }));
         const postArchiveV5Block = (archivedData.lastBlock || 22867534) + 1;
-       
+
         const [
             debtConverterRepaymentsEvents,
             debtConverterConversionsEvents,
@@ -143,7 +143,7 @@ export default async function handler(req, res) {
         // });
 
         const dolaRepaymentsBlocks = dolaFrontierRepayEvents.map(e => e.blockNumber);
-        
+
         // const dolaFrontierDebts = await getBadDebtEvolution(dolaRepaymentsBlocks, currentBlock);
 
         const blocksNeedingTs =
@@ -214,9 +214,20 @@ export default async function handler(req, res) {
         });
 
         // const nonFrontierDolaRepaidByDAO = dolaB1RepaidByDAO.concat(dolaFuse6RepaidByDAO).concat(dolaBadgerRepaidByDAO).concat(dolaEulerRepaidByDAO).sort((a, b) => a.timestamp - b.timestamp);
+        const firmDolaRepaidByDAO = [
+            {
+                "blocknumber": 23590296,
+                "amount": 110310,
+                "timestamp": 1760604167000,
+                "date": "2025-10-16",
+                "txHash": "0x3fbe1d8acd10627e490eae0b5b1ca3abed6b22a7ed764f99292f1836838f0240",
+                "logIndex": 74
+            }
+        ];
         const totalDolaRepaidByDAO = archivedData
             .totalDolaRepaidByDAO
             .concat(dolaFrontierRepaidByDAO)
+            .concat(firmDolaRepaidByDAO)
             // .concat(nonFrontierDolaRepaidByDAO)
             .sort((a, b) => a.timestamp - b.timestamp);
 
@@ -358,12 +369,15 @@ export default async function handler(req, res) {
             // }
         });
 
+        const formattedFirmPositionsRes = await fetch('https://inverse.finance/api/f2/formatted-firm-positions');
+        const firmPositionsData = await formattedFirmPositionsRes.json();
+        const firmBadDebt = firmPositionsData.formattedPositions.filter(i => i.debtInMarket > i.depositsWorth).reduce((prev, curr) => prev + curr.debtInMarket, 0);
         // TODO: handle FiRM bad debt logic
-        badDebts.DOLA.nonFrontierBadDebtBalance = 0;
+        badDebts.DOLA.nonFrontierBadDebtBalance = firmBadDebt;
         badDebts.DOLA.frontierBadDebtBalance = dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].badDebt;//dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].frontierBadDebt;
         dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].badDebt = dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].badDebt + badDebts.DOLA.nonFrontierBadDebtBalance;
         badDebts.DOLA.badDebtBalance = dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].badDebt;
-        
+
         const iousHeld = iouHoldersData?.data?.items?.map(d => d.balance)
             .reduce((prev, curr) => prev + getBnToNumber(parseUnits(curr, 0)), 0) || 0;
         const iouExRate = getBnToNumber(iousExRateMantissa);
