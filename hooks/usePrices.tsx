@@ -6,7 +6,7 @@ import useEtherSWR from './useEtherSWR'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useCacheFirstSWR, useCustomSWR } from './useCustomSWR'
-import { DOLA_FEED, HAS_REWARD_TOKEN, TOKENS_VIEWER } from '@app/config/constants'
+import { DOLA_ETH_CHAINLINK_FEED, DOLA_FEED, HAS_REWARD_TOKEN, TOKENS_VIEWER } from '@app/config/constants'
 import { formatUnits } from '@ethersproject/units'
 import { TOKENS, UNDERLYING } from '@app/variables/tokens'
 import { getLPPrice } from '@app/util/contracts'
@@ -112,7 +112,7 @@ export const useINVPrice = (): SWR & { price: number } => {
 export const useDOLAPriceLive = (): { price: number | undefined } => {
   const { data: dolaPrice } = useEtherSWR({
     args: [
-      [DOLA_FEED, 'latestAnswer'],
+      [DOLA_ETH_CHAINLINK_FEED, 'latestAnswer'],
     ],
     abi: [
       'function latestAnswer() public view returns(int256)',
@@ -120,7 +120,8 @@ export const useDOLAPriceLive = (): { price: number | undefined } => {
   });
 
   return {
-    price: dolaPrice ? getBnToNumber(dolaPrice[0]) : undefined,
+    // the chainlink feed returns 8 decimals
+    price: dolaPrice ? getBnToNumber(dolaPrice[0], 8) : undefined,
   }
 }
 

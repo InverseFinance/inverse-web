@@ -4,7 +4,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { CHAIN_ID, ONE_DAY_MS, SDOLA_ADDRESS } from '@app/config/constants';
 import { formatDolaStakingData, getDolaSavingsContract, getSdolaContract } from '@app/util/dola-staking';
 import { getMulticallOutput } from '@app/util/multicall';
-import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
+import { getChainlinkDolaUsdPrice, getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 import { getWeekIndexUtc } from '@app/util/misc';
 import { getOnChainData } from '../dola/sdola-comparator';
 import { getBnToNumber } from '@app/util/markets';
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
 
         const promises = await Promise.allSettled([
             getDbrPriceOnCurve(provider),
-            getDolaUsdPriceOnCurve(provider),
+            getChainlinkDolaUsdPrice(provider),
             getOnChainData([{ address: SDOLA_ADDRESS, isNotVault: false }]),
             isIncludeSpectra ? fetch(`https://yields.llama.fi/pools`).then(r => r.json()) : Promise.resolve({data:[]}),
         ]);

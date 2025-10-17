@@ -9,7 +9,7 @@ import { COMPTROLLER_ABI, ORACLE_ABI, SVAULT_ABI } from '@app/config/abis'
 import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 import { getTokenData } from '@app/util/livecoinwatch'
-import { getDolaUsdPriceOnCurve } from '@app/util/f2'
+import { getChainlinkDolaUsdPrice } from '@app/util/f2'
 import { dolaStakingCacheKey } from './dola-staking'
 import { getBnToNumber } from '@app/util/markets'
 
@@ -102,15 +102,15 @@ export default async function handler(req, res) {
     const sUSDSContract = new Contract('0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD', SVAULT_ABI, provider);
 
     const [dolaUsdCurveData, dolaStakingData, sUSDSExRateBn] = await Promise.all([
-      getDolaUsdPriceOnCurve(getProvider(NetworkIds.mainnet)),
+      getChainlinkDolaUsdPrice(getProvider(NetworkIds.mainnet)),
       getCacheFromRedis(dolaStakingCacheKey, false),
       sUSDSContract.convertToAssets('1000000000000000000'),
     ]);
 
-    const { price: dolaOnChainPrice, tvl: crvUsdDolaTvl } = dolaUsdCurveData;
+    const { price: chainlinkDolaUsdPrice } = dolaUsdCurveData;
     const { sDolaExRate } = dolaStakingData;
-    prices['dola-onchain-usd'] = dolaOnChainPrice;
-    prices['dola-usd'] = crvUsdDolaTvl >= 500000 ? dolaOnChainPrice : prices['dola-usd-cg'] || prices['dola-usd-lcw'];
+    prices['dola-onchain-usd'] = chainlinkDolaUsdPrice;
+    prices['dola-usd'] = chainlinkDolaUsdPrice;
 
     let lps: { token: Token, chainId: string }[] = [];
 

@@ -6,7 +6,7 @@ import { getHistoricValue, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { BLOCKS_PER_DAY, CHAIN_ID } from '@app/config/constants';
-import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
+import { getChainlinkDolaUsdPrice, getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 import { throttledPromises, timestampToUTC } from '@app/util/misc';
 import { Web3Provider } from '@ethersproject/providers';
 import { DBR_CG_HISTO_PRICES } from '@app/fixtures/dbr-prices';
@@ -66,7 +66,7 @@ const getHistoPrices = async (contract: Contract, blocks: number[]) => {
     const dolaUsdPrices =
       await throttledPromises(
           (block: number) => {
-              return getDolaUsdPriceOnCurve(contract.provider, block);
+              return getChainlinkDolaUsdPrice(contract.provider, block);
           },
           blocks,
           5,
@@ -109,7 +109,7 @@ export default async function handler(req, res) {
     const queries = [
       balancerVault.getPoolTokens('0x445494f823f3483ee62d854ebc9f58d5b9972a25000200000000000000000415'),
       getDbrPriceOnCurve(provider),
-      getDolaUsdPriceOnCurve(provider),
+      getChainlinkDolaUsdPrice(provider),
     ].concat(withExtra ? [
       dbr.totalSupply(),
       dbr.totalDueTokensAccrued(),
@@ -126,17 +126,17 @@ export default async function handler(req, res) {
       await redisSetWithTimestamp(triDbrKey, results[9]);
     }
 
-    const [poolData, curvePriceData, curveDolaPriceData] = results;
+    const [poolData, curvePriceData, chainlinkData] = results;
     const priceOnBalancer = poolData && poolData[1] ? getBnToNumber(poolData[1][0]) / getBnToNumber(poolData[1][1]) : 0.05;
 
     const { priceInDola: priceOnCurve } = curvePriceData;
-    const { price: dolaUsdPriceOnCurve } = curveDolaPriceData;
+    const { price: dolaChainlinkUsdPrice } = chainlinkData;
     
     const resultData = {
-      timestamp: +(new Date()),
+      timestamp: Date.now(),
       priceOnBalancer,
       priceDola: priceOnCurve,
-      priceUsd: priceOnCurve * dolaUsdPriceOnCurve,
+      priceUsd: priceOnCurve * dolaChainlinkUsdPrice,
       totalSupply: withExtra ? getBnToNumber(results[3]) : undefined,
       totalDueTokensAccrued: withExtra ? getBnToNumber(results[4]) : undefined,
       operator: withExtra ? results[5] : undefined,

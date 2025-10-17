@@ -2,7 +2,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
 import { getProvider } from "@app/util/providers";
 import { NetworkIds } from "@app/types";
 import { getNetworkConfigConstants } from "@app/util/networks";
-import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from "@app/util/f2";
+import { getChainlinkDolaUsdPrice, getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from "@app/util/f2";
 import { inverseViewer } from "@app/util/viewer";
 
 const { F2_MARKETS } = getNetworkConfigConstants();
@@ -25,7 +25,7 @@ export default async (req, res) => {
         ] = await Promise.all([
             ifvr.firm.getMarketListData(F2_MARKETS.map(m => m.address)),
             getDbrPriceOnCurve(provider),
-            getDolaUsdPriceOnCurve(provider),
+            getChainlinkDolaUsdPrice(provider),
         ]);
 
         const { priceInDola: dbrPrice } = dbrPriceData;
