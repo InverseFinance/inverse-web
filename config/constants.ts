@@ -85,3 +85,4 @@ export const ALE_V2 = '0x5233f4C2515ae21B540c438862Abb5603506dEBC';
 // contract name will say ALEV2 though, but it's the v3
 export const ALE_V3 = '0x4dF2EaA1658a220FDB415B9966a9ae7c3d16e240';
 export const PSM_ADDRESS = '0x4Dfd662622D766304Cb539e66f893c4dEFA19398';
+export const DOLA_ETH_CHAINLINK_FEED = '0xE33592594f72Cc7ec8a05788be8E8455746C3a32';

@@ -1,5 +1,5 @@
 import { F2_HELPER_ABI, F2_MARKET_ABI, F2_ESCROW_ABI } from "@app/config/abis";
-import { BURN_ADDRESS, CHAIN_ID, DEFAULT_FIRM_HELPER_TYPE, DOLA_FEED, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
+import { BURN_ADDRESS, CHAIN_ID, DEFAULT_FIRM_HELPER_TYPE, DOLA_ETH_CHAINLINK_FEED, DOLA_FEED, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import { F2Market } from "@app/types";
 import { BlockTag, JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
@@ -458,6 +458,22 @@ export const getHistoricDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner
     const priceInDola = getBnToNumber(priceInDolaBn);
     const priceInInv = getBnToNumber(dbrOutForOneInvBn) > 0 ? 1 / getBnToNumber(dbrOutForOneInvBn) : 0;
     return { priceInDolaBn: priceInDolaBn, priceInDola: priceInDola, priceInInv: priceInInv, block };
+}
+
+export const getChainlinkDolaUsdPrice = async (SignerOrProvider: JsonRpcSigner | Web3Provider, block?: BlockTag) => {
+    try {
+        const dolaFeedContract = new Contract(DOLA_ETH_CHAINLINK_FEED, ['function latestAnswer() public view returns(int256)'], SignerOrProvider);
+       
+        const [dolaPriceUsd] = await getMulticallOutput([
+            { contract: dolaFeedContract, functionName: 'latestAnswer' },
+        ], 1, block);
+        return {
+            // the chainlink feed returns 8 decimals
+            price: getBnToNumber(dolaPriceUsd, 8),
+        };
+    } catch (e) {
+        return { price: 0, error: true };
+    }
 }
 
 export const getDolaUsdPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider, block?: BlockTag) => {
