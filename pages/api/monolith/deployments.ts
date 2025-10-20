@@ -96,6 +96,7 @@ export default async function handler(req, res) {
       Number(chainId),
       currentBlock,
       provider,
+      true,
     );
 
     const deployedEvents = cachedEvents.concat(newEvents);
@@ -249,6 +250,7 @@ export default async function handler(req, res) {
       Number(chainId),
       currentBlock,
       provider,
+      true,
     );
 
     deployments.forEach((e, i) => {
@@ -300,16 +302,23 @@ export default async function handler(req, res) {
       e.operatorEnsName = ensNames[distinctIndex] || '';
     });
 
-    const [realTimeBorrowRate] = await getGroupedMulticallOutputs(
+    const [realTimeBorrowRate, psmAssetSymbols, psmVaultSymbols] = await getGroupedMulticallOutputs(
       [
         deployments.map((e, i) => {
           const timeElapsed = Math.floor((now / 1000 - e.lastAccrue));
           return { contract: new Contract(e.interestModel, INTEREST_MODEL_ABI, provider), functionName: 'calculateInterest', params: [totalPaidDebt[i], lastBorrowRateMantissa[i], timeElapsed, expRate[i], getNumberToBn(e.freeDebtRatio, 4), targetFreeDebtRatioStartBps[i], targetFreeDebtRatioEndBps[i]] }
         }),
+        deployments.map(e => {
+          return { contract: new Contract(e.psmAsset, ERC20_ABI, provider), functionName: 'symbol', forceFallback: !e.psmAsset || e.psmAsset === BURN_ADDRESS, fallbackValue: '' }
+        }),
+        deployments.map(e => {
+          return { contract: new Contract(e.psmVault, ERC20_ABI, provider), functionName: 'symbol', forceFallback: !e.psmVault || e.psmVault === BURN_ADDRESS, fallbackValue: '' }
+        }),
       ],
       Number(chainId),
       currentBlock,
       provider,
+      true,
     );
 
     deployments.forEach((e, i) => {
@@ -328,6 +337,8 @@ export default async function handler(req, res) {
       e.borrowApy = aprToApy(e.borrowApr, BLOCKS_PER_YEAR);
       e.stakingApr = apr;
       e.stakingApy = apy;
+      e.psmAssetSymbol = psmAssetSymbols[i];
+      e.psmVaultSymbol = psmVaultSymbols[i];
     });
 
     const resultData = {
