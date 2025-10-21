@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     const invContract = new Contract(INV, INV_ABI, provider);
 
     const mainnet = getNetwork(NetworkIds.mainnet);
-    const multisigsToShow = MULTISIGS;
+    const multisigsToShow = MULTISIGS.filter(m => m.chainId !== NetworkIds.ftm);
 
     let dolaBridgedSupplies = [];
     let invBridgedSupplies = [];
