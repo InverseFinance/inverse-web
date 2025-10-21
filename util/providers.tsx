@@ -54,8 +54,26 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
 }
 
 export const getPaidProvider = (chainId: string | number) => {
-    if(chainId?.toString() === NetworkIds.mainnet || chainId?.toString() === NetworkIds.sepolia) {
-        return new InfuraProvider(Number(chainId), getRandomFromStringList(process.env.INFURA_KEYS!));
+    if (chainId?.toString() === NetworkIds.mainnet) {
+        return new JsonRpcProvider(`https://mainnet.infura.io/v3/${getRandomFromStringList(process.env.INFURA_KEYS!)}`)
+    }
+    else if (chainId?.toString() === NetworkIds.sepolia) {
+        return new JsonRpcProvider(`https://sepolia.infura.io/v3/${getRandomFromStringList(process.env.INFURA_KEYS!)}`)
+    }
+    else if (chainId?.toString() === NetworkIds.optimism) {
+        return new JsonRpcProvider(`https://optimism-mainnet.infura.io/v3/${getRandomFromStringList(process.env.INFURA_KEYS!)}`)
+    } else if (chainId?.toString() === NetworkIds.base) {
+        return new JsonRpcProvider(`https://base-mainnet.infura.io/v3/${getRandomFromStringList(process.env.INFURA_KEYS!)}`)
+    } else if (chainId?.toString() === NetworkIds.arbitrum) {
+        console.log('arbitrum');
+        return new JsonRpcProvider(`https://arbitrum-mainnet.infura.io/v3/${getRandomFromStringList(process.env.INFURA_KEYS!)}`)
+    } else if (chainId?.toString() === NetworkIds.polygon) {
+        return new JsonRpcProvider(`https://polygon-mainnet.infura.io/v3/${getRandomFromStringList(process.env.INFURA_KEYS!)}`)
+    } else if (chainId?.toString() === NetworkIds.avalanche) {
+        return new JsonRpcProvider(`https://avalanche-mainnet.infura.io/v3/${getRandomFromStringList(process.env.INFURA_KEYS!)}`)
+    }
+    else if (chainId?.toString() === NetworkIds.bsc) {
+        return new JsonRpcProvider(`https://bsc-mainnet.infura.io/v3/${getRandomFromStringList(process.env.INFURA_KEYS!)}`)
     }
     return getProvider(chainId);
 }
