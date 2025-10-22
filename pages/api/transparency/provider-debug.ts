@@ -27,10 +27,6 @@ export default async function handler(req, res) {
         ]);
         
         return res.status(200).json({
-          inc,
-          exc,
-          include, 
-          exclude,
           multisigsToShow,
           multisigsOwners,
           multisigsThresholds,
