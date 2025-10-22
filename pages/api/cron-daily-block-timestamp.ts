@@ -26,11 +26,17 @@ export default async function handler(req, res) {
         const utcDate = timestampToUTC(Date.now());
 
         for (let chainId of [NetworkIds.mainnet, ...DOLA_BRIDGED_CHAINS]) {
-            const provider = getProvider(chainId);
-            const currentBlock = await provider.getBlockNumber();
+            try {
+                const provider = getProvider(chainId);
+                const currentBlock = await provider.getBlockNumber();
 
-            if (!utcKeyBlockValues[chainId]) utcKeyBlockValues[chainId] = {};
-            utcKeyBlockValues[chainId][utcDate] = currentBlock;
+                if (!utcKeyBlockValues[chainId]) utcKeyBlockValues[chainId] = {};
+                utcKeyBlockValues[chainId][utcDate] = currentBlock;
+            } catch(err) {
+                console.log('chainId===', chainId);
+                console.error(err);
+                console.log('chainId===', chainId);
+            }
         };
 
         await redisSetWithTimestamp(DAILY_UTC_CACHE_KEY, utcKeyBlockValues);
