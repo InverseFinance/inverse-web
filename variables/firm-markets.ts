@@ -429,7 +429,7 @@ export const FIRM_MARKETS = [
         isAleWithoutSwap: true,
         convexRewardsAddress: '0xf1d547f657a05A4A081F899070A5585eb9F326b2',
         isInv: false,
-        points: 15,
+        points: 30,
         pointsImage: 'https://assets.coingecko.com/coins/images/36530/standard/ethena.png?1711701436',
     },
     {
@@ -450,7 +450,7 @@ export const FIRM_MARKETS = [
         underlyingSymbol: 'sUSDe-DOLA',
         isAleWithoutSwap: true,
         isInv: false,
-        points: 15,
+        points: 30,
         pointsImage: 'https://assets.coingecko.com/coins/images/36530/standard/ethena.png?1711701436',
     },
     {
