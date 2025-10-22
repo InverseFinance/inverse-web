@@ -9,7 +9,7 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
         return new JsonRpcProvider('http://127.0.0.1:8545/');
     }
     else if (chainId === NetworkIds.ftm && !specificAlchemyKey) {
-        return new JsonRpcProvider('https://fantom.drpc.org');
+        return new JsonRpcProvider('https://1rpc.io/ftm');
     }
     else if (chainId === NetworkIds.optimism && !specificAlchemyKey) {
         return new JsonRpcProvider('https://mainnet.optimism.io');
@@ -25,8 +25,8 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     }
     else if (chainId === NetworkIds.avalanche && !specificAlchemyKey) {
         // return new JsonRpcProvider('https://rpc.ankr.com/avalanche');
-        // return new JsonRpcProvider('https://api.avax.network/ext/bc/C/rpc');
-        return new JsonRpcProvider('https://avalanche.drpc.org');
+        return new JsonRpcProvider('https://api.avax.network/ext/bc/C/rpc');
+        // return new JsonRpcProvider('https://avalanche.drpc.org');
     }
     else if (chainId === NetworkIds.base && !specificAlchemyKey) {
         return new JsonRpcProvider('https://mainnet.base.org');
