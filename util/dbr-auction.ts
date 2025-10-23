@@ -5,7 +5,7 @@ import { BigNumber, Contract } from "ethers";
 import { ascendingEventsSorter } from "./misc";
 import { useBlocksTimestamps } from "@app/hooks/useBlockTimestamp";
 import { getBnToNumber, getNumberToBn } from "./markets";
-import { useCustomSWR } from "@app/hooks/useCustomSWR";
+import { useCustomSWR, useLocalCacheOnly } from "@app/hooks/useCustomSWR";
 import { SWR } from "@app/types";
 import { fetcher } from "./web3";
 import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, SDOLA_ADDRESS, SINV_ADDRESS } from "@app/config/constants";
@@ -152,7 +152,7 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     last100SinvAuctionEvents: any[],
 } => {
     const liveEvents = []//useDbrAuctionBuyEvents(from);
-    const { data, error } = useCustomSWR(`/api/auctions/dbr-buys?v=1.0.1`, fetcher);
+    const { data, error } = useLocalCacheOnly(`/api/auctions/dbr-buys?v=1.0.1`, fetcher);
 
     const events = (liveEvents?.length > data?.buys?.length ? liveEvents : data?.buys || [])
         .map(formatAuctionEvents)

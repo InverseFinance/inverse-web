@@ -5,6 +5,16 @@ import useStorage from '@app/hooks/useStorage';
 import { useEffect } from 'react';
 import { PublicConfiguration } from 'swr/dist/types';
 
+export const useLocalCacheOnly = (key: string, fetcher = defaultFetcher, config?: Partial<PublicConfiguration>): SWR & { data: any, error: any } => {
+  const { value } = useStorage(key);
+
+  return {
+    data: value,
+    isLoading: false,
+    isError: false,
+  }
+}
+
 export const useCustomSWR = (key: string, fetcher = defaultFetcher, config?: Partial<PublicConfiguration>): SWR & { data: any, error: any } => {
   const { value, setter } = useStorage(key);
   const { data, error } = useSWR(key, fetcher, config);

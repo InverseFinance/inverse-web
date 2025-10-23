@@ -135,7 +135,8 @@ export const LocalDraftProposals = ({ drafts }: { drafts: any[] }) => {
 
 export const ActiveProposals = () => {
   const { proposals } = useProposals()
-  const { nbActiveNotif } = useGovernanceNotifs()
+  const nbActiveNotif = 0;
+  // const { nbActiveNotif } = useGovernanceNotifs()
 
   const active = proposals
     ?.filter((proposal: Proposal) => proposal.status === ProposalStatus.active)

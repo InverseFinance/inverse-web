@@ -99,7 +99,7 @@ export const ProposalPreview = ({
   onTagSelect?: (tag: { name: string, address: string }) => void,
 }) => {
   const { query } = useRouter()
-  const { unreadKeys } = useGovernanceNotifs()
+  // const { unreadKeys } = useGovernanceNotifs()
   const { themeStyles } = useAppTheme();
   const { title, id, etaTimestamp, endTimestamp, createdAt, updatedAt, startTimestamp, forVotes, againstVotes, status, era, description, functions, proposer, executionTimestamp } = proposal
 
@@ -115,7 +115,7 @@ export const ProposalPreview = ({
       }
     }
 
-  const isUnread = unreadKeys.includes(isPublicDraft ? `draft-${proposal.id}` : `active-${proposal.proposalNum}`);
+  const isUnread = false//unreadKeys.includes(isPublicDraft ? `draft-${proposal.id}` : `active-${proposal.proposalNum}`);
 
   const forumLink = (proposal.description.match(/https:\/\/forum\.inverse\.finance[^\s*)]+/i) || [''])[0];
 
