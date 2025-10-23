@@ -9,6 +9,13 @@ export default async function handler(req, res) {
   const cacheDuration = 99999;
   res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   try {
+    return res.status(200).json({
+      blockNumber: 0,
+      timestamp: 0,
+      activeProposalsKeys: [],
+      draftKeys: [],
+      keys: [],
+    });
     const data: any = await getCacheFromRedis(proposalsCacheKey, false, 0, true) || { proposals: [] };
     
     if (!data) {

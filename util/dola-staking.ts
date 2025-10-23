@@ -5,7 +5,7 @@ import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import { aprToApy, getBnToNumber } from "./markets";
 import { useAccount } from "@app/hooks/misc";
-import { useCacheFirstSWR, useCustomSWR } from "@app/hooks/useCustomSWR";
+import { useCacheFirstSWR, useCustomSWR, useLocalCacheOnly } from "@app/hooks/useCustomSWR";
 import { useContractEvents } from "@app/hooks/useContractEvents";
 import { ascendingEventsSorter, getLastThursdayTimestamp, getWeekIndexUtc } from "./misc";
 import { useBlocksTimestamps } from "@app/hooks/useBlockTimestamp";
@@ -243,7 +243,7 @@ export const useDolaStakingActivity = (from?: string, type = 'dsa'): SWR & {
     timestamp: number,
 } => {
     // const liveEvents = useDolaStakingEvents();
-    const { data, error } = useCustomSWR(`/api/dola-staking/activity?account=${from||''}`, fetcher);
+    const { data, error } = useLocalCacheOnly(`/api/dola-staking/activity?account=${from||''}`, fetcher);
 
     const events = data?.events || []
     //(liveEvents?.length > data?.events?.length ? liveEvents : data?.events || [])
