@@ -27,14 +27,14 @@ const getData = async (sInvEscrowContract, distroContract, sInvContract) => {
 
 export default async function handler(req, res) {
     const { cacheFirst, ignoreCache } = req.query;
-    const cacheDuration = 300;
+    const cacheDuration = 900;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     try {
-        const validCache = await getCacheFromRedis(invStakingCacheKey, cacheFirst !== 'true', cacheDuration);
-        if(validCache && ignoreCache !== 'true') {
-          res.status(200).json(validCache);
-          return;
-        }
+        // const validCache = await getCacheFromRedis(invStakingCacheKey, cacheFirst !== 'true', cacheDuration);
+        // if(validCache && ignoreCache !== 'true') {
+        //   res.status(200).json(validCache);
+        //   return;
+        // }
 
         const provider = getProvider(CHAIN_ID);  
         const distroContract = getDbrDistributorContract(provider);
@@ -65,7 +65,7 @@ export default async function handler(req, res) {
             V1: v1FormattedData,            
         }
 
-        await redisSetWithTimestamp(invStakingCacheKey, resultData);
+        // await redisSetWithTimestamp(invStakingCacheKey, resultData);
 
         res.status(200).json(resultData)
     } catch (err) {
