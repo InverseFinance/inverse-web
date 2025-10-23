@@ -103,35 +103,37 @@ export const Governance = ({ proposal }: { proposal: Proposal }) => {
 export default Governance
 
 // static with revalidate as on-chain proposal content cannot change but the status/votes can
-// export async function getStaticProps(context) {
-//   const { slug } = context.params;
-//   const { proposals } = await getCacheFromRedis(proposalsCacheKey, false, 0, true) || { proposals: [] };
+export async function getStaticProps(context) {
+  const { slug } = context.params;
+  // const { proposals } = await getCacheFromRedis(proposalsCacheKey, false, 0, true) || { proposals: [] };
+  const { proposals } = await fetch('https://inverse.finance/api/proposals').then(res => res.json());
 
-//   const proposal = proposals?.map(p => ({ ...p, era: fixEraTypo(p.era) }))
-//     .find((p: Proposal) => {
-//       return slug.length === 1 ?
-//         p.proposalNum.toString() === slug[0] :
-//         p.era === fixEraTypo(slug[0]) && p.id.toString() === slug[1]
-//     }) || {} as Proposal;
+  const proposal = proposals?.map(p => ({ ...p, era: fixEraTypo(p.era) }))
+    .find((p: Proposal) => {
+      return slug.length === 1 ?
+        p.proposalNum.toString() === slug[0] :
+        p.era === fixEraTypo(slug[0]) && p.id.toString() === slug[1]
+    }) || {} as Proposal;
 
-//   return {
-//     props: { proposal: proposal },
-//     revalidate: [ProposalStatus.executed, ProposalStatus.expired, ProposalStatus.defeated, ProposalStatus.canceled].includes(proposal.status) ? undefined : 60,
-//   }
-// }
+  return {
+    props: { proposal: proposal },
+    revalidate: [ProposalStatus.executed, ProposalStatus.expired, ProposalStatus.defeated, ProposalStatus.canceled].includes(proposal.status) ? undefined : 60,
+  }
+}
 
-// export async function getStaticPaths() {
-//   if (!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID)) {
-//     return { paths: [], fallback: true }
-//   }
-//   const { proposals } = await getCacheFromRedis(proposalsCacheKey, false, 0, true) || { proposals: [] };
+export async function getStaticPaths() {
+  if (!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID)) {
+    return { paths: [], fallback: true }
+  }
+  // const { proposals } = await getCacheFromRedis(proposalsCacheKey, false, 0, true) || { proposals: [] };
+  const { proposals } = await fetch('https://inverse.finance/api/proposals').then(res => res.json());
 
-//   const possiblePaths = proposals.map(p => {
-//     return `/governance/proposals/${p.era}/${p.id}`;
-//   });
+  const possiblePaths = proposals.map(p => {
+    return `/governance/proposals/${p.era}/${p.id}`;
+  });
 
-//   return {
-//     paths: possiblePaths,
-//     fallback: true,
-//   }
-// }
+  return {
+    paths: possiblePaths,
+    fallback: true,
+  }
+}
