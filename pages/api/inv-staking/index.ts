@@ -43,7 +43,8 @@ export default async function handler(req, res) {
         const sInvEscrowContract = getSinvEscrowContract(provider);
         const sInvEscrowContractV1 = getSinvEscrowContract(provider, SINV_ESCROW_ADDRESS_V1);
         
-        const firmMarkets = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, false) || { markets: [] };
+        // const firmMarkets = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, false) || { markets: [] };
+        const firmMarkets = await fetch('https://inverse.finance/api/f2/fixed-markets?cacheFirst=true').then(res => res.json());
         const firmInv = firmMarkets.markets.find(m => m.name === 'INV');
 
         const [invStakingDataV2, invStakingDataV1] = await Promise.all([
