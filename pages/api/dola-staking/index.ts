@@ -46,14 +46,14 @@ export default async function handler(req, res) {
         const promises = await Promise.allSettled([
             getDbrPriceOnCurve(provider),
             getChainlinkDolaUsdPrice(provider),
-            getOnChainData([{ address: SDOLA_ADDRESS, isNotVault: false }]),
+            // getOnChainData([{ address: SDOLA_ADDRESS, isNotVault: false }]),
             isIncludeSpectra ? fetch(`https://yields.llama.fi/pools`).then(r => r.json()) : Promise.resolve({data:[]}),
         ]);
 
         const [
             dbrPriceData,
             dolaPriceData,
-            historicalSDolaRates,
+            // historicalSDolaRates,
             llamaPools,
         ] = promises.map(p => p.status === 'fulfilled' ? p.value : undefined);
 
@@ -76,7 +76,8 @@ export default async function handler(req, res) {
             spectraPool: highestSpectraPool,
             dolaPriceUsd,
             tvlUsd: getBnToNumber(dolaStakingData[9], 18) * dolaPriceUsd,
-            ...historicalSDolaRates[0],
+            apy30d: 7.26623,
+            // ...historicalSDolaRates[0],
             ...formatDolaStakingData(dbrDolaPrice * dolaPriceUsd, dolaStakingData),
         }
 
