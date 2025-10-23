@@ -25,7 +25,7 @@ export default async (req, res) => {
         ] = await Promise.all([
             ifvr.firm.getMarketListData(F2_MARKETS.map(m => m.address)),
             getDbrPriceOnCurve(provider),
-            getChainlinkDolaUsdPrice(provider),
+            getDolaUsdPriceOnCurve(provider),
         ]);
 
         const { priceInDola: dbrPrice } = dbrPriceData;

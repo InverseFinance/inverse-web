@@ -45,7 +45,7 @@ export default async function handler(req, res) {
 
         const promises = await Promise.allSettled([
             getDbrPriceOnCurve(provider),
-            getChainlinkDolaUsdPrice(provider),
+            getDolaUsdPriceOnCurve(provider),
             // getOnChainData([{ address: SDOLA_ADDRESS, isNotVault: false }]),
             isIncludeSpectra ? fetch(`https://yields.llama.fi/pools`).then(r => r.json()) : Promise.resolve({data:[]}),
         ]);
