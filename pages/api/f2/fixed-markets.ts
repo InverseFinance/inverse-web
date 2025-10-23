@@ -18,7 +18,7 @@ const { F2_MARKETS } = getNetworkConfigConstants();
 export const F2_MARKETS_CACHE_KEY = `f2markets-v1.6.96`;
 
 export default async function handler(req, res) {
-  const cacheDuration = 90;
+  const cacheDuration = 120;
   res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
   res.setHeader('Access-Control-Allow-Origin', `*`);

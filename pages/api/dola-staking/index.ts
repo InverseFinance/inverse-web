@@ -13,7 +13,7 @@ export const dolaStakingCacheKey = `dola-staking-v1.0.4`;
 
 export default async function handler(req, res) {
     const { cacheFirst, ignoreCache, includeSpectra } = req.query;
-    const cacheDuration = 300;
+    const cacheDuration = 600;
     const isIncludeSpectra = includeSpectra === 'true';
     const cacheKey = isIncludeSpectra ? `${dolaStakingCacheKey}-spectra` : dolaStakingCacheKey;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);

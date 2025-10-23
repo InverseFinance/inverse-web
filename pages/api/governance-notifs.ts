@@ -6,7 +6,7 @@ import { proposalsCacheKey } from "./proposals";
 const client = getRedisClient();
 
 export default async function handler(req, res) {
-  const cacheDuration = 120;
+  const cacheDuration = 99999;
   res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   try {
     const data: any = await getCacheFromRedis(proposalsCacheKey, false, 0, true) || { proposals: [] };
