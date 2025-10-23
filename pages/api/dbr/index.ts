@@ -66,7 +66,7 @@ const getHistoPrices = async (contract: Contract, blocks: number[]) => {
     const dolaUsdPrices =
       await throttledPromises(
           (block: number) => {
-              return getChainlinkDolaUsdPrice(contract.provider, block);
+              return getDolaUsdPriceOnCurve(contract.provider, block);
           },
           blocks,
           5,
@@ -109,7 +109,7 @@ export default async function handler(req, res) {
     const queries = [
       balancerVault.getPoolTokens('0x445494f823f3483ee62d854ebc9f58d5b9972a25000200000000000000000415'),
       getDbrPriceOnCurve(provider),
-      getChainlinkDolaUsdPrice(provider),
+      getDolaUsdPriceOnCurve(provider),
     ].concat(withExtra ? [
       dbr.totalSupply(),
       dbr.totalDueTokensAccrued(),

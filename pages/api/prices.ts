@@ -9,7 +9,7 @@ import { COMPTROLLER_ABI, ORACLE_ABI, SVAULT_ABI } from '@app/config/abis'
 import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 import { getTokenData } from '@app/util/livecoinwatch'
-import { getChainlinkDolaUsdPrice } from '@app/util/f2'
+import { getChainlinkDolaUsdPrice, getDolaUsdPriceOnCurve } from '@app/util/f2'
 import { dolaStakingCacheKey } from './dola-staking'
 import { getBnToNumber } from '@app/util/markets'
 
@@ -102,7 +102,7 @@ export default async function handler(req, res) {
     const sUSDSContract = new Contract('0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD', SVAULT_ABI, provider);
 
     const [dolaUsdCurveData, dolaStakingData, sUSDSExRateBn] = await Promise.all([
-      getChainlinkDolaUsdPrice(getProvider(NetworkIds.mainnet)),
+      getDolaUsdPriceOnCurve(getProvider(NetworkIds.mainnet)),
       getCacheFromRedis(dolaStakingCacheKey, false),
       sUSDSContract.convertToAssets('1000000000000000000'),
     ]);

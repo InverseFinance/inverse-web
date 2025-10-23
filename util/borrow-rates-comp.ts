@@ -129,7 +129,7 @@ export const getAaveV3RateOf = async (provider, symbol: 'DAI' | 'USDC' | 'USDT')
 export const getFirmRate = async (provider) => {
     const firmRate = { project: 'FiRM', hasLeverage: true, borrowRate: 0, type: 'fixed', collateral: 'Multiple', borrowToken: 'DOLA', link: 'https://inverse.finance/firm' };
     try {
-        const { price: dolaPrice } = await getChainlinkDolaUsdPrice(provider);
+        const { price: dolaPrice } = await getDolaUsdPriceOnCurve(provider);
         return { ...firmRate, borrowRate: (await getDbrPriceOnCurve(provider)).priceInDola * dolaPrice * 100 }
     } catch (e) {
         console.log('Err fetching compound rate');

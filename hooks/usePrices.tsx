@@ -112,7 +112,7 @@ export const useINVPrice = (): SWR & { price: number } => {
 export const useDOLAPriceLive = (): { price: number | undefined } => {
   const { data: dolaPrice } = useEtherSWR({
     args: [
-      [DOLA_ETH_CHAINLINK_FEED, 'latestAnswer'],
+      [DOLA_FEED, 'latestAnswer'],
     ],
     abi: [
       'function latestAnswer() public view returns(int256)',
@@ -121,7 +121,7 @@ export const useDOLAPriceLive = (): { price: number | undefined } => {
 
   return {
     // the chainlink feed returns 8 decimals
-    price: dolaPrice ? getBnToNumber(dolaPrice[0], 8) : undefined,
+    price: dolaPrice ? getBnToNumber(dolaPrice[0], 18) : undefined,
   }
 }
 

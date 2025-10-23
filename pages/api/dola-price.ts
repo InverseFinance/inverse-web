@@ -3,21 +3,21 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds, Prices } from '@app/types'
 import { getTokenData } from '@app/util/livecoinwatch'
 import { cgPricesCacheKey } from './prices'
-import { getChainlinkDolaUsdPrice } from '@app/util/f2'
+import { getChainlinkDolaUsdPrice, getDolaUsdPriceOnCurve } from '@app/util/f2'
 import { getProvider } from '@app/util/providers'
 
 const cacheKey = `dola-price-v1.0.0`;
 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
-    const cacheDuration = 99999;
+    const cacheDuration = 300;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     try {
-        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
-        if (validCache) {
-            res.status(200).json(validCache);
-            return
-        }
+        // const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
+        // if (validCache) {
+        //     res.status(200).json(validCache);
+        //     return
+        // }
 
         const uniqueCgIds = ['dola-usd'];
         const prices = {};
@@ -42,14 +42,14 @@ export default async function handler(req, res) {
             console.log('Error livecoinwatch gecko prices');
         }
         const provider = getProvider(NetworkIds.mainnet);
-        const { price: chainlinkDolaUsdPrice } = await getChainlinkDolaUsdPrice(provider);
+        const { price: chainlinkDolaUsdPrice } = await getDolaUsdPriceOnCurve(provider);
         
         prices['dola-onchain-usd'] = chainlinkDolaUsdPrice;
         prices['dola-usd'] = chainlinkDolaUsdPrice;
 
         prices['_timestamp'] = Date.now();
 
-        await redisSetWithTimestamp(cacheKey, prices);
+        // await redisSetWithTimestamp(cacheKey, prices);
 
         res.status(200).json(prices)
     } catch (err) {
