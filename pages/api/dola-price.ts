@@ -10,7 +10,7 @@ const cacheKey = `dola-price-v1.0.0`;
 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
-    const cacheDuration = 90;
+    const cacheDuration = 99999;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     try {
         const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
