@@ -168,7 +168,7 @@ export const F2PAGE = ({
                     }
                     <ErrorBoundary description="Failed to FiRM header">
                         <VStack px='6' w='full'>
-                            <FirmBar dbrPriceUsd={dbrPriceUsd} dolaPriceUsd={dolaPriceUsd} currentCirculatingSupply={currentCirculatingSupply} firmTotalTvl={isLoadingTvl ? firmTvlData.firmTotalTvl : firmTotalTvl} markets={marketsData.markets} />
+                            <FirmBar dbrPriceUsd={dbrPriceUsd} dolaPriceUsd={dolaPriceUsd} currentCirculatingSupply={currentCirculatingSupply} firmTotalTvl={isLoadingTvl ? firmTvlData?.firmTotalTvl || null : firmTotalTvl} markets={marketsData.markets} />
                         </VStack>
                     </ErrorBoundary>
                     <Divider display={{ base: 'inline-block', sm: 'none' }} />
@@ -203,31 +203,31 @@ export async function getServerSideProps(context) {
 
     const [
         marketsData,
-        firmTvlData,
-        currentCirculatingSupply,
-        dbrData,
-        dolaPriceData,
-        marketsDisplaysData,
+        // firmTvlData,
+        // currentCirculatingSupply,
+        // dbrData,
+        // dolaPriceData,
+        // marketsDisplaysData,
     ] = await Promise.all([
         fetch(`${SERVER_BASE_URL}/api/f2/fixed-markets?${vnetPublicId ? `vnetPublicId=${vnetPublicId}` : 'cacheFirst=true'}`).then(res => res.json()),
-        fetch(`${SERVER_BASE_URL}/api/f2/tvl?cacheFirst=true`).then(res => res.json()),
-        fetch(`${SERVER_BASE_URL}/api/dola/circulating-supply?cacheFirst=true`).then(res => res.text()),
-        fetch(`${SERVER_BASE_URL}/api/dbr?cacheFirst=true`).then(res => res.json()),
-        fetch(`${SERVER_BASE_URL}/api/dola-price?cacheFirst=true`).then(res => res.json()),
-        fetch(`${SERVER_BASE_URL}/api/f2/markets-display`).then(res => res.json()),
+        // fetch(`${SERVER_BASE_URL}/api/f2/tvl?cacheFirst=true`).then(res => res.json()),
+        // fetch(`${SERVER_BASE_URL}/api/dola/circulating-supply?cacheFirst=true`).then(res => res.text()),
+        // fetch(`${SERVER_BASE_URL}/api/dbr?cacheFirst=true`).then(res => res.json()),
+        // fetch(`${SERVER_BASE_URL}/api/dola-price?cacheFirst=true`).then(res => res.json()),
+        // fetch(`${SERVER_BASE_URL}/api/f2/markets-display`).then(res => res.json()),
     ]);
     const dbrPriceUsd = dbrData.priceUsd;
     const dolaPriceUsd = dolaPriceData['dola-usd'] || 1;
     return {
         props: {
             marketsData: marketsData,
-            firmTvlData,
-            currentCirculatingSupply: parseFloat(currentCirculatingSupply),
-            dbrPriceUsd,
-            dolaPriceUsd,
-            globalMessage: marketsDisplaysData?.data?.globalMessage,
-            globalMessageStatus: marketsDisplaysData?.data?.globalMessageStatus,
-            globalMessageTimestamp: marketsDisplaysData?.data?.globalMessageTimestamp,
+            // firmTvlData,
+            currentCirculatingSupply: 113017462.45186393,//parseFloat(currentCirculatingSupply),
+            // dbrPriceUsd,
+            // dolaPriceUsd,
+            // globalMessage: marketsDisplaysData?.data?.globalMessage,
+            // globalMessageStatus: marketsDisplaysData?.data?.globalMessageStatus,
+            // globalMessageTimestamp: marketsDisplaysData?.data?.globalMessageTimestamp,
         },
     };
 }

@@ -11,6 +11,7 @@ import { SIMS_CACHE_KEY } from '../drafts/sim';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { marketsDisplaysCacheKey } from './markets-display';
 import { estimateBlockTimestamp } from '@app/util/misc';
+import { FIRM_MARKETS_SNAPSHOT } from '@app/fixtures/firm-markets-20241022';
 // import { FIRM_MARKETS_SNAPSHOT } from '@app/fixtures/firm-markets-20241022';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
@@ -32,6 +33,8 @@ export default async function handler(req, res) {
   }
   
   const cacheKey = vnetPublicId ? `f2markets-sim-${vnetPublicId}` : F2_MARKETS_CACHE_KEY;
+
+  return res.status(200).json(FIRM_MARKETS_SNAPSHOT);
 
   try {
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
