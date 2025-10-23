@@ -13,6 +13,7 @@ import FirmLogo from '@app/components/common/Logo/FirmLogo'
 import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, landingLightBorderColor, LandingLink, landingMainColor, landingMutedColor, LandingNoisedBtn, landingPurple, landingPurpleBg, landingPurpleText, LandingStat, LandingStatBasic, LandingStatBasicBig, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import FooterV2 from '@app/components/common/Footer/FooterV2'
+import { useDBRPrice } from '@app/hooks/useDBR'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -32,10 +33,10 @@ const mobileAnimWidth = 640;
 
 export const Landing = ({
   currentCirculatingSupply,
-  dbrPriceUsd,
+  // dbrPriceUsd,
   firmTotalTvl,
   invPrice,
-  dolaPrice,
+  // dolaPrice,
   apy,
   projectedApy,
   dolaVolume,
@@ -43,9 +44,9 @@ export const Landing = ({
   sDolaTvl,
 }: {
   currentCirculatingSupply: number,
-  dbrPriceUsd: number,
+  // dbrPriceUsd: number,
   firmTotalTvl: number,
-  dolaPrice: number,
+  // dolaPrice: number,
   invPrice: number,
   dolaVolume: number,
   apy: number,
@@ -60,6 +61,8 @@ export const Landing = ({
   const [isAnimNeedStretch, setIsAnimNeedStretch] = useState(true);
   const [animStrechFactor, setAnimStrechFactor] = useState(1);
   const [hoveredCategory, setHoveredCategory] = useState<string>('');
+
+  const { priceUsd: dbrPriceUsd, dolaUsd: dolaPrice } = useDBRPrice();
 
   useEffect(() => {
     const handleResize = () => {
@@ -107,7 +110,7 @@ export const Landing = ({
   const stats = [
     {
       name: 'sDOLA APY',
-      value: `${shortenNumber(apy, 2, false)}%`,
+      value: apy ? `${shortenNumber(apy, 2, false)}%` : '-',
     },
     {
       name: 'TVL',

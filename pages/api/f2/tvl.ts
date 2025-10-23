@@ -11,6 +11,7 @@ import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { F2_ESCROW_ABI, F2_MARKET_ABI } from '@app/config/abis';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 import { getMulticallOutput } from '@app/util/multicall';
+import { FIRM_TVL_FIXTURE } from '@app/fixtures/tvl-fixture';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -19,8 +20,10 @@ export const firmTvlCacheKey = 'f2-tvl-v1.0.4'
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     try {
-        const cacheDuration = 90;
+        const cacheDuration = 3600;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+
+        return res.status(200).json(FIRM_TVL_FIXTURE)
         
         const { data: cachedTvl, isValid: isCachedTvlValid } = await getCacheFromRedisAsObj(firmTvlCacheKey, cacheFirst !== 'true', cacheDuration);
         if (cachedTvl && isCachedTvlValid) {

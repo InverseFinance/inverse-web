@@ -11,13 +11,13 @@ export default async function handler(req, res) {
   const cacheKey = `${networkConfig.chainId}-dola-supply-v1.0.0`;
 
   try {
-    const cacheDuration = 30;
+    const cacheDuration = 3600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
-    if(validCache) {
-      res.status(200).send(validCache);
-      return
-    }
+    // const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+    // if(validCache) {
+    //   res.status(200).send(validCache);
+    //   return
+    // }
 
     const provider = getProvider(networkConfig.chainId);
     const contract = new Contract(process.env.NEXT_PUBLIC_DOLA!, INV_ABI, provider);
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
 
     const totalSupply = getBnToNumber(result);
 
-    await redisSetWithTimestamp(cacheKey, totalSupply);
+    // await redisSetWithTimestamp(cacheKey, totalSupply);
 
     res.status(200).send(totalSupply);
   } catch (err) {

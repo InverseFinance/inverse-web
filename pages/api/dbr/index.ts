@@ -90,11 +90,11 @@ export default async function handler(req, res) {
   try {
     const cacheDuration = 300;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
-    if (validCache) {
-      res.status(200).json(validCache);
-      return
-    }
+    // const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
+    // if (validCache) {
+    //   res.status(200).json(validCache);
+    //   return
+    // }
 
     const provider = getProvider(CHAIN_ID, undefined, true);
     const dbr = new Contract(DBR, DBR_ABI, provider);
@@ -122,9 +122,9 @@ export default async function handler(req, res) {
 
     const results = await Promise.all(queries);
 
-    if (withExtra && !!results[9] && !canUseCachedHisto) {
-      await redisSetWithTimestamp(triDbrKey, results[9]);
-    }
+    // if (withExtra && !!results[9] && !canUseCachedHisto) {
+    //   await redisSetWithTimestamp(triDbrKey, results[9]);
+    // }
 
     const [poolData, curvePriceData, chainlinkData] = results;
     const priceOnBalancer = poolData && poolData[1] ? getBnToNumber(poolData[1][0]) / getBnToNumber(poolData[1][1]) : 0.05;
@@ -146,7 +146,7 @@ export default async function handler(req, res) {
       historicalData: withExtra ? results[9] : undefined,
     }
 
-    await redisSetWithTimestamp(cacheKey, resultData);
+    // await redisSetWithTimestamp(cacheKey, resultData);
 
     res.status(200).json(resultData)
   } catch (err) {

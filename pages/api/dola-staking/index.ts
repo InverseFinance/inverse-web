@@ -13,16 +13,16 @@ export const dolaStakingCacheKey = `dola-staking-v1.0.4`;
 
 export default async function handler(req, res) {
     const { cacheFirst, ignoreCache, includeSpectra } = req.query;
-    const cacheDuration = 300;
+    const cacheDuration = 900;
     const isIncludeSpectra = includeSpectra === 'true';
     const cacheKey = isIncludeSpectra ? `${dolaStakingCacheKey}-spectra` : dolaStakingCacheKey;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     try {
-        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
-        if (validCache && ignoreCache !== 'true') {
-            res.status(200).json(validCache);
-            return
-        }
+        // const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
+        // if (validCache && ignoreCache !== 'true') {
+        //     res.status(200).json(validCache);
+        //     return
+        // }
 
         const provider = getProvider(CHAIN_ID);
         const savingsContract = getDolaSavingsContract(provider);
@@ -46,14 +46,14 @@ export default async function handler(req, res) {
         const promises = await Promise.allSettled([
             getDbrPriceOnCurve(provider),
             getChainlinkDolaUsdPrice(provider),
-            getOnChainData([{ address: SDOLA_ADDRESS, isNotVault: false }]),
+            // getOnChainData([{ address: SDOLA_ADDRESS, isNotVault: false }]),
             isIncludeSpectra ? fetch(`https://yields.llama.fi/pools`).then(r => r.json()) : Promise.resolve({data:[]}),
         ]);
 
         const [
             dbrPriceData,
             dolaPriceData,
-            historicalSDolaRates,
+            // historicalSDolaRates,
             llamaPools,
         ] = promises.map(p => p.status === 'fulfilled' ? p.value : undefined);
 
@@ -76,11 +76,12 @@ export default async function handler(req, res) {
             spectraPool: highestSpectraPool,
             dolaPriceUsd,
             tvlUsd: getBnToNumber(dolaStakingData[9], 18) * dolaPriceUsd,
-            ...historicalSDolaRates[0],
+            apy30d: 7.26623,
+            // ...historicalSDolaRates[0],
             ...formatDolaStakingData(dbrDolaPrice * dolaPriceUsd, dolaStakingData),
         }
 
-        await redisSetWithTimestamp(cacheKey, resultData);
+        // await redisSetWithTimestamp(cacheKey, resultData);
 
         res.status(200).json(resultData)
     } catch (err) {

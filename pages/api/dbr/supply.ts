@@ -13,13 +13,13 @@ export default async function handler(req, res) {
   const cacheKey = `dbr-supply-v1.0.0`;
 
   try {
-    const cacheDuration = 60;
+    const cacheDuration = 3600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
-    if(validCache) {
-      res.status(200).send(validCache);
-      return
-    }
+    // const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+    // if(validCache) {
+    //   res.status(200).send(validCache);
+    //   return
+    // }
 
     const provider = getProvider(NetworkIds.mainnet);
     const contract = new Contract(DBR, DBR_ABI, provider);
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
 
     const totalSupply = formatEther(result);
 
-    await redisSetWithTimestamp(cacheKey, totalSupply);
+    // await redisSetWithTimestamp(cacheKey, totalSupply);
 
     res.status(200).send(totalSupply);
   } catch (err) {
