@@ -19,7 +19,7 @@ const { F2_MARKETS } = getNetworkConfigConstants();
 export const F2_MARKETS_CACHE_KEY = `f2markets-v1.6.96`;
 
 export default async function handler(req, res) {
-  const cacheDuration = 120;
+  const cacheDuration = 300;
   res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
   res.setHeader('Access-Control-Allow-Origin', `*`);
@@ -34,14 +34,15 @@ export default async function handler(req, res) {
   
   const cacheKey = vnetPublicId ? `f2markets-sim-${vnetPublicId}` : F2_MARKETS_CACHE_KEY;
 
-  return res.status(200).json(FIRM_MARKETS_SNAPSHOT);
+  // return res.status(200).json(FIRM_MARKETS_SNAPSHOT);
 
   try {
-    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
-    if (cachedData && isValid) {
-      res.status(200).json(cachedData);
-      return
-    }
+    let cachedData = undefined
+    // const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
+    // if (cachedData && isValid) {
+    //   res.status(200).json(cachedData);
+    //   return
+    // }
 
     let provider;
     if (vnetPublicId) {
@@ -134,7 +135,7 @@ export default async function handler(req, res) {
       markets,
     }
 
-    await redisSetWithTimestamp(cacheKey, resultData);
+    // await redisSetWithTimestamp(cacheKey, resultData);
 
     res.status(200).json(resultData)
   } catch (err) {

@@ -180,7 +180,7 @@ export const F2PAGE = ({
                         </ErrorBoundary>
                     }
                     <ErrorBoundary description="Failed to load Markets">
-                        <F2Markets marketsData={marketsData} firmTvls={isLoadingTvl ? firmTvlData.firmTvls : firmTvls} />
+                        <F2Markets marketsData={marketsData} firmTvls={isLoadingTvl ? firmTvlData?.firmTvls || [] : firmTvls} />
                     </ErrorBoundary>
                     {
                         !!account && debt > 0 && <ErrorBoundary description=" ">
@@ -203,25 +203,25 @@ export async function getServerSideProps(context) {
 
     const [
         marketsData,
-        // firmTvlData,
+        firmTvlData,
         // currentCirculatingSupply,
         // dbrData,
         // dolaPriceData,
         // marketsDisplaysData,
     ] = await Promise.all([
         fetch(`${SERVER_BASE_URL}/api/f2/fixed-markets?${vnetPublicId ? `vnetPublicId=${vnetPublicId}` : 'cacheFirst=true'}`).then(res => res.json()),
-        // fetch(`${SERVER_BASE_URL}/api/f2/tvl?cacheFirst=true`).then(res => res.json()),
+        fetch(`${SERVER_BASE_URL}/api/f2/tvl?cacheFirst=true`).then(res => res.json()),
         // fetch(`${SERVER_BASE_URL}/api/dola/circulating-supply?cacheFirst=true`).then(res => res.text()),
         // fetch(`${SERVER_BASE_URL}/api/dbr?cacheFirst=true`).then(res => res.json()),
         // fetch(`${SERVER_BASE_URL}/api/dola-price?cacheFirst=true`).then(res => res.json()),
         // fetch(`${SERVER_BASE_URL}/api/f2/markets-display`).then(res => res.json()),
     ]);
-    const dbrPriceUsd = dbrData.priceUsd;
-    const dolaPriceUsd = dolaPriceData['dola-usd'] || 1;
+    // const dbrPriceUsd = dbrData.priceUsd;
+    // const dolaPriceUsd = dolaPriceData['dola-usd'] || 1;
     return {
         props: {
             marketsData: marketsData,
-            // firmTvlData,
+            firmTvlData,
             currentCirculatingSupply: 113017462.45186393,//parseFloat(currentCirculatingSupply),
             // dbrPriceUsd,
             // dolaPriceUsd,

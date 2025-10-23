@@ -31,15 +31,15 @@ export default async function handler(req, res) {
   const { cacheFirst } = req.query;
 
   try {
-    const cacheDuration = 120;
+    const cacheDuration = 3600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(dolaCircSupplyCacheKey, cacheFirst !== 'true', cacheDuration);
+    // const validCache = await getCacheFromRedis(dolaCircSupplyCacheKey, cacheFirst !== 'true', cacheDuration);
     const isSaveCircSupply = req.method === 'POST' || req.query.saveCircSupply === 'true';
 
-    if (validCache && !isSaveCircSupply) {
-      res.status(200).send(validCache);
-      return
-    }
+    // if (validCache && !isSaveCircSupply) {
+    //   res.status(200).send(validCache);
+    //   return
+    // }
 
     const provider = getProvider(NetworkIds.mainnet);
     const mainnetContract = new Contract(DOLA, DOLA_ABI, provider);

@@ -27,14 +27,14 @@ export const dbrCircSupplyCacheKey = `dbr-circ-supply-v1.0.0`;
 export default async function handler(req, res) {    
 
   try {
-    const cacheDuration = 60;
+    const cacheDuration = 3600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(dbrCircSupplyCacheKey, true, cacheDuration);
+    // const validCache = await getCacheFromRedis(dbrCircSupplyCacheKey, true, cacheDuration);
     const isSaveCircSupply = req.method === 'POST' || req.query.saveCircSupply === 'true';
-    if(validCache) {
-      res.status(200).send(validCache);
-      return
-    }
+    // if(validCache) {
+    //   res.status(200).send(validCache);
+    //   return
+    // }
 
     const provider = getProvider(NetworkIds.mainnet);
     const contract = new Contract(DBR, DBR_ABI, provider);
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
     const circulatingSupplyTheoretical = getBnToNumber(totalSupply) - totalDbrExcluded;
     const circulatingSupply = circulatingSupplyTheoretical - pendingDbrBurn;
 
-    await redisSetWithTimestamp(dbrCircSupplyCacheKey, circulatingSupply);
+    // await redisSetWithTimestamp(dbrCircSupplyCacheKey, circulatingSupply);
 
     // daily cron job case: add daily data to evolution data
     if (isSaveCircSupply) {
