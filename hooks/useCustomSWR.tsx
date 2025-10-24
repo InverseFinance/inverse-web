@@ -5,7 +5,7 @@ import useStorage from '@app/hooks/useStorage';
 import { useEffect } from 'react';
 import { PublicConfiguration } from 'swr/dist/types';
 
-export const useLocalCacheOnly = (key: string, fetcher = defaultFetcher, config?: Partial<PublicConfiguration>): SWR & { data: any, error: any } => {
+export const useLocalCacheOnly = (key: string): SWR & { data: any, error: any } => {
   const { value } = useStorage(key);
 
   return {
