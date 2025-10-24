@@ -33,10 +33,10 @@ const mobileAnimWidth = 640;
 
 export const Landing = ({
   currentCirculatingSupply,
-  // dbrPriceUsd,
+  dbrPriceUsd,
   firmTotalTvl,
   invPrice,
-  // dolaPrice,
+  dolaPrice,
   apy,
   projectedApy,
   dolaVolume,
@@ -44,9 +44,9 @@ export const Landing = ({
   sDolaTvl,
 }: {
   currentCirculatingSupply: number,
-  // dbrPriceUsd: number,
+  dbrPriceUsd: number,
   firmTotalTvl: number,
-  // dolaPrice: number,
+  dolaPrice: number,
   invPrice: number,
   dolaVolume: number,
   apy: number,
@@ -62,7 +62,7 @@ export const Landing = ({
   const [animStrechFactor, setAnimStrechFactor] = useState(1);
   const [hoveredCategory, setHoveredCategory] = useState<string>('');
 
-  const { priceUsd: dbrPriceUsd, dolaUsd: dolaPrice } = useDBRPrice();
+  // const { priceUsd: dbrPriceUsd, dolaUsd: dolaPrice } = useDBRPrice();
 
   useEffect(() => {
     const handleResize = () => {
