@@ -32,7 +32,7 @@ export default async function handler(req, res) {
   const cacheKey = `${networkConfig.chainId}-inv-circ-supply-v1.0.0`;
 
   try {
-    const cacheDuration = 999999;
+    const cacheDuration = 3600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
 

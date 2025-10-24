@@ -46,17 +46,15 @@ export const getLandingProps = async ({ preview = false, ...context }) => {
     const isPreview = preview || isPreviewUrl;
     const posts = await getLandingPosts({ isPreview }) ?? [];
     const [
-        // currentCirculatingSupply,
-        // dbrData,
-        // dolaPriceData,
+        currentCirculatingSupply,
+        dbrData,
         firmTvlData,
         dolaMarketData,
         marketsData,
         dolaStakingData,
     ] = await Promise.all([
-        // fetch(`${SERVER_BASE_URL}/api/dola/circulating-supply?cacheFirst=true`).then(res => res.text()),
-        // fetch(`${SERVER_BASE_URL}/api/dbr?cacheFirst=true`).then(res => res.json()),
-        // fetch(`${SERVER_BASE_URL}/api/dola-price?cacheFirst=true`).then(res => res.json()),
+        fetch(`${SERVER_BASE_URL}/api/dola/circulating-supply?cacheFirst=true`).then(res => res.text()),
+        fetch(`${SERVER_BASE_URL}/api/dbr?cacheFirst=true`).then(res => res.json()),
         fetch(`${SERVER_BASE_URL}/api/f2/tvl?cacheFirst=true`).then(res => res.json()),
         fetch(`https://pro-api.coingecko.com/api/v3/coins/dola-usd?x_cg_pro_api_key=${process.env.CG_PRO}&localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`).then(res => res.json()),
         fetch(`${SERVER_BASE_URL}/api/f2/fixed-markets?cacheFirst=true`).then(res => res.json()),
@@ -66,19 +64,18 @@ export const getLandingProps = async ({ preview = false, ...context }) => {
     const invFirmPrice = marketsData.markets.find(m => m.isInv)?.price || 0;
     const totalDebt = marketsData.markets.reduce((prev, curr) => prev + curr.totalDebt, 0);
     const { apy, projectedApy, tvlUsd, dolaPriceUsd } = dolaStakingData;
-    // const dbrPriceUsd = dbrData.priceUsd;
-    // const dolaPrice = dolaPriceData['dola-usd'] || 1;
+    const dbrPriceUsd = dbrData.priceUsd;
     const firmTotalTvl = firmTvlData.firmTotalTvl;
     return {
         props: {
             preview: isPreview, posts, totalDebt,
-            currentCirculatingSupply: 113017462.45186393,//parseFloat(currentCirculatingSupply),
+            currentCirculatingSupply: parseFloat(currentCirculatingSupply),
             invPrice: invFirmPrice,
             dolaVolume,
             firmTotalTvl,
             sDolaTvl: tvlUsd,
             apy, projectedApy, dolaPrice: dolaPriceUsd, 
-            // dbrPriceUsd, firmTotalTvl, 
+            dbrPriceUsd, firmTotalTvl, 
         },
     }
 }

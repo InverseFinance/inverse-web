@@ -372,19 +372,19 @@ const BarBlock = ({
 }
 
 export const FirmBar = ({
-    // dbrPriceUsd,
-    // dolaPriceUsd,
+    dbrPriceUsd,
+    dolaPriceUsd,
     currentCirculatingSupply,
     firmTotalTvl,
     markets,
 }: {
-    // dbrPriceUsd: number,
-    // dolaPriceUsd: number,
+    dbrPriceUsd: number,
+    dolaPriceUsd: number,
     currentCirculatingSupply: number,
     firmTotalTvl: number,
     markets: F2Market[],
 }) => {
-    const { priceUsd: dbrPriceUsd, dolaUsd: dolaPriceUsd } = useDBRPrice();
+    // const { priceUsd: dbrPriceUsd, dolaUsd: dolaPriceUsd } = useDBRPrice();
     // const { data: currentCirculatingSupply } = useCustomSWR(`/api/dola/circulating-supply`);
     // const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
     // const { firmTotalTvl, isLoading: isFirmTvlLoading } = useFirmTVL();

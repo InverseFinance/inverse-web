@@ -116,7 +116,6 @@ export const invalidateRedisCache = async (key: string, useChunks = false) => {
 }
 
 export const redisSetWithTimestamp = async (key: string, data: any, useChunks = false) => {
-    return;
     try {
         if (!useChunks) {
             const dataString = JSON.stringify({ timestamp: Date.now(), data });
