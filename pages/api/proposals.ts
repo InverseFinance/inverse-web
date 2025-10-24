@@ -11,11 +11,9 @@ import { Contract } from 'ethers';
 import { GOVERNANCE_ABI } from '@app/config/abis';
 import { getBnToNumber } from '@app/util/markets';
 import { parseEther } from "@ethersproject/units";
-// import { PROPOSALS_FIXTURE } from "@app/fixtures/proposals-data-fixture";
 import { PROPOSALS_SHORTLIST } from "@app/fixtures/proposals-shortlist";
 
 export const proposalsCacheKey = '1-proposals-v1.0.2';
-
 export default async function handler(req, res) {
   const cacheDuration = 900;
   res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
