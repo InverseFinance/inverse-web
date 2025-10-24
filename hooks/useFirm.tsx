@@ -82,12 +82,12 @@ export const useFirmUsers = (): SWR & {
   const { data, error, isLoading: isLoadingDbr } = useCacheFirstSWR(`/api/f2/dbr-deficits?v2`, fetcher60sectimeout);
   const { positions, timestamp, isLoading: isLoadingPositions, isError: isErrorPositions } = useFirmPositions();
 
-  const activeDbrHolders = data ? data.activeDbrHolders : [];
+  const activeDbrHolders = data ? data?.activeDbrHolders || [] : [];
 
-  const uniqueUsers = [...new Set(positions.map(d => d.user))];
+  const uniqueUsers = [...new Set(positions?.map(d => d.user) || [])];
   const now = Date.now();
   const positionsAggregatedByUser = uniqueUsers.map(user => {
-    const userPositions = positions.filter(p => p.user === user).sort((a, b) => b.debt - a.debt);
+    const userPositions = positions?.filter(p => p.user === user)?.sort((a, b) => b.debt - a.debt) || [];
     const dueTokensAccrued = userPositions[0]?.dueTokensAccrued || 0;
     const debt = userPositions.reduce((prev, curr) => prev + (curr.debt), 0);
     const creditLimit = userPositions.reduce((prev, curr) => prev + (curr.creditLimit), 0);
@@ -107,9 +107,9 @@ export const useFirmUsers = (): SWR & {
       marketRelativeDebtSizes: userPositions?.map(p => p.debt > 0 ? p.debt / debt : 0),
       marketUnderlyings: userPositions?.map(p => p.market.underlying),
       marketRelativeCollateralSizes: userPositions?.map(p => p.creditLimit > 0 ? p.creditLimit / creditLimit : 0),
-      creditLimit: userPositions.reduce((prev, curr) => prev + (curr.creditLimit), 0),
-      stakedInv: userPositions.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.deposits), 0),
-      stakedInvUsd: userPositions.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.tvl), 0),
+      creditLimit: userPositions?.reduce((prev, curr) => prev + (curr.creditLimit), 0),
+      stakedInv: userPositions?.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.deposits), 0),
+      stakedInvUsd: userPositions?.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.tvl), 0),
       dailyBurn,
       dueTokensAccrued,
       dbrNbDaysExpiry,

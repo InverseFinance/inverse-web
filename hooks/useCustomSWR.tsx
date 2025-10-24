@@ -20,9 +20,11 @@ export const useCustomSWR = (key: string, fetcher = defaultFetcher, config?: Par
   const { data, error } = useSWR(key, fetcher, config);
 
   useEffect(() => {
-    if(typeof data !== 'undefined') {
-      setter(data);
-    }
+    try{
+      if(typeof data !== 'undefined' && data !== null && JSON.stringify(data) !== '{}' && !data?.error && (data?.success ?? true)) {
+        setter(data);
+      }
+    } catch(e){}
   }, [data]);
 
   return {
@@ -41,9 +43,13 @@ export const useCacheFirstSWR = (key: string, fetcher = defaultFetcher): SWR & {
 
   useEffect(() => {
     if(typeof data !== 'undefined' && ((data?.timestamp||0) > (localCacheData?.timestamp||0) || (!data?.timestamp && !localCacheData?.timestamp))) {
-      setter(data);
+      if(typeof data !== 'undefined' && data !== null && JSON.stringify(data) !== '{}' && !data?.error && (data?.success ?? true)) {
+        setter(data);
+      }
     } else if(typeof apiCacheData !== 'undefined' && ((apiCacheData?.timestamp||0) > (localCacheData?.timestamp||0) || (!apiCacheData?.timestamp && !localCacheData?.timestamp))) {      
-      setter(apiCacheData);
+      if(typeof apiCacheData !== 'undefined' && apiCacheData !== null && JSON.stringify(apiCacheData) !== '{}' && !apiCacheData?.error && (apiCacheData?.success ?? true)) {
+        setter(apiCacheData);
+      }
     }
   }, [data, apiCacheData, localCacheData]);
 
