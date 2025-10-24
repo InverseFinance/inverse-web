@@ -10,13 +10,13 @@ export default async function handler(req, res) {
   const cacheKey = `sdola-supply-v1.0.1`;
 
   try {
-    const cacheDuration = 60;
+    const cacheDuration = 300;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
-    if(validCache) {
-      res.status(200).send(validCache);
-      return
-    }
+    // const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+    // if(validCache) {
+    //   res.status(200).send(validCache);
+    //   return
+    // }
 
     const provider = getProvider(1);
     const contract = new Contract(SDOLA_ADDRESS, SDOLA_ABI, provider);
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
 
     const totalSupply = getBnToNumber(result);
 
-    await redisSetWithTimestamp(cacheKey, totalSupply);
+    // await redisSetWithTimestamp(cacheKey, totalSupply);
 
     res.status(200).send(totalSupply);
   } catch (err) {
