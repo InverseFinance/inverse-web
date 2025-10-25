@@ -42,7 +42,7 @@ export default async function handler(req, res) {
   const cacheKey = `dao-cache-v1.4.6`;
 
   try {
-    const cacheDuration = 99999;
+    const cacheDuration = 300;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
     if (validCache) {

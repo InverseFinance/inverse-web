@@ -34,15 +34,12 @@ export default async function handler(req, res) {
   
   const cacheKey = vnetPublicId ? `f2markets-sim-${vnetPublicId}` : F2_MARKETS_CACHE_KEY;
 
-  // return res.status(200).json(FIRM_MARKETS_SNAPSHOT);
-
   try {
-    let cachedData = undefined
-    // const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
-    // if (cachedData && isValid) {
-    //   res.status(200).json(cachedData);
-    //   return
-    // }
+    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
+    if (cachedData && isValid) {
+      res.status(200).json(cachedData);
+      return
+    }
 
     let provider;
     if (vnetPublicId) {
@@ -135,7 +132,7 @@ export default async function handler(req, res) {
       markets,
     }
 
-    // await redisSetWithTimestamp(cacheKey, resultData);
+    await redisSetWithTimestamp(cacheKey, resultData);
 
     res.status(200).json(resultData)
   } catch (err) {
