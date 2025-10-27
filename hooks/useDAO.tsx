@@ -151,16 +151,6 @@ export const useFedHistory = (): SWR & {
   }
 }
 
-export const useFedPolicyMsg = (refreshIndex: number): SWR & { fedPolicyMsg: { msg: string, lastUpdate: number } } => {
-  const { data, error } = useCustomSWR(`/api/transparency/fed-policy-msg?${refreshIndex}`, fetcher)
-
-  return {
-    fedPolicyMsg: data?.fedPolicyMsg || { msg: 'No guidance at the moment', lastUpdate: null },
-    isLoading: !error && !data,
-    isError: error,
-  }
-}
-
 export const useFedIncome = (): SWR & { totalEvents: FedEvent[], totalFedsIncomes: { [key: string]: number } } => {
   const { data, error } = useCacheFirstSWR(`/api/transparency/fed-income?v=4`)
 
