@@ -1,5 +1,5 @@
 import 'source-map-support'
-import { getCacheFromRedis, migrateOtherKeys, migratePattern, migratePureKeys } from '@app/util/redis'
+import { migrateOtherKeys, migratePattern, migratePureKeys } from '@app/util/redis'
 
 export default async function handler(req, res) {
     const { k, type, p } = req.query;
