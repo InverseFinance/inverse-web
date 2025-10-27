@@ -103,9 +103,20 @@ export const migratePureKeys = async () => {
             await redisNewDBClient.set(key, value);
         }
     }
+}
 
-    // const pattern = 'proposal-reviews-*';
-    // const keys = await getKeysForPattern(pattern);
+export const migratePattern = async (pattern: string) => {
+    // let pattern = 'proposal-reviews-*';
+    let keys = await getKeysForPattern(pattern);
+    for(const key of keys) {
+        const value = await redisClient.get(key);
+        if(value) {
+            await redisNewDBClient.set(key, value);
+        }
+    }
+
+    // pattern = 'poa-sign-*';
+    // keys = await getKeysForPattern(pattern);
     // for(const key of keys) {
     //     const value = await redisClient.get(key);
     //     if(value) {
