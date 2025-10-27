@@ -119,7 +119,7 @@ export const migrateOtherKeys = async () => {
        'utc-dates-blocks',
     ];
     for (const key of nonPureKeysNoChunks) {
-        const value = await getCacheFromRedis(key, false);
+        await getCacheFromRedis(key, false);
     }
 
     const nonPureKeysWithChunks = [
