@@ -1,6 +1,9 @@
 import 'source-map-support'
 import { migrateOtherKeys, migratePattern, migratePureKeys } from '@app/util/redis'
-
+//firm-oracle-prices-*
+//poa-sign-*
+//proposal-reviews-*
+//user-dbr-balance-histo-*
 export default async function handler(req, res) {
     const { k, type, p } = req.query;
     if(process.env.API_SECRET_KEY !== k) {

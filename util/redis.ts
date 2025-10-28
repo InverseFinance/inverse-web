@@ -89,9 +89,9 @@ async function getKeysForPattern(pattern: string) {
 
 export const migratePureKeys = async () => {
     const pureKeys = [
-        'drafts', 
-        '1-delegates', 
-        'lastDraftId', 
+        'drafts',
+        '1-delegates',
+        'lastDraftId',
         'custom-txs-to-refund-v2',
         'refunds-ignore-tx-hashes',
         'block-timestamps-unarchived-5',
@@ -108,10 +108,13 @@ export const migratePureKeys = async () => {
 export const migratePattern = async (pattern: string) => {
     // let pattern = 'proposal-reviews-*';
     let keys = await getKeysForPattern(pattern);
-    for(const key of keys) {
-        const value = await redisClient.get(key);
-        if(value) {
-            await redisNewDBClient.set(key, value);
+    for (const key of keys) {
+        const newDbValue = await redisNewDBClient.get(key);
+        if (!newDbValue) {
+            const value = await redisClient.get(key);
+            if (value) {
+                await redisNewDBClient.set(key, value);
+            }
         }
     }
 
@@ -127,7 +130,7 @@ export const migratePattern = async (pattern: string) => {
 
 export const migrateOtherKeys = async () => {
     const nonPureKeysNoChunks = [
-       'utc-dates-blocks',
+        'utc-dates-blocks',
     ];
     for (const key of nonPureKeysNoChunks) {
         await getCacheFromRedis(key, false);
