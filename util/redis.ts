@@ -1,42 +1,42 @@
 import { ONE_DAY_MS } from '@app/config/constants';
 import { WrappedNodeRedisClient, createNodeRedisClient } from 'handy-redis';
 
-let redisClient: WrappedNodeRedisClient = initRedis();
+// let redisClient: WrappedNodeRedisClient = initRedis();
 let redisNewDBClient: WrappedNodeRedisClient = initNewRedisDB();
 
 const CACHE_VERSION = 1;
 
-function initRedis() {
-    console.log('Redis: connecting');
-    const client = createNodeRedisClient({
-        url: process.env.REDIS_URL,
-        retry_strategy: function (options) {
-            console.log('retry strategy triggered');
-            if (options.error && options.error.code === "ECONNREFUSED") {
-                return new Error("The server refused the connection");
-            }
-            if (options.total_retry_time > 1000 * 60 * 60) {
-                return new Error("Retry time exhausted");
-            }
-            if (options.attempt > 10) {
-                // End reconnecting with built in error
-                return undefined;
-            }
-            // reconnect after
-            return Math.min(options.attempt * 100, 3000);
-        },
-    });
+// function initRedis() {
+//     console.log('Redis: connecting');
+//     const client = createNodeRedisClient({
+//         url: process.env.REDIS_URL,
+//         retry_strategy: function (options) {
+//             console.log('retry strategy triggered');
+//             if (options.error && options.error.code === "ECONNREFUSED") {
+//                 return new Error("The server refused the connection");
+//             }
+//             if (options.total_retry_time > 1000 * 60 * 60) {
+//                 return new Error("Retry time exhausted");
+//             }
+//             if (options.attempt > 10) {
+//                 // End reconnecting with built in error
+//                 return undefined;
+//             }
+//             // reconnect after
+//             return Math.min(options.attempt * 100, 3000);
+//         },
+//     });
 
-    client.nodeRedis.on('error', (err) => {
-        console.log('Redis Client Error', err);
-        // try reconnection after 10 sec
-        setTimeout(() => {
-            redisClient = initRedis();
-        }, 10000);
-    });
+//     client.nodeRedis.on('error', (err) => {
+//         console.log('Redis Client Error', err);
+//         // try reconnection after 10 sec
+//         setTimeout(() => {
+//             redisClient = initRedis();
+//         }, 10000);
+//     });
 
-    return client;
-}
+//     return client;
+// }
 
 function initNewRedisDB() {
     console.log('Redis new DB: connecting');
@@ -71,7 +71,7 @@ function initNewRedisDB() {
 }
 
 export const getRedisClient = (): WrappedNodeRedisClient => {
-    return redisClient;
+    return redisNewDBClient;
 }
 
 async function getKeysForPattern(pattern: string) {
@@ -79,7 +79,7 @@ async function getKeysForPattern(pattern: string) {
     const keys = [];
 
     do {
-        const [nextCursor, foundKeys] = await redisClient.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+        const [nextCursor, foundKeys] = await redisNewDBClient.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
         cursor = nextCursor;
         keys.push(...foundKeys);
     } while (cursor !== '0');
@@ -87,49 +87,53 @@ async function getKeysForPattern(pattern: string) {
     return keys;
 }
 
-export const migratePureKeys = async () => {
-    const pureKeys = [
-        'drafts', 
-        '1-delegates', 
-        'lastDraftId', 
-        'custom-txs-to-refund-v2',
-        'refunds-ignore-tx-hashes',
-        'block-timestamps-unarchived-5',
-        'xchain-block-timestamps-unarchived',
-    ];
-    for (const key of pureKeys) {
-        const value = await redisClient.get(key);
-        if (value) {
-            await redisNewDBClient.set(key, value);
-        }
-    }
+// export const migratePureKeys = async () => {
+//     const pureKeys = [
+//         'drafts',
+//         '1-delegates',
+//         'lastDraftId',
+//         'custom-txs-to-refund-v2',
+//         'refunds-ignore-tx-hashes',
+//         'block-timestamps-unarchived-5',
+//         'xchain-block-timestamps-unarchived',
+//     ];
+//     for (const key of pureKeys) {
+//         const value = await redisClient.get(key);
+//         if (value) {
+//             await redisNewDBClient.set(key, value);
+//         }
+//     }
+// }
 
-    // const pattern = 'proposal-reviews-*';
-    // const keys = await getKeysForPattern(pattern);
-    // for(const key of keys) {
-    //     const value = await redisClient.get(key);
-    //     if(value) {
-    //         await redisNewDBClient.set(key, value);
-    //     }
-    // }
-}
+// export const migratePattern = async (pattern: string) => {
+//     let keys = await getKeysForPattern(pattern);
+//     for (const key of keys) {
+//         const newDbValue = await redisNewDBClient.get(key);
+//         if (!newDbValue) {
+//             const value = await redisClient.get(key);
+//             if (value) {
+//                 await redisNewDBClient.set(key, value);
+//             }
+//         }
+//     }
+// }
 
-export const migrateOtherKeys = async () => {
-    const nonPureKeysNoChunks = [
-       'utc-dates-blocks',
-    ];
-    for (const key of nonPureKeysNoChunks) {
-        await getCacheFromRedis(key, false);
-    }
+// export const migrateOtherKeys = async () => {
+//     const nonPureKeysNoChunks = [
+//         'utc-dates-blocks',
+//     ];
+//     for (const key of nonPureKeysNoChunks) {
+//         await getCacheFromRedis(key, false);
+//     }
 
-    const nonPureKeysWithChunks = [
-        'eligible-refunds-txs',
-        'refunded-txs-epoch-x',
-    ];
-    for (const key of nonPureKeysWithChunks) {
-        const value = await getCacheFromRedis(key, false, 1, true);
-    }
-}
+//     const nonPureKeysWithChunks = [
+//         'eligible-refunds-txs',
+//         'refunded-txs-epoch-x',
+//     ];
+//     for (const key of nonPureKeysWithChunks) {
+//         const value = await getCacheFromRedis(key, false, 1, true);
+//     }
+// }
 
 export const getNewRedisDBClient = (): WrappedNodeRedisClient => {
     return redisNewDBClient;
@@ -160,26 +164,32 @@ export const getCacheFromRedisAsObj = async (
 ) => {
     try {
         let cache, cacheObj;
-        let saveToNewDB = false;
+        // let saveToNewDB = false;
         if (!useChunks) {
-            const [oldDbCache, newDbCache] = await Promise.all([
-                redisClient.get(`${cacheKey}-version-${CACHE_VERSION}`),
+            const [
+                // oldDbCache, 
+                newDbCache,
+            ] = await Promise.all([
+                // redisClient.get(`${cacheKey}-version-${CACHE_VERSION}`),
                 redisNewDBClient.get(`${cacheKey}-version-${CACHE_VERSION}`),
             ]);
-            cache = newDbCache || oldDbCache;
+            cache = newDbCache// || oldDbCache;
             if (cache) {
                 cacheObj = JSON.parse(cache);
             }
-            if (!newDbCache) {
-                saveToNewDB = true
-            }
+            // if (!newDbCache) {
+            //     saveToNewDB = true
+            // }
         } else {
-            const [oldMeta, newMeta] = await Promise.all([
-                redisClient.get(`${cacheKey}-version-${CACHE_VERSION}-chunks-meta`),
+            const [
+                // oldMeta,
+                newMeta,
+            ] = await Promise.all([
+                // redisClient.get(`${cacheKey}-version-${CACHE_VERSION}-chunks-meta`),
                 redisNewDBClient.get(`${cacheKey}-version-${CACHE_VERSION}-chunks-meta`),
             ]);
-            const meta = newMeta || oldMeta;
-            const currClient = !!newMeta ? redisNewDBClient : redisClient;
+            const meta = newMeta// || oldMeta;
+            const currClient = redisNewDBClient//!!newMeta ? redisNewDBClient : redisClient;
             if (meta) {
                 const metaObj = JSON.parse(meta);
                 const arr = [...Array(metaObj.nbChunks).keys()];
@@ -191,14 +201,14 @@ export const getCacheFromRedisAsObj = async (
                 cache = chunks.join('');
                 cacheObj = { ...metaObj, ...JSON.parse(cache) }
             }
-            if (!newMeta) {
-                saveToNewDB = true
-            }
+            // if (!newMeta) {
+            //     saveToNewDB = true
+            // }
         }
         if (cache) {
-            if (saveToNewDB) {
-                await redisSetWithTimestamp(cacheKey, cacheObj.data, useChunks);
-            }
+            // if (saveToNewDB) {
+            //     await redisSetWithTimestamp(cacheKey, cacheObj.data, useChunks);
+            // }
             const now = Date.now();
             return {
                 data: cacheObj.data,
@@ -216,12 +226,12 @@ export const getCacheFromRedisAsObj = async (
 export const invalidateRedisCache = async (key: string, useChunks = false) => {
     const invalidatedTs = Date.now() - ONE_DAY_MS * 365;
     if (useChunks) {
-        const meta = await redisClient.get(`${key}-version-${CACHE_VERSION}-chunks-meta`);
+        const meta = await redisNewDBClient.get(`${key}-version-${CACHE_VERSION}-chunks-meta`);
         if (meta) {
             await redisNewDBClient.set(`${key}-version-${CACHE_VERSION}-chunks-meta`, JSON.stringify({ ...JSON.parse(meta), timestamp: invalidatedTs }));
         }
     } else {
-        const current = await redisClient.get(`${key}-version-${CACHE_VERSION}`);
+        const current = await redisNewDBClient.get(`${key}-version-${CACHE_VERSION}`);
         if (current) {
             await redisNewDBClient.set(`${key}-version-${CACHE_VERSION}`, JSON.stringify({ ...JSON.parse(current), timestamp: invalidatedTs }));
         }
