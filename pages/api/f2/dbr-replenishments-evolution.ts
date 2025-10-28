@@ -92,10 +92,6 @@ export default async function handler(req, res) {
       }
     });
 
-    const repTxHashes = cachedData?.isGroupedByDay ? 
-      (cachedData?.repTxHashes||[]).concat(events.map(e => e.transactionHash))
-      : cachedEvents.map(ce => ce.txHash).concat(events.map(e => e.transactionHash));
-
     const newGroupedData = newEvents?.length ? (cachedData?.isGroupedByDay ?
       getGroupedByDayReplenishments(cachedEvents.concat(newEvents))
       : getGroupedByDayReplenishments(
@@ -106,7 +102,6 @@ export default async function handler(req, res) {
       timestamp: now,
       isGroupedByDay: true,
       events: newGroupedData,
-      repTxHashes,
     }
 
     await redisSetWithTimestamp(dbrReplenishmentsEvolutionCacheKey, resultData, true);

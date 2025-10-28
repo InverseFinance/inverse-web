@@ -372,12 +372,10 @@ export const useFirmMarketEvents = (market: F2Market, account: string, firmActio
 export const useDBRReplenishmentsEvolution = (): SWR & {
   events: any,
   timestamp: number,
-  repTxHashes: string[],
 } => {
   const { data, error } = useCustomSWR(`/api/f2/dbr-replenishments-evolution`, fetcher);
   return {
     events: data?.events || [],
-    repTxHashes: data?.repTxHashes || [],
     timestamp: data ? data.timestamp : 0,
     isLoading: !error && !data,
     isError: error,
