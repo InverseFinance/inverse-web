@@ -17,7 +17,7 @@ export default async function handler(req, res) {
         } else if(type === 'pattern') {
             await migratePattern(p);
         }
-        return res.status(200).json({ success: true });
+        return res.status(200).json({ success: true, p, type });
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: err });
