@@ -7,6 +7,7 @@ import { useAppTheme } from "@app/hooks/useAppTheme";
 import { getPreviousThursdayUtcDateOfTimestamp, utcDateStringToTimestamp } from "@app/util/misc";
 import { BarChartRecharts } from "@app/components/Transparency/BarChartRecharts";
 import { DbrYearlyBudgetEvolution } from "./DbrYearlyBudgetEvolution";
+import { InfoMessage } from "@app/components/common/Messages";
 
 const maxChartWidth = 1200;
 
@@ -154,6 +155,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
     }, [isLargerThan]);
 
     return <VStack alignItems="flex-start">
+        <InfoMessage description="Page is in maintenance, data might be outdated or missing" alertProps={{ w: 'full' }} />
         <Stack position="relative" pt="10" direction={{ base: 'column', '2xl': 'row' }} alignItems="center">
             {
                 useInvAmount && <HStack zIndex="2" position="absolute" top="10" right="20">
