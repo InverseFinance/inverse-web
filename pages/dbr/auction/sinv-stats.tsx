@@ -11,6 +11,7 @@ import { DbrAuctionTabs } from '@app/components/F2/DbrAuction/DbrAuctionTabs';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { shortenNumber } from '@app/util/markets';
+import { InfoMessage } from '@app/components/common/Messages';
 
 export const DbrAuctionSInvStatsPage = () => {
   const { isLoading, sinvAuctionEvents: events, accInvInSinv: accInvIn, accDbrOutSinv: accDbrOut, accInvWorthIn, accInvWorthOut, last100SinvAuctionEvents, timestamp } = useDbrAuctionActivity();
@@ -31,6 +32,7 @@ export const DbrAuctionSInvStatsPage = () => {
         spacing="8"
         px={{ base: '4', lg: '0' }}
       >
+        <InfoMessage description="Page is in maintenance, data might be outdated or missing" alertProps={{ w: 'full' }} />
         <Container
           label="DBR sINV Auction"
           description="Note: sINV auction income goes to sINV holders"

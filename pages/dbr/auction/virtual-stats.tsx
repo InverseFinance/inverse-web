@@ -12,6 +12,7 @@ import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { useDbrAuction } from '@app/components/F2/DbrAuction/DbrAuctionInfos';
+import { InfoMessage } from '@app/components/common/Messages';
 
 export const DbrAuctionVirtualStatsPage = () => {
   const { dbrSaleHandlerRepayPercentage, isLoading, virtualAuctionEvents: events, accDolaInVirtual: accDolaIn, accDbrOutVirtual: accDbrOut, accVirtualWorthOut, last100VirtualAuctionEvents, timestamp } = useDbrAuctionActivity();  
@@ -33,6 +34,7 @@ export const DbrAuctionVirtualStatsPage = () => {
         spacing="8"
         px={{ base: '4', lg: '0' }}
       >
+        <InfoMessage description="Page is in maintenance, data might be outdated or missing" alertProps={{ w: 'full' }} />
         <Container
           label="DBR Virtual Auction"
           description={`Note: ${smartShortNumber(dbrSaleHandlerRepayPercentage, 2)}% of the Virtual auction income goes to bad debt reduction`}
