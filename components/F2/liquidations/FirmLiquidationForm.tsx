@@ -94,16 +94,16 @@ export const FirmLiquidationForm = ({
             <Text>Debt:</Text>
             <Text fontWeight="bold">{shortenNumber(debt, 2)}</Text>
         </HStack>
-        <HStack w='full' justify="space-between">
-            <Text>Deposits:</Text>
-            <Text fontWeight="bold">{shortenNumber(deposits, 4)} {position?.market.underlying.symbol} ({shortenNumber(depositWorth, 2, true)})</Text>
-        </HStack>
-        <HStack w='full' justify="space-between">
-            <Text>Deposits worth (with {shortenNumber(position?.market.collateralFactor * 100, 0)}% CF):</Text>
-            <Text fontWeight="bold">{shortenNumber(depositWorth * position?.market.collateralFactor, 2, true)}</Text>
-        </HStack>
         {
             mode === 'Liquidate' && <>
+                <HStack w='full' justify="space-between">
+                    <Text>Deposits:</Text>
+                    <Text fontWeight="bold">{shortenNumber(deposits, 4)} {position?.market.underlying.symbol} ({shortenNumber(depositWorth, 2, true)})</Text>
+                </HStack>
+                <HStack w='full' justify="space-between">
+                    <Text>Deposits worth (with {shortenNumber(position?.market.collateralFactor * 100, 0)}% CF):</Text>
+                    <Text fontWeight="bold">{shortenNumber(depositWorth * position?.market.collateralFactor, 2, true)}</Text>
+                </HStack>
                 <HStack w='full' justify="space-between">
                     <Text>Liquidation Incentive:</Text>
                     <Text fontWeight="bold">{position?.market.liquidationIncentive * 100}%</Text>
@@ -113,23 +113,15 @@ export const FirmLiquidationForm = ({
                     <Text fontWeight="bold">{position?.market.liquidationFactor * 100}%</Text>
                 </HStack></>
         }
-        <HStack w='full' justify="space-between">
-            <Text>Max Repayable Debt:</Text>
-            <Text fontWeight="bold">{shortenNumber(maxRepayable, 2, false, true)}</Text>
-        </HStack>
         {
             mode === 'Liquidate' && <>
                 <HStack w='full' justify="space-between">
+                    <Text>Max Repayable Debt:</Text>
+                    <Text fontWeight="bold">{shortenNumber(maxRepayable, 2, false, true)}</Text>
+                </HStack>
+                <HStack w='full' justify="space-between">
                     <Text>Max Seizable:</Text>
                     <Text fontWeight="bold">{shortenNumber(maxCollateralSeizable, 4, false, true)} ({shortenNumber(maxWorthSeizable, 2, true, true)})</Text>
-                </HStack>
-                <HStack w='full' justify="space-between">
-                    <Text>Liquidation Price:</Text>
-                    <Text fontWeight="bold">{preciseCommify(liquidationPrice, 2, true)}</Text>
-                </HStack>
-                <HStack w='full' justify="space-between">
-                    <Text>Borrow limit:</Text>
-                    <Text fontWeight="bold">{shortenNumber(100 - perc, 2)}%</Text>
                 </HStack>
                 {
                     maxSeizableWorth > 0 && <HStack w='full' justify="space-between">
@@ -141,6 +133,14 @@ export const FirmLiquidationForm = ({
                 }
             </>
         }
+        <HStack w='full' justify="space-between">
+            <Text>Liquidation Price:</Text>
+            <Text fontWeight="bold">{preciseCommify(liquidationPrice, 2, true)}</Text>
+        </HStack>
+        <HStack w='full' justify="space-between">
+            <Text>Borrow limit:</Text>
+            <Text fontWeight="bold">{shortenNumber(100 - perc, 2)}%</Text>
+        </HStack>
         {
             !account && <InfoMessage alertProps={{ w: 'full' }} description="Please connect wallet" />
         }
