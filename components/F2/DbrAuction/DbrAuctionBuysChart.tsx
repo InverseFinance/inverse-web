@@ -80,26 +80,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
         return [...new Set(chartDataAccUsd.map(e => e.utcDate))];
     }, [chartEvents]);
 
-    const chartDailyDataAccUsd = dates.map(d => {
-        const last = chartDataAccUsd.findLast(cd => cd.utcDate === d);
-        return {
-            x: utcDateStringToTimestamp(d),
-            utcDate: d,
-            y: last?.y || 0,
-            yDay: chartDataAccUsd.filter(cd => cd.utcDate === d).reduce((prev, curr) => prev + curr.yDay, 0),
-        }
-    });
-    const chartDailyDataAcc = dates.map(d => {
-        const last = chartDataAcc.findLast(cd => cd.utcDate === d);
-        return {
-            x: utcDateStringToTimestamp(d),
-            utcDate: d,
-            y: last?.y || 0,
-            yDay: chartDataAcc.filter(cd => cd.utcDate === d).reduce((prev, curr) => prev + curr.yDay, 0),
-        }
-    })
-
-    const { chartData: chartDataArb } = useEventsAsChartData(chartEvents.filter(e => e.arb > 0), 'arbPerc', 'arbPerc', true, true);
+    const { chartData: chartDataArb } = useEventsAsChartData(chartEvents.filter(e => e.arbPercMax > 0), 'arbPercMax', 'arbPercMax', true, true);
     const virtualAuctionBuysEvents = events.filter(e => e.auctionType === 'Virtual');
     const sdolaAuctionBuysEvents = events.filter(e => e.auctionType === 'sDOLA');
     const invAuctionBuysEvents = events.filter(e => e.auctionType === 'sINV');
@@ -110,10 +91,10 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
     const [isLargerThan2xl] = useMediaQuery(`(min-width: 96em)`);
 
     const generalAuctionBuys = virtualAuctionBuysEvents
-        .reduce((prev, curr) => prev + curr.dolaIn, 0);
+        .reduce((prev, curr) => prev + curr.amountIn, 0);
 
     const sDolaAuctionBuys = sdolaAuctionBuysEvents
-        .reduce((prev, curr) => prev + curr.dolaIn, 0);
+        .reduce((prev, curr) => prev + curr.amountIn, 0);
 
     const invAuctionBuys = invAuctionBuysEvents
         .reduce((prev, curr) => prev + (useInvAmount ? (curr.invIn || 0) : curr.worthIn), 0);
@@ -122,8 +103,8 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
     uniqueWeeks.sort((a, b) => a > b ? 1 : -1);
     const dbrPricesStats = uniqueWeeks.map(week => {
         const weekEvents = chartEvents.filter(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp) === week);
-        const prices = weekEvents.map(e => useInvAmount ? e.priceInInv : e.priceInDola);
-        const marketPrices = weekEvents.map(e => useInvAmount ? e.marketPriceInInv : e.marketPriceInDola);
+        const prices = weekEvents.map(e => e.price);
+        const marketPrices = weekEvents.map(e => e.marketPrice);
         const min = Math.min(...prices);
         const max = Math.max(...prices);
         const nbWeekEvents = weekEvents.length;
@@ -134,7 +115,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
 
     const dbrWeeklyIncomeStats = uniqueWeeks.map(week => {
         const weekEvents = chartEvents.filter(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp) === week);
-        const dolaIn = weekEvents.map(e => e.dolaIn ? e.dolaIn : useInvAmount ? (e.invIn || 0) : e.worthIn);
+        const dolaIn = weekEvents.map(e => e.worthIn);
         const total = dolaIn.reduce((prev, curr) => prev + curr, 0);
         return { week, y: total, x: week }
     });
@@ -169,10 +150,10 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
                         showMonthlyBarChart={false}
                         maxChartWidth={autoChartWidth}
                         chartWidth={autoChartWidth}
-                        chartData={surroundByZero(chartDailyDataAccUsd)}
+                        chartData={chartDataAccUsd}
                         isDollars={true}
                         smoothLineByDefault={false}
-                        areaProps={{ secondaryRef: 'yDay', secondaryAsLeftAxis: true, secondaryAsUsd: true, secondaryPrecision: 2, secondaryLabel: isTotal ? 'Income' : useInvAmount ? 'INV income' : 'DOLA income', secondaryType: 'stepAfter', showSecondary: true, title: 'Income from all DBR auction buys', defaultRange: '1M', fillInByDayInterval: true, id: `dbr-auction-buys-chart-usd`, showRangeBtns: true, yLabel: `Acc. ${isTotal ? '' : useInvAmount ? 'INV' : 'DOLA'} income`, useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'secondary', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
+                        areaProps={{ secondaryRef: 'yDay', secondaryAsLeftAxis: true, secondaryAsUsd: true, secondaryPrecision: 2, secondaryLabel: isTotal ? 'Income' : useInvAmount ? 'INV income' : 'DOLA income', secondaryType: 'stepAfter', showSecondary: true, title: 'Daily Income from auction buys', defaultRange: '1M', fillInByDayInterval: 0, id: `dbr-auction-buys-chart-usd`, showRangeBtns: true, yLabel: `Acc. ${isTotal ? '' : useInvAmount ? 'INV' : 'DOLA'} income`, useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'secondary', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
                     />
                 </VStack>
                 <VStack display={useUsd || isTotal ? 'none' : 'block'}>
@@ -180,14 +161,13 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
                         showMonthlyBarChart={false}
                         maxChartWidth={autoChartWidth}
                         chartWidth={autoChartWidth}
-                        chartData={surroundByZero(chartDailyDataAcc)}
+                        chartData={chartDataAcc}
                         isDollars={false}
                         smoothLineByDefault={false}
-                        areaProps={{ secondaryRef: 'yDay', secondaryAsLeftAxis: true, secondaryAsUsd: false, secondaryPrecision: 2, secondaryLabel: useInvAmount ? 'INV income' : 'DOLA income', secondaryType: 'stepAfter', showSecondary: true, title: 'Income from all DBR auction buys', defaultRange: '1M', fillInByDayInterval: true, id: `dbr-auction-buys-chart`, showRangeBtns: true, yLabel: `Acc. ${useInvAmount ? 'INV' : 'DOLA'} income`, useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'secondary', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
+                        areaProps={{ secondaryRef: 'yDay', secondaryAsLeftAxis: true, secondaryAsUsd: false, secondaryPrecision: 2, secondaryLabel: useInvAmount ? 'INV income' : 'DOLA income', secondaryType: 'stepAfter', showSecondary: true, title: 'Daily Income from auction buys', defaultRange: '1M', fillInByDayInterval: 0, id: `dbr-auction-buys-chart`, showRangeBtns: true, yLabel: `Acc. ${useInvAmount ? 'INV' : 'DOLA'} income`, useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'secondary', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
                     />
                 </VStack>
             </VStack>
-
         </Stack>
         <BarChartRecharts
             title={`Weekly average prices in the last ${nbWeeksToShow} weeks`}
@@ -212,7 +192,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
             smoothLineByDefault={false}
             barProps={{ useRecharts: true, title: 'Monthly auction income' }}
         />
-        {/* <BarChartRecharts
+        <BarChartRecharts
             title={`Weekly ${useInvAmount ? 'INV' : 'DOLA'} income in the last ${nbWeeksToShow} weeks`}
             combodata={last8WeeksIncomeStats}
             precision={2}
@@ -221,7 +201,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
             yLabel="Weekly income"
             useUsd={false}
             showLabel={isLargerThan}
-        /> */}
+        />
         <VStack pt="10">
             <DefaultCharts
                 showMonthlyBarChart={false}
@@ -232,14 +212,14 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
                 smoothLineByDefault={false}
                 areaProps={{
                     lineItems: [
-                        { dataKey: useInvAmount ? 'priceInInv' : 'priceInDola', name: 'Auction price', axisId: 'right', stroke: themeStyles.colors.info },
-                        { dataKey: useInvAmount ? 'marketPriceInInv' : 'marketPriceInDola', name: 'Market price', axisId: 'right', stroke: themeStyles.colors.success },
+                        { dataKey: useInvAmount ? 'price' : 'price', name: 'Auction price', axisId: 'right', stroke: themeStyles.colors.info },
+                        { dataKey: useInvAmount ? 'marketPrice' : 'marketPrice', name: 'Market price', axisId: 'right', stroke: themeStyles.colors.success },
                     ],
                     showSecondary: true,
                     secondaryRef: '',
                     interpolation: 'step',
                     showLegend: true,
-                    title: 'Prices at auction buys and price diff %', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: true, yLabel: 'Difference', useRecharts: true, showMaxY: false, isPerc: true, showTooltips: true, autoMinY: true, mainColor: 'gold', strokeColor: 'orange', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD']
+                    title: 'Prices at auction buys and price diff %', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: true, yLabel: 'Max. Difference', useRecharts: true, showMaxY: false, isPerc: true, showTooltips: true, autoMinY: true, mainColor: 'gold', strokeColor: 'orange', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD']
                 }}
             />
         </VStack>
@@ -250,7 +230,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
             />
         }
         <Stack w='full' direction={{ base: 'column', '2xl': 'row' }} alignItems="center">
-            {/* <BarChartRecharts
+            <BarChartRecharts
                 title={`DBR sold per year`}
                 combodata={dbrSoldPerYear}
                 precision={4}
@@ -265,7 +245,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
                 stackFields={['Virtual', 'sDOLA', 'sINV']}
                 stackLabels={['Virtual', 'sDOLA', 'sINV']}
                 stackColors={[themeStyles.colors.info, themeStyles.colors.success, themeStyles.colors.warning]}
-            /> */}
+            />
             {
                 isTotal && <VStack w='full' alignItems="center">
                     <Text fontWeight="bold">Total buys repartition</Text>
