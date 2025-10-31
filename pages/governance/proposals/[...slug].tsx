@@ -125,8 +125,8 @@ export async function getStaticPaths() {
   if (!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID)) {
     return { paths: [], fallback: true }
   }
-  // const { proposals } = await getCacheFromRedis(proposalsCacheKey, false, 0, true) || { proposals: [] };
-  const { proposals } = await fetch('https://inverse.finance/api/proposals').then(res => res.json());
+  const { proposals } = await getCacheFromRedis(proposalsCacheKey, false, 0, true) || { proposals: [] };
+  // const { proposals } = await fetch('https://inverse.finance/api/proposals').then(res => res.json());
 
   const possiblePaths = proposals.map(p => {
     return `/governance/proposals/${p.era}/${p.id}`;
