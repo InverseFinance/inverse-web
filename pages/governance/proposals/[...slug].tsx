@@ -105,8 +105,8 @@ export default Governance
 // static with revalidate as on-chain proposal content cannot change but the status/votes can
 export async function getStaticProps(context) {
   const { slug } = context.params;
-  // const { proposals } = await getCacheFromRedis(proposalsCacheKey, false, 0, true) || { proposals: [] };
-  const { proposals } = await fetch('https://inverse.finance/api/proposals').then(res => res.json());
+  const { proposals } = await getCacheFromRedis(proposalsCacheKey, false, 0, true) || { proposals: [] };
+  // const { proposals } = await fetch('https://inverse.finance/api/proposals').then(res => res.json());
 
   const proposal = proposals?.map(p => ({ ...p, era: fixEraTypo(p.era) }))
     .find((p: Proposal) => {
