@@ -190,7 +190,7 @@ export const FirmLiquidationForm = ({
                     signer={provider?.getSigner()}
                     decimals={18}
                     hideInputIfNoAllowance={false}
-                    maxAmountFrom={[getNumberToBn(maxRepayable)]}
+                    maxAmountFrom={[getNumberToBn(debt)]}
                     includeBalanceInMax={true}
                     onAction={({ bnAmount }) => handleRepayOnBehalf(bnAmount)}
                     onAmountChange={(v) => setRepayAmount(v)}
