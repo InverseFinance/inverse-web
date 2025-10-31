@@ -2,10 +2,10 @@ import { DBR_AUCTION_ABI, DBR_AUCTION_HELPER_ABI, SINV_ABI } from "@app/config/a
 import { useContractEvents } from "@app/hooks/useContractEvents";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
-import { ascendingEventsSorter } from "./misc";
+import { ascendingEventsSorter, getTimestampFromUTCDate, timestampToUTC } from "./misc";
 import { useBlocksTimestamps } from "@app/hooks/useBlockTimestamp";
 import { getBnToNumber, getNumberToBn } from "./markets";
-import { useCustomSWR, useLocalCacheOnly } from "@app/hooks/useCustomSWR";
+import { useCacheFirstSWR, useCustomSWR, useLocalCacheOnly } from "@app/hooks/useCustomSWR";
 import { SWR } from "@app/types";
 import { fetcher } from "./web3";
 import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, SDOLA_ADDRESS, SINV_ADDRESS } from "@app/config/constants";
@@ -95,7 +95,30 @@ export const estimateAuctionTimeToReachMarketPrice = (
     return timeToAddSec;
 }
 
-const formatAuctionEvents = (e: any, i: number) => {
+export const formatDailyAuctionAggreg = (e: any, i: number) => {
+    const isInvCase = e.auctionType === 'sINV';
+    const priceInDola = ((e.dolaIn || 0) / e.dbrOut);
+    const priceInInv = ((e.invIn || 0) / e.dbrOut);
+    const amountIn = isInvCase ? e.invIn : e.dolaIn;
+    const arb = isInvCase ? e.marketPriceInInv - priceInInv : e.marketPriceInDola - priceInDola;
+    const worthIn = e.dolaIn ? e.dolaIn : e.invIn * 1 / e.marketPriceInInv * e.marketPriceInDola;
+    const worthOut = e.dbrOut * e.marketPriceInDola;
+    const priceAvg = isInvCase ? (priceInInv + e.marketPriceInInv) / 2 : (priceInDola + e.marketPriceInDola) / 2;
+    return {
+        timestamp: e.timestamp,
+        auctionType: e.auctionType,
+        price: isInvCase ? priceInInv : priceInDola,
+        marketPrice: isInvCase ? e.marketPriceInInv : e.marketPriceInDola,
+        amountIn,
+        worthIn,
+        worthOut,
+        arb,
+        dbrOut: e.dbrOut,
+        arbPerc: arb / (priceAvg) * 100,
+    };
+}
+
+export const formatAuctionEvents = (e: any, i: number) => {
     const isInvCase = e.auctionType === 'sINV';
     const priceInDola = ((e.dolaIn || 0) / e.dbrOut);
     const priceInInv = ((e.invIn || 0) / e.dbrOut);
@@ -118,9 +141,162 @@ const formatAuctionEvents = (e: any, i: number) => {
     };
 }
 
+const aggregByDay = (formattedEvents: any[], utcDate: string) => {
+    const list = formattedEvents.filter(e => e.utcDate === utcDate);
+    const accAmountIn = list.reduce((prev, curr) => prev + curr.amountIn || 0, 0) || 0;
+    const accDbrOut = list.reduce((prev, curr) => prev + curr.dbrOut || 0, 0) || 0;
+    const nbBuys = list.length;
+    return {
+        amountIn: accAmountIn,
+        dbrOut: accDbrOut,
+        worthIn: list.reduce((prev, curr) => prev + curr.worthIn || 0, 0),
+        worthOut: list.reduce((prev, curr) => prev + curr.worthOut || 0, 0),
+        // avgDbrPrice: accDbrOut ? accAmountIn / accDbrOut : 0,
+        // arb: nbBuys ? list.reduce((prev, curr) => prev + curr.arb || 0, 0) / nbBuys : 0,
+        arbPercMin: nbBuys ? list.reduce((prev, curr) => Math.min(prev, curr.arbPerc||0), Infinity) : 0,    
+        arbPercMax: nbBuys ? list.reduce((prev, curr) => Math.max(prev, curr.arbPerc||0), 0) : 0,    
+        nbBuys,
+        price: nbBuys ? list.reduce((prev, curr) => prev + curr.price || 0, 0) / nbBuys : 0,
+        marketPrice: nbBuys ? list.reduce((prev, curr) => prev + curr.marketPrice || 0, 0) / nbBuys : 0,
+    }
+}
+
+export const getGroupedByDayAuctionBuys = (buyEvents: any[]) => {
+    const events = buyEvents.map(e => {
+        return {
+            utcDate: timestampToUTC(e.timestamp),
+            ...e,
+        }
+    });
+
+    const types = ['Virtual', 'sDOLA', 'sINV'];
+    const uniqueDays = [...new Set(events.map(e => e.utcDate))];
+
+    return uniqueDays.map(utcDateString => {
+        const aggregatedTypes = types.reduce((prev, type) => {
+            const list = events.filter(e => e.auctionType === type);
+            const aggreg = aggregByDay(list, utcDateString);
+            return {
+                ...prev,
+                [type]: aggreg,
+            }
+        }, {});
+        const allList = events.filter(e => e.utcDate === utcDateString);
+        const all = aggregByDay(allList, utcDateString);
+        return {
+            utcDate: utcDateString,
+            timestamp: getTimestampFromUTCDate(utcDateString),
+            all: {
+                worthIn: all.worthIn,
+                worthOut: all.worthOut,
+                nbBuys: all.nbBuys,
+                dbrOut: all.dbrOut,
+            },
+            ...aggregatedTypes,
+        }
+    });
+}
+
+export const getFormattedAuctionBuys = (events: any[]) => {
+    // const events = buyEvents.map((e, i) => {
+    //     const isInvCase = e.auctionType === 'sINV';
+    //     const priceInDola = ((e.dolaIn || 0) / e.dbrOut);
+    //     const priceInInv = ((e.invIn || 0) / e.dbrOut);
+    //     const amountIn = isInvCase ? e.invIn : e.dolaIn;
+    //     const arb = isInvCase ? e.marketPriceInInv - priceInInv : e.marketPriceInDola - priceInDola;
+    //     const worthIn = e.dolaIn ? e.dolaIn : e.invIn * 1 / e.marketPriceInInv * e.marketPriceInDola;
+    //     const worthOut = e.dbrOut * e.marketPriceInDola;
+    //     const priceAvg = isInvCase ? (priceInInv + e.marketPriceInInv) / 2 : (priceInDola + e.marketPriceInDola) / 2;
+    //     return {
+    //         ...e,
+    //         key: `${e.txHash}-${i}`,
+    //         priceInDola,
+    //         priceInInv,
+    //         amountIn,
+    //         worthIn,
+    //         worthOut,
+    //         arb,
+    //         arbPerc: arb / (priceAvg) * 100,
+    //         version: e.version || (isInvCase ? 'V1' : undefined),
+    //     };
+    // });
+
+    const dolaEvents = events.map(e => {
+        return {
+            ...e,
+            amountIn: e.Virtual.amountIn + e.sDOLA.amountIn,
+            dbrOut: e.Virtual.dbrOut + e.sDOLA.dbrOut,
+            worthIn: e.Virtual.worthIn + e.sDOLA.worthIn,
+            worthOut: e.Virtual.worthOut + e.sDOLA.worthOut,
+            // avgDbrPrice: (e.Virtual.dbrOut + e.sDOLA.dbrOut) > 0 ? (e.Virtual.amountIn + e.sDOLA.amountIn) / (e.Virtual.dbrOut + e.sDOLA.dbrOut) : 0,
+            arb: (e.Virtual.arb + e.sDOLA.arb) / 2,
+            arbPerc: (e.Virtual.arbPerc + e.sDOLA.arbPerc) / 2,
+            nbBuys: e.Virtual.nbBuys + e.sDOLA.nbBuys,   
+        }
+    });
+    
+    const sinvAuctionEvents = events.map(e => ({...e, ...e.sINV}));
+    const virtualAuctionEvents = events.map(e => ({...e, ...e.Virtual}));
+    const sdolaAuctionEvents = events.map(e => ({...e, ...e.sDOLA}));
+
+    const accDolaIn = dolaEvents.reduce((prev, curr) => prev + curr.amountIn || 0, 0);
+    const accInvWorthIn = sinvAuctionEvents.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
+    const accWorthIn = events.reduce((prev, curr) => prev + curr.all.worthIn || 0, 0);
+    const accWorthOut = events.reduce((prev, curr) => prev + curr.all.worthOut || 0, 0);
+    const accDolaWorthOut = dolaEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
+    const accVirtualWorthOut = virtualAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
+    const accSdolaWorthOut = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
+    const accInvWorthOut = sinvAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
+    const accDbrOutFromDola = dolaEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
+    const accDbrOut = events.reduce((prev, curr) => prev + curr.all.dbrOut, 0);
+
+    const accDolaInVirtual = virtualAuctionEvents.reduce((prev, curr) => prev + curr.amountIn || 0, 0);
+    const accDbrOutVirtual = virtualAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut || 0, 0);
+
+    const accDolaInSdola = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.amountIn || 0, 0);
+    const accDbrOutSdola = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut || 0, 0);
+
+    const accInvInSinv = sinvAuctionEvents.reduce((prev, curr) => prev + curr.amountIn || 0, 0);
+    const accDbrOutSinv = sinvAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut || 0, 0);
+    const accInvIn = accInvInSinv;
+
+    const avgDbrPrice = accDolaIn / accDbrOutFromDola;
+    const nbBuys = events.reduce((prev, curr) => prev + curr.all.nbBuys, 0);
+
+    return {
+        events,
+        dolaEvents,
+        virtualAuctionEvents,
+        sdolaAuctionEvents,
+        sinvAuctionEvents,
+        aggregated: {
+            accDolaIn,
+            accDbrOut,
+            accDolaInVirtual,
+            accDbrOutVirtual,
+            accDolaInSdola,
+            accDbrOutSdola,
+            accInvInSinv,
+            accDbrOutSinv,
+            accDbrOutFromDola,
+            accInvIn,
+            accInvWorthIn,
+            accWorthIn,
+            accInvWorthOut,
+            accWorthOut,
+            accDolaWorthOut,
+            accVirtualWorthOut,
+            accSdolaWorthOut,
+            avgDbrPrice,
+            nbBuys,
+        }
+    }
+}
+
 export const useDbrAuctionActivity = (from?: string): SWR & {
     events: any[],
     dolaEvents: any[],
+    invEvents: any[],
     virtualAuctionEvents: any[],
     sdolaAuctionEvents: any[],
     sinvAuctionEvents: any[],
@@ -151,40 +327,9 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     last100SdolaAuctionEvents: any[],
     last100SinvAuctionEvents: any[],
 } => {
-    const liveEvents = []//useDbrAuctionBuyEvents(from);
-    const { data, error } = useLocalCacheOnly(`/api/auctions/dbr-buys?v=1.0.1`, fetcher);
+    const { data, error } = useCustomSWR(`/api/auctions/dbr-buys?v=4`, fetcher);
 
-    const events = (liveEvents?.length > data?.buys?.length ? liveEvents : data?.buys || [])
-        .map(formatAuctionEvents)
-
-    const dolaEvents = events.filter(e => e.auctionType === 'Virtual' || e.auctionType === 'sDOLA');
-    const virtualAuctionEvents = events.filter(e => e.auctionType === 'Virtual');
-    const sdolaAuctionEvents = events.filter(e => e.auctionType === 'sDOLA');
-    const sinvAuctionEvents = events.filter(e => e.auctionType === 'sINV');
-
-    const accDolaIn = dolaEvents.reduce((prev, curr) => prev + curr.dolaIn || 0, 0);
-    const accInvWorthIn = sinvAuctionEvents.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
-    const accWorthIn = events.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
-    const accWorthOut = events.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
-    const accDolaWorthOut = dolaEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
-    const accVirtualWorthOut = virtualAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
-    const accSdolaWorthOut = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
-    const accInvWorthOut = sinvAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
-    const accDbrOutFromDola = dolaEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
-    const accDbrOut = events.reduce((prev, curr) => prev + curr.dbrOut, 0);
-
-    const accDolaInVirtual = virtualAuctionEvents.reduce((prev, curr) => prev + curr.dolaIn || 0, 0);
-    const accDbrOutVirtual = virtualAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
-
-    const accDolaInSdola = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.dolaIn || 0, 0);
-    const accDbrOutSdola = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
-
-    const accInvInSinv = sinvAuctionEvents.reduce((prev, curr) => prev + curr.invIn || 0, 0);
-    const accDbrOutSinv = sinvAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
-    const accInvIn = accInvInSinv;
-
-    const avgDbrPrice = accDolaIn / accDbrOutFromDola;
-    const nbBuys = events.length;
+    const { events, dolaEvents, virtualAuctionEvents, sdolaAuctionEvents, sinvAuctionEvents, aggregated } = getFormattedAuctionBuys(data?.dailyBuys || []);
 
     return {
         events,
@@ -196,32 +341,119 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
         last100VirtualAuctionEvents: (data?.last100VirtualAuctionEvents || []).map(formatAuctionEvents),
         last100SdolaAuctionEvents: (data?.last100SdolaAuctionEvents || []).map(formatAuctionEvents),
         last100SinvAuctionEvents: (data?.last100SinvAuctionEvents || []).map(formatAuctionEvents),
-        accountEvents: events.filter(e => e.to === from),
-        nbBuys,
-        avgDbrPrice,
-        accDolaIn,
-        accDbrOut,
-        accDolaInVirtual,
-        accDbrOutVirtual,
-        accDolaInSdola,
-        accDbrOutSdola,
-        accInvInSinv,
-        accDbrOutSinv,
-        accDbrOutFromDola,
-        accInvIn,
-        accWorthIn,
-        accInvWorthIn,
-        accInvWorthOut,
-        accWorthOut,
-        accDolaWorthOut,
-        accVirtualWorthOut,
-        accSdolaWorthOut,
+        // accountEvents: events.filter(e => e.to === from),
+        ...aggregated,
         dbrSaleHandlerRepayPercentage: data?.dbrSaleHandlerRepayPercentage || 20,
         timestamp: !from ? data?.timestamp : 0,
         isLoading: !error && !data,
         isError: error,
     }
 }
+
+// export const useDbrAuctionActivity = (from?: string): SWR & {
+//     events: any[],
+//     dolaEvents: any[],
+//     virtualAuctionEvents: any[],
+//     sdolaAuctionEvents: any[],
+//     sinvAuctionEvents: any[],
+//     accountEvents: any,
+//     timestamp: number,
+//     dbrSaleHandlerRepayPercentage: number,
+//     avgDbrPrice: number,
+//     nbBuys: number,
+//     accDolaIn: number,
+//     accDbrOut: number,
+//     accDolaInVirtual: number,
+//     accDolaInSdola: number,
+//     accDbrOutVirtual: number,
+//     accDbrOutSdola: number,
+//     accInvInSinv: number,
+//     accDbrOutSinv: number,
+//     accDbrOutFromDola: number,
+//     accInvIn: number,
+//     accInvWorthIn: number,
+//     accWorthIn: number,
+//     accInvWorthOut: number,
+//     accWorthOut: number,
+//     accDolaWorthOut: number,
+//     accVirtualWorthOut: number,
+//     accSdolaWorthOut: number,
+//     last100: any[],
+//     last100VirtualAuctionEvents: any[],
+//     last100SdolaAuctionEvents: any[],
+//     last100SinvAuctionEvents: any[],
+// } => {
+//     const liveEvents = []//useDbrAuctionBuyEvents(from);
+//     const { data, error } = useCacheFirstSWR(`/api/auctions/dbr-buys?v=2.0.0`, fetcher);
+
+//     const events = (liveEvents?.length > data?.buys?.length ? liveEvents : data?.buys || [])
+//         .map(formatAuctionEvents)
+
+//     const dolaEvents = events.filter(e => e.auctionType === 'Virtual' || e.auctionType === 'sDOLA');
+//     const virtualAuctionEvents = events.filter(e => e.auctionType === 'Virtual');
+//     const sdolaAuctionEvents = events.filter(e => e.auctionType === 'sDOLA');
+//     const sinvAuctionEvents = events.filter(e => e.auctionType === 'sINV');
+
+//     const accDolaIn = dolaEvents.reduce((prev, curr) => prev + curr.dolaIn || 0, 0);
+//     const accInvWorthIn = sinvAuctionEvents.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
+//     const accWorthIn = events.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
+//     const accWorthOut = events.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
+//     const accDolaWorthOut = dolaEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
+//     const accVirtualWorthOut = virtualAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
+//     const accSdolaWorthOut = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
+//     const accInvWorthOut = sinvAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
+//     const accDbrOutFromDola = dolaEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
+//     const accDbrOut = events.reduce((prev, curr) => prev + curr.dbrOut, 0);
+
+//     const accDolaInVirtual = virtualAuctionEvents.reduce((prev, curr) => prev + curr.dolaIn || 0, 0);
+//     const accDbrOutVirtual = virtualAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
+
+//     const accDolaInSdola = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.dolaIn || 0, 0);
+//     const accDbrOutSdola = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
+
+//     const accInvInSinv = sinvAuctionEvents.reduce((prev, curr) => prev + curr.invIn || 0, 0);
+//     const accDbrOutSinv = sinvAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
+//     const accInvIn = accInvInSinv;
+
+//     const avgDbrPrice = accDolaIn / accDbrOutFromDola;
+//     const nbBuys = events.length;
+
+//     return {
+//         events,
+//         dolaEvents,
+//         virtualAuctionEvents,
+//         sdolaAuctionEvents,
+//         sinvAuctionEvents,
+//         last100: (data?.last100 || []).map(formatAuctionEvents),
+//         last100VirtualAuctionEvents: (data?.last100VirtualAuctionEvents || []).map(formatAuctionEvents),
+//         last100SdolaAuctionEvents: (data?.last100SdolaAuctionEvents || []).map(formatAuctionEvents),
+//         last100SinvAuctionEvents: (data?.last100SinvAuctionEvents || []).map(formatAuctionEvents),
+//         accountEvents: events.filter(e => e.to === from),
+//         nbBuys,
+//         avgDbrPrice,
+//         accDolaIn,
+//         accDbrOut,
+//         accDolaInVirtual,
+//         accDbrOutVirtual,
+//         accDolaInSdola,
+//         accDbrOutSdola,
+//         accInvInSinv,
+//         accDbrOutSinv,
+//         accDbrOutFromDola,
+//         accInvIn,
+//         accWorthIn,
+//         accInvWorthIn,
+//         accInvWorthOut,
+//         accWorthOut,
+//         accDolaWorthOut,
+//         accVirtualWorthOut,
+//         accSdolaWorthOut,
+//         dbrSaleHandlerRepayPercentage: data?.dbrSaleHandlerRepayPercentage || 20,
+//         timestamp: !from ? data?.timestamp : 0,
+//         isLoading: !error && !data,
+//         isError: error,
+//     }
+// }
 
 // export const useDbrAuctionBuyEvents = (account: string) => {
 //     const { events: generalAuctionBuys } = useContractEvents(
