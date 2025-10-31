@@ -11,7 +11,7 @@ import { Contract } from 'ethers';
 import { GOVERNANCE_ABI } from '@app/config/abis';
 import { getBnToNumber } from '@app/util/markets';
 import { parseEther } from "@ethersproject/units";
-import { PROPOSALS_SHORTLIST } from "@app/fixtures/proposals-shortlist";
+// import { PROPOSALS_SHORTLIST } from "@app/fixtures/proposals-shortlist";
 
 export const proposalsCacheKey = '1-proposals-v1.0.2';
 export default async function handler(req, res) {
@@ -24,29 +24,28 @@ export default async function handler(req, res) {
     const { GOVERNANCE } = getNetworkConfigConstants();
 
     const sigAddress = checkDraftRights(sig);
-    let cachedData = PROPOSALS_SHORTLIST;
-    let lastProposals = PROPOSALS_SHORTLIST.proposals;
-    const isValid = false;
-    // const { isValid, data: cachedData } = await getCacheFromRedisAsObj(proposalsCacheKey, !sigAddress, cacheDuration, true);
+    // let cachedData = PROPOSALS_SHORTLIST;
+    // let lastProposals = PROPOSALS_SHORTLIST.proposals;
+    // const isValid = false;
+    const { isValid, data: cachedData } = await getCacheFromRedisAsObj(proposalsCacheKey, !sigAddress, cacheDuration, true);
 
     if(isStatsOnly === 'true') {
-      return res.status(200).json({active: 1, passed: 335, failed: 18, timestamp: 1761052436984});
-      // const active = cachedData?.proposals?.reduce(
-      //   (prev: number, curr: Proposal) =>
-      //     prev + ([ProposalStatus.pending, ProposalStatus.active].includes(curr.status) ? 1 : 0),
-      //   0
-      // )
-      // const passed = cachedData?.proposals?.reduce(
-      //   (prev: number, curr: Proposal) =>
-      //     prev + ([ProposalStatus.executed, ProposalStatus.queued, ProposalStatus.succeeded].includes(curr.status) ? 1 : 0),
-      //   0
-      // )
-      // const failed = cachedData?.proposals?.reduce(
-      //   (prev: number, curr: Proposal) =>
-      //     prev + ([ProposalStatus.expired, ProposalStatus.defeated, ProposalStatus.canceled].includes(curr.status) ? 1 : 0),
-      //   0
-      // )
-      // return res.status(200).json({ active, passed, failed, timestamp: cachedData?.timestamp });
+      const active = cachedData?.proposals?.reduce(
+        (prev: number, curr: Proposal) =>
+          prev + ([ProposalStatus.pending, ProposalStatus.active].includes(curr.status) ? 1 : 0),
+        0
+      )
+      const passed = cachedData?.proposals?.reduce(
+        (prev: number, curr: Proposal) =>
+          prev + ([ProposalStatus.executed, ProposalStatus.queued, ProposalStatus.succeeded].includes(curr.status) ? 1 : 0),
+        0
+      )
+      const failed = cachedData?.proposals?.reduce(
+        (prev: number, curr: Proposal) =>
+          prev + ([ProposalStatus.expired, ProposalStatus.defeated, ProposalStatus.canceled].includes(curr.status) ? 1 : 0),
+        0
+      )
+      return res.status(200).json({ active, passed, failed, timestamp: cachedData?.timestamp });
     }    
     else if (isValid && !!cachedData) {
       const filteredProposals  = !proposalNum ? cachedData.proposals : cachedData.proposals.filter(p => p.proposalNum === parseInt(proposalNum));
@@ -68,7 +67,7 @@ export default async function handler(req, res) {
       getGovProposals({ size: 30, afterProposalId: lastRefProposalId }),
     ]);
 
-    const archivedProposals = lastProposals.filter(p => p.id <= lastRefProposalId);
+    const archivedProposals = cachedData?.proposals?.filter(p => p.id <= lastRefProposalId);
 
     const eras = {
       "0x35d9f4953748b318f18c30634ba299b237eedfff": GovEra.alpha,
@@ -143,7 +142,7 @@ export default async function handler(req, res) {
       success: true,
     }
 
-    // await redisSetWithTimestamp(proposalsCacheKey, result, true);
+    await redisSetWithTimestamp(proposalsCacheKey, result, true);
     
     res.status(200).json(result);
   } catch (err) {
