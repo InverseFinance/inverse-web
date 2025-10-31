@@ -132,6 +132,8 @@ export async function getStaticPaths() {
     return `/governance/proposals/${p.era}/${p.id}`;
   });
 
+  console.log(possiblePaths);
+
   return {
     paths: possiblePaths,
     fallback: true,
