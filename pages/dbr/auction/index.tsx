@@ -45,7 +45,7 @@ export const DbrAuctionPage = () => {
             </Stack>
           </Stack>
         </VStack>
-        <DbrAuctionBuys lastUpdate={timestamp} events={accountEvents} title="My past DBR buys from the auction" />
+        {/* <DbrAuctionBuys lastUpdate={timestamp} events={accountEvents} title="My past DBR buys from the auction" /> */}
       </VStack>
     </Layout>
   )
