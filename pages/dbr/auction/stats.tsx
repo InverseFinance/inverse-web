@@ -32,7 +32,6 @@ export const DbrAuctionStatsPage = () => {
         spacing="8"
         px={{ base: '4', lg: '0' }}
       >
-        <InfoMessage description="Page is in maintenance, data might be outdated or missing" alertProps={{ w: 'full' }} />
         <Container
           label="DBR auction stats"
           description={`Note: ${smartShortNumber(dbrSaleHandlerRepayPercentage, 2)}% of the Virtual auction income goes to bad debt reduction`}

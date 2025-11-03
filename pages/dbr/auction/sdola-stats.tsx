@@ -32,7 +32,6 @@ export const DbrAuctionSdolaStatsPage = () => {
         spacing="8"
         px={{ base: '4', lg: '0' }}
       >
-        <InfoMessage description="Page is in maintenance, data might be outdated or missing" alertProps={{ w: 'full' }} />
         <Container
           label="DBR sDOLA Auction"
           description="Note: sDOLA auction income goes to sDOLA yield"
