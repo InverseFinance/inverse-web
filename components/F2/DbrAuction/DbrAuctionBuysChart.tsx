@@ -67,20 +67,13 @@ const surroundByZero = (chartDataAcc: { x: number, y: number }[]) => {
 export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useInvAmount = false, auctionType, historicalRates }) => {
     const [useUsd, setUseUsd] = useState(false);
     // const { chartData: chartDataAccIncludingInv } = useEventsAsChartData(events, '_acc_', isTotal || useUsd ? 'worthIn' : useInvAmount ? 'invIn' : 'dolaIn', true, true);
-    const { chartData: chartDataAcc } = useEventsAsChartData(chartEvents, '_acc_', isTotal || useUsd ? 'worthIn' : useInvAmount ? 'invIn' : 'dolaIn', true, true);
+    const { chartData: chartDataAcc } = useEventsAsChartData(chartEvents, '_acc_', isTotal || useUsd ? 'worthIn' : 'amountIn', true, true);
 
     const { chartData: chartDataAccUsd } = useEventsAsChartData(chartEvents, '_acc_', 'worthIn', true, true);
     const { chartData: budgetChartData } = useEventsAsChartData((historicalRates || []), 'rate', 'rate', true, true);
 
-    // const dbrSoldPerYear = useMemo(() => {
-    //     return sumDbrByYearAndType(chartDataAccIncludingInv);
-    // }, [chartDataAccIncludingInv]);
-
-    const dates = useMemo(() => {
-        return [...new Set(chartDataAccUsd.map(e => e.utcDate))];
-    }, [chartEvents]);
-
     const { chartData: chartDataArb } = useEventsAsChartData(chartEvents.filter(e => e.arbPercMax > 0), 'arbPercMax', 'arbPercMax', true, true);
+    
     const virtualAuctionBuysEvents = events.filter(e => e.auctionType === 'Virtual');
     const sdolaAuctionBuysEvents = events.filter(e => e.auctionType === 'sDOLA');
     const invAuctionBuysEvents = events.filter(e => e.auctionType === 'sINV');
@@ -192,16 +185,6 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
             smoothLineByDefault={false}
             barProps={{ useRecharts: true, title: 'Monthly auction income' }}
         />
-        <BarChartRecharts
-            title={`Weekly ${useInvAmount ? 'INV' : 'DOLA'} income in the last ${nbWeeksToShow} weeks`}
-            combodata={last8WeeksIncomeStats}
-            precision={2}
-            // yDomain={[0.05, 0.25]}
-            chartWidth={autoChartWidth - 50}
-            yLabel="Weekly income"
-            useUsd={false}
-            showLabel={isLargerThan}
-        />
         <VStack pt="10">
             <DefaultCharts
                 showMonthlyBarChart={false}
@@ -230,7 +213,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
             />
         }
         <Stack w='full' direction={{ base: 'column', '2xl': 'row' }} alignItems="center">
-            <BarChartRecharts
+            {/* <BarChartRecharts
                 title={`DBR sold per year`}
                 combodata={dbrSoldPerYear}
                 precision={4}
@@ -245,8 +228,8 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
                 stackFields={['Virtual', 'sDOLA', 'sINV']}
                 stackLabels={['Virtual', 'sDOLA', 'sINV']}
                 stackColors={[themeStyles.colors.info, themeStyles.colors.success, themeStyles.colors.warning]}
-            />
-            {
+            /> */}
+            {/* {
                 isTotal && <VStack w='full' alignItems="center">
                     <Text fontWeight="bold">Total buys repartition</Text>
                     <PieChartRecharts
@@ -263,7 +246,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
                         fill={themeStyles.colors.mainTextColorLight}
                     />
                 </VStack>
-            }
+            } */}
         </Stack>
     </VStack>
 }

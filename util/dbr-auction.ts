@@ -141,27 +141,29 @@ export const formatAuctionEvents = (e: any, i: number) => {
     };
 }
 
-const aggregByDay = (formattedEvents: any[], utcDate: string) => {
+const aggregByDay = (formattedEvents: any[], utcDate: string, archivedDailyBuy: any = {}) => {
     const list = formattedEvents.filter(e => e.utcDate === utcDate);
-    const accAmountIn = list.reduce((prev, curr) => prev + curr.amountIn || 0, 0) || 0;
-    const accDbrOut = list.reduce((prev, curr) => prev + curr.dbrOut || 0, 0) || 0;
+    const accAmountIn = list.reduce((prev, curr) => prev + curr.amountIn || 0, (archivedDailyBuy?.amountIn || 0));
+    const accDbrOut = list.reduce((prev, curr) => prev + curr.dbrOut || 0, (archivedDailyBuy?.dbrOut || 0));
     const nbBuys = list.length;
+    const price = nbBuys ? list.reduce((prev, curr) => prev + curr.price || 0, 0) / nbBuys : 0;
+    const marketPrice = nbBuys ? list.reduce((prev, curr) => prev + curr.marketPrice || 0, 0) / nbBuys : 0;
     return {
         amountIn: accAmountIn,
         dbrOut: accDbrOut,
-        worthIn: list.reduce((prev, curr) => prev + curr.worthIn || 0, 0),
-        worthOut: list.reduce((prev, curr) => prev + curr.worthOut || 0, 0),
+        worthIn: list.reduce((prev, curr) => prev + curr.worthIn || 0, archivedDailyBuy?.worthIn || 0),
+        worthOut: list.reduce((prev, curr) => prev + curr.worthOut || 0, archivedDailyBuy?.worthOut || 0),
         // avgDbrPrice: accDbrOut ? accAmountIn / accDbrOut : 0,
         // arb: nbBuys ? list.reduce((prev, curr) => prev + curr.arb || 0, 0) / nbBuys : 0,
-        arbPercMin: nbBuys ? list.reduce((prev, curr) => Math.min(prev, curr.arbPerc||0), Infinity) : 0,    
-        arbPercMax: nbBuys ? list.reduce((prev, curr) => Math.max(prev, curr.arbPerc||0), 0) : 0,    
-        nbBuys,
-        price: nbBuys ? list.reduce((prev, curr) => prev + curr.price || 0, 0) / nbBuys : 0,
-        marketPrice: nbBuys ? list.reduce((prev, curr) => prev + curr.marketPrice || 0, 0) / nbBuys : 0,
+        arbPercMin: nbBuys ? list.reduce((prev, curr) => Math.min(prev, curr.arbPerc||0), archivedDailyBuy?.arbPercMin || Infinity) : archivedDailyBuy?.arbPercMin || 0,    
+        arbPercMax: nbBuys ? list.reduce((prev, curr) => Math.max(prev, curr.arbPerc||0), archivedDailyBuy?.arbPercMax || 0) : archivedDailyBuy?.arbPercMax || 0,    
+        nbBuys: nbBuys + (archivedDailyBuy?.nbBuys || 0),
+        price: archivedDailyBuy?.price && price ? (price+archivedDailyBuy.price)/2 : archivedDailyBuy?.price || price || 0,
+        marketPrice: archivedDailyBuy?.marketPrice && marketPrice ? (marketPrice+archivedDailyBuy.marketPrice)/2 : archivedDailyBuy?.marketPrice || marketPrice || 0,
     }
 }
 
-export const getGroupedByDayAuctionBuys = (buyEvents: any[]) => {
+export const getGroupedByDayAuctionBuys = (buyEvents: any[], archivedDailyBuys: any[] = []) => {
     const events = buyEvents.map(e => {
         return {
             utcDate: timestampToUTC(e.timestamp),
@@ -170,19 +172,26 @@ export const getGroupedByDayAuctionBuys = (buyEvents: any[]) => {
     });
 
     const types = ['Virtual', 'sDOLA', 'sINV'];
-    const uniqueDays = [...new Set(events.map(e => e.utcDate))];
+    const uniqueDays = [...new Set([...archivedDailyBuys.map(e => e.utcDate), ...events.map(e => e.utcDate)])];
 
-    return uniqueDays.map(utcDateString => {
+    return uniqueDays.map((utcDateString,i) => {
+        const archivedDailyBuy = archivedDailyBuys.find(e => e.utcDate === utcDateString);
+        const newDailyBuyEvent = events.find(e => e.utcDate === utcDateString);
+
+        if(!newDailyBuyEvent){
+            return archivedDailyBuy;
+        }
+
         const aggregatedTypes = types.reduce((prev, type) => {
             const list = events.filter(e => e.auctionType === type);
-            const aggreg = aggregByDay(list, utcDateString);
+            const aggreg = aggregByDay(list, utcDateString, archivedDailyBuy?.[type]);
             return {
                 ...prev,
                 [type]: aggreg,
             }
         }, {});
         const allList = events.filter(e => e.utcDate === utcDateString);
-        const all = aggregByDay(allList, utcDateString);
+        const all = aggregByDay(allList, utcDateString, archivedDailyBuy?.all);
         return {
             utcDate: utcDateString,
             timestamp: getTimestampFromUTCDate(utcDateString),
@@ -198,30 +207,9 @@ export const getGroupedByDayAuctionBuys = (buyEvents: any[]) => {
 }
 
 export const getFormattedAuctionBuys = (events: any[]) => {
-    // const events = buyEvents.map((e, i) => {
-    //     const isInvCase = e.auctionType === 'sINV';
-    //     const priceInDola = ((e.dolaIn || 0) / e.dbrOut);
-    //     const priceInInv = ((e.invIn || 0) / e.dbrOut);
-    //     const amountIn = isInvCase ? e.invIn : e.dolaIn;
-    //     const arb = isInvCase ? e.marketPriceInInv - priceInInv : e.marketPriceInDola - priceInDola;
-    //     const worthIn = e.dolaIn ? e.dolaIn : e.invIn * 1 / e.marketPriceInInv * e.marketPriceInDola;
-    //     const worthOut = e.dbrOut * e.marketPriceInDola;
-    //     const priceAvg = isInvCase ? (priceInInv + e.marketPriceInInv) / 2 : (priceInDola + e.marketPriceInDola) / 2;
-    //     return {
-    //         ...e,
-    //         key: `${e.txHash}-${i}`,
-    //         priceInDola,
-    //         priceInInv,
-    //         amountIn,
-    //         worthIn,
-    //         worthOut,
-    //         arb,
-    //         arbPerc: arb / (priceAvg) * 100,
-    //         version: e.version || (isInvCase ? 'V1' : undefined),
-    //     };
-    // });
-
+    // combines both daily DOLA types auctions aggregs into one
     const dolaEvents = events.map(e => {
+        const whichIsMax = e.Virtual.arbPercMax > e.sDOLA.arbPercMax ? 'Virtual' : 'sDOLA';
         return {
             ...e,
             amountIn: e.Virtual.amountIn + e.sDOLA.amountIn,
@@ -229,8 +217,10 @@ export const getFormattedAuctionBuys = (events: any[]) => {
             worthIn: e.Virtual.worthIn + e.sDOLA.worthIn,
             worthOut: e.Virtual.worthOut + e.sDOLA.worthOut,
             // avgDbrPrice: (e.Virtual.dbrOut + e.sDOLA.dbrOut) > 0 ? (e.Virtual.amountIn + e.sDOLA.amountIn) / (e.Virtual.dbrOut + e.sDOLA.dbrOut) : 0,
-            arb: (e.Virtual.arb + e.sDOLA.arb) / 2,
-            arbPerc: (e.Virtual.arbPerc + e.sDOLA.arbPerc) / 2,
+            arbPercMax: Math.max(e.Virtual.arbPercMax, e.sDOLA.arbPercMax),
+            arbPercMin: Math.min(e.Virtual.arbPercMin, e.sDOLA.arbPercMin),
+            price: e[whichIsMax].price,
+            marketPrice: e[whichIsMax].marketPrice,
             nbBuys: e.Virtual.nbBuys + e.sDOLA.nbBuys,   
         }
     });
