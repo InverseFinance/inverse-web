@@ -3,41 +3,43 @@ import 'source-map-support'
 import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
-import { getDbrAuctionContract } from '@app/util/dbr-auction';
-import { addBlockTimestamps } from '@app/util/timestamps';
+import { formatDailyAuctionAggreg, getDbrAuctionContract, getGroupedByDayAuctionBuys } from '@app/util/dbr-auction';
 import { NetworkIds } from '@app/types';
 import { getSdolaContract } from '@app/util/dola-staking';
-import { ascendingEventsSorter } from '@app/util/misc';
+import { ascendingEventsSorter, estimateBlockTimestamp } from '@app/util/misc';
 import { getHistoricDbrPriceOnCurve } from '@app/util/f2';
 import { getSInvContract } from '@app/util/sINV';
 import { SINV_ADDRESS, SINV_ADDRESS_V1, SINV_HELPER_ADDRESS, SINV_HELPER_ADDRESS_V1 } from '@app/config/constants';
 import { Contract } from 'ethers';
 
-const DBR_AUCTION_BUYS_CACHE_KEY = 'dbr-auction-buys-v1.1.0'
+const DBR_AUCTION_BUYS_CACHE_KEY_V2 = 'dbr-auction-buys-v2.0.1'
 
 export default async function handler(req, res) {
     try {
         const cacheDuration = 300;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DBR_AUCTION_BUYS_CACHE_KEY, true, cacheDuration, true);
+        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DBR_AUCTION_BUYS_CACHE_KEY_V2, false, cacheDuration);
         if (!!cachedData && isValid) {
-            res.status(200).send(cachedData);
+            res.status(200).json(cachedData);
             return
         }
 
         const provider = getProvider(NetworkIds.mainnet);
         const paidProvider = getPaidProvider(1);
 
+        const currentBlock = await provider.getBlock('latest');
+        const currentBlocknumber = currentBlock.number;
+        const currentTimestamp = currentBlock.timestamp * 1000;
+
         const dbrAuctionContract = getDbrAuctionContract(paidProvider);
         const sdolaContract = getSdolaContract(paidProvider);
         const sinvContract = getSInvContract(paidProvider);
         const sinvContractV1 = getSInvContract(paidProvider, SINV_ADDRESS_V1);
 
-        const archived = cachedData || { buys: [] };
-        const pastTotalEvents = archived?.buys || [];
+        const archived = cachedData || { dailyBuys: [], last100: [], last100VirtualAuctionEvents: [], last100SdolaAuctionEvents: [], last100SinvAuctionEvents: [] };
 
-        const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : {};
-        const newStartingBlock = lastKnownEvent?.blockNumber ? lastKnownEvent?.blockNumber + 1 : undefined;
+        const lastKnownEvent = archived?.last100?.length > 0 ? (archived.last100[archived.last100.length - 1]) : {};
+        const newStartingBlock = archived?.lastBlocknumber ? archived?.lastBlocknumber + 1 : (lastKnownEvent?.blockNumber ? lastKnownEvent?.blockNumber + 1 : undefined);
 
         const [generalAuctionBuys, sdolaAuctionBuys, sinvAuctionBuys, sinvAuctionBuysV1] = await Promise.all([
             dbrAuctionContract.queryFilter(
@@ -67,11 +69,6 @@ export default async function handler(req, res) {
         const blocks = newBuyEvents.map(e => e.blockNumber);
         const marketPriceBlocks = blocks.map(block => (block - 1));
 
-        const timestamps = await addBlockTimestamps(
-            blocks,
-            '1',
-        );
-
         // take market price one block before
         const newMarketPrices = await Promise.all(
             marketPriceBlocks.map(block => {
@@ -87,7 +84,7 @@ export default async function handler(req, res) {
             const isSInvV2 = SINV_HELPER_ADDRESS !== SINV_HELPER_ADDRESS_V1 && e.address.toLowerCase() === sinvContract.address.toLowerCase() || e.args[0].toLowerCase() === SINV_HELPER_ADDRESS.toLowerCase();
             return {
                 txHash: e.transactionHash,
-                timestamp: timestamps[NetworkIds.mainnet][e.blockNumber] * 1000,
+                timestamp: estimateBlockTimestamp(e.blockNumber, currentTimestamp, currentBlocknumber),
                 blockNumber: e.blockNumber,
                 caller: e.args[0],
                 to: e.args[1],
@@ -98,6 +95,8 @@ export default async function handler(req, res) {
                 auctionType: e.address.toLowerCase() === sdolaContract.address.toLowerCase() ? 'sDOLA' : isSinvType ? 'sINV' : 'Virtual',
             };
         });
+
+        console.log(newBuys.length)
         
         newMarketPrices.forEach((m, i) => {
             newBuys[i].marketPriceInDola = m.priceInDola;
@@ -107,32 +106,34 @@ export default async function handler(req, res) {
         const dbrSaleHandler = new Contract('0x4f4A31C1c11Bdd438Cf0c7668D6aFa2b5825932e', ['function repayBps() public view returns (uint)'], provider);
         const dbrSaleHandlerRepayBpsData = await dbrSaleHandler.repayBps();
 
+        const last100buys = archived.last100.concat(newBuys).slice(-100);
+        const last100VirtualAuctionEvents = archived.last100VirtualAuctionEvents.concat(newBuys.filter(e => e.auctionType === 'Virtual')).slice(-100);
+        const last100SdolaAuctionEvents = archived.last100SdolaAuctionEvents.concat(newBuys.filter(e => e.auctionType === 'sDOLA')).slice(-100);
+        const last100SinvAuctionEvents = archived.last100SinvAuctionEvents.concat(newBuys.filter(e => e.auctionType === 'sINV')).slice(-100);
 
-        const buys = pastTotalEvents.concat(newBuys);
-        const last100VirtualAuctionEvents = buys.filter(e => e.auctionType === 'Virtual').slice(-100);
-        const last100SdolaAuctionEvents = buys.filter(e => e.auctionType === 'sDOLA').slice(-100);
-        const last100SinvAuctionEvents = buys.filter(e => e.auctionType === 'sINV').slice(-100);
+        const newTotalDailyBuys = getGroupedByDayAuctionBuys(newBuys.map(formatDailyAuctionAggreg), archived?.dailyBuys || []);
 
         const resultData = {
             timestamp: Date.now(),
+            lastBlocknumber: currentBlocknumber,
             dbrSaleHandlerRepayPercentage: getBnToNumber(dbrSaleHandlerRepayBpsData, 2),
-            last100: buys.slice(-100),
+            last100: last100buys,
             last100VirtualAuctionEvents,
             last100SdolaAuctionEvents,
             last100SinvAuctionEvents,
-            buys,
+            dailyBuys: newTotalDailyBuys,
         };
 
-        await redisSetWithTimestamp(DBR_AUCTION_BUYS_CACHE_KEY, resultData, true);
+        await redisSetWithTimestamp(DBR_AUCTION_BUYS_CACHE_KEY_V2, resultData);
 
-        resultData.buys.sort((a, b) => b.timestamp - a.timestamp);
+        resultData.dailyBuys.sort((a, b) => b.timestamp - a.timestamp);
 
         res.status(200).send(resultData);
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
         try {
-            const cache = await getCacheFromRedis(DBR_AUCTION_BUYS_CACHE_KEY, false, 0, true);
+            const cache = await getCacheFromRedis(DBR_AUCTION_BUYS_CACHE_KEY_V2, false, 0);
             if (cache) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).send(cache);

@@ -454,7 +454,7 @@ export const getHistoricDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner
         { contract: crvPool, functionName: 'price_oracle', params: ['0'] },
         // { contract: crvPool, functionName: 'price_oracle', params: ['1'] },
         { contract: crvPool, functionName: 'get_dy', params: ['2', '1', '1000000000000000000'] },
-    ], 1, block);
+    ], 1, block, undefined, true);
     const priceInDola = getBnToNumber(priceInDolaBn);
     const priceInInv = getBnToNumber(dbrOutForOneInvBn) > 0 ? 1 / getBnToNumber(dbrOutForOneInvBn) : 0;
     return { priceInDolaBn: priceInDolaBn, priceInDola: priceInDola, priceInInv: priceInInv, block };
