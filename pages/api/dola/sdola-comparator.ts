@@ -164,7 +164,7 @@ const getDefillamaData = async (poolIds: string[]) => {
 }
 
 export default async function handler(req, res) {
-  const cacheKey = `sdola-rates-compare-v1.1.3`;
+  const cacheKey = `sdola-rates-compare-v1.1.4`;
 
   try {
     const cacheDuration = 120;
@@ -259,14 +259,14 @@ export default async function handler(req, res) {
         underlying: '0xdC035D45d973E3EC169d2276DDab16f1e407384F',
         currentRateGetter: () => getSavingsUSDData(),
       },
-      {
-        symbol: 'sdeUSD',
-        project: 'Elixir',
-        link: 'https://elixir.xyz',
-        address: '0x5C5b196aBE0d54485975D1Ec29617D42D9198326',
-        underlying: '0x15700B564Ca08D9439C58cA5053166E8317aa138',
-        currentRateGetter: () => getSavingsdeUSDData(),
-      },
+      // {
+      //   symbol: 'sdeUSD',
+      //   project: 'Elixir',
+      //   link: 'https://elixir.xyz',
+      //   address: '0x5C5b196aBE0d54485975D1Ec29617D42D9198326',
+      //   underlying: '0x15700B564Ca08D9439C58cA5053166E8317aa138',
+      //   currentRateGetter: () => getSavingsdeUSDData(),
+      // },
       // {
       //   symbol: 'wUSDM',
       //   project: 'Mountain-Protocol',
