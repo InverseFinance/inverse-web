@@ -133,6 +133,8 @@ const chainTokenAddresses = {
     INVTRICRYPTO: '0x5426178799ee0a0181A89b4f57eFddfAb49941Ec',
     INVTRICRYPTOYEARNV2: '0x6949145469362F9eeaB3c96Ea41b51D9B4cC2b21',
     DBRTRICRYPTO: '0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a',
+    // same as DBRTRICRYPTO but admin_fee is a variable instead of constant
+    DBRTRICRYPTO2: '0x66da369fC5dBBa0774Da70546Bd20F2B242Cd34d',
     INVTRICRYPTOCVX: '0x21E2d7f66DF6F4e8199210b9490a51831C9847C7',
     DBRTRICRYPTOCVX: '0x9a2d1b49b7c8783E37780AcE4ffA3416Eea64357',
     STYCRV: '0x27B5739e22ad9033bcBf192059122d163b60349D',
@@ -2008,6 +2010,21 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.CRV,
       link: 'https://curve.finance/#/ethereum/pools/factory-tricrypto-18/deposit',
       deduce: [chainTokenAddresses["1"].DBRTRICRYPTOCVX],  
+    },
+    [chainTokenAddresses["1"].DBRTRICRYPTO2]: {
+      address: chainTokenAddresses["1"].DBRTRICRYPTO2,      
+      name: 'INV-DBR-DOLA',
+      symbol: 'INV-DBR-DOLA-bis clp',
+      image: TOKEN_IMAGES.DBR,
+      decimals: 18,
+      isLP: true,
+      isCrvLP: true,
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].DBR, chainTokenAddresses["1"].INV
+      ],
+      protocolImage: PROTOCOL_IMAGES.CRV,
+      link: 'https://www.curve.finance/dex/ethereum/pools/factory-tricrypto-81/deposit',
+      // deduce: [chainTokenAddresses["1"].DBRTRICRYPTOCVX],  
     },
     [chainTokenAddresses["1"].DBRTRICRYPTOCVX]: {
       address: chainTokenAddresses["1"].DBRTRICRYPTOCVX,      

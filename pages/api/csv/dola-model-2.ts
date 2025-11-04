@@ -23,7 +23,7 @@ export default async (req, res) => {
     const { include } = req.query;
     const includeList = include ? include.split(',').filter(ad => isAddress(ad)) : [];
     const cacheDuration = 900;
-    const cacheKey = `dola-modal-2-v1.0.94${include ? includeList.join(',') : ''}`;
+    const cacheKey = `dola-modal-2-v1.0.95L${include ? includeList.join(',') : ''}`;
 
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
@@ -35,36 +35,47 @@ export default async (req, res) => {
         provider,
     );
 
-    const sevenDaysAgoTs = (Date.now()-7*ONE_DAY_MS);
-    const sevenDaysAgoTsInSecs = (sevenDaysAgoTs/1000).toFixed(0);
+    const sevenDaysAgoTs = (Date.now() - 7 * ONE_DAY_MS);
+    const sevenDaysAgoTsInSecs = (sevenDaysAgoTs / 1000).toFixed(0);
 
     try {
-        const [liquidityData, badDebtData, dolaStakingData, replenishmentsEvolutionData, dbrCirculatingSupply, dbrTriPoolBalanceBn, dbrPriceData, aaveRes] = await Promise.all([
-            fetcher60sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity?cacheFirst=true`),            
+        const [
+            liquidityData,
+            badDebtData,
+            dolaStakingData,
+            replenishmentsEvolutionData,
+            dbrCirculatingSupply,
+            dbrTriPoolBalanceBn,
+            dbrTriPoolBalance2Bn,
+            dbrPriceData,
+            aaveRes,
+        ] = await Promise.all([
+            fetcher60sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity?cacheFirst=true`),
             getCacheFromRedis(repaymentsCacheKeyV2, false),
-            getCacheFromRedis(dolaStakingCacheKey, false),  
-            getCacheFromRedis(dbrReplenishmentsEvolutionCacheKey, false, 0, true),          
+            getCacheFromRedis(dolaStakingCacheKey, false),
+            getCacheFromRedis(dbrReplenishmentsEvolutionCacheKey, false, 0, true),
             getCacheFromRedis(dbrCircSupplyCacheKey, false),
             dbrContract.balanceOf('0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a'),
+            dbrContract.balanceOf('0x66da369fC5dBBa0774Da70546Bd20F2B242Cd34d'),
             getDbrPriceOnCurve(provider),
             fetch("https://api.v3.aave.com/graphql", {
                 "headers": {
-                  "accept": "application/graphql-response+json, application/graphql+json, application/json, text/event-stream, multipart/mixed",
-                  "accept-language": "en-GB,en;q=0.6",
-                  "content-type": "application/json",
-                  "priority": "u=1, i",
-                  "sec-ch-ua": "\"Not;A=Brand\";v=\"99\", \"Brave\";v=\"139\", \"Chromium\";v=\"139\"",
-                  "sec-ch-ua-mobile": "?0",
-                  "sec-ch-ua-platform": "\"macOS\"",
-                  "sec-fetch-dest": "empty",
-                  "sec-fetch-mode": "cors",
-                  "sec-fetch-site": "same-site",
-                  "sec-gpc": "1",
-                  "Referer": "https://app.aave.com/"
+                    "accept": "application/graphql-response+json, application/graphql+json, application/json, text/event-stream, multipart/mixed",
+                    "accept-language": "en-GB,en;q=0.6",
+                    "content-type": "application/json",
+                    "priority": "u=1, i",
+                    "sec-ch-ua": "\"Not;A=Brand\";v=\"99\", \"Brave\";v=\"139\", \"Chromium\";v=\"139\"",
+                    "sec-ch-ua-mobile": "?0",
+                    "sec-ch-ua-platform": "\"macOS\"",
+                    "sec-fetch-dest": "empty",
+                    "sec-fetch-mode": "cors",
+                    "sec-fetch-site": "same-site",
+                    "sec-gpc": "1",
+                    "Referer": "https://app.aave.com/"
                 },
                 "body": "{\"operationName\":\"BorrowAPYHistory\",\"query\":\"query BorrowAPYHistory($request: BorrowAPYHistoryRequest!) {\\n  value: borrowAPYHistory(request: $request) {\\n    ...APYSample\\n  }\\n}\\nfragment APYSample on APYSample {\\n  __typename\\n  avgRate {\\n    ...PercentValue\\n  }\\n  date\\n}\\nfragment PercentValue on PercentValue {\\n  __typename\\n  raw\\n  decimals\\n  value\\n  formatted\\n}\",\"variables\":{\"request\":{\"chainId\":1,\"market\":\"0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2\",\"underlyingToken\":\"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\"window\":\"LAST_WEEK\"}}}",
                 "method": "POST"
-              })
+            })
             // fetcher30sectimeout(`https://aave-api-v2.aave.com/data/rates-history?reserveId=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb480x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e1&from=${sevenDaysAgoTsInSecs}&resolutionInHours=6`),
         ]);
 
@@ -83,13 +94,13 @@ export default async (req, res) => {
         const currentDolaBadDebt = badDebtData.badDebts.DOLA.badDebtBalance;
 
         const nowMinus30d = (Date.now() - 30 * ONE_DAY_MS);
-        const dbrReplenished30d = replenishmentsEvolutionData?.events?.filter(ev => ev.timestamp >= nowMinus30d)?.reduce((prev, curr) => prev+curr.deficit, 0);
+        const dbrReplenished30d = replenishmentsEvolutionData?.events?.filter(ev => ev.timestamp >= nowMinus30d)?.reduce((prev, curr) => prev + curr.deficit, 0);
 
         const { priceInDola: dbrPrice } = dbrPriceData;
         const aaveData = await aaveRes.json();
-        const aave7dAvgRate = aaveData.data.value.reduce((p,c) => p+parseFloat(c.avgRate.formatted), 0)/aaveData.data.value.length;
+        const aave7dAvgRate = aaveData.data.value.reduce((p, c) => p + parseFloat(c.avgRate.formatted), 0) / aaveData.data.value.length;
 
-        let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},DSA DOLA bal:,${dolaStakingData.dsaTotalSupply},DSA dbrYearlyEarnings:,${dolaStakingData.dsaYearlyDbrEarnings},DBR replenishments (30d):,${dbrReplenished30d},DBR balance in tripool:,${getBnToNumber(dbrTriPoolBalanceBn).toFixed(0)},DBR circ supply:,${Number(dbrCirculatingSupply).toFixed(0)},DBR price (in dola):,${Number(dbrPrice).toFixed(4)},Aave USDC 7d avg borrow APR:,${Number(aave7dAvgRate).toFixed(2)}\n`;
+        let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},DSA DOLA bal:,${dolaStakingData.dsaTotalSupply},DSA dbrYearlyEarnings:,${dolaStakingData.dsaYearlyDbrEarnings},DBR replenishments (30d):,${dbrReplenished30d},DBR balance in tripool:,${getBnToNumber(dbrTriPoolBalanceBn.add(dbrTriPoolBalance2Bn)).toFixed(0)},DBR circ supply:,${Number(dbrCirculatingSupply).toFixed(0)},DBR price (in dola):,${Number(dbrPrice).toFixed(4)},Aave USDC 7d avg borrow APR:,${Number(aave7dAvgRate).toFixed(2)}\n`;
         csvData += `Liquidity Cache:,~5min,Liquidity timestamp:,${liquidityData.timestamp},Bad debt timestamp:,${badDebtData.timestamp}, DSA timestamp:,${dolaStakingData.timestamp},\n`;
         csvData += `LP,Fed or Project,Fed Supply,RootLP DOLA balance,Pairing Depth ($ or amount),Fed PoL\n`;
         feds.forEach((lp) => {
@@ -97,11 +108,11 @@ export default async (req, res) => {
             const balanceSource = parentLp || lp;
             // for sDOLA convert to DOLA and pair amounts
             const hasSDola = /SDOLA/i.test(lp.symbol);
-            const isSDolaMain = hasSDola && !/(^DOLA|.*-DOLA.*)/i.test(lp.symbol);                        
-            const issDOLAScrvUsdpair = lp.lpName === 'sDOLA-scrvUSD';                       
+            const isSDolaMain = hasSDola && !/(^DOLA|.*-DOLA.*)/i.test(lp.symbol);
+            const issDOLAScrvUsdpair = lp.lpName === 'sDOLA-scrvUSD';
             const pairingValue = hasSDola && !issDOLAScrvUsdpair ? (isSDolaMain ? balanceSource?.pairPartBalance : balanceSource?.pairPartBalance * dolaStakingData.sDolaExRate) : balanceSource?.pairingDepth;
             const mainValue = balanceSource?.mainPartBalance * (isSDolaMain ? dolaStakingData.sDolaExRate : 1);
-            csvData += `${lp.lpName},${lp.fedName || (capitalize(lp.project)+ ' ' + NETWORKS_BY_CHAIN_ID[lp.chainId].name)},${lp.fedSupply || 0},${mainValue || 0},${pairingValue || 0},${lp.ownedAmount || 0}\n`;
+            csvData += `${lp.lpName},${lp.fedName || (capitalize(lp.project) + ' ' + NETWORKS_BY_CHAIN_ID[lp.chainId].name)},${lp.fedSupply || 0},${mainValue || 0},${pairingValue || 0},${lp.ownedAmount || 0}\n`;
         });
 
         redisSetWithTimestamp(cacheKey, { csvData });

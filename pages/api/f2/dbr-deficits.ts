@@ -44,7 +44,7 @@ export default async function handler(req, res) {
 
     dbrUsers = [...new Set(dbrUsers)];
 
-    const [signedBalanceBn, debtsBn, triDbrLpBalancesBn] = await getGroupedMulticallOutputs(
+    const [signedBalanceBn, debtsBn, triDbrLpBalancesBn, triDbrLpBalances2Bn] = await getGroupedMulticallOutputs(
       [
         dbrUsers.map(u => {
           return { contract: dbrContract, functionName: 'signedBalanceOf', params: [u] }
@@ -60,13 +60,22 @@ export default async function handler(req, res) {
             params: ['0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a'],
             fallbackValue: BigNumber.from('0'),
           }
+        ],
+        // tri-dbr new lp
+        [
+          {
+            contract: dbrContract,
+            functionName: 'balanceOf',
+            params: ['0x66da369fC5dBBa0774Da70546Bd20F2B242Cd34d'],
+            fallbackValue: BigNumber.from('0'),
+          }
         ]
       ]
     );
 
     const circSupply =  parseFloat((await getCacheFromRedis(dbrCircSupplyCacheKey, false)) || '0');
 
-    const triDbrBalance = getBnToNumber(triDbrLpBalancesBn[0]);
+    const triDbrBalance = getBnToNumber(triDbrLpBalancesBn[0].add(triDbrLpBalances2Bn[0]));
 
     const activeDbrHolders = signedBalanceBn.map((bn, i) => {
       const signedBalance = getBnToNumber(bn);
