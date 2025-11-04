@@ -2024,6 +2024,7 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.CRV,
       link: 'https://www.curve.finance/dex/ethereum/pools/factory-tricrypto-81/deposit',
+      defillamaPoolId: '168a12f8-56b3-47e6-86d6-9de16bcb45ec',
       // deduce: [chainTokenAddresses["1"].DBRTRICRYPTOCVX],  
     },
     [chainTokenAddresses["1"].DBRTRICRYPTOCVX]: {
