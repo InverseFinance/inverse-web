@@ -23,8 +23,7 @@ const VAULT_ABI_EXTENDED = [
 ]
 
 export const getOnChainData = async (meta: any[]) => {
-  // const { data: utcKeyBlockValues, isValid } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, false) || { data: ARCHIVED_UTC_DATES_BLOCKS, isValid: false };
-  const { data: utcKeyBlockValues, isValid } = { data: ARCHIVED_UTC_DATES_BLOCKS.data, isValid: false };
+  const { data: utcKeyBlockValues, isValid } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, false) || { data: ARCHIVED_UTC_DATES_BLOCKS, isValid: false };
   const provider = getProvider(NetworkIds.mainnet);
   const currentBlockNumber = await provider.getBlockNumber();
 
