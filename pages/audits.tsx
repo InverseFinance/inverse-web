@@ -27,6 +27,9 @@ export const AboutFirm = () => {
                     href="https://docs.inverse.finance/inverse-finance/technical/audits"
                 >
                     <VStack spacing="2" alignItems="flex-start">
+                        <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="/audits/junior-sherlock.pdf" isExternal target="_blank">
+                            Junior Tranches, by Sherlock, Oct 16th, 2025
+                        </Link>
                         <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="/audits/sDOLA-yAudit.pdf" isExternal target="_blank">
                             sDOLA, by yAudit, Jan 23th, 2024
                         </Link>
