@@ -4,12 +4,13 @@ import { CTOKEN_ABI } from '@app/config/abis'
 import { getNetwork, getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { NetworkIds, Token } from '@app/types';
+import { Multisig, NetworkIds, Token } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_TOKENS, CHAIN_TOKEN_ADDRESSES } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { fetchZerionWithRetry } from '@app/util/zerion';
+import { timestampToUTC } from '@app/util/misc';
 
 const formatBn = (bn: BigNumber, token: Token) => {
   return { token, balance: getBnToNumber(bn, token.decimals) }
@@ -25,18 +26,66 @@ const ANCHOR_RESERVES_TO_CHECK = [
   '0xde2af899040536884e062D3a334F2dD36F34b4a4',
 ];
 
+const calcStables = (multisigs: Multisig[], treasury: Token[], anchorReserves: Token[], prices = {}) => {
+  const TWGmultisigs = multisigs?.filter(m => m.shortName.includes('TWG') && m.chainId !== NetworkIds.ftm) || [];
+
+  // stable reserves
+  const treasuryStables = treasury?.filter(f => (f.token.isStable) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS'].includes(f.token.symbol))).map(f => {
+    return { ...f, label: `${f.token.symbol} (Treasury)`, balance: f.balance, onlyUsdValue: true, usdPrice: (f.price || prices[f.token.symbol]?.usd || prices[f.token.coingeckoId]?.usd || 1) }
+  }) || [];
+
+  const twgStables = TWGmultisigs.map(m => {
+    return m.funds.filter(f => (f.token.isStable) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS', 'sinvUSD'].includes(f.token.symbol))).map(f => {
+      return { ...f, label: `${f.token.symbol.replace(/ [a-z]*lp$/ig, '')} (${m.shortName})`, balance: f.balance, onlyUsdValue: true, usdPrice: (f.price || prices[f.token.symbol]?.usd || prices[f.token.coingeckoId]?.usd || 1) }
+    });
+  }).flat();
+
+  const dolaFrontierReserves = anchorReserves.filter(f => f.token.symbol === 'DOLA')
+    .map(f => {
+      return { ...f, label: 'DOLA (Frontier Reserves)', balance: f.balance, onlyUsdValue: true, usdPrice: 1 }
+    });
+
+  const stableReserves = [
+    ...treasuryStables,
+    ...twgStables,
+    ...dolaFrontierReserves,
+  ];
+  return stableReserves.reduce((prev, curr) => prev + curr.balance * curr.usdPrice, 0);
+
+}
+
+const takeSnapshot = async (data, snapshotKey) => {
+  const prices = await fetch('https://www.inverse.finance/api/prices?cacheFirst=true').then(res => res.json());
+  const formattedPrices = Object.entries(prices).reduce((prev, [key, val]) => ({ ...prev, [key]: { usd: val } }), {});
+  const stableReserves = calcStables(data.multisigs, data.treasury, data.anchorReserves, formattedPrices);
+  const snaps = (await getCacheFromRedis(snapshotKey, false)) || { dailyValues: [] };
+  const utcDate = timestampToUTC(Date.now());
+  if (!snaps.dailyValues.find(s => s.utcDate === utcDate)) {
+    snaps.dailyValues.push({
+      timestamp: Date.now(),
+      utcDate: timestampToUTC(Date.now()),
+      stableReserves,
+    });
+  }
+  await redisSetWithTimestamp(snapshotKey, snaps);
+}
 
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
+  const isTakeSnapshot = true//req.method === 'POST' && req.headers.authorization === `Bearer ${process.env.API_SECRET_KEY}`;
 
   const { ANCHOR_TOKENS, UNDERLYING, TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
   const cacheKey = `treasury-assets-cache-v1.0.0`;
+  const snapshotCacheKey = `treasury-assets-snapshots-v1.0.1`;
 
   try {
     const cacheDuration = 120;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
     if (validCache) {
+      if (isTakeSnapshot) {
+        await takeSnapshot(validCache, snapshotCacheKey);
+      }
       res.status(200).json(validCache);
       return
     }
@@ -117,6 +166,10 @@ export default async function handler(req, res) {
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
+
+    if (isTakeSnapshot) {
+      await takeSnapshot(resultData, snapshotCacheKey);
+    }
 
     res.status(200).json(resultData)
   } catch (err) {
