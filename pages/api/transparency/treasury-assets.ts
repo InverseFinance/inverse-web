@@ -72,7 +72,7 @@ const takeSnapshot = async (data, snapshotKey) => {
 
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
-  const isTakeSnapshot = true//req.method === 'POST' && req.headers.authorization === `Bearer ${process.env.API_SECRET_KEY}`;
+  const isTakeSnapshot = req.method === 'POST' && req.headers.authorization === `Bearer ${process.env.API_SECRET_KEY}`;
 
   const { ANCHOR_TOKENS, UNDERLYING, TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
   const cacheKey = `treasury-assets-cache-v1.0.0`;
