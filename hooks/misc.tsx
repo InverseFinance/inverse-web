@@ -2,7 +2,7 @@ import { ONE_DAY_MS } from '@app/config/constants';
 import { SWR } from '@app/types';
 import { timestampToUTC } from '@app/util/misc';
 import { Web3Provider } from '@ethersproject/providers';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useActiveAccount } from "thirdweb/react";

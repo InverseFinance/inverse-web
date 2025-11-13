@@ -6,7 +6,7 @@ import { VoteModal } from '@app/components/Governance/GovernanceModals'
 import useEtherSWR from '@app/hooks/useEtherSWR'
 import { ProposalStatus, Proposal, NetworkIds, GovEra } from '@app/types'
 import { getGovernanceAddress } from '@app/util/contracts'
-import { useWeb3React } from '@web3-react/core'
+import { useWeb3React } from '@app/util/wallet'
 import { commify, formatUnits } from 'ethers/lib/utils'
 import { InfoMessage, SuccessMessage } from '@app/components/common/Messages'
 import { getNetworkConfigConstants } from '@app/util/networks';

@@ -10,7 +10,7 @@ import { usePrices } from '@app/hooks/usePrices';
 
 import Container from '@app/components/common/Container';
 import { preciseCommify } from '@app/util/misc';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { useState } from 'react';
 import { JsonRpcSigner } from '@ethersproject/providers';
 import { useAccount } from '@app/hooks/misc';

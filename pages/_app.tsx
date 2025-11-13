@@ -22,6 +22,8 @@ import { useRouter } from 'next/dist/client/router'
 import { gaPageview } from '@app/util/analytics'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 import { metamaskHooks, metamaskInjector, walletConnectV2, walletConnectV2Hooks, coinbaseWallet, coinbaseWalletHooks, gnosisSafe, gnosisSafeHooks } from '@app/variables/connectors'
+import { ThirdwebProvider } from 'thirdweb/react'
+import { thirdwebClient } from '@app/util/wallet'
 const { ToastContainer } = createStandaloneToast()
 
 export const BlogContext = React.createContext({ locale: 'en-US', category: 'home' });
@@ -47,14 +49,15 @@ const App = ({ Component, pageProps }: AppProps) => {
 
   return (
     <ChakraProvider theme={themeStyles}>
-      <Web3ReactProvider connectors={
+      {/* <Web3ReactProvider connectors={
         [
           [metamaskInjector, metamaskHooks],
           [walletConnectV2, walletConnectV2Hooks],
           [coinbaseWallet, coinbaseWalletHooks],
           [gnosisSafe, gnosisSafeHooks],
         ]
-      }>
+      }> */}
+        <ThirdwebProvider>
         <Head>
           <title>Inverse Finance - Fixed-Rate DeFi borrowing</title>
           <meta name="description" content="Inverse Finance is the top DeFi Protocol for fixed-rate borrowing. Earn high yields with the DOLA stablecoin or leverage your yield-bearing liquidity positions with ease." />
@@ -133,7 +136,8 @@ const App = ({ Component, pageProps }: AppProps) => {
           </svg>
           <Component {...pageProps} />
         </SWRConfig>
-      </Web3ReactProvider>
+        </ThirdwebProvider>
+      {/* </Web3ReactProvider> */}
       <ToastContainer />
       {/* <script src="/qualaroo.js" /> */}
     </ChakraProvider>

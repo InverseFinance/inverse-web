@@ -3,7 +3,7 @@ import { Breadcrumbs } from '@app/components/common/Breadcrumbs'
 import { Breakdown, DelegatesPreview, VotingWallet } from '@app/components/Governance'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { getNetworkConfigConstants } from '@app/util/networks'
 import useEtherSWR from '@app/hooks/useEtherSWR'
 import { formatUnits } from 'ethers/lib/utils';

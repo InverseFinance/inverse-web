@@ -4,7 +4,7 @@ import Container from '@app/components/common/Container';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
 import { InfoMessage } from '@app/components/common/Messages';
 import { useState } from 'react';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
 import { useAccountBonds, useBondsV2 } from '@app/hooks/useBondsV2';

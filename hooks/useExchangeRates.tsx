@@ -1,7 +1,7 @@
 import useEtherSWR from '@app/hooks/useEtherSWR'
 import { SWR } from '@app/types'
 import { BigNumber } from 'ethers'
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { HAS_REWARD_TOKEN } from '@app/config/constants';

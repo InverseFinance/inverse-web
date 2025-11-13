@@ -3,7 +3,7 @@ import { shortenNumber } from '@app/util/markets';
 import { Stack, Flex, Text, VStack, HStack } from '@chakra-ui/react';
 import { SubmitButton } from '@app/components/common/Button';
 import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { CheckCircleIcon, TimeIcon } from '@chakra-ui/icons';
 import { Timestamp } from '../common/BlockTimestamp/Timestamp';
 import { NotifBadge } from '../common/NotifBadge';

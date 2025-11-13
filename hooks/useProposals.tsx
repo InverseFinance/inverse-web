@@ -1,7 +1,7 @@
 import { DraftProposal, DraftReview, GovEra, NetworkIds, Proposal, PublicDraftProposal, SWR } from '@app/types'
 import { fetcher } from '@app/util/web3'
 import useSWR from 'swr'
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { getLastNbNotif, getLocalDrafts, getReadGovernanceNotifs, setLastNbNotif } from '@app/util/governance';
 import { useRouter } from 'next/router';

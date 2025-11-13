@@ -6,7 +6,7 @@ import { useMarkets } from '@app/hooks/useMarkets';
 import { useSupplyBalances } from '@app/hooks/useBalances';
 import { getBnToNumber, getParsedBalance } from '@app/util/markets';
 import { claimInvRewards } from '@app/util/contracts';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { InfoMessage } from '@app/components/common/Messages';
 import useEtherSWR from '@app/hooks/useEtherSWR';

@@ -6,7 +6,7 @@ import { getToken } from '@app/variables/tokens';
 import { useAccount } from '@app/hooks/misc';
 import { getBnToNumber, getNumberToBn, shortenNumber } from '@app/util/markets';
 import { SimpleAmountForm } from '../SimpleAmountForm';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { useState } from 'react';
 import { useTransactionCost } from '@app/hooks/usePrices';
 import { BigNumber, Contract } from 'ethers';

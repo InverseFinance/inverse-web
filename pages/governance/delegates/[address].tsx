@@ -11,7 +11,7 @@ import { useDelegates, useTopDelegates, useVotingPower } from '@app/hooks/useDel
 import { namedAddress, shortenAddress } from '@app/util'
 import { isAddress } from 'ethers/lib/utils'
 import { useRouter } from 'next/dist/client/router'
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { InfoMessage } from '@app/components/common/Messages'
 import { Delegate, NetworkIds } from '@app/types'

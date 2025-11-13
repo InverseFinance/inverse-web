@@ -2,7 +2,7 @@ import { Stack, VStack, Text } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { BlastBridge } from '@app/components/Blast/BlastBridge';
 import { BlastBridgeInformations } from '@app/components/Blast/BlastBridgeInformations';
 import { BlastWithdrawlsSection } from '@app/components/Blast/BlastWithdrawlsSection';

@@ -1,6 +1,6 @@
 import { Delegate, SWR } from '@app/types'
 import { fetcher } from '@app/util/web3'
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { useCustomSWR } from './useCustomSWR';
 import useEtherSWR from './useEtherSWR';
