@@ -189,6 +189,15 @@ const mainConfig = {
             chainId: NetworkIds.mainnet,
             order: 2.2,
         },
+        {
+            address: '0x6dB248100cF4908429AB671F33D105311ED7fEF8',
+            name: 'TWG Leverage',
+            shortName: 'TWG Leverage',
+            purpose: 'USD-stablecoin-only leverage and hedges strategies',
+            governanceLink: 'https://www.inverse.finance/governance/proposals/mills/328',
+            chainId: NetworkIds.mainnet,
+            order: 0.9,
+        },
     ],
 };
 
