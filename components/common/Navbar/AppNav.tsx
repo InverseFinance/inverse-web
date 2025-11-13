@@ -14,6 +14,8 @@ import {
   VStack,
   useMediaQuery,
 } from '@chakra-ui/react'
+import { ConnectButton } from "thirdweb/react";
+import { createWallet } from "thirdweb/wallets";
 import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
 import Link from '@app/components/common/Link'
@@ -75,7 +77,44 @@ import { ReferToModal } from '../Modal/ReferToModal'
 import { SlideModal } from '../Modal/SlideModal'
 import { useStakedInvBalance } from '@app/util/sINV'
 import { SDolaAnnouncement } from '../Announcement/SDolaAnnouncement'
+import { thirdwebClient } from '@app/util/wallet';
 const NAV_ITEMS = MENUS.nav
+
+const ConnectButtonWrapper = () => {
+  const wallets = [
+    createWallet("io.rabby"),
+    createWallet("io.metamask"),
+    createWallet("com.coinbase.wallet"),
+    createWallet("me.rainbow"),
+    createWallet("io.zerion.wallet"),
+  ];
+  return <ConnectButton
+    client={thirdwebClient}
+    // chains={[mainnet, sepolia]}
+    autoConnect={true}
+    theme={"light"}
+    connectModal={{
+      size: "compact",
+      title: "Connect Wallet to Monolith",
+    }}
+    connectButton={{
+      // className: "bg-monolightgreen",
+      // style: {
+      //     backgroundColor: lightgreen,
+      //     border: "none",
+      //     color: darkgreen,
+      // }
+    }}
+    detailsButton={{
+      // style: {
+      //     backgroundColor: lightgreen,
+      //     border: "none",
+      //     color: "white",
+      // }
+    }}
+    wallets={wallets}
+  />
+}
 
 export const ThemeBtn = () => {
   const { themeName } = useAppTheme();
@@ -814,7 +853,8 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
             <>
               <Stack display={{ base: 'flex', lg: 'none' }} direction="row" align="center">
                 <ThemeBtn />
-                <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} onReferToOpen={onReferToOpen} />
+                <ConnectButton client={thirdwebClient} />
+                {/* <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} onReferToOpen={onReferToOpen} /> */}
               </Stack>
 
               <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
@@ -831,7 +871,9 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                     : null
                 }
                 <ThemeBtn />
-                <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} onReferToOpen={onReferToOpen} />
+                {/* <ConnectButton client={thirdwebClient} /> */}
+                <ConnectButtonWrapper />
+                {/* <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} onReferToOpen={onReferToOpen} /> */}
               </Stack>
             </>
         }
