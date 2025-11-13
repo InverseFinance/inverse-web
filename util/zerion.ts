@@ -55,7 +55,9 @@ export const formatZerionWalletResponse = async (response) => {
 
     const nonWalletPositions = uniqueNonWalletsKeys.map(key => {
         const item = cleanData.find((position) => `${position.attributes.protocol}-${position.attributes.name}` === key);
-        const totalValue = cleanData.filter(r => `${r.attributes.protocol}-${r.attributes.name}` === key).reduce((prev, curr) => prev + curr.attributes.value, 0);
+        const totalValue = cleanData
+            .filter(r => `${r.attributes.protocol}-${r.attributes.name}` === key)
+                .reduce((prev, curr) => prev + (curr.attributes.position_type === 'loan' ? -curr.attributes.value : curr.attributes.value), 0);
         const splitData = item.id.split('-');
         const isVeNft = item.attributes.position_type === 'locked' && SOLIDLY_PROTOCOLS.includes(item.attributes.protocol.toUpperCase());
         // let address = splitData[0];
