@@ -13,7 +13,6 @@ import '@fontsource/inter/800.css'
 import '@fontsource/inter/900.css'
 import '@app/pages/markdown.css'
 import { fetcher } from '@app/util/web3'
-import { Web3ReactProvider } from '@web3-react/core'
 import { AppProps } from 'next/app'
 import Head from 'next/head'
 import { SWRConfig } from 'swr'
@@ -23,7 +22,6 @@ import { gaPageview } from '@app/util/analytics'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 import { metamaskHooks, metamaskInjector, walletConnectV2, walletConnectV2Hooks, coinbaseWallet, coinbaseWalletHooks, gnosisSafe, gnosisSafeHooks } from '@app/variables/connectors'
 import { ThirdwebProvider } from 'thirdweb/react'
-import { thirdwebClient } from '@app/util/wallet'
 const { ToastContainer } = createStandaloneToast()
 
 export const BlogContext = React.createContext({ locale: 'en-US', category: 'home' });
