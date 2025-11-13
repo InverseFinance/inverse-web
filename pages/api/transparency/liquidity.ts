@@ -56,7 +56,7 @@ export default async function handler(req, res) {
             return Object
             .values(CHAIN_TOKENS[chainId]).filter(({ isLP }) => isLP)
             .map((lp) => ({ chainId, ...lp }))
-        }).flat();
+        }).flat().filter(lp => lp.symbol.includes('INV-DBR-DOLA'));
 
         const TWG = multisigsToShow.find(m => m.shortName === 'TWG')!;
 
@@ -106,9 +106,12 @@ export default async function handler(req, res) {
             const defiLlamaProjectName = PROTOCOL_DEFILLAMA_MAPPING[protocol];
             const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| [a-zA-Z0-9]*lp)/ig, '').replace(/-ETH/ig, '-WETH');
             const balancerPoolAd = lp.balancerInfos?.poolId?.substring(0, 42)?.toLowerCase();
+
             const yieldData = yields.find(y => {
-                return y.pool === lp.defillamaPoolId || (defiLlamaProjectName === y.project
-                    && (y.underlyingTokens?.length > 0 ? y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.filter(pa => pa.toLowerCase() !== balancerPoolAd).join(',').toLowerCase() : y.symbol === lpName))
+                return (!!lp.defillamaPoolId && y.pool === lp.defillamaPoolId) || (
+                    !lp.defillamaPoolId &&
+                    (defiLlamaProjectName === y.project
+                    && (y.underlyingTokens?.length > 0 ? y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.filter(pa => pa.toLowerCase() !== balancerPoolAd).join(',').toLowerCase() : y.symbol === lpName)))
             });
 
             const subBalances = fedPol?.subBalances || (await getLPBalances(lp, lp.chainId, provider));
