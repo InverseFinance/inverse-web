@@ -1,5 +1,5 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { useEffect, useState } from "react";
 
 import dynamic from 'next/dynamic';

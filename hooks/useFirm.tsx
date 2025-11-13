@@ -16,7 +16,7 @@ import { useBlocksTimestamps } from "./useBlockTimestamp";
 import { TOKENS, getToken } from "@app/variables/tokens";
 import { useDOLAPrice, usePrices } from "./usePrices";
 import { getConvexLpRewards, getCvxCrvRewards, getCvxRewards } from "@app/util/firm-extra";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import useSWR from "swr";
 import { FEATURE_FLAGS, isInvPrimeMember } from "@app/config/features";
 import { useDolaStakingEarnings, useStakedDola } from "@app/util/dola-staking";

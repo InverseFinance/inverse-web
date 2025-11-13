@@ -1,5 +1,5 @@
 import { VStack, Text, HStack, Stack, Image, useInterval, useDisclosure } from "@chakra-ui/react"
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useEffect, useMemo, useState } from "react";
 import { getNetworkConfigConstants } from "@app/util/networks";

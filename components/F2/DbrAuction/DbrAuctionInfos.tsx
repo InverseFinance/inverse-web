@@ -10,7 +10,7 @@ import { getBnToNumber, shortenNumber, smartShortNumber } from "@app/util/market
 import { preciseCommify } from "@app/util/misc"
 import { ExternalLinkIcon } from "@chakra-ui/icons"
 import { HStack, SkeletonText, Stack, Text, VStack } from "@chakra-ui/react"
-import { useWeb3React } from "@web3-react/core"
+import { useWeb3React } from "@app/util/wallet"
 
 const TextLoader = () => <SkeletonText pt="2" skeletonHeight={2} noOfLines={1} height={'24px'} width={'90px'} />;
 

@@ -5,7 +5,7 @@ import Table from "@app/components/common/Table";
 import { F2Market } from "@app/types";
 import { commify } from "@ethersproject/units";
 import ScannerLink from "../common/ScannerLink";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { useEffect, useMemo, useState } from "react";
 import { ADMIN_ADS } from "@app/variables/names";
 import ConfirmModal from "../common/Modal/ConfirmModal";
