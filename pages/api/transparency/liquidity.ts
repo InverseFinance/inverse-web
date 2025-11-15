@@ -56,7 +56,7 @@ export default async function handler(req, res) {
             return Object
             .values(CHAIN_TOKENS[chainId]).filter(({ isLP }) => isLP)
             .map((lp) => ({ chainId, ...lp }))
-        }).flat().filter(lp => lp.symbol.includes('INV-DBR-DOLA'));
+        }).flat();
 
         const TWG = multisigsToShow.find(m => m.shortName === 'TWG')!;
 
