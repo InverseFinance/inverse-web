@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
     res.setHeader('Access-Control-Allow-Origin', `*`);
     res.setHeader('Access-Control-Allow-Methods', `GET`);
-    // const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration);
+    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration);
 
     // if (isValid) {
     //   res.status(200).json(cachedData);
@@ -96,7 +96,7 @@ export default async function handler(req, res) {
       rates,
     };
 
-    // await redisSetWithTimestamp(cacheKey, result);
+    await redisSetWithTimestamp(cacheKey, result);
 
     return res.status(200).json(result);
 
