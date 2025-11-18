@@ -11,17 +11,17 @@ export default async function handler(req, res) {
   const cacheKey = `borrow-rates-compare-v1.1.7`;
 
   try {
-    const cacheDuration = 3600;
+    const cacheDuration = 900;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
     res.setHeader('Access-Control-Allow-Origin', `*`);
     res.setHeader('Access-Control-Allow-Methods', `GET`);
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration);
 
-    // if (isValid) {
-    //   res.status(200).json(cachedData);
-    //   return
-    // }
+    if (isValid) {
+      res.status(200).json(cachedData);
+      return
+    }
 
     const provider = getProvider(NetworkIds.mainnet);
 
