@@ -832,7 +832,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'yv-scrvUSD-sDOLA': yvscrvUsdSDolaData?.apy || 0,
         'deUSD-DOLA': deUSDDOLAConvexData?.apy || 0,
         'yv-deUSD-DOLA': yvdeUSDDOLAData?.apy || 0,
-        'USR-DOLA': USRDOLAConvexData?.apy || 0,
+        'USR-DOLA': 0,
         'yv-USR-DOLA': yvUSRDOLAData?.apy || 0,
         'PT-sUSDe-29MAY25': ptSUSDe29MAY25Data?.apy || 0,
         'PT-sUSDe-31JUL25': ptSUSDe31JUL25Data?.apy || 0,
