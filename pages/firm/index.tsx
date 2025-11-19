@@ -198,7 +198,7 @@ export const F2PAGE = ({
 }
 
 export async function getServerSideProps(context) {
-    context.res.setHeader('Cache-Control', 'public, s-maxage=90, stale-while-revalidate=3600');
+    context.res.setHeader('Cache-Control', 'public, s-maxage=90, stale-while-revalidate=120');
     const vnetPublicId = context.query?.vnetPublicId || '';
 
     const [
