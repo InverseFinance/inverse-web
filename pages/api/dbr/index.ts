@@ -90,11 +90,11 @@ export default async function handler(req, res) {
   try {
     const cacheDuration = 300;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    // const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
-    // if (validCache) {
-    //   res.status(200).json(validCache);
-    //   return
-    // }
+    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
+    if (validCache) {
+      res.status(200).json(validCache);
+      return
+    }
 
     const provider = getProvider(CHAIN_ID, undefined, true);
     const dbr = new Contract(DBR, DBR_ABI, provider);
@@ -146,7 +146,7 @@ export default async function handler(req, res) {
       historicalData: withExtra ? results[9] : undefined,
     }
 
-    // await redisSetWithTimestamp(cacheKey, resultData);
+    await redisSetWithTimestamp(cacheKey, resultData);
 
     res.status(200).json(resultData)
   } catch (err) {
