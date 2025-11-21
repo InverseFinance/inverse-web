@@ -6,7 +6,7 @@ import { useDelegates, useTopDelegates } from '@app/hooks/useDelegates'
 import { Delegate, Delegator } from '@app/types'
 import { namedAddress } from '@app/util'
 import NextLink from 'next/link'
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { useNamedAddress } from '@app/hooks/useNamedAddress'
 import { preciseCommify } from '@app/util/misc'

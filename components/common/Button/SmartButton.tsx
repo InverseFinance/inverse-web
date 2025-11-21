@@ -3,7 +3,7 @@ import { Button } from '@chakra-ui/react'
 import { showFailNotif, showToast } from '@app/util/notify';
 import { handleTx } from '@app/util/transactions';
 import { SmartButtonProps } from '@app/types';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider, TransactionResponse } from '@ethersproject/providers';
 import { forceQuickAccountRefresh } from '@app/util/web3';
 import { useRouter } from 'next/dist/client/router';

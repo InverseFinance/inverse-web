@@ -7,7 +7,7 @@ import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 import { AssetInput } from '@app/components/common/Assets/AssetInput'
 import { SubmitButton } from '@app/components/common/Button'
 import { AccountPositionDetailed, Token, TokenList } from '@app/types'
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { getParsedBalance, shortenNumber, getBnToNumber } from '@app/util/markets';
 import { useAnchorPricesUsd } from '@app/hooks/usePrices'

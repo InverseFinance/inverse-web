@@ -5,7 +5,7 @@ import { Funds } from '@app/components/Transparency/Funds';
 import { AccountPositionDetailed, AccountPositionAssets } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 
 import { LiquidationForm } from './LiquidationForm';

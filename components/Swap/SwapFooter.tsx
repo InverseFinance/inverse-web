@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { Text, TextProps, VStack, Flex, HStack, Switch, AlertProps } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { useWeb3React } from '@web3-react/core'
+import { useWeb3React } from '@app/util/wallet'
 import { Swappers, Token } from '@app/types';
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'

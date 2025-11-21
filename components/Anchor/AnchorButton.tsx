@@ -9,7 +9,7 @@ import { useEscrow } from '@app/hooks/useEscrow'
 import { Market, AnchorOperations } from '@app/types'
 import { getAnchorContract, getCEtherContract, getERC20Contract, getEscrowContract, getEthRepayAllContract } from '@app/util/contracts'
 import { timeUntil, isAfter } from '@app/util/time'
-import { useWeb3React } from '@web3-react/core'
+import { useWeb3React } from '@app/util/wallet'
 import { BigNumber, constants } from 'ethers'
 import { formatUnits, parseEther } from 'ethers/lib/utils'
  

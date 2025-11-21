@@ -10,7 +10,7 @@ import { requestNewFirmCollateral } from "@app/util/analytics";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { showToast } from "@app/util/notify";
 import { VStack, Text, Image, Flex, Checkbox } from "@chakra-ui/react"
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { Contract } from "ethers";
 import { isAddress } from "ethers/lib/utils";
 import { useState } from "react"

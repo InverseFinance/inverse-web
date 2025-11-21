@@ -9,7 +9,7 @@ import { useRouter } from 'next/dist/client/router'
 import { Proposal, GovEra, ProposalStatus } from '@app/types';
 import Head from 'next/head'
 import { ProposalFormContainer } from '@app/components/Governance/Propose/ProposalFormContainer'
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import useEtherSWR from '@app/hooks/useEtherSWR'
 import { formatUnits } from 'ethers/lib/utils';

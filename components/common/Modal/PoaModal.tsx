@@ -1,6 +1,6 @@
 import { Box, VStack, Text } from "@chakra-ui/react"
 import ConfirmModal from "./ConfirmModal"
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { POA_CURRENT_MSG_TO_SIGN, POA_CURRENT_TEXTS } from "@app/config/proof-of-agreement-texts";
 import { savePoaSig } from "@app/util/poa";
 import { InfoMessage } from "../Messages";

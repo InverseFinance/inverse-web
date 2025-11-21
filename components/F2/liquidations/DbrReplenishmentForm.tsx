@@ -9,7 +9,7 @@ import { shortenNumber } from "@app/util/markets";
 import { roundFloorString } from "@app/util/misc";
 import { HStack, VStack, Text, Divider, Select } from "@chakra-ui/react";
 import { parseEther } from "@ethersproject/units";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { Contract } from "ethers";
 import { useEffect, useState } from "react";
 

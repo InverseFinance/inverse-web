@@ -1,7 +1,7 @@
 import { PositionSlide } from './PositionSlide'
 import { useBorrowedAssets, useSuppliedCollaterals } from '@app/hooks/useBalances'
 import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/router'
 

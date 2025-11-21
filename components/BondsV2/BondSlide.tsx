@@ -9,7 +9,7 @@ import { BalanceInput } from '@app/components/common/Input'
 import { useEffect, useState } from 'react'
 import { roundFloorString, timestampToUTC } from '@app/util/misc'
 import { SubmitButton } from '@app/components/common/Button'
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/router'
 import { REWARD_TOKEN } from '@app/variables/tokens'

@@ -3,7 +3,7 @@ import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from './useCustomSWR';
 import useEtherSWR from './useEtherSWR';
 import { getNetworkConfigConstants } from '@app/util/networks';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { getBnToNumber } from '@app/util/markets';
 

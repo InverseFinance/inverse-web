@@ -6,7 +6,7 @@ import { SubmitButton } from '@app/components/common/Button';
 import { BigNumber } from 'ethers';
 import { formatEther, parseEther } from '@ethersproject/units';
 import { disperseEther } from '@app/util/contracts';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { TransactionResponse, Web3Provider } from '@ethersproject/providers';
 import ScannerLink from '@app/components/common/ScannerLink';
 import { submitRefunds } from '@app/util/governance';

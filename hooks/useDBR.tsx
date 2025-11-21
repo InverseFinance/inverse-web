@@ -11,7 +11,7 @@ import { f2CalcNewHealth, f2approxDbrAndDolaNeeded } from "@app/util/f2";
 import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import { parseUnits } from "@ethersproject/units";
 import useSWR from "swr";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { useDOLAPriceLive } from "./usePrices";
 import { timestampToUTC, utcDateStringToTimestamp } from "@app/util/misc";
 import { useState } from "react";

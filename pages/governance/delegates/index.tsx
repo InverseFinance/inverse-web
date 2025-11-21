@@ -9,7 +9,7 @@ import Table from '@app/components/common/Table'
 import { useTopDelegates } from '@app/hooks/useDelegates'
 import { Delegate, Proposal, ProposalStatus } from '@app/types'
 import { useRouter } from 'next/dist/client/router'
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import Head from 'next/head'
 import { useNamedAddress } from '@app/hooks/useNamedAddress'

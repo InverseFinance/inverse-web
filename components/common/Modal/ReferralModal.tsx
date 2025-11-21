@@ -1,6 +1,6 @@
 import { VStack, Text } from "@chakra-ui/react"
 import ConfirmModal from "./ConfirmModal"
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { InfoMessage, SuccessMessage } from "../Messages";
 import { Input } from "../Input";
 import { useEffect, useState } from "react";

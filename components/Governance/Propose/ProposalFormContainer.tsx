@@ -7,7 +7,7 @@ import { TEST_IDS } from '@app/config/test-ids';
 import { GovEra, NetworkIds, Proposal } from '@app/types';
 import { useEffect } from 'react';
 import { getGovernanceContract } from '@app/util/contracts';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { formatUnits } from 'ethers/lib/utils';
 import ScannerLink from '@app/components/common/ScannerLink';

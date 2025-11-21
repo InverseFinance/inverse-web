@@ -6,7 +6,7 @@ import { InfoMessage } from '@app/components/common/Messages';
 import { BondSlide } from '../Bonds/BondSlide';
 import { useState } from 'react';
 import { BondListItem } from '../Bonds/BondListItem';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 
 const LocalTooltip = ({ children }) => <AnimatedInfoTooltip

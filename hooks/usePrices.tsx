@@ -3,7 +3,7 @@ import { Prices, StringNumMap, SWR, Token } from '@app/types'
 import { fetcher, fetcherWithFallback } from '@app/util/web3'
 import { BigNumber, Contract } from 'ethers'
 import useEtherSWR from './useEtherSWR'
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { useCacheFirstSWR, useCustomSWR } from './useCustomSWR'
 import { DOLA_ETH_CHAINLINK_FEED, DOLA_FEED, HAS_REWARD_TOKEN, TOKENS_VIEWER } from '@app/config/constants'

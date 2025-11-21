@@ -8,7 +8,7 @@ import { BigNumber } from 'ethers';
 import { useLpPrices } from './usePrices';
 import { BLOCKS_PER_DAY } from '@app/config/constants';
 import { usePrices } from '@app/hooks/usePrices';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/router';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';

@@ -11,7 +11,7 @@ import { Input } from "@app/components/common/Input";
 import { isAddress } from "ethers/lib/utils";
 import { InfoMessage, WarningMessage } from "@app/components/common/Messages";
 import { Contract } from "ethers";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { Web3Provider } from "@ethersproject/providers";
 import Link from "@app/components/common/Link";
 import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";

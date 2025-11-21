@@ -1,6 +1,6 @@
 import { VStack, Text, HStack, Divider, Badge, useDisclosure } from "@chakra-ui/react"
 import { swapDolaForExactDbr, swapExactDolaForDbr, useDbrAuctionPricing } from "@app/util/dbr-auction"
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { shortenNumber } from "@app/util/markets";
 import { TextInfo } from "../../common/Messages/TextInfo";
 import { SimpleAmountForm } from "../../common/SimpleAmountForm";

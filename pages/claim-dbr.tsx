@@ -11,7 +11,7 @@ import { InfoMessage, SuccessMessage } from '@app/components/common/Messages';
 import { useState } from 'react';
 import { claimAirdrop, getAccountProofs } from '@app/util/merkle';
 import Link from '@app/components/common/Link';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ';
 import ScannerLink from '@app/components/common/ScannerLink';

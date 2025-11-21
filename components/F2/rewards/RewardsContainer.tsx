@@ -7,7 +7,7 @@ import Link from "@app/components/common/Link";
 import { useState } from "react";
 import { zapperRefresh } from "@app/util/f2";
 import { Stack, VStack } from "@chakra-ui/react";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
  ;
 import useStorage from "@app/hooks/useStorage";
 import { BURN_ADDRESS } from "@app/config/constants";

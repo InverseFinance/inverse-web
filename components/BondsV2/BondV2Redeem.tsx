@@ -2,7 +2,7 @@ import { Bond, UserBondV2 } from '@app/types'
 import { shortenNumber } from '@app/util/markets'
 import { Divider, Flex, HStack, Stack, Text } from '@chakra-ui/react'
 import { SubmitButton } from '@app/components/common/Button'
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { TimeIcon } from '@chakra-ui/icons';
 import { Timestamp } from '@app/components/common/BlockTimestamp/Timestamp';

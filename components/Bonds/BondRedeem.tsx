@@ -2,7 +2,7 @@ import { Bond } from '@app/types'
 import { shortenNumber } from '@app/util/markets'
 import { Flex, HStack, Stack, Text } from '@chakra-ui/react'
 import { SubmitButton } from '@app/components/common/Button'
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { bondRedeem } from '@app/util/contracts';
 import { TimeIcon } from '@chakra-ui/icons';

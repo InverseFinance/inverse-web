@@ -6,7 +6,7 @@ import { useAccountDBR, useAccountDBRMarket, useDBRNeeded, useDBRPrice } from '@
 import { useEffect, useRef, useState } from 'react'
 import { TOKENS } from '@app/variables/tokens'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { useWeb3React } from '@web3-react/core'
+import { useWeb3React } from '@app/util/wallet'
 import { useAccount } from '@app/hooks/misc'
 import React from 'react'
 import { useDOLABalance } from '@app/hooks/useDOLA'

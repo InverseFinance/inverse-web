@@ -9,7 +9,7 @@ import { exportToCsv, timestampToUTC } from '@app/util/misc';
 import { CheckIcon, MinusIcon, PlusSquareIcon, RepeatClockIcon } from '@chakra-ui/icons';
 import { Box, Checkbox, Divider, Flex, HStack, Stack, Text, useDisclosure, VStack, InputLeftElement, InputGroup, Select } from '@chakra-ui/react';
 import { Web3Provider } from '@ethersproject/providers';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { isAddress } from 'ethers/lib/utils';
 import { useEffect, useState } from 'react';
 import { Timestamp } from '../../common/BlockTimestamp/Timestamp';

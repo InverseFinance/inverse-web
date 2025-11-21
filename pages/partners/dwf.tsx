@@ -11,7 +11,7 @@ import { usePrices } from '@app/hooks/usePrices';
 import Container from '@app/components/common/Container';
 import { preciseCommify } from '@app/util/misc';
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { useState } from 'react';
 import { DWF_PURCHASER_ABI } from '@app/config/abis';
 import { JsonRpcSigner } from '@ethersproject/providers';

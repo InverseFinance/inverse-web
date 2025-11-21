@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { MsgStatusItem, WithdrawalItem, executeMessage, getTransactionsStatuses } from "@app/util/blast";
 import { MessageStatus } from '@eth-optimism/sdk'
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { VStack, Text } from "@chakra-ui/react";
 import { InfoMessage } from "../common/Messages";
 import Container, { AppContainerProps } from "../common/Container";

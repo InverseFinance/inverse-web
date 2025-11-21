@@ -1,4 +1,4 @@
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { VStack, Text, Flex, Stack } from "@chakra-ui/react";
 import { InfoMessage, WarningMessage } from "../common/Messages";
 import Container, { AppContainerProps } from "../common/Container";

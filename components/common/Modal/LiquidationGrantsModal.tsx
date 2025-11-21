@@ -7,7 +7,7 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { useEffect, useState } from "react";
 import { Input } from "../Input";
 import { RSubmitButton } from "../Button/RSubmitButton";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { shortenAddress } from "@app/util";
 import { CAMPAIGNS_SETTINGS, LIQUIDATION_GRANTS_MSG_TO_SIGN } from "@app/config/campaigns.config";
 
