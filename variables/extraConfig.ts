@@ -33,9 +33,11 @@ const mainConfig = {
     f2controller: '0xEEBea1ed06EeB120CbF72Fad195683746b5A5245',
     // f2controller: '0x2DbAd53A647A86b8988E007a33FE78bd55e9Dd6f',
     // f2ale: '0x5233f4C2515ae21B540c438862Abb5603506dEBC',
-    f2ale: '0x4dF2EaA1658a220FDB415B9966a9ae7c3d16e240',
-    f2helper: DEFAULT_FIRM_HELPER_TYPE === 'balancer' ? '0x6c31147E995074eA6aaD2Fbe95060B0Aef7363E1' : '0x0aBb47c564296D34B0F5B068361985f507fe123c',
-    f2dbrRewardsHelper: '0xEc51E66c1e1BFc85aCc3b6847820A3Ff0a38364b',
+    // f2ale: '0x4dF2EaA1658a220FDB415B9966a9ae7c3d16e240',
+    f2ale: '0x39D167Fe676EFC3be49bE874a37349A5D89f9058',
+    // in current version dbr helper is same address as ale
+    f2helper: '0x39D167Fe676EFC3be49bE874a37349A5D89f9058',
+    f2dbrRewardsHelper: '0x3363Ad5780316Fd5180Bb9F34297B533fb9cB335',
     f2markets: FIRM_MARKETS,
     feds: FEDS_PARAMS,
     multisigs: [
