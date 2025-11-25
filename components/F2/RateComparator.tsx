@@ -143,8 +143,8 @@ const GroupedRateListItem = ({ fields, bestCompetitorProject, firmRate, bestComp
     }
     return <>
         {
-            fields.map(f => {
-                return comps[f];
+            fields.map((f,i) => {
+                return <Box minW={i === 0 ? '190px' : 'auto'} mr={i === 1 ? '50px' : 0} key={f}>{comps[f]}</Box>;
             })
         }
     </>
@@ -456,10 +456,10 @@ const GroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, showL
 
     const groupedRatesZone =
         <>
-            <SimpleGrid alignItems="center" gap="3" columns={fields.length}>
+            <HStack alignItems="center" gap="1">
                 {
-                    fields.map(f => {
-                        return <Text color={themeStyles.colors.mainTextColor} key={f} fontWeight="extrabold" fontSize={{ base: '18px', lg: '28px' }}>
+                    fields.map((f,i) => {
+                        return <Text minW={i === 0 ? '190px' : 'auto'} mr={i === 1 ? '50px' : 0} textAlign={i === 1 ? 'center' : 'left'} whiteSpace="nowrap" color={themeStyles.colors.mainTextColor} key={f} fontWeight="extrabold" fontSize={{ base: '18px', lg: '28px' }}>
                             {GROUPED_FIELDS[f]}
                         </Text>
                     })
@@ -473,14 +473,14 @@ const GroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, showL
                         }
                     </>
                 }
-            </SimpleGrid>
+            </HStack>
             <VStack pt='5' spacing="0" >
                 {
                     groupedRates.map((rate, i) => {
                         return <Box borderBottom="1px solid transparent" borderTop={`1px solid ${themeStyles.colors.mainTextColorAlpha}`} py="2" transition="200 ms all" _hover={{ borderY: `1px solid ${themeStyles.colors.mainTextColor}` }} w='full' key={rate.collateral}>
-                            <SimpleGrid  gap="3" columns={fields.length} alignItems="center">
+                            <HStack alignItems="center" gap="1">
                                 <GroupedRateListItem isSmallerThan={isSmallerThan} fields={fields} {...rate} themeStyles={themeStyles} />
-                            </SimpleGrid>
+                            </HStack>
                         </Box>
                     })
                 }
