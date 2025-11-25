@@ -373,7 +373,7 @@ export const useDBRPriceLive = (): { priceUsd: number | undefined, priceDola: nu
   const { price: dolaPrice } = useDOLAPriceLive();
   const { data } = useEtherSWR({
     args: [
-      ['0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a', 'price_oracle', '0'],
+      ['0x66da369fC5dBBa0774Da70546Bd20F2B242Cd34d', 'price_oracle', '0'],
     ],
     abi: [
       'function price_oracle(uint) public view returns(uint)',
@@ -390,7 +390,7 @@ export const useDBRSwapPrice = (dolaWorthOfDbrAsk = '1000'): { price: number | u
   const _ask = dolaWorthOfDbrAsk?.toString() === '0' ? '1000' : dolaWorthOfDbrAsk;
   const { data, error } = useEtherSWR({
     args: [
-      ['0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a', 'get_dy', 1, 0, parseUnits(_ask)],
+      ['0x66da369fC5dBBa0774Da70546Bd20F2B242Cd34d', 'get_dy', 1, 0, parseUnits(_ask)],
     ],
     abi: ['function get_dy(uint i, uint j, uint dx) public view returns(uint)'],
   });
@@ -406,7 +406,7 @@ export const useDBRSwapPrice = (dolaWorthOfDbrAsk = '1000'): { price: number | u
 export const useTriCryptoSwap = (amountToSell: number, srcIdx = 1, dstIdx = 0): { amountOut: number | null, price: number | null, isLoading: boolean, isError: boolean } => {
   const { data, error } = useEtherSWR({
     args: [
-      ['0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a', 'get_dy', srcIdx, dstIdx, parseUnits(amountToSell.toString(), 18)],
+      ['0x66da369fC5dBBa0774Da70546Bd20F2B242Cd34d', 'get_dy', srcIdx, dstIdx, parseUnits(amountToSell.toString(), 18)],
     ],
     abi: ['function get_dy(uint i, uint j, uint dx) public view returns(uint)'],
   });
