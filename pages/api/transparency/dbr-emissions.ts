@@ -44,6 +44,7 @@ export default async function handler(req, res) {
         const [
             newMintEvents,
             newTreasuryTransferEvents,
+            dbrClaimsByStakersData,
         ] = await Promise.all([
             contract.queryFilter(
                 contract.filters.Transfer(BURN_ADDRESS),
@@ -52,7 +53,9 @@ export default async function handler(req, res) {
             contract.queryFilter(
                 contract.filters.Transfer(TREASURY),
                 newStartingBlock ? newStartingBlock : undefined,
-            )
+            ),
+            // dbr claims by stakers
+            fetch(`https://app.inverse.watch/api/queries/1141/results.json?api_key=${process.env.WATCH_KEY}`).then(res => res.json()),
         ]);
 
         const newTransferEvents = newMintEvents.concat(newTreasuryTransferEvents).sort((a, b) => a.blockNumber - b.blockNumber);
@@ -79,7 +82,8 @@ export default async function handler(req, res) {
         let accEmissions = 0;
 
         const resultData = {
-            timestamp: +(new Date()),
+            timestamp: Date.now(),
+            accClaimedByStakers: dbrClaimsByStakersData.query_result.data.[dbrClaimsByStakersData.query_result.data.length-1].cumulative_value,
             newTransfers,
             totalEmissions: pastTotalEvents.concat(newTransfers).map(e => {
                 return { ...e, accEmissions: e.isTreasuryTransfer ? accEmissions : accEmissions += e.amount }
