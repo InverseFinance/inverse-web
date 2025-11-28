@@ -104,6 +104,7 @@ export default async function handler(req, res) {
             forcedRepEvents,
             dsaClaimEvents,
             dbrVirtualAuctionBuys,
+            dbrClaimsByStakersData,
         ] = await Promise.all([
             getLargeLogs(
                 contract,
@@ -131,6 +132,8 @@ export default async function handler(req, res) {
                 dbrAuctionContract.filters.Buy(),
                 newStartingBlock ? newStartingBlock : 0x0,
             ),
+             // dbr claims by stakers
+             fetch(`https://app.inverse.watch/api/queries/1141/results.json?api_key=${process.env.WATCH_KEY}`).then(res => res.json()),
         ]);
 
         const newTransferEvents = newMintEvents.concat(newTreasuryTransferEvents).sort((a, b) => a.blockNumber - b.blockNumber);
@@ -174,6 +177,7 @@ export default async function handler(req, res) {
 
         const resultData = {
             timestamp: now,
+            accClaimedByStakers: dbrClaimsByStakersData.query_result.data.rows[dbrClaimsByStakersData.query_result.data.rows.length-1].cumulative_value,
             isGroupedByDay: true,
             totalEmissions: newTransfers?.length ? getGroupedByDay(
                 cachedData?.isGroupedByDay ? cachedEvents.concat(newTransfers) : cachedEvents.map(cge => ({
