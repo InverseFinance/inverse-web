@@ -285,19 +285,20 @@ const cvxConstants = {
 // Convex rewards uses a specific calculation method...
 // check mint (not _mint) function here: https://etherscan.io/address/0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B#code
 export const getCrvToCvxReward = (crvRewardBn: BigNumber, supplyBn: BigNumber): number => {
-  const crvReward = getBnToNumber(crvRewardBn);
-  const supply = getBnToNumber(supplyBn);
-  const cliff = supply / cvxConstants.reductionPerCliff;
-  if (cliff >= cvxConstants.totalCliffs) {
-    return 0;
-  }
-  const reduction = cvxConstants.totalCliffs - cliff;
-  const cvxAmount = crvReward * reduction / cvxConstants.totalCliffs;
-  const amtTillMax = cvxConstants.maxSupply - supply;
-  if (cvxAmount > amtTillMax) {
-    return amtTillMax;
-  }
-  return cvxAmount;
+  return getBnToNumber(crvRewardBn) / 999.9;
+  // const crvReward = getBnToNumber(crvRewardBn);
+  // const supply = getBnToNumber(supplyBn);
+  // const cliff = supply / cvxConstants.reductionPerCliff;
+  // if (cliff >= cvxConstants.totalCliffs) {
+  //   return 0;
+  // }
+  // const reduction = cvxConstants.totalCliffs - cliff;
+  // const cvxAmount = crvReward * reduction / cvxConstants.totalCliffs;
+  // const amtTillMax = cvxConstants.maxSupply - supply;
+  // if (cvxAmount > amtTillMax) {
+  //   return amtTillMax;
+  // }
+  // return cvxAmount;
 }
 
 const auraConstants = {
