@@ -463,6 +463,7 @@ export const useDBRBurns = (): SWR & {
 export const useDBREmissions = (): SWR & {
   events: any,
   timestamp: number,
+  accClaimedByStakers: number,
   rewardRatesHistory: {
     timestamp: number,
     rates: { timestamp: number, rewardRate: number }[],
@@ -471,6 +472,7 @@ export const useDBREmissions = (): SWR & {
   const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-emissions-evolution?v=2`);
 
   return {
+    accClaimedByStakers: data ? data.accClaimedByStakers : 0,
     events: data ? data.totalEmissions : [],
     rewardRatesHistory: data ? data.rewardRatesHistory : { rates: [] },
     timestamp: data ? data.timestamp : 0,

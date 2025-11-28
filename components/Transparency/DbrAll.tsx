@@ -50,14 +50,14 @@ export const DbrAll = ({
     const inventoryAsObj = !!dbrCircSupplyEvolution ? dbrCircSupplyEvolution.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr.timestamp)]: curr.inventory }), {}) : {};
     const { priceUsd: dbrPriceUsd, priceDola: dbrPriceDola } = useDBRPrice();
 
-    const { events: emissionEvents, rewardRatesHistory, isLoading: isEmmissionLoading, timestamp: emissionTimestamp } = useDBREmissions();
+    const { events: emissionEvents, accClaimedByStakers, rewardRatesHistory, isLoading: isEmmissionLoading, timestamp: emissionTimestamp } = useDBREmissions();
     const { dsaYearlyDbrEarnings, isLoading: isLoadingStakedDola } = useStakedDola(dbrPriceUsd);
     const { dbrRatePerYear: auctionYearlyRate, historicalRates: auctionHistoricalRates, isLoading: isLoadingAuction } = useDbrAuction("classic");
     const { evolution: dolaStakingEvolution } = useDolaStakingEvolution();
     const { positions, inventory: currentInventory } = useFirmUsers();
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
 
-    const totalClaimed = useMemo(() => emissionEvents.reduce((acc, e) => acc + e.stakingClaims, 0), [emissionTimestamp]);
+    const totalClaimed = accClaimedByStakers;//useMemo(() => emissionEvents.reduce((acc, e) => acc + e.stakingClaims, 0), [emissionTimestamp]);
     const totalClaimedUsd = useMemo(() => {
         return  emissionEvents.reduce((acc, e) => {
             const histoPrice = histoPrices[e.utcDate];
