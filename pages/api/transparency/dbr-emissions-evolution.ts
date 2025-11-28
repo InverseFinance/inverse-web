@@ -177,7 +177,7 @@ export default async function handler(req, res) {
 
         const resultData = {
             timestamp: now,
-            accClaimedByStakers: dbrClaimsByStakersData.query_result.data.[dbrClaimsByStakersData.query_result.data.length-1].cumulative_value,
+            accClaimedByStakers: dbrClaimsByStakersData.query_result.data[dbrClaimsByStakersData.query_result.data.length-1].cumulative_value,
             isGroupedByDay: true,
             totalEmissions: newTransfers?.length ? getGroupedByDay(
                 cachedData?.isGroupedByDay ? cachedEvents.concat(newTransfers) : cachedEvents.map(cge => ({
