@@ -437,6 +437,7 @@ export enum FedTypes {
   LP = 'AMM',
   CROSS = 'Cross-Lending',
   ISOLATED = 'Isolated-Lending',
+  PSM = 'PSM',
 }
 
 export type Fed = {
