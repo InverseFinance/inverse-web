@@ -170,14 +170,14 @@ export const DolaDiagram = () => {
           />
           <DolaBackingLegend />
           <Stack direction={{ base: 'column', lg: 'row' }} justify="space-between" w='full'>
-            <DashBoardCard cardTitle='DOLA backing sources overview' {...dashboardCardProps}>
+            <DashBoardCard cardTitle='DOLA sources overview' {...dashboardCardProps}>
               <FundsDetails
                 {...commonProps}
                 isLoading={isLoading}
                 funds={fedsPieChartData}
               />
             </DashBoardCard>
-            <DashBoardCard cardTitle='Detailed DOLA backing sources'  {...dashboardCardProps}>
+            <DashBoardCard cardTitle='Detailed DOLA sources'  {...dashboardCardProps}>
               <FundsDetails
                 {...commonProps}
                 isLoading={isLoading}
