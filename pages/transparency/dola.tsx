@@ -25,7 +25,7 @@ import { DolaVolumes } from '@app/components/Transparency/DolaVolumes'
 const LEGEND_ITEMS = [
   {
     color: lightTheme.colors.info,
-    label: 'LP on a AMM',
+    label: 'LP / PSM / Other',
   },
   {
     color: lightTheme.colors.success,
@@ -33,7 +33,7 @@ const LEGEND_ITEMS = [
   },
   {
     color: lightTheme.colors.error,
-    label: 'Unbacked or mostly unhealthy',
+    label: 'Frontier (bad debt, deprecated)',
   },
 ];
 
@@ -60,7 +60,7 @@ export const fedsDataToPieChart = (fedOverviews: any[], colors) => {
     const name = f.type === 'AMM' ?
       `${f.name} ` + (f.subBalances.reduce((acc, curr) => acc ? acc + '-' + curr.symbol : curr.symbol, '') + ' LP')
       : f.name;
-    const balance = ['FiRM', 'Frontier', 'Gearbox'].includes(f.protocol) ? f.borrows : f.supply - (f.idleDolaBalance||0);
+    const balance = ['FiRM', 'Frontier', 'Gearbox'].includes(f.protocol) ? f.borrows : f.supply - (f.idleDolaBalance || 0);
     const color = ['Frontier', 'Fuse'].includes(f.protocol) ? colors.error : f.protocol === 'FiRM' ? colors.success : colors.info;
     return {
       ...f,
@@ -145,10 +145,10 @@ export const DolaDiagram = () => {
             description={
               <VStack alignItems="flex-start">
                 <Text>DOLA is a decentralized stablecoin soft-pegged to the US Dollar. It is backed by a diversified set of assets, including liquidity positions on AMMs and isolated collaterals on FiRM. Even though it has some bad debt since April 2022, it is being repaid over time and it has operated at peg thanks to strong peg mechanisms.</Text>
-                {/* <HStack spacing="1">
+                <HStack spacing="1">
                   <Text>Current backing:</Text>
-                  { isLoading || isLoadingRepayments || isLoadingOverview ? <SmallTextLoader pt="2" w='50px' /> : <Text>{shortenNumber(currentBacking, 2)}%</Text> }
-                </HStack> */}
+                  {isLoading || isLoadingRepayments || isLoadingOverview ? <SmallTextLoader pt="2" w='50px' /> : <Text>{shortenNumber(currentBacking, 2)}%</Text>}
+                </HStack>
                 <Stack direction={{ base: 'column', 'xl': 'row' }}>
                   <Link
                     textDecoration="underline"
@@ -157,13 +157,13 @@ export const DolaDiagram = () => {
                     href={"https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola#dola-usd-peg-management"}>
                     Learn more about peg management
                   </Link>
-                  {/* <Link
+                  <Link
                     textDecoration="underline"
                     isExternal
                     about="_blank"
                     href={"https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola#dola-usd-peg-management"}>
                     See bad debt repayments
-                  </Link> */}
+                  </Link>
                 </Stack>
               </VStack>
             }
@@ -194,7 +194,7 @@ export const DolaDiagram = () => {
               <DolaSupplies supplies={dolaSupplies.filter(chain => chain.supply > 0)} />
               <ShrinkableInfoMessage
                 title="⚡&nbsp;&nbsp;Roles & Powers"
-                alertProps={{ w:'full' }}
+                alertProps={{ w: 'full' }}
                 description={
                   <>
                     <Flex direction="row" w='full' justify="space-between">
