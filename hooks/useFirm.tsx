@@ -657,6 +657,21 @@ export const useConvexLpRewards = (escrow: string, rewardContract: string) => {
     }
   ];
 
+  if (rewardsData?.extraRewards) {
+    rewardsData.extraRewards.forEach(extraReward => {
+      const token = getToken(TOKENS, extraReward.address);
+      const balance = getBnToNumber(extraReward.bigBalance, token.decimals);
+      const price = prices && prices[token.coingeckoId!] ? prices[token.coingeckoId!].usd : 0;
+      rewards.push({
+        metaType: 'claimable',
+        balanceUSD: balance * price,
+        price,
+        balance,
+        address: extraReward.address,
+      });
+    });
+  }
+
   return {
     rewardsInfos: {
       tokens: rewards || [],

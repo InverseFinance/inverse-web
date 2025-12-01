@@ -523,6 +523,8 @@ export const CONVEX_REWARD_POOL = [
   'function earned(address) public view returns (uint)',
   'function extraRewards(uint) public view returns (address)',
   'function extraRewardsLength() public view returns (uint)',
+  'function rewardToken() public view returns (address)',
+  'function token() public view returns (address)',
 ]
 
 export const DBR_DISTRIBUTOR_ABI = [
