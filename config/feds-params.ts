@@ -496,7 +496,7 @@ export const FEDS_PARAMS = [
         supplyFuncName: "supply",
         borrowConfig: {
             contractAddress: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
-            abi: ["function balanceOf() view returns (uint)"],
+            abi: ["function balanceOf(address) view returns (uint)"],
             functionName: 'balanceOf',
             customFunction: async (contract: Contract, fedContract: Contract) => {
                 try {
