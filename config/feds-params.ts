@@ -1,6 +1,7 @@
 import { FedTypes, NetworkIds } from "@app/types";
 import { TOKEN_IMAGES } from "@app/variables/images";
 import { BigNumber, Contract } from "ethers";
+import { PSM_ADDRESS } from "./constants";
 
 export const FEDS_PARAMS = [
     {
@@ -501,7 +502,7 @@ export const FEDS_PARAMS = [
             customFunction: async (contract: Contract, fedContract: Contract) => {
                 try {
                     const [dolaBalInPSM, supplied] = await Promise.all([
-                        contract.balanceOf(fedContract.address),
+                        contract.balanceOf(PSM_ADDRESS),
                         fedContract.supply(),
                     ]);
                     return supplied.sub(dolaBalInPSM);
