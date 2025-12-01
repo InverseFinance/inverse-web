@@ -26,18 +26,53 @@ export const getCvxCrvRewards = (escrow: string, signer: JsonRpcSigner) => {
 export const getConvexLpRewards = async (escrow: string, rewardContract: string, signer: JsonRpcSigner) => {
     const contract = new Contract(rewardContract, CRV_USD_DOLA_R_ABI, signer);
     const cvxContract = new Contract('0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B', ERC20_ABI, signer);
-    
+
     const [earned, cvxSupply] = await Promise.all([
         contract.earned(escrow),
         cvxContract.totalSupply()
     ]);
-    
+
     const crvToCvxReward = getCrvToCvxReward(earned, cvxSupply);
+    const extraRewards = await getExtraCvxRewards(rewardContract, escrow, signer);
 
     return {
         earned,
+        extraRewards,
         cvxReward: crvToCvxReward,
     }
+}
+
+export const getExtraCvxRewards = async (rewardContractAddress: string, escrow: string, signer: JsonRpcSigner) => {
+    const contract = new Contract(rewardContractAddress, CONVEX_REWARD_POOL, signer);
+    const extraRewardsLength = getBnToNumber(await contract.extraRewardsLength(), 0);
+    const emptyArray = new Array(extraRewardsLength).fill(null);
+    const extraRewards = await Promise.all(emptyArray.map((_, i) => {
+        return contract.extraRewards(i);
+    }));
+    const extraEarnedData = await Promise.all(
+        extraRewards.map(async (extraReward) => {
+            const contract = new Contract(extraReward, CONVEX_REWARD_POOL, signer);
+            return contract.earned(escrow);
+        })
+    );
+    const extraRewardTokenWrappers = await Promise.all(
+        extraRewards.map(async (extraReward) => {
+            const contract = new Contract(extraReward, CONVEX_REWARD_POOL, signer);
+            return contract.rewardToken();
+        })
+    );
+    const extraRewardTokens = await Promise.all(
+        extraRewardTokenWrappers.map(async (extraRewardWrapper) => {
+            const contract = new Contract(extraRewardWrapper, CONVEX_REWARD_POOL, signer);
+            return contract.token();
+        })
+    );
+    return extraRewards.map((data, i) => {
+        return {
+            address: extraRewardTokens[i],
+            bigBalance: extraEarnedData[i],
+        }
+    })
 }
 
 export const getCvxRewards = async (escrow: string, signer: JsonRpcSigner) => {
@@ -95,25 +130,25 @@ export const claimDbrAndSell = async (
     repayData: any,
 ) => {
     const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);
-    return callWithHigherGL(contract, 'claimAndSell', [claimAndSellData, repayData], 90000);    
+    return callWithHigherGL(contract, 'claimAndSell', [claimAndSellData, repayData], 90000);
 }
 
 export const claimDbrAndSellForDola = async (minDolaOut: BigNumber, signer: JsonRpcSigner, destinationAddress: string) => {
-    const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);    
+    const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);
     const exchangeData = [destinationAddress, destinationAddress, destinationAddress, minDolaOut, '10000', '0', '0'];
     const repayData = [BURN_ADDRESS, BURN_ADDRESS, '0'];
     return contract.claimAndSell(exchangeData, repayData);
 }
 
 export const claimDbrSellAndRepay = async (minDolaOut: BigNumber, market: string, signer: JsonRpcSigner, destinationAddress: string) => {
-    const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);    
+    const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);
     const exchangeData = [destinationAddress, destinationAddress, destinationAddress, minDolaOut, '10000', '0', '0'];
     const repayData = [market, destinationAddress, '10000'];
     return contract.claimAndSell(exchangeData, repayData);
 }
 
 export const claimDbrSellAndDepositInv = async (minInvOut: BigNumber, signer: JsonRpcSigner, destinationAddress: string) => {
-    const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);    
+    const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);
     const exchangeData = [destinationAddress, destinationAddress, destinationAddress, '0', '0', minInvOut, '10000'];
     const repayData = [BURN_ADDRESS, BURN_ADDRESS, '0'];
     return contract.claimAndSell(exchangeData, repayData);
