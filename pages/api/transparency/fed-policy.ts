@@ -9,7 +9,7 @@ import { cacheDolaSupplies } from './dao';
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 import { ONE_DAY_MS } from '@app/config/constants';
 
-const getEvents = (fedAd: string, abi: string[], chainId: NetworkIds, startBlock = 0x0) => {
+export const getFedEvents = (fedAd: string, abi: string[], chainId: NetworkIds, startBlock = 0x0) => {
   const provider = chainId?.toString() === '1' ? getPaidProvider(1) : getProvider(chainId);
   const contract = new Contract(fedAd, abi, provider);
   return Promise.all([
@@ -89,7 +89,7 @@ export default async function handler(req, res) {
         const newStartingBlock = lastKnownFedEvent ? lastKnownFedEvent?.blockNumber + 1 : 0;
         return fed.hasEnded ?
           new Promise((res) => res([[], []]))
-          : getEvents(fed.address, fed.abi, fed.chainId, !pastFedEvents.find(e => e.fedAddress === fed.address) ? 0x0 : newStartingBlock)
+          : getFedEvents(fed.address, fed.abi, fed.chainId, !pastFedEvents.find(e => e.fedAddress === fed.address) ? 0x0 : newStartingBlock)
       }
       )
     ]);
@@ -101,7 +101,7 @@ export default async function handler(req, res) {
     });
 
     const oldRawEvents = await Promise.all([
-      ...withOldAddresses.map(fed => getEvents(fed.oldAddress, fed.abi, fed.chainId, newStartingBlock))
+      ...withOldAddresses.map(fed => getFedEvents(fed.oldAddress, fed.abi, fed.chainId, newStartingBlock))
     ]);
 
     withOldAddresses.forEach((fed, i) => {
@@ -166,8 +166,6 @@ export default async function handler(req, res) {
         }
       })
 
-    const fedPolicyMsg = { "msg": "No guidance at the moment", "lastUpdate": 1664090872336 };
-
     const dolaSuppliesCacheData = (await getCacheFromRedis(cacheDolaSupplies, false)) || { dolaSupplies: [], dolaTotalSupply: 0 };
 
     // newTotalSupply fix and reconstruction
@@ -186,7 +184,6 @@ export default async function handler(req, res) {
 
     const resultData = {
       timestamp: now,
-      fedPolicyMsg,
       totalEvents,
       feds: FEDS.map(fed => {
         const accSupply = accumulatedSupplies[fed.address]||0;

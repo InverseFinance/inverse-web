@@ -72,6 +72,7 @@ const columns = [
             <Text textAlign="left">- <b>{FedTypes.CROSS}</b>: lending protocol where a DOLA loan can be backed by several collaterals at the same time and those collaterals can also back other loans than DOLA loans.</Text>
             <Text textAlign="left">- <b>{FedTypes.ISOLATED}</b>: lending protocol where DOLA loans are independently backed by single collaterals</Text>
             <Text textAlign="left">- <b>{FedTypes.LP}</b>: DOLA is backed by the other assets in the liquidity pool</Text>
+            <Text textAlign="left">- <b>{FedTypes.PSM}</b>: Standard Peg Stability Module</Text>
         </VStack>,
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
         value: ({ type }) => {
@@ -93,9 +94,9 @@ const columns = [
     },
     {
         field: 'borrows',
-        label: 'Borrowed',
+        label: 'Borrowed / Used',
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
-        tooltip: 'Amount of DOLA you borrowed from the Market',
+        tooltip: 'Amount of DOLA taken from the Fed by borrowers users',
         value: ({ borrows }) => {
             return <Cell minWidth="120px" justify="center">
                 <CellText>{borrows > 0 ? shortenNumber(borrows, 2) : '-'}</CellText>
@@ -146,6 +147,7 @@ const ABOUTS = {
     [FedTypes.CROSS]: 'The Fed supplies DOLA in the DOLA market of a compound-style cross-lending protocol, the borrowing capacity of a user can depend on several different collaterals and this capacity can be used to borrow different assets including DOLA but not only. The utilization rate of DOLA is directly related to supply and demand which determines the borrowing APR, by adjusting the supply the Fed can effectively impact the borrowing APR, which helps to control DOLA peg by encouraging borrowers to repay their debt when APR is high or incite them to borrow when APR is low.',
     [FedTypes.ISOLATED]: 'The Fed supplies DOLA in the fixed-rate isolated-lending protocol FiRM, only DOLA can be borrowed, and the borrowing capacity is isolated by collateral. The borrowing APR is directly determined by the price of the DOLA Borrowing Right token (DBR).',
     [FedTypes.LP]: "AMM feds are operated to mint/burn DOLA's based on demand in a liquidity pool, when demand for DOLA is up in the pool which is represented by the increase in DOLA price, the Fed Chair will mint more DOLAs and deposit to the LP, bringing the balance back to where it was. It works similarly the other way. AMM Feds are powerful peg control tools for DOLA.",
+    [FedTypes.PSM]: "Standard Peg Stability Module",
 }
 
 export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoading?: boolean, prices: Prices["prices"] }) => {

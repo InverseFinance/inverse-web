@@ -485,4 +485,31 @@ export const FEDS_PARAMS = [
             }
         },
     },
+    {
+        chainId: NetworkIds.mainnet,
+        type: FedTypes.PSM,
+        protocol: "PSM",
+        address: '0x400510611BcBf9171F0E548F1C3dcA7159e60d28',
+        name: "PSM Fed",
+        projectImage: TOKEN_IMAGES["USDS"],
+        isFirm: false,
+        supplyFuncName: "supply",
+        borrowConfig: {
+            contractAddress: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
+            abi: ["function balanceOf() view returns (uint)"],
+            functionName: 'balanceOf',
+            customFunction: async (contract: Contract, fedContract: Contract) => {
+                try {
+                    const [dolaBalInPSM, supplied] = await Promise.all([
+                        contract.balanceOf(fedContract.address),
+                        fedContract.supply(),
+                    ]);
+                    return supplied.sub(dolaBalInPSM);
+                } catch (e) {
+                    console.error(e);
+                    return BigNumber.from(0);
+                }
+            }
+        },
+    },
 ];
