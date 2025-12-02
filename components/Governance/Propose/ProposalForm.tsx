@@ -6,7 +6,7 @@ import { GovEra, Proposal, ProposalFormFields, ProposalStatus, TemplateProposalF
 import { ProposalInput } from './ProposalInput';
 import { ProposalFormAction } from './ProposalFormAction';
 import { deleteDraft, getFunctionsFromProposalActions, getProposalActionFromFunction, isProposalActionInvalid, isProposalFormInvalid, linkDraft, publishDraft, simulateOnChainActions, submitProposal } from '@app/util/governance';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { handleTx } from '@app/util/transactions';
 import { TEST_IDS } from '@app/config/test-ids';

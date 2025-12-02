@@ -16,7 +16,7 @@ import InfoModal from "@app/components/common/Modal/InfoModal";
 import { useState } from "react";
 import { ReferredUsersTable } from "./FirmAffiliateDashboard";
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { timeSince } from "@app/util/time";
 
 const StatBasic = ({ value, name, onClick = undefined, isLoading = false }: { value: string, onClick?: () => void, name: string, isLoading?: boolean }) => {

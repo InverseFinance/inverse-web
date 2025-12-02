@@ -8,7 +8,7 @@ import { useAccountBalances, useSupplyBalances, useBorrowBalances } from '@app/h
 import { useExchangeRates } from '@app/hooks/useExchangeRates'
 import { useAnchorPrices } from '@app/hooks/usePrices'
 import { AnchorOperations, Market } from '@app/types'
-import { useWeb3React } from '@web3-react/core'
+import { useWeb3React } from '@app/util/wallet'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'

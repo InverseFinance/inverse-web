@@ -5,7 +5,7 @@ import { SkeletonBlob } from '@app/components/common/Skeleton'
 import { useGovernanceNotifs, useProposals } from '@app/hooks/useProposals'
 import { GovEra, Proposal, ProposalStatus } from '@app/types'
 import NextLink from 'next/link'
-import { useWeb3React } from '@web3-react/core'
+import { useWeb3React } from '@app/util/wallet'
 import { Web3Provider } from '@ethersproject/providers';
 import { DeleteIcon } from '@chakra-ui/icons'
 import { clearLocalDrafts } from '@app/util/governance'

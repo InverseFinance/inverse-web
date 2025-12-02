@@ -4,7 +4,7 @@ import Container from '@app/components/common/Container'
 import { useNamedAddress } from '@app/hooks/useNamedAddress';
 import { Timestamp } from '@app/components/common/BlockTimestamp/Timestamp';
 import { sendDraftReview } from '@app/util/governance';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import Link from '@app/components/common/Link';
 import { ChatIcon, CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons';

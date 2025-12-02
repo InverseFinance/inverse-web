@@ -1,6 +1,6 @@
 import { Contract, Event } from 'ethers';
 import useSWR from 'swr';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 
 type Props = {

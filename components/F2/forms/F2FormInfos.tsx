@@ -19,7 +19,7 @@ import { gaEvent } from '@app/util/analytics'
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 import { MarketInfos, MarketNameAndIcon } from '../F2Markets'
-import { useWeb3React } from '@web3-react/core'
+import { useWeb3React } from '@app/util/wallet'
 import { useMarketMonthlyYield } from '@app/hooks/useDBR'
 
 type Data = {

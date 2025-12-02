@@ -21,7 +21,7 @@ import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber, Contract } from 'ethers'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { CRV_LP_ABI, CRV_META_LP_ABI, CURVE_STABLE_SWAP_NG_ABI } from '@app/config/crv-abis'
-import { useWeb3React } from '@web3-react/core'
+import { useWeb3React } from '@app/util/wallet'
 import { useCustomSWR } from '@app/hooks/useCustomSWR'
 
 const { DOLA } = getNetworkConfigConstants();

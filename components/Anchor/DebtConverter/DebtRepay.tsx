@@ -4,7 +4,7 @@ import Container from '@app/components/common/Container'
 
 import { useState } from 'react'
 
-import { useWeb3React } from '@web3-react/core'
+import { useWeb3React } from '@app/util/wallet'
 import { Web3Provider } from '@ethersproject/providers'
 import { AssetInput } from '@app/components/common/Assets/AssetInput'
 import { getNetworkConfigConstants } from '@app/util/networks'

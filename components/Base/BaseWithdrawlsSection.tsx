@@ -3,7 +3,7 @@ import { Stack } from "@chakra-ui/react";
 import { BaseTransactions } from "./BaseTransactions";
 import { BaseWithdraw } from "./BaseWithdraw";
 import { WithdrawalItem } from "@app/util/base";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 
 export const BaseWithdrawlsSection = () => {
     const { chainId } = useWeb3React();

@@ -15,7 +15,7 @@ import { useEffect } from 'react';
 import { ProofOfReviews } from '@app/components/Governance/ProofOfReviews'
 import { getRedisClient } from '@app/util/redis'
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
-import { useWeb3React } from '@web3-react/core'
+import { useWeb3React } from '@app/util/wallet'
 import { Web3Provider } from '@ethersproject/providers'
 import { showToast } from '@app/util/notify'
 import { DRAFT_WHITELIST } from '@app/config/constants'

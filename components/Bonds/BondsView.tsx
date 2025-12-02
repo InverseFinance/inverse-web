@@ -9,7 +9,7 @@ import { InfoMessage, WarningMessage } from '@app/components/common/Messages';
 import { BondSlide } from './BondSlide';
 import { useState } from 'react';
 import { BondListItem } from './BondListItem';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
 import Link from '@app/components/common/Link';

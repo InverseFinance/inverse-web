@@ -5,7 +5,7 @@ import Head from 'next/head';
 import { BaseBridge } from '@app/components/Base/BaseBridge';
 import { BaseWithdrawlsSection } from '@app/components/Base/BaseWithdrawlsSection';
 import { BaseBridgeInformations } from '@app/components/Base/BaseBridgeInformations';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { InfoMessage } from '@app/components/common/Messages';
 import Link from '@app/components/common/Link';
 

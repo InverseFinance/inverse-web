@@ -1,6 +1,6 @@
 import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
 import { dsaClaimRewards, stakeDolaToSavings, unstakeDolaFromSavings, useDSABalance, useStakedDola } from "@app/util/dola-staking"
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useMemo, useState } from "react";
 import { getNetworkConfigConstants } from "@app/util/networks";

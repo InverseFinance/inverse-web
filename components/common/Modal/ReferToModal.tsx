@@ -3,7 +3,7 @@ import { InfoMessage, SuccessMessage } from "../Messages";
 import SimpleModal from "./SimpleModal";
 import { Input } from "../Input";
 import { CopyIcon, ExternalLinkIcon } from "@chakra-ui/icons";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { RSubmitButton } from "../Button/RSubmitButton";
 import { useState } from "react";
 import { useRouter } from "next/router";

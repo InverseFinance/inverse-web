@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { SimpleAmountForm } from "../common/SimpleAmountForm"
 import { BASE_L1_ERC20_BRIDGE, BASE_L2_ERC20_BRIDGE, bridgeEthToBase, bridgeToBase, withdrawEthFromBase, withdrawFromBase } from "@app/util/base";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { VStack, Text, HStack, Image, Checkbox, Stack } from "@chakra-ui/react";
 import { InfoMessage, SuccessMessage, WarningMessage } from "../common/Messages";
 import { ArrowForwardIcon, ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";

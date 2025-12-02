@@ -14,7 +14,7 @@ import { getTotalInterests } from '@app/util/markets';
 import { AnchorInterests } from './AnchorInterests'
 import { usePrices } from '@app/hooks/usePrices'
 import { AnchorClaimModal } from './AnchorClaimModal'
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { PositionSlideWrapper } from '@app/components/Positions/PositionSlideWrapper'

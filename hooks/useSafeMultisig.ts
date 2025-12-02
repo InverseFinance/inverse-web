@@ -1,6 +1,6 @@
 import { MULTISIG_ABI } from "@app/config/abis";
 import { getNetworkConfigConstants } from "@app/util/networks";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "@app/util/wallet";
 import { GnosisSafe } from "@web3-react/gnosis-safe";
 import { Contract } from "ethers";
 import useSWR from "swr";

@@ -7,7 +7,7 @@ import NextLink from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import gfm from 'remark-gfm'
 
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@app/util/wallet';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/dist/client/router'
 import { ProposalActionPreview } from './ProposalActionPreview'
