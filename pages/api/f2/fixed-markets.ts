@@ -3,7 +3,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
-import { getBnToNumber, getFirmMarketsApys } from '@app/util/markets'
+import { getBnToNumber, getConvexMarketsExtraApys, getFirmMarketsApys } from '@app/util/markets'
 import { CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { formatDistributorData, formatMarketData, inverseViewerRaw } from '@app/util/viewer';
@@ -77,8 +77,9 @@ export default async function handler(req, res) {
       formatDistributorData(dbrDistributorData),
     ];
 
-    const [externalApys, marketsDisplay, currentBlock] = await Promise.all([
+    const [externalApys, convexExtraApys, marketsDisplay, currentBlock] = await Promise.all([
       getFirmMarketsApys(provider, invApr, cachedData),
+      getConvexMarketsExtraApys(),
       getCacheFromRedis(marketsDisplaysCacheKey, false),
       provider.getBlockNumber(),
     ])
@@ -101,11 +102,12 @@ export default async function handler(req, res) {
       const isPendle = m.name.startsWith('PT-');
       const supplyApy = externalApys[underlying.symbol] || externalApys[m.name] || 0;
       const isPendleMatured = isPendle && !supplyApy;
+      const extraRewardApy = convexExtraApys.find(c => c.name.toLowerCase() === m.name.toLowerCase())?.extraApy || 0;
       return {
         ...m,
         ...marketData,
         underlying: TOKENS[m.collateral],
-        supplyApy,
+        supplyApy: supplyApy + extraRewardApy,
         extraApy: m.isInv ? dbrApr : 0,
         supplyApyLow: isCvxCrv ? Math.min(cvxCrvData?.group1 || 0, cvxCrvData?.group2 || 0) : 0,
         cvxCrvData: isCvxCrv ? cvxCrvData : undefined,

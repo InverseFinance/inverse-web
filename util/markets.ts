@@ -2,13 +2,16 @@ import { CHAIN_TOKENS, TOKENS } from '@app/variables/tokens';
 import { BigNumberList, Market, NetworkIds, TokenList } from '@app/types';
 import { BigNumber, Contract } from 'ethers';
 import { formatUnits, commify, isAddress, parseUnits, parseEther } from 'ethers/lib/utils';
-import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY, ONE_DAY_SECS, WEEKS_PER_YEAR, ONE_DAY_MS } from '@app/config/constants';
+import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY, ONE_DAY_SECS, WEEKS_PER_YEAR, ONE_DAY_MS, BURN_ADDRESS } from '@app/config/constants';
 
 import { getAvgOnLastItems, getNextThursdayTimestamp, lowercaseObjectKeys, removeTrailingZeros, toFixed } from './misc';
 import { getProvider } from './providers';
 import { NETWORKS_BY_NAME } from '@app/config/networks';
 import { fetchWithTimeout } from './web3';
 import { getEnsoData } from './enso';
+import { FIRM_MARKETS } from '@app/variables/firm-markets';
+import { getGroupedMulticallOutputs } from './multicall';
+import { CONVEX_REWARD_POOL } from '@app/config/abis';
 
 const DEFI_LLAMA_POOL_IDS = {
     STETH: '747c1d2a-c668-4682-b9f9-296708a3dd90',
@@ -160,12 +163,12 @@ function getSmartPrecision(value: number, cap = 6) {
 }
 
 // format an amount with higher precision if price of the asset is higher
-export const smartAutoNumber = (value: number, price: number, cap? :number) => {
+export const smartAutoNumber = (value: number, price: number, cap?: number) => {
     return value?.toFixed(getSmartPrecision(price, cap));
 }
 
 // format an amount with higher precision if price of the asset is higher
-export const smartAutoShortNumber = (value: number, price: number, cap? :number, isDollar = false, showMinPrecision = false) => {
+export const smartAutoShortNumber = (value: number, price: number, cap?: number, isDollar = false, showMinPrecision = false) => {
     return smartShortNumber(value, getSmartPrecision(price, cap), isDollar, showMinPrecision);
 }
 
@@ -843,4 +846,125 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'wstUSR-DOLA': wstUSRDOLAConvexData?.apy || 0,
         'yv-wstUSR-DOLA': yvwstUSRDOLAData?.apy || 0,
     };
+}
+
+
+export const getExtraCvxRewards = async (rewardContractAddress: string, escrow: string, signer: JsonRpcSigner) => {
+    const contract = new Contract(rewardContractAddress, CONVEX_REWARD_POOL, signer);
+    const extraRewardsLength = getBnToNumber(await contract.extraRewardsLength(), 0);
+    const emptyArray = new Array(extraRewardsLength).fill(null);
+    const extraRewards = await Promise.all(emptyArray.map((_, i) => {
+        return contract.extraRewards(i);
+    }));
+    const extraEarnedData = await Promise.all(
+        extraRewards.map(async (extraReward) => {
+            const contract = new Contract(extraReward, CONVEX_REWARD_POOL, signer);
+            return contract.earned(escrow);
+        })
+    );
+    const extraRewardTokenWrappers = await Promise.all(
+        extraRewards.map(async (extraReward) => {
+            const contract = new Contract(extraReward, CONVEX_REWARD_POOL, signer);
+            return contract.rewardToken();
+        })
+    );
+    const extraRewardTokens = await Promise.all(
+        extraRewardTokenWrappers.map(async (extraRewardWrapper) => {
+            const contract = new Contract(extraRewardWrapper, CONVEX_REWARD_POOL, signer);
+            return contract.token();
+        })
+    );
+    return extraRewards.map((data, i) => {
+        return {
+            address: extraRewardTokens[i],
+            bigBalance: extraEarnedData[i],
+        }
+    })
+}
+
+export const getConvexMarketsExtraApys = async () => {
+    const provider = getProvider(1);
+
+    const cvxMarkets = FIRM_MARKETS
+        .filter(m => !!m.convexRewardsAddress);
+
+    // simplified
+    const [
+        extraRewards,
+        rewardRates,
+        totalSupplies,
+    ] = await getGroupedMulticallOutputs(
+        [
+            cvxMarkets.map(c => {
+                const contract = new Contract(c.convexRewardsAddress, CONVEX_REWARD_POOL, provider);
+                return {
+                    contract, functionName: 'extraRewards', params: [1], fallbackValue: BURN_ADDRESS
+                }
+            }),
+            cvxMarkets.map(c => {
+                const contract = new Contract(c.convexRewardsAddress, CONVEX_REWARD_POOL, provider);
+                return {
+                    contract, functionName: 'rewardRate', params: []
+                }
+            }),
+            cvxMarkets.map(c => {
+                const contract = new Contract(c.convexRewardsAddress, CONVEX_REWARD_POOL, provider);
+                return {
+                    contract, functionName: 'totalSupply', params: []
+                }
+            }),
+        ]
+        , 1, undefined, provider, true);
+
+    const [
+        extraRewardTokenWrappers,
+        extraRewardRates,
+        extraRewardTotalSupplies,
+    ] = await getGroupedMulticallOutputs(
+        [
+            extraRewards.map(c => {
+                const contract = new Contract(c, CONVEX_REWARD_POOL, provider);
+                return {
+                    contract, functionName: 'rewardToken', forceFallback: c === BURN_ADDRESS, fallbackValue: BURN_ADDRESS
+                }
+            }),
+            extraRewards.map(c => {
+                const contract = new Contract(c, CONVEX_REWARD_POOL, provider);
+                return {
+                    contract, functionName: 'rewardRate', forceFallback: c === BURN_ADDRESS, fallbackValue: BigNumber.from(0)
+                }
+            }),
+            extraRewards.map(c => {
+                const contract = new Contract(c, CONVEX_REWARD_POOL, provider);
+                return {
+                    contract, functionName: 'totalSupply', forceFallback: c === BURN_ADDRESS, fallbackValue: BigNumber.from(0)
+                }
+            }),
+        ]
+        , 1, undefined, provider, true);
+
+    const [
+        extraRewardTokens,
+    ] = await getGroupedMulticallOutputs(
+        [
+            extraRewardTokenWrappers.map(c => {
+                const contract = new Contract(c, CONVEX_REWARD_POOL, provider);
+                return {
+                    contract, functionName: 'token', params: []
+                }
+            }),
+        ]
+        , 1, undefined, provider, true);
+
+    return cvxMarkets.map((m, i) => {
+        return {
+            name: m.name,
+            extraRewardTokens: extraRewardTokens[i],
+            extraRewards: extraRewards[i],
+            extraRewardTokenWrappers: extraRewardTokenWrappers[i],
+            extraRewardRates: extraRewardRates[i],
+            rewardRates: rewardRates[i],
+            extraApy: getBnToNumber(extraRewardTotalSupplies[i]) > 0 ? getBnToNumber(extraRewardRates[i]) * 86400 * 365 / getBnToNumber(extraRewardTotalSupplies[i]) * 100 : 0,
+        }
+    })
 }
