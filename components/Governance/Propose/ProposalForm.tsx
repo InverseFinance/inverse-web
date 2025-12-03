@@ -76,6 +76,8 @@ export const ProposalForm = ({
     const [actionLastId, setActionLastId] = useState(form.actions.length);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [newDraftId, setNewDraftId] = useState(draftId)
+    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+    const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
     useEffect(() => {
         const actions = functions.map((f, i) => getProposalActionFromFunction(i + 1, f));
@@ -138,6 +140,43 @@ export const ProposalForm = ({
         showToast({ status: 'info', title: 'Action Duplicated', description: 'The duplicated action is just below the one copied' })
     }
 
+    const handleDragStart = (index: number) => {
+        setDraggedIndex(index);
+    }
+
+    const handleDragOver = (e: React.DragEvent, index: number) => {
+        e.preventDefault();
+        if (draggedIndex === null || draggedIndex === index) return;
+        setDragOverIndex(index);
+    }
+
+    const handleDragLeave = () => {
+        setDragOverIndex(null);
+    }
+
+    const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+        e.preventDefault();
+        if (draggedIndex === null || draggedIndex === dropIndex) {
+            setDraggedIndex(null);
+            setDragOverIndex(null);
+            return;
+        }
+
+        const actions = [...form.actions];
+        const draggedAction = actions[draggedIndex];
+        actions.splice(draggedIndex, 1);
+        actions.splice(dropIndex, 0, draggedAction);
+
+        setForm({ ...form, actions });
+        setDraggedIndex(null);
+        setDragOverIndex(null);
+    }
+
+    const handleDragEnd = () => {
+        setDraggedIndex(null);
+        setDragOverIndex(null);
+    }
+
     const actionSubForms = form.actions.map((action, i) => {
         return <ProposalFormAction
             key={action.actionId}
@@ -147,6 +186,14 @@ export const ProposalForm = ({
             onDelete={() => deleteAction(i)}
             onDuplicate={() => duplicateAction(i)}
             onFuncChange={(v) => handleFuncChange(i, v)}
+            isDraggable={!previewMode}
+            isDragging={draggedIndex === i}
+            isDragOver={dragOverIndex === i}
+            onDragStart={() => handleDragStart(i)}
+            onDragOver={(e) => handleDragOver(e, i)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, i)}
+            onDragEnd={handleDragEnd}
         />
     })
 

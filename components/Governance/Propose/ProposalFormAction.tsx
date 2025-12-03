@@ -21,6 +21,14 @@ export const ProposalFormAction = ({
     onDelete,
     onDuplicate,
     onFuncChange,
+    isDraggable = false,
+    isDragging = false,
+    isDragOver = false,
+    onDragStart,
+    onDragOver,
+    onDragLeave,
+    onDrop,
+    onDragEnd,
 }: {
     action: ProposalFormActionFields,
     index: number,
@@ -28,6 +36,14 @@ export const ProposalFormAction = ({
     onDelete: () => void,
     onDuplicate: () => void,
     onFuncChange: (e: any) => void,
+    isDraggable?: boolean,
+    isDragging?: boolean,
+    isDragOver?: boolean,
+    onDragStart?: () => void,
+    onDragOver?: (e: React.DragEvent) => void,
+    onDragLeave?: () => void,
+    onDrop?: (e: React.DragEvent) => void,
+    onDragEnd?: () => void,
 }) => {
     const { contractAddress, func, args, value, collapsed } = action
     const [hideBody, setHideBody] = useState(collapsed)
@@ -118,8 +134,41 @@ export const ProposalFormAction = ({
 
     return (
         <SlideFade offsetY={'100px'} in={scaledInEffect}>
-            <Box bg="gradient2" borderRadius="5" px="4" pt="2" pb="3">
+            <Box 
+                bg="gradient2" 
+                borderRadius="5" 
+                px="4" 
+                pt="2" 
+                pb="3"
+                draggable={isDraggable}
+                onDragStart={isDraggable ? onDragStart : undefined}
+                onDragOver={isDraggable ? onDragOver : undefined}
+                onDragLeave={isDraggable ? onDragLeave : undefined}
+                onDrop={isDraggable ? onDrop : undefined}
+                onDragEnd={isDraggable ? onDragEnd : undefined}
+                opacity={isDragging ? 0.5 : 1}
+                border={isDragOver ? "2px solid" : "2px solid transparent"}
+                borderColor={isDragOver ? "blue.400" : "transparent"}
+                transition="all 0.2s"
+                cursor={isDraggable ? "move" : "default"}
+            >
                 <Flex alignItems="center" position="relative">
+                    {/* {isDraggable && (
+                        <Box 
+                            mr="2" 
+                            cursor="grab" 
+                            _active={{ cursor: "grabbing" }}
+                            display="flex"
+                            flexDirection="column"
+                            gap="2px"
+                            color="gray.400"
+                            _hover={{ color: "gray.500" }}
+                        >
+                            <Box w="12px" h="2px" bg="currentColor" borderRadius="1px" />
+                            <Box w="12px" h="2px" bg="currentColor" borderRadius="1px" />
+                            <Box w="12px" h="2px" bg="currentColor" borderRadius="1px" />
+                        </Box>
+                    )} */}
                     <Text fontWeight="bold" cursor="pointer" fontSize="18" onClick={() => setHideBody(!hideBody)}>
                         Action #{index + 1}
                     </Text>
