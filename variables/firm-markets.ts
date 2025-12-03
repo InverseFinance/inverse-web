@@ -507,6 +507,7 @@ export const FIRM_MARKETS = [
         isAleWithoutSwap: true,
         convexRewardsAddress: '0x9CFcfb1513Ad5fC4C868D92fA79753d937C327fE',
         isInv: false,
+        isPhasingOut: true,
     },
     {
         name: 'yv-scrvUSD-DOLA',
@@ -526,6 +527,7 @@ export const FIRM_MARKETS = [
         underlyingSymbol: 'scrvUSD-DOLA',
         isAleWithoutSwap: true,
         isInv: false,
+        isPhasingOut: true,
     },
     {
         name: 'scrvUSD-sDOLA',
@@ -663,6 +665,7 @@ export const FIRM_MARKETS = [
         fixedFeed: false,
         aleTransformerType: 'marketAddressAndAmountAndPendleData',
         expiry: '2025-05-29T00:00:00.000Z',
+        isPhasingOut: true,
     },
     {
         name: 'PT-sUSDe-31JUL25',
@@ -680,6 +683,7 @@ export const FIRM_MARKETS = [
         fixedFeed: false,
         aleTransformerType: 'marketAddressAndAmountAndPendleData',
         expiry: '2025-07-31T00:00:00.000Z',
+        isPhasingOut: true,
     },
     {
         name: 'PT-sUSDe-25SEP25',
@@ -697,6 +701,7 @@ export const FIRM_MARKETS = [
         fixedFeed: false,
         aleTransformerType: 'marketAddressAndAmountAndPendleData',
         expiry: '2025-09-25T00:00:00.000Z',
+        isPhasingOut: true,
     },
     {
         name: 'PT-USDe-25SEP25',
@@ -714,6 +719,7 @@ export const FIRM_MARKETS = [
         fixedFeed: false,
         aleTransformerType: 'marketAddressAndAmountAndPendleData',
         expiry: '2025-09-25T00:00:00.000Z',
+        isPhasingOut: true,
     },
     {
         name: 'PT-sUSDe-27NOV25',
@@ -731,6 +737,7 @@ export const FIRM_MARKETS = [
         fixedFeed: false,
         aleTransformerType: 'marketAddressAndAmountAndPendleData',
         expiry: '2025-11-27T00:00:00.000Z',
+        isPhasingOut: true,
     },
     {
         name: 'PT-USDe-27NOV25',
@@ -748,6 +755,7 @@ export const FIRM_MARKETS = [
         fixedFeed: false,
         aleTransformerType: 'marketAddressAndAmountAndPendleData',
         expiry: '2025-11-27T00:00:00.000Z',
+        isPhasingOut: true,
     },
     // wstUSR markets
     {
