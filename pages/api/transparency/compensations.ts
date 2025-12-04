@@ -1,20 +1,22 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
-import { DOLA_PAYROLL_ABI, F2_ESCROW_ABI, F2_MARKET_ABI, INV_ABI, VESTER_ABI, VESTER_FACTORY_ABI, XINV_ABI } from '@app/config/abis'
+import { DOLA_PAYROLL_V2_ABI, F2_ESCROW_ABI, F2_MARKET_ABI, INV_ABI, VESTER_ABI, VESTER_FACTORY_ABI, XINV_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds, Vester } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
-import { BURN_ADDRESS } from '@app/config/constants';
+import { BURN_ADDRESS, DOLA_PAYROLL_V2 } from '@app/config/constants';
 import { FounderAddresses } from '@app/pages/transparency/dao';
 import { timestampToUTC, utcDateStringToTimestamp } from '@app/util/misc';
 import { addBlockTimestamps } from '@app/util/timestamps';
 
+const v1CacheKey = `compensations-cache-v1.2.4`;
+
 export default async function handler(req, res) {
 
-  const { INV, F2_MARKETS, XINV, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `compensations-cache-v1.2.4`;
+  const { INV, F2_MARKETS, XINV, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const cacheKey = `compensations-cache-v2.0.0`;
   const { cacheFirst } = req.query;
   try {
     const cacheDuration = 6000;
@@ -33,38 +35,34 @@ export default async function handler(req, res) {
     const invFirmContract = new Contract(F2_MARKETS.find(m => m.isInv).address, F2_MARKET_ABI, provider);
 
     // payrolls
-    const payrollContract = new Contract(DOLA_PAYROLL, DOLA_PAYROLL_ABI, provider);
-    const payrollContractLogs = new Contract(DOLA_PAYROLL, DOLA_PAYROLL_ABI, paidProvider);
+    const payrollContract = new Contract(DOLA_PAYROLL_V2, DOLA_PAYROLL_V2_ABI, provider);
+    const payrollContractLogs = new Contract(DOLA_PAYROLL_V2, DOLA_PAYROLL_V2_ABI, paidProvider);
 
-    const [newPayrolls, removedPayrolls] = await Promise.all([
-      payrollContractLogs.queryFilter(payrollContractLogs.filters.NewRecipient()),
-      payrollContractLogs.queryFilter(payrollContractLogs.filters.RecipientRemoved()),
+    const [payrollEvents] = await Promise.all([
+      payrollContractLogs.queryFilter(payrollContractLogs.filters.SetRecipient()),
     ]);
-
-    const payrollEvents = newPayrolls.concat(removedPayrolls)
-      .sort((a, b) => a.blockNumber - b.blockNumber || a.logIndex - b.logIndex);
 
     const currentPayrolls = Object.values(payrollEvents.reduce((prev, curr) => {
       return {
         ...prev,
-        [curr.args[0]]: curr.event === 'NewRecipient' ?
+        [curr.args[0]]: getBnToNumber(curr.args[1]) > 0 ?
           { recipient: curr.args[0], amount: getBnToNumber(curr.args[1]) } : undefined
       }
     }, {})).filter(v => !!v);
 
     let payrollCheckpoints = {};
 
-    const timestamps = await addBlockTimestamps(payrollEvents.map(e => e.blockNumber), NetworkIds.mainnet);        
+    const timestamps = await addBlockTimestamps(payrollEvents.map(e => e.blockNumber), NetworkIds.mainnet);
+
+    const v1Data = await getCacheFromRedis(v1CacheKey, false, cacheDuration);
 
     const payrollTotalEvolution = payrollEvents.map(e => {
       if(!payrollCheckpoints[e.args[0]]) {
         payrollCheckpoints[e.args[0]] = 0;
       }
-      if(e.event === 'NewRecipient') {
-        payrollCheckpoints[e.args[0]] += getBnToNumber(e.args[1]);
-      } else {
-        payrollCheckpoints[e.args[0]] = 0;
-      }
+
+      payrollCheckpoints[e.args[0]] = getBnToNumber(e.args[1]);
+      
       const total = Object.values(payrollCheckpoints).reduce((prev, curr) => prev + curr, 0);
       return {
         blockNumber: e.blockNumber,
@@ -96,7 +94,7 @@ export default async function handler(req, res) {
     const currentLiabilities = currentPayrolls.reduce((prev, curr) => prev + curr.unclaimed, 0);
 
     // vesters
-    const vestersToCheck = [...Array(currentPayrolls.length * 2 + 30).keys()];
+    const vestersToCheck = [...Array(currentPayrolls.length * 2 + 40).keys()];
 
     const vesterFactory = new Contract(XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI, provider);
     const vestersResults = await Promise.allSettled([
@@ -187,7 +185,7 @@ export default async function handler(req, res) {
       currentPayrolls,
       currentVesters,
       currentInvBalances,
-      payrollTotalEvolutionByDay,
+      payrollTotalEvolutionByDay: (v1Data?.payrollTotalEvolutionByDay||[]).concat(payrollTotalEvolutionByDay),
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
