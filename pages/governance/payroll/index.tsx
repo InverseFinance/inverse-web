@@ -55,10 +55,10 @@ export const DolaPayrollPage = () => {
 
   const { events } = useContractEvents(DOLA_PAYROLL_V2, DOLA_PAYROLL_ABI, 'AmountWithdrawn');
 
-  const [lastClaim, ratePerSecond, startTime] = !!data ? data[1] : [0, 0, 0, 0];
+  const [lastClaim, ratePerSecond, endTime] = !!data ? data[1] : [0, 0, 0, 0];
 
   const widthdrawable = !!data ? parseFloat(formatUnits(data[0], TOKENS[DOLA].decimals)) : 0;
-  const startTimestamp = parseInt(startTime.toString()) * 1000;
+  const endTimestamp = parseInt(endTime.toString()) * 1000;
   const lastClaimTimestamp = parseInt(lastClaim.toString()) * 1000;
   const yearlyRate = getBnToNumber(ratePerSecond) * 3600 * 24 * 365;
   const monthlyRate = yearlyRate / 12;
@@ -106,9 +106,9 @@ export const DolaPayrollPage = () => {
                           <VStack alignItems="left" spacing={{ base: '10px', sm: '10px' }}>
                             <Flex alignItems="center" justify="space-between">
                               <Text>
-                                - <b>Start Time</b>:
+                                - <b>End Time</b>:
                               </Text>
-                              <Text fontWeight="extrabold">{!startTimestamp ? 'Not started yet' : _formatDate(startTimestamp, isSmaller)}</Text>
+                              <Text fontWeight="extrabold">{!endTimestamp ? '-' : _formatDate(endTimestamp, isSmaller)}</Text>
                             </Flex>
                             <Flex alignItems="center" justify="space-between">
                               <Text>
