@@ -1,7 +1,7 @@
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
 import { BOND_V2_AGGREGATOR, BOND_V2_FIXED_TERM, BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
 import { BONDS } from '@app/variables/tokens';
-import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, DWF_PURCHASER, FIRM_VIEWER, OLD_BORROW_CONTROLLER, PSM_ADDRESS, SDOLA_ADDRESS, SDOLA_HELPER_ADDRESS, SINV_ADDRESS, SINV_ADDRESS_V1, SINV_ESCROW_ADDRESS, SINV_ESCROW_ADDRESS_V1, SINV_HELPER_ADDRESS, SINV_HELPER_ADDRESS_V1, TOKENS_VIEWER } from './constants';
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_PAYROLL_V2, DOLA_SAVINGS_ADDRESS, DWF_PURCHASER, FIRM_VIEWER, OLD_BORROW_CONTROLLER, PSM_ADDRESS, SDOLA_ADDRESS, SDOLA_HELPER_ADDRESS, SINV_ADDRESS, SINV_ADDRESS_V1, SINV_ESCROW_ADDRESS, SINV_ESCROW_ADDRESS_V1, SINV_HELPER_ADDRESS, SINV_HELPER_ADDRESS_V1, TOKENS_VIEWER } from './constants';
 import { VIEWER_ABI } from './viewer-abi';
 
 // TODO: Clean-up ABIs
@@ -258,6 +258,14 @@ export const DOLA_PAYROLL_ABI = [
   "event NewRecipient(address recipient, uint256 _yearlyAmount)",
   "event RecipientRemoved(address recipient, uint256 amount)",
   "event AmountWithdrawn(address recipient, uint256 amount)",
+]
+
+export const DOLA_PAYROLL_V2_ABI = [
+  "function balanceOf(address) public view returns (uint256)",
+  "function recipients(address) public view returns (uint256, uint256, uint256)",
+  "function withdraw(uint256 amount) external",
+  "event SetRecipient(address indexed recipient, uint256 _yearlyAmount, uint256 endTime)",
+  "event AmountWithdrawn(address indexed recipient, uint256 amount)",
 ]
 
 const BASE_BOND_ABI = [
@@ -728,6 +736,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [DOLA3POOLCRV, DOLA3POOLCRV_ABI],
         [TREASURY, TREASURY_ABI],
         [DOLA_PAYROLL, DOLA_PAYROLL_ABI],
+        [DOLA_PAYROLL_V2, DOLA_PAYROLL_V2_ABI],
         [XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI],
         [SWAP_ROUTER, SWAP_ROUTER_ABI],
         [STABILIZER, STABILIZER_ABI],
