@@ -359,10 +359,11 @@ export default async function handler(req, res) {
 
       const apr = stakedBalanceRef ? finalAnnualInterestsForStakers / stakedBalanceRef * 100 : 0;
       const apy = aprToApy(apr, BLOCKS_PER_YEAR);
+      const borrowApy = aprToApy(e.borrowApr, BLOCKS_PER_YEAR);
       e.borrowApr = realTimeBorrowApr * 100;
-      e.borrowApy = aprToApy(e.borrowApr, BLOCKS_PER_YEAR);
+      e.borrowApy = borrowApy === Infinity || borrowApy === null ? 999_999_999 : borrowApy;
       e.stakingApr = apr;
-      e.stakingApy = apy;
+      e.stakingApy = apy === Infinity || apy === null ? 999_999_999 : apy;
       e.psmAssetSymbol = psmAssetSymbols[i];
       e.psmVaultSymbol = psmVaultSymbols[i];
     });
