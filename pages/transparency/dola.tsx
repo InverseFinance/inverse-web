@@ -21,6 +21,7 @@ import { useRepayments } from '@app/hooks/useRepayments'
 import { shortenNumber } from '@app/util/markets'
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
 import { DolaVolumes } from '@app/components/Transparency/DolaVolumes'
+import { useFirmPositions } from '@app/hooks/useFirm'
 
 const LEGEND_ITEMS = [
   {
@@ -33,7 +34,7 @@ const LEGEND_ITEMS = [
   },
   {
     color: lightTheme.colors.error,
-    label: 'Frontier (bad debt, deprecated)',
+    label: 'Mostly unhealthy',
   },
 ];
 
@@ -79,9 +80,9 @@ export const fedsDataToPieChart = (fedOverviews: any[], colors) => {
 export const DolaDiagram = () => {
   const { themeStyles } = useAppTheme();
   const { dolaSupplies } = useDAO();
-  const { markets, isLoading } = useDBRMarkets();
   const { fedOverviews, isLoading: isLoadingOverview } = useFedOverview();
   const { data, isLoading: isLoadingRepayments } = useRepayments();
+  const { markets } = useFirmPositions();
   const { prices } = usePrices(['velodrome-finance']);
 
   const fedsPieChartData = fedsDataToPieChart(fedOverviews, themeStyles?.colors);
@@ -95,8 +96,8 @@ export const DolaDiagram = () => {
       balance: f.totalDebt,
       sliceName: f.name,
       sliceValue: f.totalDebt,
-      chartFillColor: themeStyles.colors.success,
-      textColor: themeStyles.colors.success,
+      chartFillColor: f.badDebt > 1 ? themeStyles.colors.error : themeStyles.colors.success,
+      textColor: f.badDebt > 1 ? themeStyles.colors.error : themeStyles.colors.success,
     }
   }).filter(d => d.sliceValue > 0);
 
