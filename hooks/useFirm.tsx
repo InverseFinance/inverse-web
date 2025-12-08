@@ -42,6 +42,11 @@ export const useFirmPositions = (vnetPublicId?: string): SWR & {
     const market = markets[p.marketIndex];
     const { newPerc, newCreditLimit, newLiquidationPrice, newCreditLeft } = f2CalcNewHealth(market, p.deposits, p.debt);
     const seizableWorth = p.liquidatableDebt + market.liquidationIncentive * p.liquidatableDebt;
+    const depositsUsd = p.deposits * market.price;
+    const badDebt = seizableWorth > depositsUsd ? p.debt : 0;
+    if(badDebt > 0) {
+      market.badDebt = (market.badDebt || 0) + badDebt;
+    }
     return {
       ...p,
       seizable: seizableWorth / market.price,
@@ -50,8 +55,9 @@ export const useFirmPositions = (vnetPublicId?: string): SWR & {
       isLiquidatable: p.liquidatableDebt > 0,
       marketName: market.name,
       market,
+      badDebt,
       perc: newPerc,
-      depositsUsd: p.deposits * market.price,
+      depositsUsd,
       creditLimit: newCreditLimit,
       liquidationPrice: newLiquidationPrice,
       creditLeft: newCreditLeft,
