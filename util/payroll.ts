@@ -1,5 +1,5 @@
 import { JsonRpcSigner } from '@ethersproject/providers';
-import { Contract } from 'ethers';
+import { constants, Contract } from 'ethers';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types';
 import { DOLA_PAYROLL_ABI, DOLA_PAYROLL_V2_ABI, VESTER_ABI } from '@app/config/abis';
@@ -19,8 +19,7 @@ export const payrollV2Withdraw = (signer: JsonRpcSigner, amount: number) => {
 
 export const payrollV2WithdrawMax = async (signer: JsonRpcSigner) => {
     const contract = new Contract(DOLA_PAYROLL_V2, DOLA_PAYROLL_V2_ABI, signer);
-    const amount = await contract.balanceOf(signer.getAddress());
-    return contract.withdraw(amount);
+    return contract.withdraw(constants.MaxUint256);
 }
 
 export const vesterClaim = (signer: JsonRpcSigner, vesterAd: string) => {
