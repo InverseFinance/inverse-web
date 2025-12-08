@@ -101,8 +101,6 @@ export const DolaDiagram = () => {
     }
   }).filter(d => d.sliceValue > 0);
 
-  console.log(firmPieChartData)
-
   const underlyingPieChartData = fedsPieChartData
     .filter(slice => slice.name !== 'FiRM Fed')
     .concat(firmPieChartData);
