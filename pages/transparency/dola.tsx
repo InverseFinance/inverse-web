@@ -82,7 +82,7 @@ export const DolaDiagram = () => {
   const { dolaSupplies } = useDAO();
   const { fedOverviews, isLoading: isLoadingOverview } = useFedOverview();
   const { data, isLoading: isLoadingRepayments } = useRepayments();
-  const { markets, isLoading } = useFirmPositions();
+  const { markets, positions, isLoading } = useFirmPositions();
   const { prices } = usePrices(['velodrome-finance']);
 
   const fedsPieChartData = fedsDataToPieChart(fedOverviews, themeStyles?.colors);
@@ -100,6 +100,8 @@ export const DolaDiagram = () => {
       textColor: f.badDebt > 1 ? themeStyles.colors.error : themeStyles.colors.success,
     }
   }).filter(d => d.sliceValue > 0);
+
+  console.log(firmPieChartData)
 
   const underlyingPieChartData = fedsPieChartData
     .filter(slice => slice.name !== 'FiRM Fed')
