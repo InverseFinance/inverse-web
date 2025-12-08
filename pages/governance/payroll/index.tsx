@@ -19,7 +19,7 @@ import { Event } from 'ethers';
 import { useContractEvents } from '@app/hooks/useContractEvents';
 import { DOLA_PAYROLL_ABI } from '@app/config/abis';
 import { useBlockTimestamp } from '@app/hooks/useBlockTimestamp';
-import { formatDate, timeSince } from '@app/util/time';
+import { formatDate, timeSince, timeUntil } from '@app/util/time';
 import { DOLA_PAYROLL_V2 } from '@app/config/constants';
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm';
 
@@ -66,8 +66,12 @@ export const DolaPayrollPage = () => {
   const allowance = data && data[2] ? getBnToNumber(data[2]) : 0;
   const dolaTreasury = data && data[3] ? getBnToNumber(data[3]) : 0;
 
-  const _formatDate = (timestamp: number, isSmaller: boolean) => {
+  const _formatDatePast = (timestamp: number, isSmaller: boolean) => {
     return `${formatDate(timestamp)}${isSmaller ? '' : ` (${timeSince(timestamp)})`}`
+  }
+
+  const _formatDate = (timestamp: number, isSmaller: boolean) => {
+    return `${formatDate(timestamp)}${isSmaller ? '' : ` (${timeUntil(timestamp)})`}`
   }
 
   const userEvents = events.filter(event => {
@@ -120,7 +124,7 @@ export const DolaPayrollPage = () => {
                               <Text>
                                 - <b>Last Claim</b>:
                               </Text>
-                              <Text fontWeight="extrabold">{!lastClaimTimestamp ? 'Never claimed yet' : _formatDate(lastClaimTimestamp, isSmaller)}</Text>
+                              <Text fontWeight="extrabold">{!lastClaimTimestamp ? 'Never claimed yet' : _formatDatePast(lastClaimTimestamp, isSmaller)}</Text>
                             </Flex>
                             <Flex fontWeight="bold" alignItems="center" justify="space-between">
                               <Text color="secondary">
