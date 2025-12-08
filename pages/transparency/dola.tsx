@@ -82,7 +82,7 @@ export const DolaDiagram = () => {
   const { dolaSupplies } = useDAO();
   const { fedOverviews, isLoading: isLoadingOverview } = useFedOverview();
   const { data, isLoading: isLoadingRepayments } = useRepayments();
-  const { markets } = useFirmPositions();
+  const { markets, isLoading } = useFirmPositions();
   const { prices } = usePrices(['velodrome-finance']);
 
   const fedsPieChartData = fedsDataToPieChart(fedOverviews, themeStyles?.colors);
