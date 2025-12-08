@@ -12,7 +12,7 @@ import { NetworkIds } from '@app/types';
 import { formatUnits, commify } from 'ethers/lib/utils';
 import Container from '@app/components/common/Container';
 import { getScanner } from '@app/util/web3';
-import { payrollV2Withdraw, payrollV2WithdrawMax, payrollWithdraw } from '@app/util/payroll';
+import { payrollWithdraw } from '@app/util/payroll';
 import { getBnToNumber, shortenNumber } from '@app/util/markets';
 import { InfoMessage } from '@app/components/common/Messages';
 import { Event } from 'ethers';
@@ -20,8 +20,6 @@ import { useContractEvents } from '@app/hooks/useContractEvents';
 import { DOLA_PAYROLL_ABI } from '@app/config/abis';
 import { useBlockTimestamp } from '@app/hooks/useBlockTimestamp';
 import { formatDate, timeSince } from '@app/util/time';
-import { DOLA_PAYROLL_V2 } from '@app/config/constants';
-import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm';
 
 const { DOLA_PAYROLL, TOKENS, DOLA, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -47,18 +45,18 @@ export const DolaPayrollPage = () => {
   const userAddress = (query?.viewAddress as string) || account;
 
   const { data } = useEtherSWR([
-    [DOLA_PAYROLL_V2, 'balanceOf', userAddress],
-    [DOLA_PAYROLL_V2, 'recipients', userAddress],
-    [DOLA, 'allowance', TREASURY, DOLA_PAYROLL_V2],
+    [DOLA_PAYROLL, 'balanceOf', userAddress],
+    [DOLA_PAYROLL, 'recipients', userAddress],
+    [DOLA, 'allowance', TREASURY, DOLA_PAYROLL],
     [DOLA, 'balanceOf', TREASURY],
   ]);
 
-  const { events } = useContractEvents(DOLA_PAYROLL_V2, DOLA_PAYROLL_ABI, 'AmountWithdrawn');
+  const { events } = useContractEvents(DOLA_PAYROLL, DOLA_PAYROLL_ABI, 'AmountWithdrawn');
 
-  const [lastClaim, ratePerSecond, endTime] = !!data ? data[1] : [0, 0, 0, 0];
+  const [lastClaim, ratePerSecond, startTime] = !!data ? data[1] : [0, 0, 0, 0];
 
   const widthdrawable = !!data ? parseFloat(formatUnits(data[0], TOKENS[DOLA].decimals)) : 0;
-  const endTimestamp = parseInt(endTime.toString()) * 1000;
+  const startTimestamp = parseInt(startTime.toString()) * 1000;
   const lastClaimTimestamp = parseInt(lastClaim.toString()) * 1000;
   const yearlyRate = getBnToNumber(ratePerSecond) * 3600 * 24 * 365;
   const monthlyRate = yearlyRate / 12;
@@ -88,12 +86,12 @@ export const DolaPayrollPage = () => {
         <Flex w={{ base: 'full', xl: '4xl' }} justify="center" color="mainTextColor">
           <Container
             contentBgColor="gradient3"
-            label="DOLA PayRoll v2"
+            label="DOLA PayRoll"
             description="See Contract"
             maxWidth="1000px"
             minW="320px"
             contentProps={{ p: { base: '2', sm: '12' } }}
-            href={`${getScanner(NetworkIds.mainnet)}/address/${DOLA_PAYROLL_V2}`}
+            href={`${getScanner(NetworkIds.mainnet)}/address/${DOLA_PAYROLL}`}
           >
             {
               !account ? <Text>Please Connect your wallet</Text> :
@@ -106,9 +104,9 @@ export const DolaPayrollPage = () => {
                           <VStack alignItems="left" spacing={{ base: '10px', sm: '10px' }}>
                             <Flex alignItems="center" justify="space-between">
                               <Text>
-                                - <b>End Time</b>:
+                                - <b>Start Time</b>:
                               </Text>
-                              <Text fontWeight="extrabold">{!endTimestamp ? '-' : _formatDate(endTimestamp, isSmaller)}</Text>
+                              <Text fontWeight="extrabold">{!startTimestamp ? 'Not started yet' : _formatDate(startTimestamp, isSmaller)}</Text>
                             </Flex>
                             <Flex alignItems="center" justify="space-between">
                               <Text>
@@ -134,19 +132,9 @@ export const DolaPayrollPage = () => {
                       :
                       <Text>Loading...</Text>
                   }
-                  <SimpleAmountForm
-                    address={DOLA_PAYROLL_V2}
-                    destination={DOLA_PAYROLL_V2}
-                    signer={provider?.getSigner()!}
-                    decimals={18}
-                    onAction={({ bnAmount }) => payrollV2Withdraw(provider?.getSigner(), bnAmount)}
-                    onMaxAction={() => payrollV2WithdrawMax(provider?.getSigner())}
-                    actionLabel="Withdraw"
-                    maxActionLabel="Withdraw Max"
-                    showMaxBtn={true}
-                    showBalance={false}
-                    needApprove={false}
-                  />
+                  <SubmitButton refreshOnSuccess={true} maxW="120px" disabled={!account && widthdrawable > 0} onClick={() => payrollWithdraw(provider?.getSigner()!)}>
+                    Withdraw
+                  </SubmitButton>
                   <VStack>
                     <HStack fontSize="12px">
                       <Text color="secondaryTextColor">

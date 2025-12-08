@@ -106,7 +106,7 @@ export const getNetworkConfigConstants = (
         [TREASURY]: 'Treasury',
         [GOVERNANCE]: 'GovMills',
         [GOVERNANCE_ALPHA]: 'GovAlpha',
-        [DOLA_PAYROLL]: 'DolaPayroll',
+        [DOLA_PAYROLL]: 'DolaPayroll-v1',
         ...CUSTOM_NAMED_ADDRESSES,
     }
     MULTISIGS?.forEach(m => NAMED_ADDRESSES[m.address] = m.name)
