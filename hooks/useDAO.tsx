@@ -108,7 +108,7 @@ export const useCompensations = (): SWR & {
   const [now, setNow] = useState(Date.now());
   const { data, error } = useCacheFirstSWR(`/api/transparency/compensations?v=4`, fetcher)
   const evo = (data?.payrollTotalEvolutionByDay || []).map(d => ({ ...d, x: d.timestamp, y: d.total }));
-  const evoPlusToday = evo.concat({ ...evo[evo.length - 1], timestamp: now, utcDate: timestampToUTC(now) });
+  const evoPlusToday = evo.concat({ ...evo[evo.length - 1], x: now, timestamp: now, utcDate: timestampToUTC(now) });
 
   return {
     isLoading: !error && !data,
