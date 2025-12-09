@@ -4,7 +4,8 @@ import { fetcher } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from './useCustomSWR';
 import { ONE_DAY_MS } from '@app/config/constants';
 import { getDateChartInfo } from './misc';
-import { fillMissingDailyDatesWithMostRecentData } from '@app/util/misc';
+import { fillMissingDailyDatesWithMostRecentData, timestampToUTC } from '@app/util/misc';
+import { useState } from 'react';
 
 const { FEDS, DEPLOYER, TREASURY } = getNetworkConfigConstants();
 
@@ -104,7 +105,10 @@ export const useCompensations = (): SWR & {
   currentInvBalances: { address: string, totalInvBalance: number }[]
   payrollEvolution: { timestamp: number, utcDate: string, total: number, nbRecipients: number, x: number, y: number }[]
 } => {
+  const [now, setNow] = useState(Date.now());
   const { data, error } = useCacheFirstSWR(`/api/transparency/compensations?v=4`, fetcher)
+  const evo = (data?.payrollTotalEvolutionByDay || []).map(d => ({ ...d, x: d.timestamp, y: d.total }));
+  const evoPlusToday = evo.concat({ ...evo[evo.length - 1], timestamp: now, utcDate: timestampToUTC(now) });
 
   return {
     isLoading: !error && !data,
@@ -112,7 +116,7 @@ export const useCompensations = (): SWR & {
     currentPayrolls: data?.currentPayrolls || [],
     currentVesters: data?.currentVesters || [],
     currentInvBalances: data?.currentInvBalances || [],
-    payrollEvolution: (data?.payrollTotalEvolutionByDay || []).map(d => ({ ...d, x: d.timestamp, y: d.total })),
+    payrollEvolution: evoPlusToday,
   }
 }
 
