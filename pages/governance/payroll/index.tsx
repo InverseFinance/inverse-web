@@ -2,7 +2,6 @@ import { Flex, Text, VStack, useMediaQuery, HStack } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
-import { SubmitButton } from '@app/components/common/Button';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/router';
@@ -12,20 +11,21 @@ import { NetworkIds } from '@app/types';
 import { formatUnits, commify } from 'ethers/lib/utils';
 import Container from '@app/components/common/Container';
 import { getScanner } from '@app/util/web3';
-import { payrollV2Withdraw, payrollV2WithdrawMax, payrollWithdraw } from '@app/util/payroll';
+import { payrollV2Withdraw, payrollV2WithdrawMax } from '@app/util/payroll';
 import { getBnToNumber, shortenNumber } from '@app/util/markets';
 import { InfoMessage } from '@app/components/common/Messages';
 import { Event } from 'ethers';
 import { useContractEvents } from '@app/hooks/useContractEvents';
-import { DOLA_PAYROLL_ABI } from '@app/config/abis';
+import { DOLA_PAYROLL_V2_ABI } from '@app/config/abis';
 import { useBlockTimestamp } from '@app/hooks/useBlockTimestamp';
 import { formatDate, timeSince, timeUntil } from '@app/util/time';
 import { DOLA_PAYROLL_V2 } from '@app/config/constants';
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm';
 
-const { DOLA_PAYROLL, TOKENS, DOLA, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { TOKENS, DOLA, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const EventInfos = ({ event }: { event: Event }) => {
+  if (!event.args) return null;
   const { timestamp } = useBlockTimestamp(event.blockNumber);
   return <Flex w='full' justify="space-between">
     <Text textAlign="left">
@@ -53,7 +53,7 @@ export const DolaPayrollPage = () => {
     [DOLA, 'balanceOf', TREASURY],
   ]);
 
-  const { events } = useContractEvents(DOLA_PAYROLL_V2, DOLA_PAYROLL_ABI, 'AmountWithdrawn');
+  const { events: userEvents } = useContractEvents(DOLA_PAYROLL_V2, DOLA_PAYROLL_V2_ABI, 'AmountWithdrawn', [userAddress]);
 
   const [lastClaim, ratePerSecond, endTime] = !!data ? data[1] : [0, 0, 0, 0];
 
@@ -73,10 +73,6 @@ export const DolaPayrollPage = () => {
   const _formatDate = (timestamp: number, isSmaller: boolean) => {
     return `${formatDate(timestamp)}${isSmaller ? '' : ` (${timeUntil(timestamp)})`}`
   }
-
-  const userEvents = events.filter(event => {
-    return event?.args[0].toLowerCase() === userAddress?.toLowerCase();
-  });
 
   userEvents.sort((a, b) => b.blockNumber - a.blockNumber);
 
