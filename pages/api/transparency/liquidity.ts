@@ -108,6 +108,7 @@ export default async function handler(req, res) {
             const balancerPoolAd = lp.balancerInfos?.poolId?.substring(0, 42)?.toLowerCase();
 
             const yieldData = yields.find(y => {
+                if (lp.ignoreDefillamaLiquidity) return false;
                 return (!!lp.defillamaPoolId && y.pool === lp.defillamaPoolId) || (
                     !lp.defillamaPoolId &&
                     (defiLlamaProjectName === y.project

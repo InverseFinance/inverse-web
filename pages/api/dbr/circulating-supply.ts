@@ -51,10 +51,11 @@ export default async function handler(req, res) {
       .reduce((prev, curr) => prev + curr, 0);
 
     const pendingDbrBurn = parseFloat(_pendingDbrBurn||0);
+
     const circulatingSupplyTheoretical = getBnToNumber(totalSupply) - totalDbrExcluded;
     const circulatingSupply = circulatingSupplyTheoretical - pendingDbrBurn;
 
-    // await redisSetWithTimestamp(dbrCircSupplyCacheKey, circulatingSupply);
+    await redisSetWithTimestamp(dbrCircSupplyCacheKey, circulatingSupply);
 
     // daily cron job case: add daily data to evolution data
     if (isSaveCircSupply) {

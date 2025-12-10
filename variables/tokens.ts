@@ -2009,7 +2009,8 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.CRV,
       link: 'https://curve.finance/#/ethereum/pools/factory-tricrypto-18/deposit',
-      deduce: [chainTokenAddresses["1"].DBRTRICRYPTOCVX],  
+      deduce: [chainTokenAddresses["1"].DBRTRICRYPTOCVX],
+      ignoreDefillamaLiquidity: true,
     },
     [chainTokenAddresses["1"].DBRTRICRYPTO2]: {
       address: chainTokenAddresses["1"].DBRTRICRYPTO2,      
