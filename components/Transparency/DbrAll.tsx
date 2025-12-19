@@ -259,7 +259,7 @@ export const DbrAll = ({
             {...defillamaCardProps} w='full' p="0">
             <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance-firm?mcap=false&tokenPrice=false&fees=true&revenue=true&events=false&tvl=false&include_pool2_in_tvl=true&include_staking_in_tvl=true&include_govtokens_in_tvl=true&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
         </DashBoardCard>
-        <DashBoardCard cardTitle={
+        {/* <DashBoardCard cardTitle={
             <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
                 <FirmLogo w="65px" h="30px" />
                 <Text className="heading-font" {...dashboardCardTitleProps}>TVL</Text>
@@ -267,6 +267,6 @@ export const DbrAll = ({
         }
             {...defillamaCardProps} w='full' p="0">
             <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance-firm?events=false&fees=false&revenue=false&usdInflows=false&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
-        </DashBoardCard>
+        </DashBoardCard> */}
     </Stack>
 }

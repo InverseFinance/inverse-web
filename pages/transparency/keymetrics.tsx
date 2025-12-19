@@ -157,14 +157,16 @@ export const KeymetricsPage = () => {
               {...dashboardCardProps} w='full' p="0">
               <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance-firm?mcap=false&tokenPrice=false&fees=true&revenue=true&events=false&tvl=false&include_pool2_in_tvl=true&include_staking_in_tvl=true&include_govtokens_in_tvl=true&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
             </DashBoardCard>
-            <DashBoardCard cardTitle={
-              <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
-                <FirmLogo w="65px" h="30px" />
-                <Text className="heading-font" {...defillamaTextProps}>TVL</Text>
-              </HStack>
-            }
+            <DashBoardCard 
+            // cardTitle={
+            //   <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
+            //     <FirmLogo w="65px" h="30px" />
+            //     <Text className="heading-font" {...defillamaTextProps}>TVL</Text>
+            //   </HStack>
+            // }
               {...dashboardCardProps} w='full' p="0">
-              <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance-firm?events=false&fees=false&revenue=false&usdInflows=false&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
+                <iframe src="https://app.inverse.watch/embed/query/497/visualization/651?api_key=LXcUKJlsHz7TP8vdT3lIl5FN0mi3dxDpZ2Av6riK&" width="100%" height="500px"></iframe>
+              {/* <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance-firm?events=false&fees=false&revenue=false&usdInflows=false&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe> */}
             </DashBoardCard>
           </Stack>
         </Flex>
