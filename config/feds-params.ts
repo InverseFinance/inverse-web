@@ -490,7 +490,7 @@ export const FEDS_PARAMS = [
         chainId: NetworkIds.mainnet,
         type: FedTypes.PSM,
         protocol: "PSM",
-        address: '0x400510611BcBf9171F0E548F1C3dcA7159e60d28',
+        address: '0x67FC21332D24FC5250a3B7fc988191ad7F38f9cC',
         name: "PSM Fed",
         projectImage: TOKEN_IMAGES["USDS"],
         isFirm: false,
