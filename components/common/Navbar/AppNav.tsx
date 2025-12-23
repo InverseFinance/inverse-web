@@ -409,7 +409,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal, onReferToOpen }:
                 onClick={connectMetamask}
               >
                 <Image w={6} h={6} src="/assets/wallets/Metamask.webp" />
-                <Text fontWeight="semibold">Metamask</Text>
+                <Text fontWeight="semibold">Browser Wallet</Text>
               </ConnectionMenuItem>
               <ConnectionMenuItem
                 onClick={connectWalletConnect}
