@@ -66,7 +66,7 @@ export default async function handler(req, res) {
 
       if(!alreadyThere) {
         const ifv = inverseViewer(provider);
-        const marketListData = await ifv.firm.getMarketListData(F2_MARKETS.map(m => m.address));
+        const marketListData = await ifv.firm.getMarketListData(F2_MARKETS.map(m => m.hasNowInvalidFeed ? '0x0000000000000000000000000000000000000000' : m.address));
         const totalDebt = marketListData.reduce((prev, curr) => prev + curr.totalDebt, 0);
         const inventory = totalDebt ? (circulatingSupply - getBnToNumber(triDbrBalanceBn.add(triDbrBalance2Bn))) / totalDebt * 365 : 0;
         cachedCircEvoData.evolution.push({

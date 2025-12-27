@@ -23,7 +23,7 @@ export default async (req, res) => {
             dbrPriceData,
             dolaUsdPriceData,
         ] = await Promise.all([
-            ifvr.firm.getMarketListData(F2_MARKETS.map(m => m.address)),
+            ifvr.firm.getMarketListData(F2_MARKETS.map(m => m.hasNowInvalidFeed ? '0x0000000000000000000000000000000000000000' : m.address)),
             getDbrPriceOnCurve(provider),
             getDolaUsdPriceOnCurve(provider),
         ]);
