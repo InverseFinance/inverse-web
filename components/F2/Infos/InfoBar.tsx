@@ -390,7 +390,7 @@ export const FirmBar = ({
     // const { firmTotalTvl, isLoading: isFirmTvlLoading } = useFirmTVL();
     // const { markets } = useDBRMarkets();
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
-    const totalDebt = markets?.reduce((prev, curr) => prev + curr.totalDebt, 0) || 0;
+    const totalDebt = markets?.reduce((prev, curr) => prev + (curr.totalDebt||0), 0) || 0;
     // const totalDebtUsd = totalDebt * dolaPrice;
     const invFirmPrice = markets?.find(m => m.isInv)?.price || 0;
 

@@ -69,8 +69,8 @@ export const KeymetricsPage = () => {
 
   const pieSize = 300;
 
-  const totalTvl = positions.reduce((prev, curr) => prev + (curr.deposits * curr.market.price), 0);
-  const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
+  const totalTvl = positions.reduce((prev, curr) => prev + (curr.deposits * (curr.market.price||0)), 0);
+  const totalDebt = positions.reduce((prev, curr) => prev + (curr.debt||0), 0);
   const nbUsers = userPositions.length;
   const nbBorrowers = userPositions.filter(p => p.debt > 0).length;
   const nbStakers = userPositions.filter(p => p.stakedInv > 0).length;
