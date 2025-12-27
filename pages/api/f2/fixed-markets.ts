@@ -103,7 +103,7 @@ export default async function handler(req, res) {
       const supplyApy = externalApys[underlying.symbol] || externalApys[m.name] || 0;
       const isPendleMatured = isPendle && !supplyApy;
       const extraRewardApy = convexExtraApys.find(c => c.name.toLowerCase() === m.name.toLowerCase())?.extraApy || 0;
-      const marketOverrides = m.hasNowInvalidFeed ? {...marketData, ...m} : {...m,...marketData}
+      const marketOverrides = m.hasNowInvalidFeed ? {...marketData, price: 0,...m} : {...m,...marketData}
       return {
         ...marketOverrides,
         underlying: TOKENS[m.collateral],

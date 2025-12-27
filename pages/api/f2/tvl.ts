@@ -60,7 +60,7 @@ export default async function handler(req, res) {
 
         firmMarketUsers.forEach((p, i) => {
             const market = marketsCache.markets[p.marketIndex];
-            const worth = market.price * deposits[i];
+            const worth = (market.price||0) * deposits[i];
             tvl += worth;
             if (!marketTvls[p.marketIndex]) {
                 marketTvls[p.marketIndex] = 0;
@@ -75,7 +75,7 @@ export default async function handler(req, res) {
                 const market = marketsCache.markets[marketIndex];
                 return {
                     tvl,
-                    market: { name: market.name, address: market.address, price: market.price, underlying: market.underlying }
+                    market: { name: market.name, address: market.address, price: (market.price||0), underlying: market.underlying }
                 }
             }),
             deposits,
