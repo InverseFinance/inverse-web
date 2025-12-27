@@ -789,6 +789,7 @@ export type F2Market = {
   noZap?: boolean
   expiry?: string
   isNewMarket: boolean
+  hasNowInvalidFeed?: boolean
 }
 
 export type FirmAction = {

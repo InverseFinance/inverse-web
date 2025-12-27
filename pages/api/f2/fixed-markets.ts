@@ -58,7 +58,7 @@ export default async function handler(req, res) {
 
     // trigger
     fetch('https://inverse.finance/api/markets');
-
+    
     const ifvr = inverseViewerRaw(provider);
     
     const [
@@ -66,7 +66,7 @@ export default async function handler(req, res) {
       invAprData,
       dbrDistributorData,
     ] = await getGroupedMulticallOutputs([
-      { contract: ifvr.firmContract, functionName: 'getMarketListData', params: [F2_MARKETS.map(m => m.address)] },
+      { contract: ifvr.firmContract, functionName: 'getMarketListData', params: [F2_MARKETS.map(m => m.hasNowInvalidFeed ? '0x0000000000000000000000000000000000000000' : m.address)] },
       { contract: ifvr.tokensContract, functionName: 'getInvApr', params: [] },
       { contract: ifvr.tokensContract, functionName: 'getDbrDistributorInfo', params: [] },
     ], 1, undefined, provider);
@@ -103,9 +103,9 @@ export default async function handler(req, res) {
       const supplyApy = externalApys[underlying.symbol] || externalApys[m.name] || 0;
       const isPendleMatured = isPendle && !supplyApy;
       const extraRewardApy = convexExtraApys.find(c => c.name.toLowerCase() === m.name.toLowerCase())?.extraApy || 0;
+      const marketOverrides = m.hasNowInvalidFeed ? {...marketData, ...m} : {...m,...marketData}
       return {
-        ...m,
-        ...marketData,
+        ...marketOverrides,
         underlying: TOKENS[m.collateral],
         supplyApy: supplyApy + extraRewardApy,
         extraApy: m.isInv ? dbrApr : 0,
