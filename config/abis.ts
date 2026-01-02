@@ -681,6 +681,15 @@ export const PSM_ABI = [
   "event ProfitTaken(uint256 colAmount)",
 ]
 
+export const JUNIOR_MARKETS_ABI = [
+  "event NewPendingGov(address)",
+  "event NewGov(address)",
+  "event NewGuardian(address)",
+  "event NewMarket(address, uint activationTime)",
+  "event MarketRemoved(address)",
+  "event Slash(address indexed market, address indexed borrower, uint amount)",
+]
+
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
