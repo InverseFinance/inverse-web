@@ -16,7 +16,7 @@ import { FIRM_MARKETS_SNAPSHOT } from '@app/fixtures/firm-markets-20241022';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.6.96`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.6.97`;
 
 export default async function handler(req, res) {
   const cacheDuration = 300;
