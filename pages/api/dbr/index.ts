@@ -45,14 +45,14 @@ export const getCombineCgAndCurveDbrPrices = async (provider: Web3Provider, past
 export const getDbrPricesOnCurve = async (SignerOrProvider: Web3Provider, blocks: number[]) => {
   const crvPool = new Contract(
       '0x66da369fC5dBBa0774Da70546Bd20F2B242Cd34d',
-      ['function price_oracle(uint) public view returns(uint)'],
+      ['function price_oracle(uint256) external view returns(uint256)'],
       SignerOrProvider,
   );
   return getHistoPrices(crvPool, blocks);
 }
 
 const getHistoPrices = async (contract: Contract, blocks: number[]) => {
-  const results =
+  const bns =
       await throttledPromises(
           (block: number) => {
               return getHistoricValue(contract, block, 'price_oracle', ['0']);
@@ -60,11 +60,7 @@ const getHistoPrices = async (contract: Contract, blocks: number[]) => {
           blocks,
           5,
           100,
-          'allSettled',
       );
-      
-    const bns = results.map(t => t.status === 'fulfilled' ? t.value : null);
-
     const dolaUsdPrices =
       await throttledPromises(
           (block: number) => {
@@ -74,9 +70,18 @@ const getHistoPrices = async (contract: Contract, blocks: number[]) => {
           5,
           100,
       );    
-
   const values = bns.map((d, i) => {
-      return d === null ? null : getBnToNumber(contract.interface.decodeFunctionResult('price_oracle', d)[0]) * dolaUsdPrices[i].price;
+    let v = null
+    try {
+       v = d === null || d === '0x' ? null : getBnToNumber(contract.interface.decodeFunctionResult('price_oracle', d)[0]) * dolaUsdPrices[i].price;
+    } catch (e) {
+      console.log('=====');
+      console.log(e);
+      console.log(blocks[i]);
+      console.log(d);
+      console.log('$$$$$');
+    }
+      return v;
   });
   return values;
 }
