@@ -38,7 +38,7 @@ export const getCombineCgAndCurveDbrPrices = async (provider: Web3Provider, past
   return {
     blocks: (pastData?.blocks||[]).concat(newBlocks),
     // [timestamp, price][] format
-    prices: (pastData?.prices||DBR_CG_HISTO_PRICES).concat(crvPrices.map(((crvPrice, i) => [timestamps[i], crvPrice] ))).filter(p => p[0] !== null),
+    prices: (pastData?.prices||DBR_CG_HISTO_PRICES).concat(crvPrices.map(((crvPrice, i) => [timestamps[i], crvPrice] ))).filter(p => p[0] !== null && p[1] !== null),
   };
 }
 
@@ -52,7 +52,7 @@ export const getDbrPricesOnCurve = async (SignerOrProvider: Web3Provider, blocks
 }
 
 const getHistoPrices = async (contract: Contract, blocks: number[]) => {
-  const bns =
+  const results =
       await throttledPromises(
           (block: number) => {
               return getHistoricValue(contract, block, 'price_oracle', ['0']);
@@ -60,7 +60,11 @@ const getHistoPrices = async (contract: Contract, blocks: number[]) => {
           blocks,
           5,
           100,
+          'allSettled',
       );
+      
+    const bns = results.map(t => t.status === 'fulfilled' ? t.value : null);
+
     const dolaUsdPrices =
       await throttledPromises(
           (block: number) => {
@@ -72,7 +76,7 @@ const getHistoPrices = async (contract: Contract, blocks: number[]) => {
       );    
 
   const values = bns.map((d, i) => {
-      return getBnToNumber(contract.interface.decodeFunctionResult('price_oracle', d)[0]) * dolaUsdPrices[i].price;
+      return d === null ? null : getBnToNumber(contract.interface.decodeFunctionResult('price_oracle', d)[0]) * dolaUsdPrices[i].price;
   });
   return values;
 }
