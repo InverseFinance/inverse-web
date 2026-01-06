@@ -58,20 +58,24 @@ export const FirmRepayInputSubline = ({
 export const FirmBorroInputwSubline = ({
     leftToBorrow,
     bnLeftToBorrow,
+    maxBorrowable,
     handleDebtChange,
+    isLeverageOpen = false,
 }: {
     leftToBorrow: number
     bnLeftToBorrow: BigNumber
+    maxBorrowable: number
     handleDebtChange: (value: string, num: number) => void
+    isLeverageOpen: boolean
 }) => {
-    const numInt = parseInt(formatUnits(bnLeftToBorrow, 18));
+    const value = Math.floor(isLeverageOpen ? leftToBorrow : Math.min(leftToBorrow, maxBorrowable));
     return <HStack w='full' justify="space-between">
         <AmountInfos
-            label="Available DOLA"
-            value={leftToBorrow < 1 ? 0 : leftToBorrow}
+            label={isLeverageOpen ? 'Available DOLA' : maxBorrowable < leftToBorrow ? 'Near-Max borrowable' : 'Max borrowable'}
+            value={value < 1 ? 0 : value}
             textProps={{
                 fontSize: '14px',
-                onClick: leftToBorrow > 1 ? () => handleDebtChange(numInt.toString(), numInt) : undefined
+                onClick: value > 1 ? () => handleDebtChange(value.toString(), value) : undefined
             }}
         />
     </HStack>
