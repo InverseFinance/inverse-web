@@ -140,6 +140,8 @@ export const F2CombinedForm = ({
         hasDustIssue,
         setBestProxyName,
         totalDebt,
+        maxBorrow,
+        maxBorrowable,
     } = useContext(F2MarketContext);
 
     const { isMultisig, isWhitelisted, isProbablySmartAccount, hasCode } = useMultisig(market.borrowController);
@@ -558,7 +560,7 @@ export const F2CombinedForm = ({
                                     bnDebt={bnDebt}
                                 />
                                     :
-                                    !market.isBorrowingSuspended && <FirmBorroInputwSubline leftToBorrow={market.leftToBorrow} bnLeftToBorrow={bnLeftToBorrow} handleDebtChange={(v, n) => triggerDebtAndOrLeverageChange(v, n, undefined, true)} />
+                                    !market.isBorrowingSuspended && <FirmBorroInputwSubline maxBorrowable={maxBorrowable} isLeverageOpen={useLeverageInMode} leftToBorrow={market.leftToBorrow} bnLeftToBorrow={bnLeftToBorrow} handleDebtChange={(v, n) => triggerDebtAndOrLeverageChange(v, n, undefined, true)} />
                             }
                         </>
                         : market.isBorrowingSuspended ? null : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
