@@ -920,6 +920,7 @@ export const getConvexMarketsExtraApys = async () => {
         extraRewardTokenWrappers,
         extraRewardRates,
         extraRewardTotalSupplies,
+        extraRewardPeriodFinishes,
     ] = await getGroupedMulticallOutputs(
         [
             extraRewards.map(c => {
@@ -940,6 +941,12 @@ export const getConvexMarketsExtraApys = async () => {
                     contract, functionName: 'totalSupply', forceFallback: c === BURN_ADDRESS, fallbackValue: BigNumber.from(0)
                 }
             }),
+            extraRewards.map(c => {
+                const contract = new Contract(c, CONVEX_REWARD_POOL, provider);
+                return {
+                    contract, functionName: 'periodFinish', forceFallback: c === BURN_ADDRESS, fallbackValue: BURN_ADDRESS
+                }
+            }),
         ]
         , 1, undefined, provider, true);
 
@@ -956,7 +963,11 @@ export const getConvexMarketsExtraApys = async () => {
         ]
         , 1, undefined, provider, true);
 
+    const now = Math.floor(Date.now() / 1000);
+
     return cvxMarkets.map((m, i) => {
+        const periodFinish = getBnToNumber(extraRewardPeriodFinishes[i], 0);
+        const isExtraRewardActive = periodFinish > now;
         return {
             name: m.name,
             extraRewardTokens: extraRewardTokens[i],
@@ -964,7 +975,7 @@ export const getConvexMarketsExtraApys = async () => {
             extraRewardTokenWrappers: extraRewardTokenWrappers[i],
             extraRewardRates: extraRewardRates[i],
             rewardRates: rewardRates[i],
-            extraApy: getBnToNumber(extraRewardTotalSupplies[i]) > 0 ? getBnToNumber(extraRewardRates[i]) * 86400 * 365 / getBnToNumber(extraRewardTotalSupplies[i]) * 100 : 0,
+            extraApy: isExtraRewardActive && getBnToNumber(extraRewardTotalSupplies[i]) > 0 ? getBnToNumber(extraRewardRates[i]) * 86400 * 365 / getBnToNumber(extraRewardTotalSupplies[i]) * 100 : 0,
         }
     })
 }
