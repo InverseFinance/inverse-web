@@ -7,12 +7,9 @@ import { getBnToNumber, getConvexMarketsExtraApys, getFirmMarketsApys } from '@a
 import { CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { formatDistributorData, formatMarketData, inverseViewerRaw } from '@app/util/viewer';
-import { SIMS_CACHE_KEY } from '../drafts/sim';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { marketsDisplaysCacheKey } from './markets-display';
 import { estimateBlockTimestamp } from '@app/util/misc';
-import { FIRM_MARKETS_SNAPSHOT } from '@app/fixtures/firm-markets-20241022';
-// import { FIRM_MARKETS_SNAPSHOT } from '@app/fixtures/firm-markets-20241022';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
