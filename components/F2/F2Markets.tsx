@@ -371,7 +371,7 @@ const columns = [
     {
         field: 'supplyApy',
         label: 'Underlying APY',
-        tooltip: <><b>For informatin purpose only</b>, please check the official value on the third-party website when relevant. The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM. If leverage is possible the Net yield at maximum theoretical leverage will be showed as well.</>,
+        tooltip: <><b>For information purpose only</b>, please check the official value on the third-party website when relevant. The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM. If leverage is possible the Net yield at maximum theoretical leverage will be showed as well.</>,
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
         value: ({ name, isUserApy, isLeverageComingSoon, maxApy, isLeverageView, supplyApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
             return <MarketApyInfos
