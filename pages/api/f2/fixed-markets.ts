@@ -16,7 +16,7 @@ import { FIRM_MARKETS_SNAPSHOT } from '@app/fixtures/firm-markets-20241022';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.6.97`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.6.98`;
 
 export default async function handler(req, res) {
   const cacheDuration = 300;
@@ -102,10 +102,11 @@ export default async function handler(req, res) {
       const isPendle = m.name.startsWith('PT-');
       const supplyApy = externalApys[underlying.symbol] || externalApys[m.name] || 0;
       const isPendleMatured = isPendle && !supplyApy;
-      const extraRewardApy = convexExtraApys.find(c => c.name.toLowerCase() === m.name.toLowerCase())?.extraApy || 0;
+      const extraRewardApy = 0//convexExtraApys.find(c => c.name.toLowerCase() === m.name.toLowerCase())?.extraApy || 0;
       const marketOverrides = m.hasNowInvalidFeed ? { ...marketData, price: 0, totalDebt: 0, ...m} : {...m,...marketData}
       return {
         ...marketOverrides,
+        extraRewardApy,
         underlying: TOKENS[m.collateral],
         supplyApy: supplyApy + extraRewardApy,
         extraApy: m.isInv ? dbrApr : 0,
