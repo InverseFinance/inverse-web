@@ -44,7 +44,7 @@ export const getBlogHomeProps = async ({ preview = false, ...context }) => {
 export const getLandingProps = async ({ preview = false, ...context }) => {
     const { isPreviewUrl } = getBlogContext(context);
     const isPreview = preview || isPreviewUrl;
-    const posts = await getLandingPosts({ isPreview }) ?? [];
+    const posts = []//await getLandingPosts({ isPreview }) ?? [];
     const [
         currentCirculatingSupply,
         dbrData,
