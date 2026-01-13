@@ -43,6 +43,20 @@ export default async function handler(req, res) {
             { contract: sDolaContract, functionName: 'totalAssets' },
         ]);
 
+        // total DOLA revenue distributed to stakers
+        const startWeekIndex = 2822;
+        // dont count current week as not distributing yet
+        const endWeekIndex = weekIndexUtc - 1;
+        const weekIndexes = Array.from({ length: endWeekIndex - startWeekIndex + 1 }, (_, i) => startWeekIndex + i);
+
+        const totalRevenueData = await getMulticallOutput(weekIndexes.map(weekIndex => ({
+            contract: sDolaContract,
+            functionName: 'weeklyRevenue',
+            params: [weekIndex],
+        })), 1);
+
+       const totalEarnedByStakers = totalRevenueData.reduce((acc, curr) => acc + getBnToNumber(curr), 0);
+
         const promises = await Promise.allSettled([
             getDbrPriceOnCurve(provider),
             getDolaUsdPriceOnCurve(provider),
@@ -73,6 +87,7 @@ export default async function handler(req, res) {
 
         const resultData = {
             timestamp: Date.now(),
+            totalEarnedByStakers,
             spectraPool: highestSpectraPool,
             dolaPriceUsd,
             tvlUsd: getBnToNumber(dolaStakingData[9], 18) * dolaPriceUsd,
