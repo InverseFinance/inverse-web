@@ -57,7 +57,7 @@ export const StakeDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => {
 
     const { priceUsd: dbrPrice } = useDBRPrice();
     const { price: dolaPrice } = useDOLAPrice();
-    const { apy, apy30d, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue, isLoading: isLoadingStakedDola, spectraApy, spectraLink } = useStakedDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount), true);
+    const { apy, apy30d, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue, isLoading: isLoadingStakedDola, totalEarnedByStakers, spectraApy, spectraLink } = useStakedDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount), true);
     const { balance: dolaBalance } = useDOLABalance(account);
     // value in sDOLA terms
     const { stakedDolaBalance, stakedDolaBalanceBn } = useDolaStakingEarnings(account);
@@ -80,10 +80,7 @@ export const StakeDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => {
         setNowWithInterval(Date.now());
     }, 1000);
 
-    const sDolaAuctionBuys = auctionBuys.filter(e => e.auctionType === 'sDOLA')
-        .reduce((prev, curr) => prev + curr.dolaIn, 0);
-
-    const sDolaHoldersTotalEarnings = !isLoadingAuctionBuys && !isLoadingStakedDola ? sDolaAuctionBuys - weeklyRevenue : 0;
+    const sDolaHoldersTotalEarnings = !isLoadingStakedDola ? totalEarnedByStakers : 0;
 
     useInterval(() => {
         const curr = (realTimeBalance || baseBalance);
