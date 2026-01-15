@@ -681,7 +681,7 @@ export const PSM_ABI = [
   "event ProfitTaken(uint256 colAmount)",
 ]
 
-export const JUNIOR_MARKETS_ABI = [
+export const JUNIOR_SLASHING_MODULE_ABI = [
   "event NewPendingGov(address)",
   "event NewGov(address)",
   "event NewGuardian(address)",
@@ -700,12 +700,15 @@ export const JUNIOR_ESCROW_ABI = [
 ]
 
 export const JDOLA_AUCTION_ABI = [
+  'function totalSupply() public view returns (uint)',
+  'function totalAssets() public view returns (uint)',
   'function deposit(uint amount) external',
   'function withdraw(uint amount) external',
   "function dolaReserve() public view returns (uint256)",
   "function dbrReserve() public view returns (uint256)",
   "function yearlyRewardBudget() public view returns (uint256)",
   "function maxYearlyRewardBudget() public view returns (uint256)",
+  "function maxDbrDolaRatioBps() public view returns (uint256)",
   "function lastUpdate() public view returns (uint256)",
   "function getReserves() public view returns (uint256 _dolaReserve, uint256 _dbrReserve)",
   "function buyDbr(uint exactDolaIn, uint exactDbrOut, address to) external",
@@ -809,7 +812,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [FIRM_VIEWER, VIEWER_ABI],
         [TOKENS_VIEWER, VIEWER_ABI],
         [PSM_ADDRESS, PSM_ABI],
-        [JUNIOR_MARKETS_ADDRESS, JUNIOR_MARKETS_ABI],
+        [JUNIOR_MARKETS_ADDRESS, JUNIOR_SLASHING_MODULE_ABI],
         [JDOLA_AUCTION_ADDRESS, JDOLA_AUCTION_ABI],
         [JUNIOR_ESCROW_ADDRESS, JUNIOR_ESCROW_ABI],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
