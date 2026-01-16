@@ -110,7 +110,8 @@ export const useStakedJDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
     nextApy: number;
     isLoading: boolean;
     hasError: boolean;
-    sDolaExRate: number;
+    jDolaExRate: number;
+    yearlyDbrEarnings: number;
 } => {
     const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/junior/jdola-staking`);   
     const weekIndexUtc = getWeekIndexUtc();
