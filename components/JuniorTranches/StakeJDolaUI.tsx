@@ -1,5 +1,4 @@
 import { VStack, Text, HStack, Stack, Image, useInterval, useDisclosure, Link } from "@chakra-ui/react"
-import { redeemSDola, stakeDola, unstakeDola, useDolaStakingEarnings, useStakedDola } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useEffect, useMemo, useState } from "react";
@@ -15,14 +14,12 @@ import { useDBRPrice } from "@app/hooks/useDBR";
 import { getMonthlyRate, getNumberToBn, shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
-import { ONE_DAY_MS, SDOLA_ADDRESS, SECONDS_PER_BLOCK } from "@app/config/constants";
+import { JDOLA_AUCTION_ADDRESS, ONE_DAY_MS, SECONDS_PER_BLOCK } from "@app/config/constants";
 import { useAccount } from "@app/hooks/misc";
-import { useDbrAuctionActivity } from "@app/util/dbr-auction";
 import { StakeJDolaInfos } from "./StakeJDolaInfos";
 import { useDOLAPrice } from "@app/hooks/usePrices";
-import EnsoZap from "../ThirdParties/enso/EnsoZap";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { SkeletonBlob } from "../common/Skeleton";
+import { stakeJDola, unstakeJDola, useJDolaStakingEarnings, useJuniorWithdrawDelay, useStakedJDola } from "@app/util/junior";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -44,29 +41,28 @@ const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => {
     const account = useAccount();
     const { provider, account: connectedAccount } = useWeb3React();
-    const { events: auctionBuys, isLoading: isLoadingAuctionBuys } = useDbrAuctionActivity();
     const [useDolaAsMainChoice, setUseDolaAsMainChoice] = useState(false);
 
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
     const [isPreventLoader, setIsPreventLoader] = useState(false);
-    const { isOpen: isEnsoModalOpen, onOpen: onEnsoModalOpen, onClose: onEnsoModalClose } = useDisclosure();
     const [nowWithInterval, setNowWithInterval] = useState(Date.now());
     const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
     const { priceUsd: dbrPrice } = useDBRPrice();
     const { price: dolaPrice } = useDOLAPrice();
-    const { apy, apy30d, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue, isLoading: isLoadingStakedDola, spectraApy, spectraLink } = useStakedDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount), true);
+    const { apy, apy30d, projectedApy, isLoading, jDolaExRate, jDolaTotalAssets, jDolaSupply, weeklyRevenue, isLoading: isLoadingStakedDola, spectraApy, spectraLink } = useStakedJDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount), true);
     const { balance: dolaBalance } = useDOLABalance(account);
     // value in jDOLA terms
-    const { stakedDolaBalance, stakedDolaBalanceBn } = useDolaStakingEarnings(account);
+    const { stakedDolaBalance, stakedDolaBalanceBn } = useJDolaStakingEarnings(account);
     const [previousStakedDolaBalance, setPrevStakedDolaBalance] = useState(stakedDolaBalance);
     const [baseBalance, setBaseBalance] = useState(0);
     const [realTimeBalance, setRealTimeBalance] = useState(0);
     // value in DOLA terms
-    const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;
-    const sDOLAamount = dolaAmount ? parseFloat(dolaAmount) / sDolaExRate : '';
+    const { withdrawDelay } = useJuniorWithdrawDelay(jDolaSupply, dolaAmount, account);
+    const dolaStakedInVault = jDolaExRate * stakedDolaBalance;
+    const sDOLAamount = dolaAmount ? parseFloat(dolaAmount) / jDolaExRate : '';
 
     const nextThursdayTsString = useMemo(() => {
         return new Date(getNextThursdayTimestamp()).toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' });
@@ -85,50 +81,57 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
 
     // every ~12s recheck base balance
     useInterval(() => {
-        if (realTimeBalance > dolaStakedInSDola) return;
-        setRealTimeBalance(dolaStakedInSDola);
-        setBaseBalance(dolaStakedInSDola);
+        if (realTimeBalance > dolaStakedInVault) return;
+        setRealTimeBalance(dolaStakedInVault);
+        setBaseBalance(dolaStakedInVault);
     }, MS_PER_BLOCK);
 
     useEffect(() => {
         if (previousStakedDolaBalance === stakedDolaBalance) return;
-        setBaseBalance(dolaStakedInSDola);
-        setRealTimeBalance(dolaStakedInSDola);
+        setBaseBalance(dolaStakedInVault);
+        setRealTimeBalance(dolaStakedInVault);
         setPrevStakedDolaBalance(stakedDolaBalance);
-    }, [stakedDolaBalance, previousStakedDolaBalance, dolaStakedInSDola]);
+    }, [stakedDolaBalance, previousStakedDolaBalance, dolaStakedInVault]);
 
     useEffect(() => {
-        if (!!baseBalance || !dolaStakedInSDola) return;
-        setBaseBalance(dolaStakedInSDola);
-    }, [baseBalance, dolaStakedInSDola]);
+        if (!!baseBalance || !dolaStakedInVault) return;
+        setBaseBalance(dolaStakedInVault);
+    }, [baseBalance, dolaStakedInVault]);
 
     useDebouncedEffect(() => {
         setIsConnected(!!connectedAccount);
     }, [connectedAccount], 500);
 
     const monthlyDolaRewards = useMemo(() => {
-        return (apy > 0 && dolaStakedInSDola > 0 ? getMonthlyRate(dolaStakedInSDola, apy) : 0);
-    }, [dolaStakedInSDola, apy]);
+        return (apy > 0 && dolaStakedInVault > 0 ? getMonthlyRate(dolaStakedInVault, apy) : 0);
+    }, [dolaStakedInVault, apy]);
 
     const handleAction = async () => {
         if (isStake) {
-            return stakeDola(provider?.getSigner(), parseEther(dolaAmount));
+            return stakeJDola(provider?.getSigner(), parseEther(dolaAmount));
         }
-        return unstakeDola(provider?.getSigner(), parseEther(dolaAmount));
+        return unstakeJDola(provider?.getSigner(), parseEther(dolaAmount));
     }
 
     const unstakeAll = async () => {
-        return redeemSDola(provider?.getSigner(), stakedDolaBalanceBn);
+        return unstakeJDola(provider?.getSigner(), stakedDolaBalanceBn);
     }
 
     const resetRealTime = () => {
         setTimeout(() => {
-            setBaseBalance(dolaStakedInSDola);
-            setRealTimeBalance(dolaStakedInSDola);
+            setBaseBalance(dolaStakedInVault);
+            setRealTimeBalance(dolaStakedInVault);
         }, 250);
     }
 
     return <VStack w='full' spacing="4">
+        <InfoMessage description={
+            <VStack>
+                <Text>What is jDOLA?</Text>
+                <Text>jDOLA is a yield-bearing stablecoin where stakers earn yield coming from DBR auctions similarly to sDOLA, but contrary to sDOLA the DOLA deposits of jDOLA stakers serve as junior tranche and cannot be withdrawn immediately, in case bad debt occurs in an allowed FiRM market the DOLA deposits in jDOLA may be slashed proportionnally among depositors.</Text>
+                <Text>To exit jDOLA and get back DOLA a user must queue a withdrawal, wait for the withdrawal delay and then complete the withdrawal within an exit window, if the exit window expired before completing the withdrawal then a new withdrawal must be queued.</Text>
+            </VStack>
+        } alertProps={{ w: 'full' }} />
         <Stack direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'center', lg: 'flex-start' }} justify="space-around" w='full' spacing="12">
             <VStack w='full' maxW='450px' spacing='4' pt='10'>
                 <HStack justify="space-around" w='full'>
@@ -158,7 +161,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                             </Stack>
                             <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                                 <Text>- Total staked by all users:</Text>
-                                <Text><b>{sDolaTotalAssets ? `${shortenNumber(sDolaTotalAssets, 2)} DOLA` : '-'}</b></Text>
+                                <Text><b>{jDolaTotalAssets ? `${shortenNumber(jDolaTotalAssets, 2)} DOLA` : '-'}</b></Text>
                             </Stack>
                             <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                                 <Text>The projected APY will become the current APY on {nextThursdayTsString}</Text>
@@ -170,7 +173,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
             <Container
                 label="jDOLA - Yield-Bearing stablecoin"
                 description="See contract"
-                href={`https://etherscan.io/address/${SDOLA_ADDRESS}`}
+                href={`https://etherscan.io/address/${JDOLA_AUCTION_ADDRESS}`}
                 noPadding
                 m="0"
                 p="0"
@@ -188,7 +191,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                             DOLA balance in wallet: <b>{dolaBalance ? preciseCommify(dolaBalance, 2) : '-'}</b>
                                         </Text> */}
                                         <Text>
-                                            Your staked DOLA: <b>{dolaStakedInSDola ? preciseCommify(realTimeBalance, 8) : '-'}</b>
+                                            Your staked DOLA: <b>{dolaStakedInVault ? preciseCommify(realTimeBalance, 8) : '-'}</b>
                                         </Text>
                                     </VStack>
                                 }
@@ -203,7 +206,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     btnProps={{ needPoaFirst: true }}
                                                     defaultAmount={dolaAmount}
                                                     address={DOLA}
-                                                    destination={SDOLA_ADDRESS}
+                                                    destination={JDOLA_AUCTION_ADDRESS}
                                                     signer={provider?.getSigner()}
                                                     decimals={18}
                                                     onAction={() => handleAction()}
@@ -218,28 +221,54 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     enableCustomApprove={true}
                                                 />
                                             </VStack>
-                                            : isLoadingStables && !isPreventLoader ? <SkeletonBlob /> : <EnsoZap
-                                                defaultTokenIn={topStable?.token?.address}
-                                                defaultTokenOut={SDOLA_ADDRESS}
-                                                defaultTargetChainId={'1'}
-                                                ensoPools={[{ poolAddress: SDOLA_ADDRESS, chainId: 1 }]}
-                                                introMessage={''}
-                                                isSingleChoice={true}
-                                                targetAssetPrice={dolaPrice * sDolaExRate}
-                                                exRate={sDolaExRate}
-                                                isInModal={false}
-                                                keepAmountOnAssetChange={true}
-                                                fromText={"Stake from"}
-                                                fromTextProps={{
-                                                    fontSize: '22px',
-                                                    fontWeight: 'bold'
-                                                }}
-                                                onAmountChange={(v) => {
-                                                    if(!!v){
-                                                        setIsPreventLoader(true);
-                                                    }
-                                                }}
-                                            />)
+                                            : isLoadingStables && !isPreventLoader ? <SkeletonBlob /> :
+                                                <>
+                                                    <Text fontSize="22px" fontWeight="bold">
+                                                        DOLA amount to stake:
+                                                    </Text>
+                                                    <SimpleAmountForm
+                                                        btnProps={{ needPoaFirst: true }}
+                                                        defaultAmount={dolaAmount}
+                                                        address={JDOLA_AUCTION_ADDRESS}
+                                                        destination={JDOLA_AUCTION_ADDRESS}
+                                                        needApprove={false}
+                                                        signer={provider?.getSigner()}
+                                                        decimals={18}
+                                                        onAction={() => handleAction()}
+                                                        maxActionLabel={`Unstake all`}
+                                                        actionLabel={`Unstake`}
+                                                        onAmountChange={(v) => setDolaAmount(v)}
+                                                        maxAmountFrom={[getNumberToBn(dolaStakedInVault, 18)]}
+                                                        showMaxBtn={stakedDolaBalance > 0}
+                                                        showMax={false}
+                                                        hideInputIfNoAllowance={false}
+                                                        showBalance={false}
+                                                        onSuccess={() => resetRealTime()}
+                                                    />
+                                                </>
+                                            // <EnsoZap
+                                            //     defaultTokenIn={topStable?.token?.address}
+                                            //     defaultTokenOut={JDOLA_AUCTION_ADDRESS}
+                                            //     defaultTargetChainId={'1'}
+                                            //     ensoPools={[{ poolAddress: JDOLA_AUCTION_ADDRESS, chainId: 1 }]}
+                                            //     introMessage={''}
+                                            //     isSingleChoice={true}
+                                            //     targetAssetPrice={dolaPrice * jDolaExRate}
+                                            //     exRate={jDolaExRate}
+                                            //     isInModal={false}
+                                            //     keepAmountOnAssetChange={true}
+                                            //     fromText={"Stake from"}
+                                            //     fromTextProps={{
+                                            //         fontSize: '22px',
+                                            //         fontWeight: 'bold'
+                                            //     }}
+                                            //     onAmountChange={(v) => {
+                                            //         if(!!v){
+                                            //             setIsPreventLoader(true);
+                                            //         }
+                                            //     }}
+                                            // />
+                                        )
                                         :
                                         <VStack w='full' alignItems="flex-start">
                                             <Text fontSize="22px" fontWeight="bold">
@@ -248,8 +277,8 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                             <SimpleAmountForm
                                                 btnProps={{ needPoaFirst: true }}
                                                 defaultAmount={dolaAmount}
-                                                address={SDOLA_ADDRESS}
-                                                destination={SDOLA_ADDRESS}
+                                                address={JDOLA_AUCTION_ADDRESS}
+                                                destination={JDOLA_AUCTION_ADDRESS}
                                                 needApprove={false}
                                                 signer={provider?.getSigner()}
                                                 decimals={18}
@@ -258,7 +287,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                 maxActionLabel={`Unstake all`}
                                                 actionLabel={`Unstake`}
                                                 onAmountChange={(v) => setDolaAmount(v)}
-                                                maxAmountFrom={[getNumberToBn(dolaStakedInSDola, 18)]}
+                                                maxAmountFrom={[getNumberToBn(dolaStakedInVault, 18)]}
                                                 showMaxBtn={stakedDolaBalance > 0}
                                                 showMax={false}
                                                 hideInputIfNoAllowance={false}
@@ -285,7 +314,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                 DOLA-jDOLA exchange rate:
                                             </Text>
                                             <Text fontSize="16px" color="mainTextColorLight">
-                                                {sDolaExRate ? shortenNumber(1 / sDolaExRate, 6) : '-'}
+                                                {jDolaExRate ? shortenNumber(1 / jDolaExRate, 6) : '-'}
                                             </Text>
                                         </HStack>
                                     </VStack>

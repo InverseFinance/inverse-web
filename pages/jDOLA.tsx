@@ -56,7 +56,7 @@ export const JdolaPage = () => {
           direction={{ base: 'column', xl: 'row' }}
         >
           <VStack spacing="10" alignItems={"center"} w={{ base: 'full' }}>
-            <SavingsOpportunities tokenAndBalances={tokenAndBalances} totalStables={_totalStables} />
+            {/* <SavingsOpportunities tokenAndBalances={tokenAndBalances} totalStables={_totalStables} /> */}
             <StakeJDolaUI isLoadingStables={topStableInited ? false : isLoadingStables} useDolaAsMain={useDolaAsMain} topStable={lastTopStable} />
           </VStack>
         </Stack>

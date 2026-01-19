@@ -694,6 +694,7 @@ export const JUNIOR_ESCROW_ABI = [
   "function queueWithdrawal(uint amount, uint maxWithdrawDelay) external",
   "function completeWithdraw() external",
   "function cancelWithdrawal() external",
+  "function getWithdrawDelay(uint totalSupply, uint totalWithdrawing, address withdrawer) external returns(uint)",
   "event Queue(address indexed withdrawer, uint amount, uint fee, uint start, uint end)",
   "event Withdraw(address indexed withdrawer, uint amount)",
   "event Cancel(address indexed withdrawer, uint amount, uint start, uint end)",
