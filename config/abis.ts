@@ -692,6 +692,8 @@ export const JUNIOR_SLASHING_MODULE_ABI = [
 
 export const JUNIOR_ESCROW_ABI = [
   "function queueWithdrawal(uint amount, uint maxWithdrawDelay) external",
+  "function exitWindow() public view returns (uint)",
+  "function exitWindows(address account) public view returns (tuple(uint128 start, uint128 end))",
   "function completeWithdraw() external",
   "function cancelWithdrawal() external",
   "function getWithdrawDelay(uint totalSupply, uint totalWithdrawing, address withdrawer) external returns(uint)",
@@ -701,9 +703,12 @@ export const JUNIOR_ESCROW_ABI = [
 ]
 
 export const JDOLA_AUCTION_ABI = [
+  'function balanceOf(address account) public view returns (uint)',
   'function totalSupply() public view returns (uint)',
   'function totalAssets() public view returns (uint)',
-  'function deposit(uint amount) external',
+  'function deposit(uint amount, address receiver) external',
+  'function redeem(uint amount, address receiver) external',
+  'function maxRedeem(address owner) external',
   'function withdraw(uint amount) external',
   "function dolaReserve() public view returns (uint256)",
   "function dbrReserve() public view returns (uint256)",

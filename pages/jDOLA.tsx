@@ -15,20 +15,20 @@ export const JdolaPage = () => {
   const [topStableInited, setTopStableInited] = useState(false);
   const [lastTopStable, setLastTopStable] = useState(null);
 
-  const { tokenAndBalances, totalStables, topStable, useDolaAsMain, isLoading: isLoadingStables } = useSavingsOpportunities(account);
+  // const { tokenAndBalances, totalStables, topStable, useDolaAsMain, isLoading: isLoadingStables } = useSavingsOpportunities(account);
 
-  useDebouncedEffect(() => {
-    setDebouncedTotalStables(totalStables);
-  }, [totalStables], 500);
+  // useDebouncedEffect(() => {
+  //   setDebouncedTotalStables(totalStables);
+  // }, [totalStables], 500);
 
-  useEffect(() => {
-    if(!isLoadingStables && !topStableInited && !!topStable?.token?.address){
-      setTopStableInited(true);
-      setLastTopStable(topStable);
-    }
-  }, [topStable?.token?.address, isLoadingStables, topStableInited]);
+  // useEffect(() => {
+  //   if(!isLoadingStables && !topStableInited && !!topStable?.token?.address){
+  //     setTopStableInited(true);
+  //     setLastTopStable(topStable);
+  //   }
+  // }, [topStable?.token?.address, isLoadingStables, topStableInited]);
 
-  const _totalStables = totalStables > 0 ? totalStables : debouncedTotalStables;
+  // const _totalStables = totalStables > 0 ? totalStables : debouncedTotalStables;
 
   return (
     <Layout>
@@ -57,7 +57,7 @@ export const JdolaPage = () => {
         >
           <VStack spacing="10" alignItems={"center"} w={{ base: 'full' }}>
             {/* <SavingsOpportunities tokenAndBalances={tokenAndBalances} totalStables={_totalStables} /> */}
-            <StakeJDolaUI isLoadingStables={topStableInited ? false : isLoadingStables} useDolaAsMain={useDolaAsMain} topStable={lastTopStable} />
+            <StakeJDolaUI isLoadingStables={false} useDolaAsMain={true} topStable={lastTopStable} />
           </VStack>
         </Stack>
       </VStack>

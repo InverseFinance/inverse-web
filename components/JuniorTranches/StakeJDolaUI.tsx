@@ -1,4 +1,4 @@
-import { VStack, Text, HStack, Stack, Image, useInterval, useDisclosure, Link } from "@chakra-ui/react"
+import { VStack, Text, HStack, Stack, Image, useInterval, useDisclosure, Link, Divider } from "@chakra-ui/react"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useEffect, useMemo, useState } from "react";
@@ -6,7 +6,7 @@ import { getNetworkConfigConstants } from "@app/util/networks";
 import { parseEther } from "@ethersproject/units";
 import Container from "../common/Container";
 import { NavButtons } from "@app/components/common/Button";
-import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
+import { InfoMessage, Message, StatusMessage, SuccessMessage } from "@app/components/common/Messages";
 import { getNextThursdayTimestamp, preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
@@ -14,12 +14,13 @@ import { useDBRPrice } from "@app/hooks/useDBR";
 import { getMonthlyRate, getNumberToBn, shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
-import { JDOLA_AUCTION_ADDRESS, ONE_DAY_MS, SECONDS_PER_BLOCK } from "@app/config/constants";
+import { JDOLA_AUCTION_ADDRESS, JUNIOR_ESCROW_ADDRESS, ONE_DAY_MS, SECONDS_PER_BLOCK } from "@app/config/constants";
 import { useAccount } from "@app/hooks/misc";
 import { StakeJDolaInfos } from "./StakeJDolaInfos";
 import { useDOLAPrice } from "@app/hooks/usePrices";
 import { SkeletonBlob } from "../common/Skeleton";
-import { stakeJDola, unstakeJDola, useJDolaStakingEarnings, useJuniorWithdrawDelay, useStakedJDola } from "@app/util/junior";
+import { stakeJDola, juniorQueueWithdrawal, unstakeJDola, useJDolaStakingEarnings, useJuniorWithdrawDelay, useStakedJDola } from "@app/util/junior";
+import { formatDateWithTime, fromNow } from "@app/util/time";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -51,18 +52,19 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     const isStake = tab === 'Stake';
 
     const { priceUsd: dbrPrice } = useDBRPrice();
-    const { price: dolaPrice } = useDOLAPrice();
-    const { apy, apy30d, projectedApy, isLoading, jDolaExRate, jDolaTotalAssets, jDolaSupply, weeklyRevenue, isLoading: isLoadingStakedDola, spectraApy, spectraLink } = useStakedJDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount), true);
-    const { balance: dolaBalance } = useDOLABalance(account);
+
+    const { apy, apy30d, projectedApy, isLoading, jDolaExRate, jDolaTotalAssets, jDolaSupply, weeklyRevenue, exitWindow, isLoading: isLoadingStakedDola } = useStakedJDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount), true);
+
     // value in jDOLA terms
     const { stakedDolaBalance, stakedDolaBalanceBn } = useJDolaStakingEarnings(account);
+
     const [previousStakedDolaBalance, setPrevStakedDolaBalance] = useState(stakedDolaBalance);
     const [baseBalance, setBaseBalance] = useState(0);
     const [realTimeBalance, setRealTimeBalance] = useState(0);
     // value in DOLA terms
-    const { withdrawDelay } = useJuniorWithdrawDelay(jDolaSupply, dolaAmount, account);
+    const { withdrawDelay, withdrawTimestamp, exitWindowStart, exitWindowEnd, hasComingExit, isWithinExitWindow } = useJuniorWithdrawDelay(jDolaSupply, dolaAmount, account);
+
     const dolaStakedInVault = jDolaExRate * stakedDolaBalance;
-    const sDOLAamount = dolaAmount ? parseFloat(dolaAmount) / jDolaExRate : '';
 
     const nextThursdayTsString = useMemo(() => {
         return new Date(getNextThursdayTimestamp()).toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' });
@@ -110,11 +112,11 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
         if (isStake) {
             return stakeJDola(provider?.getSigner(), parseEther(dolaAmount));
         }
-        return unstakeJDola(provider?.getSigner(), parseEther(dolaAmount));
+        return juniorQueueWithdrawal(provider?.getSigner(), parseEther(dolaAmount), withdrawDelay.toString());
     }
 
     const unstakeAll = async () => {
-        return unstakeJDola(provider?.getSigner(), stakedDolaBalanceBn);
+        return juniorQueueWithdrawal(provider?.getSigner(), stakedDolaBalanceBn, withdrawDelay.toString());
     }
 
     const resetRealTime = () => {
@@ -126,10 +128,10 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
 
     return <VStack w='full' spacing="4">
         <InfoMessage description={
-            <VStack>
-                <Text>What is jDOLA?</Text>
-                <Text>jDOLA is a yield-bearing stablecoin where stakers earn yield coming from DBR auctions similarly to sDOLA, but contrary to sDOLA the DOLA deposits of jDOLA stakers serve as junior tranche and cannot be withdrawn immediately, in case bad debt occurs in an allowed FiRM market the DOLA deposits in jDOLA may be slashed proportionnally among depositors.</Text>
-                <Text>To exit jDOLA and get back DOLA a user must queue a withdrawal, wait for the withdrawal delay and then complete the withdrawal within an exit window, if the exit window expired before completing the withdrawal then a new withdrawal must be queued.</Text>
+            <VStack alignItems="flex-start">
+                <Text fontWeight="bold">Junior DOLA</Text>
+                <Text>jDOLA is a yield-bearing stablecoin where stakers earn yield coming from DBR auctions similarly to sDOLA, but contrary to sDOLA the DOLA deposits of stakers serve as a junior tranche and cannot be withdrawn immediately, in case bad debt occurs in an allowed FiRM market the DOLA deposits in jDOLA may be slashed proportionnally among depositors.</Text>
+                <Text>To exit jDOLA and get back DOLA a staker must queue a withdrawal, wait for the dynamic withdrawal delay and then complete the withdrawal within an exit window, if the exit window expired before completing the withdrawal then a new withdrawal must be queued.</Text>
             </VStack>
         } alertProps={{ w: 'full' }} />
         <Stack direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'center', lg: 'flex-start' }} justify="space-around" w='full' spacing="12">
@@ -229,20 +231,19 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     <SimpleAmountForm
                                                         btnProps={{ needPoaFirst: true }}
                                                         defaultAmount={dolaAmount}
-                                                        address={JDOLA_AUCTION_ADDRESS}
+                                                        address={"0x865377367054516e17014CcdED1e7d814EDC9ce4"}
                                                         destination={JDOLA_AUCTION_ADDRESS}
-                                                        needApprove={false}
+                                                        needApprove={true}
+                                                        approveForceRefresh={true}
                                                         signer={provider?.getSigner()}
                                                         decimals={18}
                                                         onAction={() => handleAction()}
-                                                        maxActionLabel={`Unstake all`}
-                                                        actionLabel={`Unstake`}
+                                                        actionLabel={`Stake`}
                                                         onAmountChange={(v) => setDolaAmount(v)}
-                                                        maxAmountFrom={[getNumberToBn(dolaStakedInVault, 18)]}
                                                         showMaxBtn={stakedDolaBalance > 0}
-                                                        showMax={false}
+                                                        showMax={true}
                                                         hideInputIfNoAllowance={false}
-                                                        showBalance={false}
+                                                        showBalance={true}
                                                         onSuccess={() => resetRealTime()}
                                                     />
                                                 </>
@@ -272,20 +273,20 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                         :
                                         <VStack w='full' alignItems="flex-start">
                                             <Text fontSize="22px" fontWeight="bold">
-                                                DOLA amount to unstake:
+                                                1) Queue a withdrawal:
                                             </Text>
                                             <SimpleAmountForm
                                                 btnProps={{ needPoaFirst: true }}
                                                 defaultAmount={dolaAmount}
                                                 address={JDOLA_AUCTION_ADDRESS}
-                                                destination={JDOLA_AUCTION_ADDRESS}
-                                                needApprove={false}
+                                                destination={JUNIOR_ESCROW_ADDRESS}
+                                                needApprove={true}
                                                 signer={provider?.getSigner()}
                                                 decimals={18}
                                                 onAction={() => handleAction()}
                                                 onMaxAction={() => unstakeAll()}
-                                                maxActionLabel={`Unstake all`}
-                                                actionLabel={`Unstake`}
+                                                maxActionLabel={`Initiate full withdrawal`}
+                                                actionLabel={`Initiate withdrawal`}
                                                 onAmountChange={(v) => setDolaAmount(v)}
                                                 maxAmountFrom={[getNumberToBn(dolaStakedInVault, 18)]}
                                                 showMaxBtn={stakedDolaBalance > 0}
@@ -294,8 +295,43 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                 showBalance={false}
                                                 onSuccess={() => resetRealTime()}
                                             />
+                                            <VStack alignItems="flex-start" spacing="0">
+                                                <Text>
+                                                    - Queue duration for this amount & the current suply:
+                                                </Text>
+                                                <Text fontWeight="bold">
+                                                    <b>{dolaAmount ? fromNow(withdrawTimestamp, true) : '-'}</b>
+                                                </Text>
+                                            </VStack>
+                                            <VStack alignItems="flex-start" spacing="0">
+                                                <Text>
+                                                    - Exit window after queue duration ends:
+                                                </Text>
+                                                <Text fontWeight="bold">
+                                                    <b>{exitWindow ? `${exitWindow/86400} days` : '-'}</b>
+                                                </Text>
+                                            </VStack>
+                                            <Divider />
                                             {
-                                                <InfoMessage description="Note: to unstake everything use the unstake all button to avoid leaving dust" />
+                                                hasComingExit ? isWithinExitWindow ? <Text>You have a withdrawal to complete!</Text> : <Text>You have a pending withdrawal in queue phase</Text> : <Text>You don't any pending withdrawal</Text>
+                                            }
+                                            {
+                                                hasComingExit && <StatusMessage
+                                                    status={isWithinExitWindow ? 'warning' : 'info'}
+                                                    alertProps={{ w: 'full' }}
+                                                    description={
+                                                        isWithinExitWindow ? <VStack alignItems="flex-start" spacing="0">
+                                                            <Text>You have until <b>{formatDateWithTime(exitWindowEnd)}</b> to complete the withdrawal.</Text>
+                                                            <Text>Time left: ~{fromNow(exitWindowEnd, true)}</Text>
+                                                            <Text>The withdrawal will be cancelled otherwise.</Text>
+                                                        </VStack> : <VStack alignItems="flex-start" spacing="0">
+                                                            <Text mb="1">The withdrawal exit window will be between:</Text>
+                                                            <Text>- {formatDateWithTime(exitWindowStart)}</Text>
+                                                            <Text>and</Text>
+                                                            <Text>- {formatDateWithTime(exitWindowEnd)}</Text>
+                                                        </VStack>
+                                                    }
+                                                />
                                             }
                                         </VStack>
                                 }

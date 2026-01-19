@@ -24,19 +24,19 @@ export const getJuniorWithdrawModelContract = (signerOrProvider: JsonRpcSigner) 
     return new Contract(JUNIOR_WITHDRAW_MODEL, ["function getWithdrawDelay(uint totalSupply, uint totalWithdrawing, address withdrawer) external returns(uint)"], signerOrProvider);
 }
 
-export const stakeJDola = async (amount: string, signer: JsonRpcSigner) => {
+export const stakeJDola = async (signer: JsonRpcSigner, amount: BigNumber) => {
     const contract = new Contract(JDOLA_AUCTION_ADDRESS, JDOLA_AUCTION_ABI, signer);
-    return contract.deposit(parseEther(amount));
+    return contract.deposit(amount, await signer.getAddress());
 }
 
-export const unstakeJDola = async (amount: string, signer: JsonRpcSigner) => {
+export const unstakeJDola = async (signer: JsonRpcSigner, amount: BigNumber) => {
     const contract = new Contract(JDOLA_AUCTION_ADDRESS, JDOLA_AUCTION_ABI, signer);
-    return contract.redeem(parseEther(amount));
+    return contract.redeem(amount, await signer.getAddress());
 }
 
-export const juniorQueueWithdrawal = async (amount: string, maxWithdrawDelay: number, signer: JsonRpcSigner) => {
+export const juniorQueueWithdrawal = async (signer: JsonRpcSigner, amount: BigNumber, maxWithdrawDelay: BigNumber) => {
     const contract = new Contract(JUNIOR_ESCROW_ADDRESS, JUNIOR_ESCROW_ABI, signer);
-    return contract.queueWithdrawal(parseEther(amount), maxWithdrawDelay);
+    return contract.queueWithdrawal(amount, maxWithdrawDelay);
 }
 
 export const juniorCompleteWithdraw = async (signer: JsonRpcSigner) => {
@@ -123,6 +123,7 @@ export const useStakedJDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
     hasError: boolean;
     jDolaExRate: number;
     yearlyDbrEarnings: number;
+    exitWindow: number;
 } => {
     const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/junior/jdola-staking`);   
     const weekIndexUtc = getWeekIndexUtc();
@@ -135,10 +136,12 @@ export const useStakedJDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
         [JDOLA_AUCTION_ADDRESS, 'weeklyRevenue', weekIndexUtc],
         [JDOLA_AUCTION_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1],
         [JDOLA_AUCTION_ADDRESS, 'totalAssets'],     
+        [JUNIOR_ESCROW_ADDRESS, 'exitWindow'],
     ]);
 
     return {
         ...formatJDolaStakingData(dbrDolaPriceUsd, jdolaStakingData, apiData, supplyDelta),
+        exitWindow: jdolaStakingData ? getBnToNumber(jdolaStakingData[7], 0) : 86400*2,
         apy30d: apiData?.apy30d || 0,
         isLoading: (!jdolaStakingData && !error) && (!apiData && !apiErr),
         hasError: !!error || !!apiErr,
@@ -189,20 +192,34 @@ export const useJuniorWithdrawDelay = (
     currentSupply,
     withdrawAmount,
     userAddress,
-) => {    
+) => {  
     const { provider } = useWeb3React<Web3Provider>()
+
+    const { data: escrowData } = useEtherSWR([
+        [JUNIOR_ESCROW_ADDRESS, 'exitWindows', userAddress],
+    ]);
     
-    const { data, error } = useSWR(['getWithdrawDelay', parseEther(currentSupply?.toString()||'0'), parseEther(withdrawAmount?.toString()||'0'), userAddress], (...args) => {
+    const { data, error } = useSWR(['getWithdrawDelay', parseEther(currentSupply?.toString()||'0').toString(), parseEther(withdrawAmount?.toString()||'0').toString(), userAddress], (...args) => {
       const [method, ...otherParams] = args
       if (provider) {
         return getJuniorWithdrawModelContract(provider?.getSigner()).callStatic[method](...otherParams)
       }
-      return undefined
+      return null
     })
+
+    const now = Date.now();
+
+    const exitWindowStart = escrowData && !!escrowData[0] ? getBnToNumber(escrowData[0][0], 0) * 1000 : 0;
+    const exitWindowEnd = escrowData && !!escrowData[0] ? getBnToNumber(escrowData[0][1], 0) * 1000 : 0;
 
     return {
       // in seconds
       withdrawDelay: data ? getBnToNumber(data, 0) : BigNumber.from(0),
+      withdrawTimestamp: data ? now + getBnToNumber(data, 0) * 1000 : null,
+      exitWindowStart,
+      exitWindowEnd,
+      isWithinExitWindow: exitWindowStart ? now <= exitWindowEnd && now >= exitWindowStart : false,
+      hasComingExit: exitWindowStart ? !!exitWindowStart && now < exitWindowStart : false,
       isLoading: !error && !data,
       isError: error,
     }
