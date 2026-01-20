@@ -224,6 +224,7 @@ export const useJuniorWithdrawDelay = (
       withdrawTimestamp: data ? now + getBnToNumber(data, 0) * 1000 : null,
       exitWindowStart,
       exitWindowEnd,
+      canCancel: !!exitWindowStart && now >= exitWindowStart,
       isWithinExitWindow: exitWindowStart ? now <= exitWindowEnd && now >= exitWindowStart : false,
       hasComingExit: exitWindowStart ? !!exitWindowStart && now < exitWindowStart : false,
       isLoading: !error && !data,

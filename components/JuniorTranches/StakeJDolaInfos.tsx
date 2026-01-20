@@ -51,11 +51,11 @@ export const StakeJDolaInfos = () => {
             <Stack w='full'>
                 <Text fontSize="14px" fontWeight="bold">What is jDOLA?</Text>
                 <VStack spacing="0" alignItems="flex-start">
-                    <Text>- jDOLA is a junior tranche</Text>
+                    <Text>- jDOLA is a liquid yield-bearing vault</Text>
                     <Text>
                         - It uses the ERC4626 standard (Tokenized Vault Token)
                     </Text>
-                    <Text>- It's a decentralized yield-bearing fungible asset</Text>
+                    <Text>- It's not a stablecoin</Text>
                     <Text>- The yield comes from DBR auctions</Text>
                     <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sdola' isExternal target="_blank">
                         Learn more about jDOLA <ExternalLinkIcon />

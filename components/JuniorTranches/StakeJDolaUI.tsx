@@ -20,8 +20,9 @@ import { useAccount } from "@app/hooks/misc";
 import { StakeJDolaInfos } from "./StakeJDolaInfos";
 import { useDOLAPrice } from "@app/hooks/usePrices";
 import { SkeletonBlob } from "../common/Skeleton";
-import { stakeJDola, juniorQueueWithdrawal, unstakeJDola, useJDolaStakingEarnings, useJuniorWithdrawDelay, useStakedJDola, juniorCompleteWithdraw } from "@app/util/junior";
+import { stakeJDola, juniorQueueWithdrawal, cancelWithdrawal, useJDolaStakingEarnings, useJuniorWithdrawDelay, useStakedJDola, juniorCompleteWithdraw } from "@app/util/junior";
 import { formatDateWithTime, fromNow } from "@app/util/time";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -63,7 +64,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     const [baseBalance, setBaseBalance] = useState(0);
     const [realTimeBalance, setRealTimeBalance] = useState(0);
     // value in DOLA terms
-    const { withdrawDelay, withdrawTimestamp, exitWindowStart, exitWindowEnd, pendingAmount, hasComingExit, isWithinExitWindow } = useJuniorWithdrawDelay(jDolaSupply, dolaAmount, account);
+    const { withdrawDelay, withdrawTimestamp, exitWindowStart, exitWindowEnd, pendingAmount, hasComingExit, isWithinExitWindow, canCancel } = useJuniorWithdrawDelay(jDolaSupply, dolaAmount, account);
 
     const dolaStakedInVault = jDolaExRate * stakedDolaBalance;
 
@@ -120,8 +121,12 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
         return juniorQueueWithdrawal(provider?.getSigner(), stakedDolaBalanceBn, withdrawDelay.toString());
     }
 
-    const completeWithdrawal = () => {
-        return juniorCompleteWithdraw(provdider?.getSigner());
+    const handleComplete = () => {
+        return juniorCompleteWithdraw(provider?.getSigner());
+    }
+
+    const handleCancel = () => {
+        return cancelWithdrawal(provider?.getSigner());
     }
 
     const resetRealTime = () => {
@@ -131,12 +136,13 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
         }, 250);
     }
 
-    return <VStack w='full' spacing="4">
+    return <VStack w='full' spacing="8">
         <InfoMessage description={
             <VStack alignItems="flex-start">
                 <Text fontWeight="bold">Junior DOLA</Text>
                 <Text>jDOLA is a liquid yield-bearing vault where stakers earn yield coming from DBR auctions similarly to sDOLA, but contrary to sDOLA the DOLA deposits of stakers serve as a junior tranche and cannot be withdrawn immediately, in case bad debt occurs in an allowed FiRM market the DOLA deposits in jDOLA may be slashed proportionnally among depositors.</Text>
                 <Text><b>Important note</b>: to exit jDOLA and get back DOLA a staker must queue a withdrawal, wait for the dynamic withdrawal delay and then complete the withdrawal within an exit window, if the exit window expired before completing the withdrawal then a new withdrawal must be queued.</Text>
+                <Link href="https://docs.inverse.finance/jDOLA" isExternal target="_blank">Learn more about the risks <ExternalLinkIcon /> </Link>
             </VStack>
         } alertProps={{ w: 'full' }} />
         <Stack direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'center', lg: 'flex-start' }} justify="space-around" w='full' spacing="12">
@@ -324,12 +330,12 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     - Exit window after queue duration ends:
                                                 </Text>
                                                 <Text fontWeight="bold">
-                                                    <b>{exitWindow ? `${exitWindow/86400} days` : '-'}</b>
+                                                    <b>{exitWindow ? `${exitWindow / 86400} days` : '-'}</b>
                                                 </Text>
-                                                <Text>- Withdraw fee: {withdrawFee*100}%</Text>
+                                                <Text>- Withdraw fee: {withdrawFee * 100}%</Text>
                                             </VStack>
                                             <Divider />
-                                             <Text fontSize="22px" fontWeight="bold">
+                                            <Text fontSize="22px" fontWeight="bold">
                                                 2) Complete a withdrawal:
                                             </Text>
                                             {
@@ -340,11 +346,11 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     status={isWithinExitWindow ? 'warning' : 'info'}
                                                     alertProps={{ w: 'full' }}
                                                     description={
-                                                        !isWithinExitWindow ? <VStack alignItems="flex-start" spacing="0">
+                                                        isWithinExitWindow ? <VStack alignItems="flex-start" spacing="0">
                                                             <Text>- You have until <b>{formatDateWithTime(exitWindowEnd)}</b> to complete the withdrawal.</Text>
                                                             <Text>- Time left: ~{fromNow(exitWindowEnd, true)}</Text>
                                                             <Text>- The withdrawal will be cancelled otherwise.</Text>
-                                                            <RSubmitButton mt="2" onClick={completeWithdrawal}>
+                                                            <RSubmitButton themeColor="success" mt="2" onClick={handleComplete}>
                                                                 Complete Withdrawal
                                                             </RSubmitButton>
                                                         </VStack> : <VStack alignItems="flex-start" spacing="0">
@@ -355,6 +361,21 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                         </VStack>
                                                     }
                                                 />
+                                            }
+                                            {
+                                                hasComingExit && <>
+                                                    <Divider />
+                                                    <VStack alignItems="flex-start" w='full' spacing="2">
+                                                        <Text fontSize="22px" fontWeight="bold">
+                                                            Or cancel withdrawal
+                                                        </Text>
+                                                        <InfoMessage description="Cancelling sends you back the previously queued up jDOLA" />
+                                                        <RSubmitButton isDisabled={!canCancel} themeColor="warning" onClick={handleCancel}>Cancel withdrawal</RSubmitButton>
+                                                        {
+                                                            !canCancel && <Text>Note: Cancelling is only possible after the stat of the exit window</Text>
+                                                        }
+                                                    </VStack>
+                                                </>
                                             }
                                         </VStack>
                                 }
@@ -368,14 +389,14 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                 {sDOLAamount ? preciseCommify(sDOLAamount, 2) : '-'}
                                             </Text>
                                         </HStack> */}
-                                        <HStack>
+                                        {/* <HStack>
                                             <Text fontSize="16px" color="mainTextColorLight">
                                                 DOLA-jDOLA exchange rate:
                                             </Text>
                                             <Text fontSize="16px" color="mainTextColorLight">
                                                 {jDolaExRate ? shortenNumber(1 / jDolaExRate, 6) : '-'}
                                             </Text>
-                                        </HStack>
+                                        </HStack> */}
                                     </VStack>
                                 }
                                 {/* {
