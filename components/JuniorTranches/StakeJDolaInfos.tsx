@@ -16,8 +16,8 @@ const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 
 export const StakeJDolaInfos = () => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { apy, sDolaSupply, sDolaTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, yearlyDbrEarnings, isLoading } = useStakedJDola(dbrPrice);
-    const [previousSupply, setPreviousSupply] = useState(sDolaSupply);    
+    const { apy, jDolaSupply, jDolaTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, yearlyDbrEarnings, isLoading } = useStakedJDola(dbrPrice);
+    const [previousSupply, setPreviousSupply] = useState(jDolaSupply);    
     const [realTimeBalance, setRealTimeBalance] = useState(0);
 
     useInterval(() => {            
@@ -29,20 +29,20 @@ export const StakeJDolaInfos = () => {
 
     // every ~12s recheck base balance
     useInterval(() => {
-        if(realTimeBalance > sDolaTotalAssets) return;
-        setRealTimeBalance(sDolaTotalAssets);        
+        if(realTimeBalance > jDolaTotalAssets) return;
+        setRealTimeBalance(jDolaTotalAssets);        
     }, MS_PER_BLOCK);
 
     useEffect(() => {
-        if(previousSupply === sDolaSupply) return;        
-        setRealTimeBalance(sDolaTotalAssets);
-        setPreviousSupply(sDolaSupply);
-    }, [sDolaSupply, previousSupply, sDolaTotalAssets]);    
+        if(previousSupply === jDolaSupply) return;        
+        setRealTimeBalance(jDolaTotalAssets);
+        setPreviousSupply(jDolaSupply);
+    }, [jDolaSupply, previousSupply, jDolaTotalAssets]);    
 
     useEffect(() => {
-        if(realTimeBalance > sDolaTotalAssets) return;        
-        setRealTimeBalance(sDolaTotalAssets);
-    }, [realTimeBalance, sDolaTotalAssets]);
+        if(realTimeBalance > jDolaTotalAssets) return;        
+        setRealTimeBalance(jDolaTotalAssets);
+    }, [realTimeBalance, jDolaTotalAssets]);
 
     return <InfoMessage
         showIcon={false}
@@ -57,7 +57,7 @@ export const StakeJDolaInfos = () => {
                     </Text>
                     <Text>- It's not a stablecoin</Text>
                     <Text>- The yield comes from DBR auctions</Text>
-                    <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sdola' isExternal target="_blank">
+                    <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/jdola' isExternal target="_blank">
                         Learn more about jDOLA <ExternalLinkIcon />
                     </Link>                    
                 </VStack>
@@ -79,8 +79,8 @@ export const StakeJDolaInfos = () => {
                 <Text fontSize="14px" fontWeight="bold">jDOLA Parameters</Text>
                 <VStack w='full' spacing="0">
                     <HStack w='full'>
-                        <Text>- DBR rate per year:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(yearlyDbrEarnings, 0)} ({preciseCommify(yearlyDbrEarnings * dbrPrice, 0, true)})</Text>}
+                        <Text>- Yearly budget:</Text>
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(yearlyRewardBudget, 0)} ({preciseCommify(yearlyRewardBudget * dbrPrice, 0, true)})</Text>}
                     </HStack>
                     <HStack w='full'>
                         <Text>- Max. DBR rate per year:</Text>
@@ -89,6 +89,10 @@ export const StakeJDolaInfos = () => {
                     <HStack w='full'>
                         <Text>- Max. DBR per DOLA:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxRewardPerDolaMantissa, 2)} ({preciseCommify(maxRewardPerDolaMantissa * dbrPrice, 4, true)})</Text>}
+                    </HStack>
+                    <HStack w='full'>
+                        <Text>- Current effective DBR rate per year:</Text>
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(yearlyDbrEarnings, 0)} ({preciseCommify(yearlyDbrEarnings * dbrPrice, 0, true)})</Text>}
                     </HStack>
                 </VStack>
                 <Text fontSize="14px" fontWeight="bold">Looking for the jDOLA auction?</Text>
