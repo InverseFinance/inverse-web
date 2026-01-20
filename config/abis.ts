@@ -692,7 +692,9 @@ export const JUNIOR_SLASHING_MODULE_ABI = [
 
 export const JUNIOR_ESCROW_ABI = [
   "function queueWithdrawal(uint amount, uint maxWithdrawDelay) external",
+  "function withdrawFeeBps() public view returns (uint)",
   "function exitWindow() public view returns (uint)",
+  "function withdrawAmounts(address account) public view returns (uint)",
   "function exitWindows(address account) public view returns (tuple(uint128 start, uint128 end))",
   "function completeWithdraw() external",
   "function cancelWithdrawal() external",

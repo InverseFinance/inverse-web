@@ -124,6 +124,7 @@ export const useStakedJDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
     jDolaExRate: number;
     yearlyDbrEarnings: number;
     exitWindow: number;
+    withdrawFee: number;
 } => {
     const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/junior/jdola-staking`);   
     const weekIndexUtc = getWeekIndexUtc();
@@ -137,11 +138,13 @@ export const useStakedJDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
         [JDOLA_AUCTION_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1],
         [JDOLA_AUCTION_ADDRESS, 'totalAssets'],     
         [JUNIOR_ESCROW_ADDRESS, 'exitWindow'],
+        [JUNIOR_ESCROW_ADDRESS, 'withdrawFeeBps'],
     ]);
 
     return {
         ...formatJDolaStakingData(dbrDolaPriceUsd, jdolaStakingData, apiData, supplyDelta),
         exitWindow: jdolaStakingData ? getBnToNumber(jdolaStakingData[7], 0) : 86400*2,
+        withdrawFee: jdolaStakingData ? getBnToNumber(jdolaStakingData[8], 0)/10000 : 0,
         apy30d: apiData?.apy30d || 0,
         isLoading: (!jdolaStakingData && !error) && (!apiData && !apiErr),
         hasError: !!error || !!apiErr,
@@ -197,6 +200,7 @@ export const useJuniorWithdrawDelay = (
 
     const { data: escrowData } = useEtherSWR([
         [JUNIOR_ESCROW_ADDRESS, 'exitWindows', userAddress],
+        [JUNIOR_ESCROW_ADDRESS, 'withdrawAmounts', userAddress],
     ]);
     
     const { data, error } = useSWR(['getWithdrawDelay', parseEther(currentSupply?.toString()||'0').toString(), parseEther(withdrawAmount?.toString()||'0').toString(), userAddress], (...args) => {
@@ -211,8 +215,10 @@ export const useJuniorWithdrawDelay = (
 
     const exitWindowStart = escrowData && !!escrowData[0] ? getBnToNumber(escrowData[0][0], 0) * 1000 : 0;
     const exitWindowEnd = escrowData && !!escrowData[0] ? getBnToNumber(escrowData[0][1], 0) * 1000 : 0;
+    const pendingAmount = escrowData && !!escrowData[1] ? getBnToNumber(escrowData[1]) : 0;
 
     return {
+      pendingAmount,
       // in seconds
       withdrawDelay: data ? getBnToNumber(data, 0) : BigNumber.from(0),
       withdrawTimestamp: data ? now + getBnToNumber(data, 0) * 1000 : null,
