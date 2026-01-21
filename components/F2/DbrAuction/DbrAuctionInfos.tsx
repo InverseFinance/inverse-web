@@ -1,6 +1,6 @@
 import Link from "@app/components/common/Link"
 import { InfoMessage } from "@app/components/common/Messages"
-import { DBR_AUCTION_ADDRESS, DBR_DISTRIBUTOR_ADDRESS, DOLA_SAVINGS_ADDRESS, ONE_DAY_SECS, SDOLA_ADDRESS, SINV_ADDRESS } from "@app/config/constants"
+import { DBR_AUCTION_ADDRESS, DBR_DISTRIBUTOR_ADDRESS, DOLA_SAVINGS_ADDRESS, JDOLA_AUCTION_ADDRESS, ONE_DAY_SECS, SDOLA_ADDRESS, SINV_ADDRESS } from "@app/config/constants"
 import { useCustomSWR } from "@app/hooks/useCustomSWR"
 import { useDBRPrice } from "@app/hooks/useDBR"
 import useEtherSWR from "@app/hooks/useEtherSWR"
@@ -14,7 +14,7 @@ import { useWeb3React } from "@web3-react/core"
 
 const TextLoader = () => <SkeletonText pt="2" skeletonHeight={2} noOfLines={1} height={'24px'} width={'90px'} />;
 
-export const useDbrAuction = (auctionType: 'classic' | 'sdola' | 'sinv'): {
+export const useDbrAuction = (auctionType: 'classic' | 'sdola' | 'sinv' | 'jdola'): {
     tokenReserve: number;
     dbrReserve: number;
     dbrRatePerYear: number;
@@ -26,13 +26,16 @@ export const useDbrAuction = (auctionType: 'classic' | 'sdola' | 'sinv'): {
 } => {
     const { account } = useWeb3React();
     const { data: apiData, error: apiError } = useCustomSWR(`/api/auctions/dbr`);
+    
     const isClassicDbrAuction = auctionType === 'classic';
     const isSdolaAuction = auctionType === 'sdola';
     const isSinvAuction = auctionType === 'sinv';
+    const isJDolaAuction = auctionType === 'jdola';
+    const isVirtualDbr = isJDolaAuction || isClassicDbrAuction;
     // reserves is an array    
     const { data: reserves, error: reservesError } = useEtherSWR(
-        isClassicDbrAuction ?
-            [DBR_AUCTION_ADDRESS, 'getCurrentReserves']
+        isVirtualDbr ?
+        isClassicDbrAuction ? [DBR_AUCTION_ADDRESS, 'getCurrentReserves'] : [JDOLA_AUCTION_ADDRESS, 'getReserves']
             :
             isSdolaAuction ?
                 {
@@ -62,7 +65,7 @@ export const useDbrAuction = (auctionType: 'classic' | 'sdola' | 'sinv'): {
             [DBR_AUCTION_ADDRESS, 'dbrRatePerYear'],
             [DBR_AUCTION_ADDRESS, 'maxDbrRatePerYear'],
         ]
-            : isSdolaAuction ? [
+            : isSdolaAuction || isJDolaAuction ? [
                 [DOLA_SAVINGS_ADDRESS, 'yearlyRewardBudget'],
                 [DOLA_SAVINGS_ADDRESS, 'maxYearlyRewardBudget'],
             ] :
@@ -91,6 +94,8 @@ export const useDbrAuction = (auctionType: 'classic' | 'sdola' | 'sinv'): {
 export const DbrAuctionParametersWrapper = ({ dolaPrice, invPrice }: { dolaPrice: number, invPrice: number }) => {
     const { priceUsd: dbrPrice } = useDBRPrice(); 
     return <VStack w='full' alignItems="flex-start">
+        <Text fontWeight="bold">jDOLA auction infos:</Text>
+        <DbrAuctionClassicParameters dbrPrice={dbrPrice} tokenPrice={dolaPrice} />
         <Text fontWeight="bold">Virtual auction infos:</Text>
         <DbrAuctionClassicParameters dbrPrice={dbrPrice} tokenPrice={dolaPrice} />
         <Text fontWeight="bold">sDOLA auction infos:</Text>
@@ -113,6 +118,21 @@ export const DbrAuctionSDolaParameters = ({ dbrPrice, tokenPrice }) => {
         tokenPrice={tokenPrice}
     />
 }
+
+export const DbrAuctionJDolaParameters = ({ dbrPrice, tokenPrice }) => {
+    const { tokenReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading } = useDbrAuction('jdola');
+    return <DbrAuctionParameters
+        tokenSymbol='DOLA'
+        tokenReserve={tokenReserve}
+        dbrReserve={dbrReserve}
+        dbrRatePerYear={dbrRatePerYear}
+        maxDbrRatePerYear={maxDbrRatePerYear}
+        isLoading={isLoading}
+        dbrPrice={dbrPrice}
+        tokenPrice={tokenPrice}
+    />
+}
+
 
 export const DbrAuctionClassicParameters = ({ dbrPrice, tokenPrice }) => {
     const { tokenReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading } = useDbrAuction('classic');

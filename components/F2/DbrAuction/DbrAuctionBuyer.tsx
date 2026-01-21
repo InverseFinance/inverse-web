@@ -18,7 +18,7 @@ import { useDOLABalance } from "@app/hooks/useDOLA";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 import { DbrAuctionParametersWrapper } from "./DbrAuctionInfos";
  
-import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, ONE_DAY_SECS, SDOLA_HELPER_ADDRESS, SINV_ADDRESS, SINV_HELPER_ADDRESS } from "@app/config/constants";
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, JDOLA_AUCTION_ADDRESS, JDOLA_AUCTION_HELPER_ADDRESS, ONE_DAY_SECS, SDOLA_HELPER_ADDRESS, SINV_ADDRESS, SINV_HELPER_ADDRESS } from "@app/config/constants";
 import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect";
 import { RadioCardGroup } from "@app/components/common/Input/RadioCardGroup";
 import { DbrAuctionType } from "@app/types";
@@ -86,6 +86,10 @@ const AUCTION_TYPES = {
         auction: DOLA_SAVINGS_ADDRESS,
         helper: SDOLA_HELPER_ADDRESS,
     },
+    'jdola': {
+        auction: JDOLA_AUCTION_ADDRESS,
+        helper: JDOLA_AUCTION_HELPER_ADDRESS,
+    },
     'sinv': {
         auction: SINV_ADDRESS,
         helper: SINV_HELPER_ADDRESS,
@@ -128,10 +132,11 @@ export const DbrAuctionBuyer = ({
     const isExactInv = tab === SELL_INV;
     const selectedAuction = isExactInv ? 'sinv' : dolaAuctionType;
     const isClassicDbrAuction = dolaAuctionType === 'classic';
+    const isJDolaDbrAuction = dolaAuctionType === 'jdola';
     const sellTokenSymobl = isExactInv ? 'INV' : 'DOLA';
     const sellTokenPrice = tab === SELL_DOLA ? dolaPrice : invPrice;
     const helperAddress = AUCTION_TYPES[selectedAuction].helper;
-    const defaultRefAmount = isClassicDbrAuction ? defaultRefClassicAmount : defaultRefSdolaAmount;
+    const defaultRefAmount = isClassicDbrAuction || isJDolaDbrAuction ? defaultRefClassicAmount : defaultRefSdolaAmount;
 
     const srcIndex = isExactInv ? 2 : 0;
     const { price: dbrSwapPriceRef } = useTriCryptoSwap(parseFloat(defaultRefAmount), srcIndex, 1);
@@ -140,10 +145,12 @@ export const DbrAuctionBuyer = ({
     const dbrSwapPriceInToken = dbrSwapPrice ? 1 / dbrSwapPrice : 0;
     const dbrSwapPriceRefInToken = dbrSwapPriceRef ? 1 / dbrSwapPriceRef : 0;
 
+    const jdolaAuctionPricingData = useDbrAuctionPricing({ auctionType: 'jdola', helperAddress: JDOLA_AUCTION_HELPER_ADDRESS, tokenAmount: dolaAmount, dbrAmount, slippage, isExactToken: isSellMode, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
     const classicAuctionPricingData = useDbrAuctionPricing({ auctionType: 'classic', helperAddress: DBR_AUCTION_HELPER_ADDRESS, tokenAmount: dolaAmount, dbrAmount, slippage, isExactToken: isSellMode, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
     const sdolaAuctionPricingData = useDbrAuctionPricing({ auctionType: 'sdola', helperAddress: SDOLA_HELPER_ADDRESS, tokenAmount: dolaAmount, dbrAmount, slippage, isExactToken: isSellMode, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
     const sinvAuctionPricingData = useDbrAuctionPricing({ auctionType: 'sinv', helperAddress: SINV_HELPER_ADDRESS, tokenAmount: invAmount, dbrAmount, slippage, isExactToken: isSellMode, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
-    const selectedAuctionData = isExactInv ? sinvAuctionPricingData : (isClassicDbrAuction ? classicAuctionPricingData : sdolaAuctionPricingData);
+    const selectedAuctionData = isExactInv ? sinvAuctionPricingData : (isJDolaDbrAuction ? jdolaAuctionPricingData : isClassicDbrAuction ? classicAuctionPricingData : sdolaAuctionPricingData);
+    
     const {
         estimatedTimestampToReachMarketPrice,
         estimatedTimeToReachMarketPrice,
@@ -156,7 +163,7 @@ export const DbrAuctionBuyer = ({
         estimatedDbrOut,
     } = selectedAuctionData;
 
-    const isLoading = isCurvePriceLoading || classicAuctionPricingData?.isLoading || sdolaAuctionPricingData?.isLoading || sinvAuctionPricingData?.isLoading || (!selectedAuctionData);
+    const isLoading = isCurvePriceLoading || jdolaAuctionPricingData?.isLoading || classicAuctionPricingData?.isLoading || sdolaAuctionPricingData?.isLoading || sinvAuctionPricingData?.isLoading || (!selectedAuctionData);
 
     const { priceUsd: dbrPrice } = useDBRPrice();
 
@@ -207,7 +214,7 @@ export const DbrAuctionBuyer = ({
         if (isLoading) {
             return;
         }
-        const bestPriceSrc = (classicAuctionPricingData?.dbrAuctionPriceInToken < sdolaAuctionPricingData?.dbrAuctionPriceInToken ? 'classic' : 'sdola');
+        const bestPriceSrc = (classicAuctionPricingData?.dbrAuctionPriceInToken < sdolaAuctionPricingData?.dbrAuctionPriceInToken ? classicAuctionPricingData?.dbrAuctionPriceInToken < jdolaAuctionPricingData?.dbrAuctionPriceInToken ? 'classic' : 'jdola' : sdolaAuctionPricingData?.dbrAuctionPriceInToken < jdolaAuctionPricingData?.dbrAuctionPriceInToken ? 'sdola' : 'jdola'); 
         setBestAuctionSrc(bestPriceSrc);
         if (isInited) {
             return;
@@ -215,6 +222,7 @@ export const DbrAuctionBuyer = ({
         setDolaAuctionType(bestPriceSrc);
         setIsInited(true);
     }, [
+        jdolaAuctionPricingData?.dbrAuctionPriceInToken,
         classicAuctionPricingData?.dbrAuctionPriceInToken,
         sdolaAuctionPricingData?.dbrAuctionPriceInToken,
         isLoading,
@@ -263,7 +271,7 @@ export const DbrAuctionBuyer = ({
         noPadding
         m="0"
         p="0"
-        maxW='550px'>
+        maxW='650px'>
         <VStack spacing="4" alignItems="flex-start" w='full'>
             <ConfirmModal
                 title={`Unfavorable trade`}
@@ -326,6 +334,7 @@ export const DbrAuctionBuyer = ({
                                             options={[
                                                 { value: 'classic', label: <AuctionRadioOption isBest={bestAuctionSrc === 'classic'} label="Virtual auction DBR price" dbrAuctionPriceInDola={classicAuctionPricingData.dbrAuctionPriceInToken} dolaPrice={dolaPrice} /> },
                                                 { value: 'sdola', label: <AuctionRadioOption isBest={bestAuctionSrc === 'sdola'} label="sDOLA auction DBR price" dbrAuctionPriceInDola={sdolaAuctionPricingData.dbrAuctionPriceInToken} dolaPrice={dolaPrice} /> },
+                                                { value: 'jdola', label: <AuctionRadioOption isBest={bestAuctionSrc === 'jdola'} label="jDOLA auction DBR price" dbrAuctionPriceInDola={jdolaAuctionPricingData.dbrAuctionPriceInToken} dolaPrice={dolaPrice} /> },
                                             ]}
                                         />
                                     }

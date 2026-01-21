@@ -510,7 +510,7 @@ export const useDbrAuctionPricing = ({
     slippage: string,
     isExactToken: boolean,
     dbrSwapPriceRefInToken: number,
-    auctionType: 'classic' | 'sdola' | 'sinv',
+    auctionType: 'classic' | 'sdola' | 'sinv' | 'jdola',
 }) => {
     const [estimatedTimeToReachMarketPrice, setEstimatedTimeToReachMarketPrice] = useState(0);
     const isClassicDbrAuction = auctionType === 'classic';
@@ -522,6 +522,7 @@ export const useDbrAuctionPricing = ({
         [helperAddress, 'getDbrOut', parseEther(tokenAmount || defaultRefAmount)],
         [helperAddress, 'getDbrOut', parseEther(defaultRefAmount)],
     ]);
+    
     const { data: dataIn } = useEtherSWR([
         [helperAddress, isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
         [helperAddress, isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(defaultRefAmount)],

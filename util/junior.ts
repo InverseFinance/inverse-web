@@ -82,6 +82,8 @@ export const formatJDolaStakingData = (
     const jDolaExRate = jDolaTotalAssetsCurrent && jDolaSupply ? jDolaTotalAssetsCurrent / jDolaSupply : 0;
 
     return {
+        exitWindow: jdolaStakingData ? getBnToNumber(jdolaStakingData[7], 0) : 86400*2,
+        withdrawFee: jdolaStakingData ? getBnToNumber(jdolaStakingData[8], 0)/10000 : 0,
         jDolaExRate,
         jDolaSupply,
         jDolaTotalAssets,
@@ -143,8 +145,6 @@ export const useStakedJDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
 
     return {
         ...formatJDolaStakingData(dbrDolaPriceUsd, jdolaStakingData, apiData, supplyDelta),
-        exitWindow: jdolaStakingData ? getBnToNumber(jdolaStakingData[7], 0) : 86400*2,
-        withdrawFee: jdolaStakingData ? getBnToNumber(jdolaStakingData[8], 0)/10000 : 0,
         apy30d: apiData?.apy30d || 0,
         isLoading: (!jdolaStakingData && !error) && (!apiData && !apiErr),
         hasError: !!error || !!apiErr,

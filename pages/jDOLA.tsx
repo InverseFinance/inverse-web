@@ -3,11 +3,10 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { useAccount } from '@app/hooks/misc';
-import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
-import { SavingsOpportunities, useSavingsOpportunities } from '@app/components/sDola/SavingsOpportunities';
-import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect';
-import { useEffect, useState } from 'react';
+import { JDolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
+import { useState } from 'react';
 import { StakeJDolaUI } from '@app/components/JuniorTranches/StakeJDolaUI';
+
 
 export const JdolaPage = () => {
   const account = useAccount();
@@ -41,7 +40,7 @@ export const JdolaPage = () => {
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/jDOLA-v3.jpeg" />
       </Head>
       <AppNav active="Stake" activeSubmenu="jDOLA" hideAnnouncement={true} />
-      <DolaStakingTabs />
+      <JDolaStakingTabs />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
         mt='6'
