@@ -21,10 +21,10 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     try {
         const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
-        // if (validCache && ignoreCache !== 'true') {
-        //     res.status(200).json(validCache);
-        //     return
-        // }
+        if (validCache && ignoreCache !== 'true') {
+            res.status(200).json(validCache);
+            return
+        }
 
         // const provider = getProvider(CHAIN_ID);
         const provider = new JsonRpcProvider("https://virtual.mainnet.eu.rpc.tenderly.co/a6100ef2-1d15-4265-aa70-d9dfad68fec1");
