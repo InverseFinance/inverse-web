@@ -44,7 +44,7 @@ export const getBlogHomeProps = async ({ preview = false, ...context }) => {
 export const getLandingProps = async ({ preview = false, ...context }) => {
     const { isPreviewUrl } = getBlogContext(context);
     const isPreview = preview || isPreviewUrl;
-    const posts = await getLandingPosts({ isPreview }) ?? [];
+    const posts = []//await getLandingPosts({ isPreview }) ?? [];
     const [
         currentCirculatingSupply,
         dbrData,
@@ -57,15 +57,16 @@ export const getLandingProps = async ({ preview = false, ...context }) => {
         fetch(`${SERVER_BASE_URL}/api/dbr?cacheFirst=true`).then(res => res.json()),
         fetch(`${SERVER_BASE_URL}/api/f2/tvl?cacheFirst=true`).then(res => res.json()),
         fetch(`https://pro-api.coingecko.com/api/v3/coins/dola-usd?x_cg_pro_api_key=${process.env.CG_PRO}&localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`).then(res => res.json()),
+        // fetch(`https://api.coingecko.com/api/v3/coins/dola-usd?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`).then(res => res.json()),
         fetch(`${SERVER_BASE_URL}/api/f2/fixed-markets?cacheFirst=true`).then(res => res.json()),
         fetch(`${SERVER_BASE_URL}/api/dola-staking?cacheFirst=true`).then(res => res.json()),
     ]);
-    const dolaVolume = dolaMarketData.market_data.total_volume.usd;
-    const invFirmPrice = marketsData.markets.find(m => m.isInv)?.price || 0;
-    const totalDebt = marketsData.markets.reduce((prev, curr) => prev + curr.totalDebt, 0);
+    const dolaVolume = dolaMarketData?.market_data?.total_volume?.usd;
+    const invFirmPrice = marketsData?.markets?.find(m => m.isInv)?.price || 0;
+    const totalDebt = marketsData?.markets?.reduce((prev, curr) => prev + curr.totalDebt, 0);
     const { apy, projectedApy, tvlUsd, dolaPriceUsd } = dolaStakingData;
-    const dbrPriceUsd = dbrData.priceUsd;
-    const firmTotalTvl = firmTvlData.firmTotalTvl;
+    const dbrPriceUsd = dbrData?.priceUsd;
+    const firmTotalTvl = firmTvlData?.firmTotalTvl;
     return {
         props: {
             preview: isPreview, posts, totalDebt,

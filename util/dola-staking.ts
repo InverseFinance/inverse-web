@@ -128,6 +128,7 @@ export const useStakedDola = (dbrDolaPriceUsd: number, supplyDelta = 0, includeS
     isLoading: boolean;
     hasError: boolean;
     sDolaExRate: number;
+    totalEarnedByStakers: number;
     spectraApy: number;
     spectraLink: string;
 } => {
@@ -160,6 +161,7 @@ export const useStakedDola = (dbrDolaPriceUsd: number, supplyDelta = 0, includeS
 
     return {
         ...formatDolaStakingData(dbrDolaPriceUsd, dolaStakingData, apiData, supplyDelta),
+        totalEarnedByStakers: apiData?.totalEarnedByStakers || 0,
         accountRewardsClaimable,
         spectraLink: apiData?.spectraPool?.pool || '',
         spectraApy: apiData?.spectraPool?.apy || 0,

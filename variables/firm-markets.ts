@@ -586,6 +586,7 @@ export const FIRM_MARKETS = [
         points: 10,
         pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/Elixir.png',
         hasNowInvalidFeed: true,
+        isPhasingOut: true,
     },
     {
         name: 'yv-deUSD-DOLA',
@@ -608,6 +609,7 @@ export const FIRM_MARKETS = [
         points: 10,
         pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/Elixir.png',
         hasNowInvalidFeed: true,
+        isPhasingOut: true,
     },
     // USR
     {
