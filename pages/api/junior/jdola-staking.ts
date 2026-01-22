@@ -8,7 +8,8 @@ import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 import { getWeekIndexUtc } from '@app/util/misc';
 import { getOnChainData } from '../dola/sdola-comparator';
 import { getBnToNumber } from '@app/util/markets';
-import { formatJDolaStakingData, getJdolaContract } from '@app/util/junior';
+import { formatJDolaStakingData, getJdolaContract, getJuniorEscrowContract } from '@app/util/junior';
+import { JsonRpcProvider } from '@ethersproject/providers';
 
 export const jdolaStakingCacheKey = `jdola-staking-v1.0.0`;
 
@@ -20,13 +21,15 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     try {
         const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
-        if (validCache && ignoreCache !== 'true') {
-            res.status(200).json(validCache);
-            return
-        }
+        // if (validCache && ignoreCache !== 'true') {
+        //     res.status(200).json(validCache);
+        //     return
+        // }
 
-        const provider = getProvider(CHAIN_ID);
+        // const provider = getProvider(CHAIN_ID);
+        const provider = new JsonRpcProvider("https://virtual.mainnet.eu.rpc.tenderly.co/a6100ef2-1d15-4265-aa70-d9dfad68fec1");
         const jDolaContract = getJdolaContract(provider);
+        const escrowContract = getJuniorEscrowContract(provider);
 
         const weekIndexUtc = getWeekIndexUtc();
 
@@ -38,6 +41,8 @@ export default async function handler(req, res) {
             { contract: jDolaContract, functionName: 'weeklyRevenue', params: [weekIndexUtc] },
             { contract: jDolaContract, functionName: 'weeklyRevenue', params: [weekIndexUtc - 1] },
             { contract: jDolaContract, functionName: 'totalAssets' },
+            { contract: escrowContract, functionName: 'exitWindow' },
+            { contract: escrowContract, functionName: 'withdrawFeeBps' },
         ]);
 
         const promises = await Promise.allSettled([
