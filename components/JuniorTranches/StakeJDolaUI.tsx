@@ -57,16 +57,17 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
 
     const { apy, apy30d, projectedApy, isLoading, jDolaExRate, jDolaTotalAssets, jDolaSupply, weeklyRevenue, exitWindow, withdrawFee, isLoading: isLoadingStakedDola } = useStakedJDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount), true);
 
-    // value in jDOLA terms
+    // value in jrDOLA terms
     const { stakedDolaBalance, stakedDolaBalanceBn } = useJDolaStakingEarnings(account);
 
     const [previousStakedDolaBalance, setPrevStakedDolaBalance] = useState(stakedDolaBalance);
     const [baseBalance, setBaseBalance] = useState(0);
     const [realTimeBalance, setRealTimeBalance] = useState(0);
     // value in DOLA terms
-    const { withdrawDelay, withdrawTimestamp, exitWindowStart, exitWindowEnd, pendingAmount, hasComingExit, isWithinExitWindow, canCancel } = useJuniorWithdrawDelay(jDolaSupply, dolaAmount, account);
+    const { withdrawDelay, withdrawDelayMax, withdrawTimestamp, withdrawTimestampMax, exitWindowStart, exitWindowEnd, pendingAmount, hasComingExit, isWithinExitWindow, canCancel } = useJuniorWithdrawDelay(jDolaSupply, parseFloat(dolaAmount||'0') / (jDolaExRate||1), account, stakedDolaBalanceBn);
 
     const dolaStakedInVault = jDolaExRate * stakedDolaBalance;
+    const pendingAmountInDola = jDolaExRate * pendingAmount;
 
     const nextThursdayTsString = useMemo(() => {
         return new Date(getNextThursdayTimestamp()).toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' });
@@ -110,15 +111,16 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
         return (apy > 0 && dolaStakedInVault > 0 ? getMonthlyRate(dolaStakedInVault, apy) : 0);
     }, [dolaStakedInVault, apy]);
 
-    const handleAction = async () => {
-        if (isStake) {
-            return stakeJDola(provider?.getSigner(), parseEther(dolaAmount));
-        }
-        return juniorQueueWithdrawal(provider?.getSigner(), parseEther(dolaAmount), withdrawDelay.toString());
+    const handleQueue = async () => {
+        return juniorQueueWithdrawal(provider?.getSigner(), parseEther((parseFloat(dolaAmount)/jDolaExRate).toFixed(6)), withdrawDelay.toString());
+    }
+
+    const handleStake = () => {
+        return stakeJDola(provider?.getSigner(), parseEther(dolaAmount));
     }
 
     const unstakeAll = async () => {
-        return juniorQueueWithdrawal(provider?.getSigner(), stakedDolaBalanceBn, withdrawDelay.toString());
+        return juniorQueueWithdrawal(provider?.getSigner(), stakedDolaBalanceBn, withdrawDelayMax.toString());
     }
 
     const handleComplete = () => {
@@ -140,9 +142,9 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
         <InfoMessage description={
             <VStack alignItems="flex-start">
                 <Text fontWeight="bold">Junior DOLA</Text>
-                <Text>jDOLA is a liquid yield-bearing vault where stakers earn yield coming from DBR auctions similarly to sDOLA, but contrary to sDOLA the DOLA deposits of stakers serve as a junior tranche and cannot be withdrawn immediately, in case bad debt occurs in an allowed FiRM market the DOLA deposits in jDOLA may be slashed proportionnally among depositors.</Text>
-                <Text><b>Important note</b>: to exit jDOLA and get back DOLA a staker must queue a withdrawal, wait for the dynamic withdrawal delay and then complete the withdrawal within an exit window, if the exit window expired before completing the withdrawal then a new withdrawal must be queued.</Text>
-                <Link textDecoration="underline" href="https://docs.inverse.finance/jDOLA" isExternal target="_blank">Learn more about the risks <ExternalLinkIcon /> </Link>
+                <Text>jrDOLA is a liquid yield-bearing vault where stakers earn yield coming from DBR auctions similarly to sDOLA, but contrary to sDOLA the DOLA deposits of stakers serve as a junior tranche and cannot be withdrawn immediately, in case bad debt occurs in an allowed FiRM market the DOLA deposits in jrDOLA may be slashed proportionnally among depositors.</Text>
+                <Text><b>Important note</b>: to exit jrDOLA and get back DOLA a staker must queue a withdrawal, wait for the dynamic withdrawal delay and then complete the withdrawal within an exit window, if the exit window expired before completing the withdrawal then a new withdrawal must be queued.</Text>
+                <Link textDecoration="underline" href="https://docs.inverse.finance/jrDOLA" isExternal target="_blank">Learn more about the risks <ExternalLinkIcon /> </Link>
             </VStack>
         } alertProps={{ w: 'full' }} />
         <Stack direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'center', lg: 'flex-start' }} justify="space-around" w='full' spacing="12">
@@ -150,7 +152,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                 <HStack justify="space-around" w='full'>
                     <VStack>
                         <Image src="/assets/sDOLAx512.png" h="120px" w="120px" />
-                        <Text fontSize="20px" fontWeight="bold">jDOLA</Text>
+                        <Text fontSize="20px" fontWeight="bold">jrDOLA</Text>
                     </VStack>
                 </HStack>
                 <HStack justify="space-between" w='full'>
@@ -184,7 +186,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                 />
             </VStack>
             <Container
-                label="jDOLA - Yield-Bearing liquid vault"
+                label="jrDOLA - Yield-Bearing liquid vault"
                 description="See contract"
                 href={`https://etherscan.io/address/${JDOLA_AUCTION_ADDRESS}`}
                 noPadding
@@ -222,7 +224,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     destination={JDOLA_AUCTION_ADDRESS}
                                                     signer={provider?.getSigner()}
                                                     decimals={18}
-                                                    onAction={() => handleAction()}
+                                                    onAction={() => handleStake()}
                                                     actionLabel={`Stake`}
                                                     maxActionLabel={`Stake all`}
                                                     onAmountChange={(v) => setDolaAmount(v)}
@@ -248,7 +250,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                         approveForceRefresh={true}
                                                         signer={provider?.getSigner()}
                                                         decimals={18}
-                                                        onAction={() => handleAction()}
+                                                        onAction={() => handleStake()}
                                                         actionLabel={`Stake`}
                                                         onAmountChange={(v) => setDolaAmount(v)}
                                                         showMaxBtn={false}
@@ -299,7 +301,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                 needApprove={true}
                                                 signer={provider?.getSigner()}
                                                 decimals={18}
-                                                onAction={() => handleAction()}
+                                                onAction={() => handleQueue()}
                                                 onMaxAction={() => unstakeAll()}
                                                 maxActionLabel={`Initiate full withdrawal`}
                                                 actionLabel={`Initiate withdrawal`}
@@ -319,10 +321,10 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                             }
                                             <VStack alignItems="flex-start" spacing="0">
                                                 <Text>
-                                                    - Queue duration for this amount & the current suply:
+                                                    - Queue duration for {withdrawTimestamp && dolaAmount ? 'chosen amount' : 'max amount'} & the current suply:
                                                 </Text>
                                                 <Text fontWeight="bold">
-                                                    <b>{dolaAmount ? fromNow(withdrawTimestamp, true) : '-'}</b>
+                                                    <b>{dolaAmount ? fromNow(withdrawTimestamp, true) : withdrawTimestampMax ? fromNow(withdrawTimestampMax, true) : '-'}</b>
                                                 </Text>
                                             </VStack>
                                             <VStack alignItems="flex-start" spacing="0">
@@ -339,7 +341,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                 2) Complete a withdrawal:
                                             </Text>
                                             {
-                                                hasComingExit ? isWithinExitWindow ? <Text>You have a withdrawal to complete!</Text> : <Text>You have a pending withdrawal of {shortenNumber(pendingAmount, 2)} in queue phase</Text> : <Text>You don't have any pending withdrawal</Text>
+                                                hasComingExit ? isWithinExitWindow ? <Text>You have a withdrawal of <b>{shortenNumber(pendingAmountInDola, 2)}</b> to complete!</Text> : <Text>You have a pending withdrawal of {shortenNumber(pendingAmountInDola, 2)} in queue phase</Text> : <Text>You don't have any pending withdrawal</Text>
                                             }
                                             {
                                                 hasComingExit && <StatusMessage
@@ -350,7 +352,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                             <Text>- You have until <b>{formatDateWithTime(exitWindowEnd)}</b> to complete the withdrawal.</Text>
                                                             <Text>- Time left: ~{fromNow(exitWindowEnd, true)}</Text>
                                                             <Text>- The withdrawal will be cancelled otherwise.</Text>
-                                                            <RSubmitButton themeColor="success" mt="2" onClick={handleComplete}>
+                                                            <RSubmitButton mt="2" onClick={handleComplete}>
                                                                 Complete Withdrawal
                                                             </RSubmitButton>
                                                         </VStack> : <VStack alignItems="flex-start" spacing="0">
@@ -369,7 +371,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                         <Text fontSize="22px" fontWeight="bold">
                                                             Or cancel withdrawal
                                                         </Text>
-                                                        <InfoMessage description="Cancelling sends you back the previously queued up jDOLA" />
+                                                        <InfoMessage description="Cancelling sends you back the previously queued up jrDOLA" />
                                                         <RSubmitButton isDisabled={!canCancel} themeColor="warning" onClick={handleCancel}>Cancel withdrawal</RSubmitButton>
                                                         {
                                                             !canCancel && <Text>Note: Cancelling is only possible after the stat of the exit window</Text>
@@ -383,7 +385,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                     tab !== 'Infos' && <VStack alignItems="flex-start">
                                         {/* <HStack>
                                             <Text fontSize="16px" color="mainTextColorLight2">
-                                                {isStake ? 'jDOLA to receive' : 'jDOLA to exchange'}:
+                                                {isStake ? 'jrDOLA to receive' : 'jrDOLA to exchange'}:
                                             </Text>
                                             <Text fontSize="16px" color="mainTextColorLight2">
                                                 {sDOLAamount ? preciseCommify(sDOLAamount, 2) : '-'}
@@ -391,7 +393,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                         </HStack> */}
                                         {/* <HStack>
                                             <Text fontSize="16px" color="mainTextColorLight">
-                                                DOLA-jDOLA exchange rate:
+                                                DOLA-jrDOLA exchange rate:
                                             </Text>
                                             <Text fontSize="16px" color="mainTextColorLight">
                                                 {jDolaExRate ? shortenNumber(1 / jDolaExRate, 6) : '-'}

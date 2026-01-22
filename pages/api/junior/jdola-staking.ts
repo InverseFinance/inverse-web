@@ -43,7 +43,7 @@ export default async function handler(req, res) {
             { contract: jDolaContract, functionName: 'totalAssets' },
             { contract: escrowContract, functionName: 'exitWindow' },
             { contract: escrowContract, functionName: 'withdrawFeeBps' },
-        ]);
+        ], 1, undefined, provider);
 
         const promises = await Promise.allSettled([
             getDbrPriceOnCurve(provider),

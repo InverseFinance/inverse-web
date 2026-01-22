@@ -49,22 +49,22 @@ export const StakeJDolaInfos = () => {
         alertProps={{ fontSize: '12px', mb: '8', w: 'full', maxW: '470px' }}
         description={
             <Stack w='full'>
-                <Text fontSize="14px" fontWeight="bold">What is jDOLA?</Text>
+                <Text fontSize="14px" fontWeight="bold">What is jrDOLA?</Text>
                 <VStack spacing="0" alignItems="flex-start">
-                    <Text>- jDOLA is a liquid yield-bearing vault</Text>
+                    <Text>- jrDOLA is a liquid yield-bearing vault</Text>
                     <Text>
                         - It uses the ERC4626 standard (Tokenized Vault Token)
                     </Text>
                     <Text>- It's not a stablecoin</Text>
                     <Text>- The yield comes from DBR auctions</Text>
                     <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/jdola' isExternal target="_blank">
-                        Learn more about jDOLA <ExternalLinkIcon />
+                        Learn more about jrDOLA <ExternalLinkIcon />
                     </Link>                    
                 </VStack>
-                <Text fontSize="14px" fontWeight="bold">jDOLA stats</Text>
+                <Text fontSize="14px" fontWeight="bold">jrDOLA stats</Text>
                 <VStack w='full' spacing="0" alignItems="flex-start">
                     <HStack w='full'>
-                        <Text>- Total DOLA staked in jDOLA:</Text>
+                        <Text>- Total DOLA staked in jrDOLA:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(realTimeBalance, 4)}</Text>}
                     </HStack>
                     <HStack w='full'>
@@ -76,7 +76,7 @@ export const StakeJDolaInfos = () => {
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(weeklyRevenue, 2)} DOLA</Text>}
                     </HStack>
                 </VStack>
-                <Text fontSize="14px" fontWeight="bold">jDOLA Parameters</Text>
+                <Text fontSize="14px" fontWeight="bold">jrDOLA Parameters</Text>
                 <VStack w='full' spacing="0">
                     <HStack w='full'>
                         <Text>- Yearly budget:</Text>
@@ -95,7 +95,7 @@ export const StakeJDolaInfos = () => {
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(yearlyDbrEarnings, 0)} ({preciseCommify(yearlyDbrEarnings * dbrPrice, 0, true)})</Text>}
                     </HStack>
                 </VStack>
-                <Text fontSize="14px" fontWeight="bold">Looking for the jDOLA auction?</Text>
+                <Text fontSize="14px" fontWeight="bold">Looking for the jrDOLA auction?</Text>
                 <Link textDecoration="underline" href='/dbr/auction'>
                     Go to auctions
                 </Link>

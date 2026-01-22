@@ -195,7 +195,11 @@ export const useJuniorWithdrawDelay = (
     currentSupply,
     withdrawAmount,
     userAddress,
+    maxBalanceBn,
 ) => {  
+    const { data: blockData } = useEtherSWR(
+        ['getBlock', 'latest']
+    );
     const { provider } = useWeb3React<Web3Provider>()
 
     const { data: escrowData } = useEtherSWR([
@@ -211,7 +215,16 @@ export const useJuniorWithdrawDelay = (
       return null
     })
 
-    const now = Date.now();
+    // unstake all case
+    const { data: dataUnstakeAll } = useSWR(['getWithdrawDelayMax', parseEther(currentSupply?.toString()||'0').toString(), maxBalanceBn, userAddress], (...args) => {
+        const [name, ...otherParams] = args
+        if (provider) {
+          return getJuniorWithdrawModelContract(provider?.getSigner()).callStatic['getWithdrawDelay'](...otherParams)
+        }
+        return null
+      })
+
+    const now = (blockData?.timestamp * 1000) || Date.now();
 
     const exitWindowStart = escrowData && !!escrowData[0] ? getBnToNumber(escrowData[0][0], 0) * 1000 : 0;
     const exitWindowEnd = escrowData && !!escrowData[0] ? getBnToNumber(escrowData[0][1], 0) * 1000 : 0;
@@ -222,11 +235,13 @@ export const useJuniorWithdrawDelay = (
       // in seconds
       withdrawDelay: data ? getBnToNumber(data, 0) : BigNumber.from(0),
       withdrawTimestamp: data ? now + getBnToNumber(data, 0) * 1000 : null,
+      withdrawDelayMax: dataUnstakeAll ? getBnToNumber(dataUnstakeAll, 0) : BigNumber.from(0),
+      withdrawTimestampMax: dataUnstakeAll ? now + getBnToNumber(dataUnstakeAll, 0) * 1000 : null,
       exitWindowStart,
       exitWindowEnd,
       canCancel: !!exitWindowStart && now >= exitWindowStart,
       isWithinExitWindow: exitWindowStart ? now <= exitWindowEnd && now >= exitWindowStart : false,
-      hasComingExit: exitWindowStart ? !!exitWindowStart && now < exitWindowStart : false,
+      hasComingExit: exitWindowEnd ? !!exitWindowEnd && now < exitWindowEnd : false,
       isLoading: !error && !data,
       isError: error,
     }

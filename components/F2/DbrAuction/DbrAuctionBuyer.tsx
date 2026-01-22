@@ -334,7 +334,7 @@ export const DbrAuctionBuyer = ({
                                             options={[
                                                 { value: 'classic', label: <AuctionRadioOption isBest={bestAuctionSrc === 'classic'} label="Virtual auction DBR price" dbrAuctionPriceInDola={classicAuctionPricingData.dbrAuctionPriceInToken} dolaPrice={dolaPrice} /> },
                                                 { value: 'sdola', label: <AuctionRadioOption isBest={bestAuctionSrc === 'sdola'} label="sDOLA auction DBR price" dbrAuctionPriceInDola={sdolaAuctionPricingData.dbrAuctionPriceInToken} dolaPrice={dolaPrice} /> },
-                                                { value: 'jdola', label: <AuctionRadioOption isBest={bestAuctionSrc === 'jdola'} label="jDOLA auction DBR price" dbrAuctionPriceInDola={jdolaAuctionPricingData.dbrAuctionPriceInToken} dolaPrice={dolaPrice} /> },
+                                                { value: 'jdola', label: <AuctionRadioOption isBest={bestAuctionSrc === 'jdola'} label="jrDOLA auction DBR price" dbrAuctionPriceInDola={jdolaAuctionPricingData.dbrAuctionPriceInToken} dolaPrice={dolaPrice} /> },
                                             ]}
                                         />
                                     }
