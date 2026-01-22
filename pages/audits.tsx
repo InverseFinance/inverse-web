@@ -22,13 +22,16 @@ export const AboutFirm = () => {
             <AppNav active="More" activeSubmenu="Audits" />
             <VStack alignItems="flex-start" w='full'>
                 <Container
-                    label="FiRM & sDOLA audits"
+                    label="FiRM, sDOLA & jrDOLA audits"
                     description="Go to the audits documentation page"
                     href="https://docs.inverse.finance/inverse-finance/technical/audits"
                 >
                     <VStack spacing="2" alignItems="flex-start">
-                        <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="/audits/junior-sherlock.pdf" isExternal target="_blank">
-                            Junior Tranches, by Sherlock, Oct 16th, 2025
+                        <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="/audits/junior-sherlock-contest.pdf" isExternal target="_blank">
+                            Junior Tranches contest, by Sherlock, Nov 14th, 2025
+                        </Link>
+                        <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="/audits/junior-sherlock-audit.pdf" isExternal target="_blank">
+                            Junior Tranches audit, by Sherlock, Oct 16th, 2025
                         </Link>
                         <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="/audits/sDOLA-yAudit.pdf" isExternal target="_blank">
                             sDOLA, by yAudit, Jan 23th, 2024
