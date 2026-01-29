@@ -37,13 +37,15 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     else if (chainId === NetworkIds.mode && !specificAlchemyKey) {
         return new JsonRpcProvider('https://mainnet.mode.network');
     }
-    const network = Number(chainId);
-    const providers = [new AlchemyProvider(network, specificAlchemyKey || getRandomFromStringList(process.env.ALCHEMY_KEYS!))];
+    
+    return new JsonRpcProvider(`${ALCHEMY_BASE_URLS[chainId as keyof typeof ALCHEMY_BASE_URLS]}/${(specificAlchemyKey || getRandomFromStringList(process.env.ALCHEMY_KEYS!))}`);
+    // const network = Number(chainId);
+    // const providers = [new AlchemyProvider(network, specificAlchemyKey || getRandomFromStringList(process.env.ALCHEMY_KEYS!))];
 
     // if(!onlyAlchemy && chainId?.toString() === NetworkIds.mainnet) {
     //     return getPaidProvider(chainId);
     // }
-    return providers[0]
+    // return providers[0]
     // if(!onlyAlchemy) {
     //     // providers.push(new CloudflareProvider(network));
     //     providers.push(new InfuraProvider(network, getRandomFromStringList(process.env.INFURA_KEYS!)))
@@ -98,16 +100,22 @@ export const getHistoricValue = (contract: Contract, block: number, functionName
     return contract.provider.call(getCallForFunction(contract, functionName, args), block);
 }
 
+const ALCHEMY_BASE_URLS = {
+    [NetworkIds.optimism]: `https://opt-mainnet.g.alchemy.com/v2`,
+    [NetworkIds.base]: `https://base-mainnet.g.alchemy.com/v2`,
+    [NetworkIds.arbitrum]: `https://arb-mainnet.g.alchemy.com/v2`,
+    [NetworkIds.polygon]: `https://polygon-mainnet.g.alchemy.com/v2`,
+    [NetworkIds.avalanche]: `https://avax-mainnet.g.alchemy.com/v2`, 
+    [NetworkIds.bsc]: `https://bnb-mainnet.g.alchemy.com/v2`,
+    [NetworkIds.mainnet]: `https://eth-mainnet.g.alchemy.com/v2`,
+    [NetworkIds.blast]: `https://blast-mainnet.g.alchemy.com/v2`,
+    [NetworkIds.mode]: `https://mode-mainnet.g.alchemy.com/v2`,
+}
+
 export const getHistoricalProvider = (chainId: string) => {
-    if (chainId?.toString() === NetworkIds.optimism) {
-        return new JsonRpcProvider(`https://opt-mainnet.g.alchemy.com/v2/${process.env.OP_ALCHEMY_KEY}`);
-    } else if (chainId?.toString() === NetworkIds.base) {
-        return new JsonRpcProvider(`https://base-mainnet.g.alchemy.com/v2/${process.env.OP_ALCHEMY_KEY}`);
-    } else if (chainId?.toString() === NetworkIds.arbitrum) {
-        return new JsonRpcProvider(`https://arb-mainnet.g.alchemy.com/v2/${process.env.OP_ALCHEMY_KEY}`);
+    if(!!ALCHEMY_BASE_URLS[chainId as keyof typeof ALCHEMY_BASE_URLS]){
+        return new JsonRpcProvider(`${ALCHEMY_BASE_URLS[chainId as keyof typeof ALCHEMY_BASE_URLS]}/${process.env.OP_ALCHEMY_KEY}`);
+    } else {
+        return getProvider(chainId);
     }
-    else if (chainId?.toString() === NetworkIds.polygon) {
-        return new JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${process.env.OP_ALCHEMY_KEY}`);
-    }
-    return getProvider(chainId);
 }
