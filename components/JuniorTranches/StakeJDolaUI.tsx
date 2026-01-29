@@ -374,7 +374,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                         <InfoMessage description="Cancelling sends you back the previously queued up jrDOLA" />
                                                         <RSubmitButton isDisabled={!canCancel} themeColor="warning" onClick={handleCancel}>Cancel withdrawal</RSubmitButton>
                                                         {
-                                                            !canCancel && <Text>Note: Cancelling is only possible after the stat of the exit window</Text>
+                                                            !canCancel && <Text>Note: Cancelling is only possible after the start of the exit window</Text>
                                                         }
                                                     </VStack>
                                                 </>
