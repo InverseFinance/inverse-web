@@ -1,8 +1,20 @@
-import { AlchemyProvider, InfuraProvider, CloudflareProvider, JsonRpcProvider, FallbackProvider } from "@ethersproject/providers";
+import { InfuraProvider, JsonRpcProvider, FallbackProvider } from "@ethersproject/providers";
 import { NetworkIds } from '@app/types';
 import { getRandomFromStringList } from './misc';
 import { Contract } from "ethers";
 import { AbiCoder } from "ethers/lib/utils";
+
+const ALCHEMY_BASE_URLS = {
+    [NetworkIds.optimism]: `https://opt-mainnet.g.alchemy.com/v2`,
+    [NetworkIds.base]: `https://base-mainnet.g.alchemy.com/v2`,
+    [NetworkIds.arbitrum]: `https://arb-mainnet.g.alchemy.com/v2`,
+    [NetworkIds.polygon]: `https://polygon-mainnet.g.alchemy.com/v2`,
+    [NetworkIds.avalanche]: `https://avax-mainnet.g.alchemy.com/v2`, 
+    [NetworkIds.bsc]: `https://bnb-mainnet.g.alchemy.com/v2`,
+    [NetworkIds.mainnet]: `https://eth-mainnet.g.alchemy.com/v2`,
+    [NetworkIds.blast]: `https://blast-mainnet.g.alchemy.com/v2`,
+    [NetworkIds.mode]: `https://mode-mainnet.g.alchemy.com/v2`,
+}
 
 export const getProvider = (chainId: string | number, specificAlchemyKey?: string, onlyAlchemy = false): FallbackProvider | JsonRpcProvider => {
     if (chainId === '31337') {
@@ -39,20 +51,6 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     }
     
     return new JsonRpcProvider(`${ALCHEMY_BASE_URLS[chainId as keyof typeof ALCHEMY_BASE_URLS]}/${(specificAlchemyKey || getRandomFromStringList(process.env.ALCHEMY_KEYS!))}`);
-    // const network = Number(chainId);
-    // const providers = [new AlchemyProvider(network, specificAlchemyKey || getRandomFromStringList(process.env.ALCHEMY_KEYS!))];
-
-    // if(!onlyAlchemy && chainId?.toString() === NetworkIds.mainnet) {
-    //     return getPaidProvider(chainId);
-    // }
-    // return providers[0]
-    // if(!onlyAlchemy) {
-    //     // providers.push(new CloudflareProvider(network));
-    //     providers.push(new InfuraProvider(network, getRandomFromStringList(process.env.INFURA_KEYS!)))
-    // } else {
-    //     return providers[0]
-    // }
-    // return new FallbackProvider(providers, 1);
 }
 
 export const getPaidProvider = (chainId: string | number) => {
@@ -60,28 +58,6 @@ export const getPaidProvider = (chainId: string | number) => {
         return new InfuraProvider(Number(chainId), getRandomFromStringList(process.env.INFURA_KEYS!));
     }
     return getProvider(chainId);
-    // if (chainId?.toString() === NetworkIds.mainnet) {
-    //     return new JsonRpcProvider(`https://mainnet.infura.io/v3/${getRandomFromStringList(process.env.INFURA_KEYS!)}`)
-    // }
-    // else if (chainId?.toString() === NetworkIds.sepolia) {
-    //     return new JsonRpcProvider(`https://sepolia.infura.io/v3/${getRandomFromStringList(process.env.INFURA_KEYS!)}`)
-    // }
-    // else if (chainId?.toString() === NetworkIds.optimism) {
-    //     return new JsonRpcProvider(`https://optimism-mainnet.infura.io/v3/${getRandomFromStringList(process.env.INFURA_KEYS!)}`)
-    // } else if (chainId?.toString() === NetworkIds.base) {
-    //     return new JsonRpcProvider(`https://base-mainnet.infura.io/v3/${getRandomFromStringList(process.env.INFURA_KEYS!)}`)
-    // } else if (chainId?.toString() === NetworkIds.arbitrum) {
-    //     console.log('arbitrum');
-    //     return new JsonRpcProvider(`https://arbitrum-mainnet.infura.io/v3/${getRandomFromStringList(process.env.INFURA_KEYS!)}`)
-    // } else if (chainId?.toString() === NetworkIds.polygon) {
-    //     return new JsonRpcProvider(`https://polygon-mainnet.infura.io/v3/${getRandomFromStringList(process.env.INFURA_KEYS!)}`)
-    // } else if (chainId?.toString() === NetworkIds.avalanche) {
-    //     return new JsonRpcProvider(`https://avalanche-mainnet.infura.io/v3/${getRandomFromStringList(process.env.INFURA_KEYS!)}`)
-    // }
-    // else if (chainId?.toString() === NetworkIds.bsc) {
-    //     return new JsonRpcProvider(`https://bsc-mainnet.infura.io/v3/${getRandomFromStringList(process.env.INFURA_KEYS!)}`)
-    // }
-    // return getProvider(chainId);
 }
 
 export const getCallForFunction = (contract: Contract, functionName: string, args: any[]) => {
@@ -98,18 +74,6 @@ export const getCallForFunction = (contract: Contract, functionName: string, arg
 /** provider needs to support historical data, example: AlchemyProvider */
 export const getHistoricValue = (contract: Contract, block: number, functionName: string, args: any[]) => {
     return contract.provider.call(getCallForFunction(contract, functionName, args), block);
-}
-
-const ALCHEMY_BASE_URLS = {
-    [NetworkIds.optimism]: `https://opt-mainnet.g.alchemy.com/v2`,
-    [NetworkIds.base]: `https://base-mainnet.g.alchemy.com/v2`,
-    [NetworkIds.arbitrum]: `https://arb-mainnet.g.alchemy.com/v2`,
-    [NetworkIds.polygon]: `https://polygon-mainnet.g.alchemy.com/v2`,
-    [NetworkIds.avalanche]: `https://avax-mainnet.g.alchemy.com/v2`, 
-    [NetworkIds.bsc]: `https://bnb-mainnet.g.alchemy.com/v2`,
-    [NetworkIds.mainnet]: `https://eth-mainnet.g.alchemy.com/v2`,
-    [NetworkIds.blast]: `https://blast-mainnet.g.alchemy.com/v2`,
-    [NetworkIds.mode]: `https://mode-mainnet.g.alchemy.com/v2`,
 }
 
 export const getHistoricalProvider = (chainId: string) => {
