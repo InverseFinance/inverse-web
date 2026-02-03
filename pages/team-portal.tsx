@@ -14,9 +14,9 @@ const MAIN_LINKS = [
 ]
 
 const AFFILIATES_LINKS = [
-    { label: 'Affiliates list', href: '/affiliate/list', description: 'View all affiliate applications and statuses' },
-    { label: 'Affiliates form', href: '/affiliate/register', description: 'Form page to register as a new affiliate' },
     { label: 'Affiliates program page', href: '/affiliate/apply', description: 'Details, terms and conditions of the program' },
+    { label: 'Affiliates form', href: '/affiliate/register', description: 'Form page to register as a new affiliate' },
+    { label: 'Affiliates list', href: '/affiliate/list', description: 'View all affiliate applications and statuses' },
     { label: 'Affiliates dashboard', href: '/affiliate/dashboard', description: 'Personal affiliate dashboard and analytics' },
 ]
 
