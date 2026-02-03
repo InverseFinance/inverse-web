@@ -247,7 +247,7 @@ const MarketCell = ({ icon, marketIcon, underlying, badgeInfo, badgeProps, name,
     </Cell>
 }
 
-const CollateralFactorCell = ({ collateralFactor, isLeverageComingSoon, supplyApy, borrowPaused, dbrPriceUsd, _isMobileCase }: { collateralFactor: number, borrowPaused: boolean, _isMobileCase: boolean }) => {
+const CollateralFactorCell = ({ collateralFactor, isLeverageComingSoon, supplyApy, borrowPaused, dbrPriceUsd, points, pointsImage, _isMobileCase }: { collateralFactor: number, borrowPaused: boolean, _isMobileCase: boolean }) => {
     const maxLong = calculateMaxLeverage(collateralFactor);
     return <Cell spacing="0" direction="column" minWidth="70px" alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" >
         <CellText>{smartShortNumber(collateralFactor * 100, 2)}%</CellText>
@@ -255,25 +255,34 @@ const CollateralFactorCell = ({ collateralFactor, isLeverageComingSoon, supplyAp
             (!borrowPaused && !isLeverageComingSoon) && <>
                 {!_isMobileCase && <CellText>&nbsp;</CellText>}
                 <CellText color="mainTextColorLight" transform={_isMobileCase ? undefined : 'translateY(10px)'} position={_isMobileCase ? 'static' : 'absolute'} fontSize="12px">Long up to x{smartShortNumber(maxLong, 2)}</CellText>
+                {/* ugly */}
+                {/* {
+                    points > 0 && <MarketPointsInfo leverage={maxLong} points={points} pointsImage={pointsImage} />
+                } */}
             </>
         }
     </Cell>
 }
 
 export const MarketPointsInfo = ({
+    leverage,
     points,
     pointsImage,
     textProps,
     imageProps
 }: {
+    leverage?: number,
     points: number,
     pointsImage: string,
     imageProps?: ImageProps,
     textProps?: TextProps,
 }) => {
-    return <HStack spacing="1">
+    return <HStack spacing="1" alignItems="center" lineHeight="normal">
         <Image src={pointsImage} h="15px" w="15px" {...imageProps} />
-        <Text fontSize="12px" color="mainTextColorLight" {...textProps}>{Math.round(points)}x</Text>
+        <Text fontSize="12px" color="mainTextColorLight" {...textProps}>{Math.round(points * (leverage || 1))}x</Text>
+        {
+            leverage && leverage > 1 && <Text fontSize="12px" color="mainTextColorLight">at x{smartShortNumber(leverage, 2)}</Text>
+        }
     </HStack>
 }
 
@@ -330,6 +339,9 @@ const leverageColumn = {
                     <CellText fontSize="12px" color="mainTextColorLight">
                         Net APY at x{smartShortNumber(maxLong, 2)}
                     </CellText>
+                    {
+                        points > 0 && <CellText><MarketPointsInfo leverage={maxLong} points={points} pointsImage={pointsImage} /></CellText>
+                    }
                 </>
                     : borrowPaused ? <MarketApyInfos
                         minWidth="100px"
@@ -352,6 +364,9 @@ const leverageColumn = {
                         pointsImage={pointsImage}
                     /> : <CellText fontSize="12px" color="mainTextColorLight">
                         Long up to x{smartShortNumber(maxLong, 2)}
+                        {
+                            points > 0 && <MarketPointsInfo leverage={maxLong} points={points} pointsImage={pointsImage} />
+                        }
                     </CellText>
             }
         </Cell>
@@ -426,8 +441,8 @@ const columns = [
             <Text><b>Collateral Factor</b>: maximum percentage of collateral value that can be used for borrowing.</Text>
             <Text><b>Long up to</b>: theoretical maximum leverage with DOLA at $1 and borrow limit at 100%</Text>
         </VStack>,
-        value: ({ collateralFactor, borrowPaused, supplyApy, dbrPriceUsd, _isMobileCase, isLeverageComingSoon }) => {
-            return <CollateralFactorCell dbrPriceUsd={dbrPriceUsd} supplyApy={supplyApy} _isMobileCase={_isMobileCase} collateralFactor={collateralFactor} borrowPaused={borrowPaused} isLeverageComingSoon={isLeverageComingSoon} />
+        value: ({ collateralFactor, borrowPaused, supplyApy, dbrPriceUsd, _isMobileCase, isLeverageComingSoon, points, pointsImage }) => {
+            return <CollateralFactorCell points={points} pointsImage={pointsImage} dbrPriceUsd={dbrPriceUsd} supplyApy={supplyApy} _isMobileCase={_isMobileCase} collateralFactor={collateralFactor} borrowPaused={borrowPaused} isLeverageComingSoon={isLeverageComingSoon} />
         },
     },
     {
