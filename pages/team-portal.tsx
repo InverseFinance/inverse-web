@@ -4,7 +4,6 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import Link from '@app/components/common/Link';
 import Container from '@app/components/common/Container';
-import { ExternalLinkIcon } from '@chakra-ui/icons';
 
 const MAIN_LINKS = [
     { label: 'DOLA Payroll', href: '/governance/payroll', description: 'Manage DOLA payroll operations' },
@@ -45,7 +44,6 @@ const LinkCard = ({ label, href, description }: { label: string, href: string, d
                     <Text fontSize="18px" fontWeight="bold" color="mainTextColor">
                         {label}
                     </Text>
-                    <ExternalLinkIcon color="secondaryTextColor" boxSize={4} />
                 </HStack>
                 <Text fontSize="14px" color="secondaryTextColor" lineHeight="1.5">
                     {description}
