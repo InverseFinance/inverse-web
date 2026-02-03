@@ -16,7 +16,7 @@ export const ReferToModal = ({
     const { account } = useWeb3React();
     const router = useRouter();
     const [isCopied, setIsCopied] = useState(false);
-    const [refPage, setRefPage] = useState('/');
+    const [refPage, setRefPage] = useState('/firm');
     const refLink = `https://inverse.finance${refPage}?referrer=${account}`;
     const twitterShareLink = `https://x.com/intent/tweet?text=${encodeURIComponent(`Borrow at a Fixed-Rate on FiRM!\n${refLink}`)}`
 
@@ -40,9 +40,10 @@ export const ReferToModal = ({
                 <Text fontWeight="bold">Link destination:</Text>
                 <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setRefPage} value={refPage}>
                     <Stack direction='row' w='full' spacing="4">
+                        <Radio value='/firm'>FiRM page</Radio>
                         <Radio value='/'>Homepage</Radio>
                         {/* <Radio value={router?.pathname}>Current page</Radio> */}
-                        <Radio value='/firm'>FiRM page</Radio>
+                        
                     </Stack>
                 </RadioGroup>
             </VStack>

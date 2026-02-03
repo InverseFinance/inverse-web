@@ -262,9 +262,6 @@ const WhatElseSection = () => <VStack spacing="0" transform="translateY(-70px)" 
         </DarkCard>
         <Stack maxW={{ base: '400px', lg: 'full' }} spacing="8" direction={{ base: 'column', lg: 'row' }}>
             <DarkCard justifyContent="center" w={{ base: 'full', lg: '50%' }}>
-                <Text py="4" px="8" color={whitish}>90-day beta test runs from August 15 thru November 15th. Program may be extended by governance.</Text>
-            </DarkCard>
-            <DarkCard justifyContent="center" w={{ base: 'full', lg: '50%' }}>
                 <Text py="4" px="8" color={whitish}>Referrals made via sybil attacks or other prohibited means may be denied payment.</Text>
             </DarkCard>
         </Stack>

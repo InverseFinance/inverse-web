@@ -309,6 +309,8 @@ export default async function handler(req, res) {
                     || isInvalidIndividual
                     || isInvalidBusiness
                     || otherInfo.length > 1000
+                    || /[<>/\\{}]/i.test(name)
+                    || /[<>/\\{}]/i.test(otherInfo)
                 ) {
                     res.status(400).json({ status: 'error', message: 'Invalid request' });
                     return;

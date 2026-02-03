@@ -331,7 +331,7 @@ export const FirmAffiliateList = ({
                             setSelectedAffiliateItem(item);
                             onOpen();
                         }}
-                        defaultSort="affiliateRewards"
+                        defaultSort="timestamp"
                         defaultSortDir="desc"
                     />
             }
