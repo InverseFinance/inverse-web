@@ -15,7 +15,7 @@ import { useDBRPrice } from "@app/hooks/useDBR";
 import { getMonthlyRate, getNumberToBn, shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
-import { JDOLA_AUCTION_ADDRESS, JUNIOR_ESCROW_ADDRESS, ONE_DAY_MS, SECONDS_PER_BLOCK } from "@app/config/constants";
+import { JDOLA_AUCTION_ADDRESS, JUNIOR_ESCROW_ADDRESS, ONE_DAY_MS, SDOLA_ADDRESS, SECONDS_PER_BLOCK } from "@app/config/constants";
 import { useAccount } from "@app/hooks/misc";
 import { StakeJDolaInfos } from "./StakeJDolaInfos";
 import { useDOLAPrice } from "@app/hooks/usePrices";
@@ -46,6 +46,8 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     const { provider, account: connectedAccount } = useWeb3React();
     const [useDolaAsMainChoice, setUseDolaAsMainChoice] = useState(false);
 
+    const [depositTokenSymbol, setDepositTokenSymbol] = useState('DOLA');
+    const [depositTokenAddress, setDepositTokenAddress] = useState(DOLA);
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
     const [isPreventLoader, setIsPreventLoader] = useState(false);
@@ -72,6 +74,14 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     const nextThursdayTsString = useMemo(() => {
         return new Date(getNextThursdayTimestamp()).toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' });
     }, [nowWithInterval]);
+
+    useEffect(() => {
+        if(depositTokenSymbol === 'DOLA') {
+            setDepositTokenAddress(DOLA);
+        } else {
+            setDepositTokenAddress(SDOLA_ADDRESS);
+        }
+    }, [depositTokenSymbol]);
 
     useInterval(() => {
         setNowWithInterval(Date.now());
@@ -116,7 +126,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     }
 
     const handleStake = () => {
-        return stakeJDola(provider?.getSigner(), parseEther(dolaAmount));
+        return stakeJDola(provider?.getSigner(), parseEther(dolaAmount), depositTokenSymbol === 'DOLA');
     }
 
     const unstakeAll = async () => {
@@ -143,7 +153,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
             <VStack alignItems="flex-start">
                 <Text fontWeight="bold">Junior DOLA</Text>
                 <Text>jrDOLA is a liquid yield-bearing vault where stakers earn yield coming from DBR auctions similarly to sDOLA, but contrary to sDOLA the DOLA deposits of stakers serve as a junior tranche and cannot be withdrawn immediately, in case bad debt occurs in an allowed FiRM market the DOLA deposits in jrDOLA may be slashed proportionnally among depositors.</Text>
-                <Text><b>Important note</b>: to exit jrDOLA and get back DOLA a staker must queue a withdrawal, wait for the dynamic withdrawal delay and then complete the withdrawal within an exit window, if the exit window expired before completing the withdrawal then a new withdrawal must be queued.</Text>
+                <Text><b>Important note</b>: to exit jrDOLA and get back sDOLA a staker must queue a withdrawal, wait for the dynamic withdrawal delay and then complete the withdrawal within an exit window, if the exit window expired before completing the withdrawal then a new withdrawal must be queued.</Text>
                 <Link textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/jrdola" isExternal target="_blank">Learn more about the risks <ExternalLinkIcon /> </Link>
             </VStack>
         } alertProps={{ w: 'full' }} />
@@ -214,13 +224,14 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                     tab === 'Infos' ? <StakeJDolaInfos /> : isStake ?
                                         (useDolaAsMainChoice ?
                                             <VStack w='full' alignItems="flex-start">
+                                                <NavButtons active={depositTokenSymbol} options={['DOLA', 'sDOLA']} onClick={(v) => setDepositTokenSymbol(v)} />
                                                 <Text fontSize="22px" fontWeight="bold">
-                                                    DOLA amount to stake:
+                                                    {depositTokenSymbol} amount to stake:
                                                 </Text>
                                                 <SimpleAmountForm
                                                     btnProps={{ needPoaFirst: true }}
                                                     defaultAmount={dolaAmount}
-                                                    address={DOLA}
+                                                    address={depositTokenAddress}
                                                     destination={JDOLA_AUCTION_ADDRESS}
                                                     signer={provider?.getSigner()}
                                                     decimals={18}

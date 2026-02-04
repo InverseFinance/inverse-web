@@ -1,8 +1,8 @@
 import { BigNumber, Contract } from "ethers";
-import { JDOLA_AUCTION_ABI, JUNIOR_ESCROW_ABI, SDOLA_ABI } from "@app/config/abis";
+import { DBR_AUCTION_HELPER_ABI, JDOLA_AUCTION_ABI, JUNIOR_ESCROW_ABI, SDOLA_ABI } from "@app/config/abis";
 import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { parseEther } from "@ethersproject/units";
-import { JDOLA_AUCTION_ADDRESS, JUNIOR_ESCROW_ADDRESS, JUNIOR_WITHDRAW_MODEL, ONE_DAY_SECS, WEEKS_PER_YEAR } from "@app/config/constants";
+import { JDOLA_AUCTION_ADDRESS, JDOLA_AUCTION_HELPER_ADDRESS, JUNIOR_ESCROW_ADDRESS, JUNIOR_WITHDRAW_MODEL, ONE_DAY_SECS, WEEKS_PER_YEAR } from "@app/config/constants";
 import { aprToApy, getBnToNumber } from "./markets";
 import { getLastThursdayTimestamp, getWeekIndexUtc } from "./misc";
 import { useAccount } from "@app/hooks/misc";
@@ -24,7 +24,11 @@ export const getJuniorWithdrawModelContract = (signerOrProvider: JsonRpcSigner) 
     return new Contract(JUNIOR_WITHDRAW_MODEL, ["function getWithdrawDelay(uint totalSupply, uint totalWithdrawing, address withdrawer) external returns(uint)"], signerOrProvider);
 }
 
-export const stakeJDola = async (signer: JsonRpcSigner, amount: BigNumber) => {
+export const stakeJDola = async (signer: JsonRpcSigner, amount: BigNumber, isDolaCase = false) => {
+    if(isDolaCase) {
+        const contract = new Contract(JDOLA_AUCTION_HELPER_ADDRESS, DBR_AUCTION_HELPER_ABI, signer);
+        return contract.depositDola(amount, minJrDolaShares);
+    }
     const contract = new Contract(JDOLA_AUCTION_ADDRESS, JDOLA_AUCTION_ABI, signer);
     return contract.deposit(amount, await signer.getAddress());
 }
