@@ -582,11 +582,13 @@ export const DBR_AUCTION_ABI = [
   "event Buy(address indexed caller, address indexed to, uint dolaIn, uint dbrOut)",
   "event RateUpdate(uint newRate)",
 ];
+
 export const DBR_AUCTION_HELPER_ABI = [
   "function getDbrOut(uint _dolaIn) public view returns (uint _dbrOut)",
   "function getDolaIn(uint dbrOut) public view returns (uint dolaIn)",
   "function swapExactDolaForDbr(uint dolaIn, uint dbrOutMin) external returns (uint dbrOut)",
   "function swapDolaForExactDbr(uint dbrOut, uint dolaInMax) external returns (uint dolaIn)",
+  "function depositDola(uint dolaAmount, uint minSharesOut) external returns (uint jrDolaOut) ",
 ];
 
 export const DOLA_SAVINGS_ABI = [
