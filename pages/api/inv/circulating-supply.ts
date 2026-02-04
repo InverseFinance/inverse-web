@@ -29,10 +29,10 @@ const vestersToCheck = [...Array(45).keys()];
 
 export default async function handler(req, res) {
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-inv-circ-supply-v1.0.0`;
+  const cacheKey = `inv-circ-supply-v1.0.0`;
 
   try {
-    const cacheDuration = 3600;
+    const cacheDuration = 120;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
 
