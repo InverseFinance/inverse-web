@@ -144,7 +144,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                 <Text fontWeight="bold">Junior DOLA</Text>
                 <Text>jrDOLA is a liquid yield-bearing vault where stakers earn yield coming from DBR auctions similarly to sDOLA, but contrary to sDOLA the DOLA deposits of stakers serve as a junior tranche and cannot be withdrawn immediately, in case bad debt occurs in an allowed FiRM market the DOLA deposits in jrDOLA may be slashed proportionnally among depositors.</Text>
                 <Text><b>Important note</b>: to exit jrDOLA and get back DOLA a staker must queue a withdrawal, wait for the dynamic withdrawal delay and then complete the withdrawal within an exit window, if the exit window expired before completing the withdrawal then a new withdrawal must be queued.</Text>
-                <Link textDecoration="underline" href="https://docs.inverse.finance/jrDOLA" isExternal target="_blank">Learn more about the risks <ExternalLinkIcon /> </Link>
+                <Link textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/jrdola" isExternal target="_blank">Learn more about the risks <ExternalLinkIcon /> </Link>
             </VStack>
         } alertProps={{ w: 'full' }} />
         <Stack direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'center', lg: 'flex-start' }} justify="space-around" w='full' spacing="12">
