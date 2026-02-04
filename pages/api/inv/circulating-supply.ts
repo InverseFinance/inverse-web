@@ -55,7 +55,8 @@ export default async function handler(req, res) {
       ...excluded.map(excludedAd => contract.balanceOf(excludedAd)),
     ]);
 
-    const otcLockedInvBalance = getBnToNumber(otcSinvBalance) * getBnToNumber(sinvToAssetsRate);
+    // vested
+    const otcLockedInvBalance = 0//getBnToNumber(otcSinvBalance) * getBnToNumber(sinvToAssetsRate);
 
     const vesterFactory = new Contract(XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI, provider);
     const vestersResults = await Promise.allSettled([
