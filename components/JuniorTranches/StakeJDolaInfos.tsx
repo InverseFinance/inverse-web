@@ -4,6 +4,7 @@ import { ONE_DAY_MS, SECONDS_PER_BLOCK } from "@app/config/constants"
 import { useDBRPrice } from "@app/hooks/useDBR"
 import { useStakedDola } from "@app/util/dola-staking"
 import { useStakedJDola } from "@app/util/junior"
+import { shortenNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
 import { ExternalLinkIcon } from "@chakra-ui/icons"
 import { HStack, SkeletonText, Stack, Text, VStack, useInterval } from "@chakra-ui/react"
@@ -14,7 +15,11 @@ const TextLoader = () => <SkeletonText pt="2" skeletonHeight={2} noOfLines={1} h
 const STAKE_BAL_INC_INTERVAL = 100;
 const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 
-export const StakeJDolaInfos = () => {
+export const StakeJDolaInfos = ({
+    sDolaExRate = 1
+}: {
+    sDolaExRate: number;
+}) => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
     const { apy, jDolaSupply, jDolaTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, yearlyDbrEarnings, isLoading } = useStakedJDola(dbrPrice);
     const [previousSupply, setPreviousSupply] = useState(jDolaSupply);    
@@ -64,16 +69,16 @@ export const StakeJDolaInfos = () => {
                 <Text fontSize="14px" fontWeight="bold">jrDOLA stats</Text>
                 <VStack w='full' spacing="0" alignItems="flex-start">
                     <HStack w='full'>
-                        <Text>- Total DOLA staked in jrDOLA:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(realTimeBalance, 4)}</Text>}
+                        <Text>- Total sDOLA staked in jrDOLA:</Text>
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(realTimeBalance, 4)} ({shortenNumber(sDolaExRate * realTimeBalance, 2)} DOLA)</Text>}
                     </HStack>
                     <HStack w='full'>
                         <Text>- Past's week revenues from auctions:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(pastWeekRevenue, 2)} DOLA</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(pastWeekRevenue, 2)} ({shortenNumber(pastWeekRevenue * sDolaExRate, 2)} DOLA)</Text>}
                     </HStack>
                     <HStack w='full'>
                         <Text>- Current week's revenues from auctions:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(weeklyRevenue, 2)} DOLA</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(weeklyRevenue, 2)} ({shortenNumber(weeklyRevenue * sDolaExRate, 2)} DOLA)</Text>}
                     </HStack>
                 </VStack>
                 <Text fontSize="14px" fontWeight="bold">jrDOLA Parameters</Text>
@@ -87,7 +92,7 @@ export const StakeJDolaInfos = () => {
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxYearlyRewardBudget, 0)} ({preciseCommify(maxYearlyRewardBudget * dbrPrice, 0, true)})</Text>}
                     </HStack>
                     <HStack w='full'>
-                        <Text>- Max. DBR per DOLA:</Text>
+                        <Text>- Max. DBR per sDOLA:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxRewardPerDolaMantissa, 2)} ({preciseCommify(maxRewardPerDolaMantissa * dbrPrice, 4, true)})</Text>}
                     </HStack>
                     <HStack w='full'>
