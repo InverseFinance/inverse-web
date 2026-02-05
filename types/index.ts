@@ -842,7 +842,7 @@ export type CoingeckoHistoricalData = {
   total_volumes: [number, number][],
 }
 
-export type DbrAuctionType = 'classic' | 'sdola';
+export type DbrAuctionType = 'classic' | 'sdola' | 'jdola';
 
 export type AccountDBRMarket = F2Market & {
   account: string | undefined | null

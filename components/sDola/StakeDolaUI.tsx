@@ -203,7 +203,7 @@ export const StakeDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => {
                                     </VStack>
                                 }
                                 {
-                                    tab === 'Infos' ? <StakeDolaInfos /> : isStake ?
+                                    tab === 'Infos' ? <StakeDolaInfos sDolaExRate={sDolaExRate} /> : isStake ?
                                         (useDolaAsMainChoice ?
                                             <VStack w='full' alignItems="flex-start">
                                                 <Text fontSize="22px" fontWeight="bold">

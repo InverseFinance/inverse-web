@@ -55,6 +55,10 @@ export const MENUS = {
           href: '/sDOLA',
         },
         {
+          label: 'jrDOLA',
+          href: '/jrDOLA',
+        },
+        {
           label: 'sINV',
           href: '/sINV',
         },
