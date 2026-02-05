@@ -1,4 +1,4 @@
-import { VStack, Text, HStack, Stack, Image, useInterval, useDisclosure, Link, Divider } from "@chakra-ui/react"
+import { VStack, Text, HStack, Stack, Image, useInterval, useDisclosure, Link, Divider, RadioGroup, Radio } from "@chakra-ui/react"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useEffect, useMemo, useState } from "react";
@@ -23,6 +23,7 @@ import { SkeletonBlob } from "../common/Skeleton";
 import { stakeJDola, juniorQueueWithdrawal, cancelWithdrawal, useJDolaStakingEarnings, useJuniorWithdrawDelay, useStakedJDola, juniorCompleteWithdraw } from "@app/util/junior";
 import { formatDateWithTime, fromNow } from "@app/util/time";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { useStakedDola } from "@app/util/dola-staking";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -58,6 +59,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     const { priceUsd: dbrPrice } = useDBRPrice();
 
     const { apy, apy30d, projectedApy, isLoading, jDolaExRate, jDolaTotalAssets, jDolaSupply, weeklyRevenue, exitWindow, withdrawFee, isLoading: isLoadingStakedDola } = useStakedJDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount), true);
+    const { apy: sDolaApy, sDolaExRate } = useStakedDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount), true);
 
     // value in jrDOLA terms
     const { stakedDolaBalance, stakedDolaBalanceBn } = useJDolaStakingEarnings(account);
@@ -66,7 +68,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     const [baseBalance, setBaseBalance] = useState(0);
     const [realTimeBalance, setRealTimeBalance] = useState(0);
     // value in DOLA terms
-    const { withdrawDelay, withdrawDelayMax, withdrawTimestamp, withdrawTimestampMax, exitWindowStart, exitWindowEnd, pendingAmount, hasComingExit, isWithinExitWindow, canCancel } = useJuniorWithdrawDelay(jDolaSupply, parseFloat(dolaAmount||'0') / (jDolaExRate||1), account, stakedDolaBalanceBn);
+    const { withdrawDelay, withdrawDelayMax, withdrawTimestamp, withdrawTimestampMax, exitWindowStart, exitWindowEnd, pendingAmount, hasComingExit, isWithinExitWindow, canCancel } = useJuniorWithdrawDelay(jDolaSupply, parseFloat(dolaAmount || '0') / (jDolaExRate || 1), account, stakedDolaBalanceBn);
 
     const dolaStakedInVault = jDolaExRate * stakedDolaBalance;
     const pendingAmountInDola = jDolaExRate * pendingAmount;
@@ -76,7 +78,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     }, [nowWithInterval]);
 
     useEffect(() => {
-        if(depositTokenSymbol === 'DOLA') {
+        if (depositTokenSymbol === 'DOLA') {
             setDepositTokenAddress(DOLA);
         } else {
             setDepositTokenAddress(SDOLA_ADDRESS);
@@ -122,7 +124,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     }, [dolaStakedInVault, apy]);
 
     const handleQueue = async () => {
-        return juniorQueueWithdrawal(provider?.getSigner(), parseEther((parseFloat(dolaAmount)/jDolaExRate).toFixed(6)), withdrawDelay.toString());
+        return juniorQueueWithdrawal(provider?.getSigner(), parseEther((parseFloat(dolaAmount) / jDolaExRate).toFixed(6)), withdrawDelay.toString());
     }
 
     const handleStake = () => {
@@ -212,70 +214,61 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                 <NavButtons active={tab} options={['Stake', 'Unstake', 'Infos']} onClick={(v) => setTab(v)} />
                                 {
                                     tab !== 'Infos' && <VStack alignItems="flex-start" w='full' justify="space-between">
+                                        {
+                                            isStake && <HStack w='full' justify="space-between">
+                                                <Text fontSize="22px" fontWeight="bold">Deposit from:</Text>
+                                                <RadioGroup onChange={(v) => setDepositTokenSymbol(v)} value={depositTokenSymbol}>
+                                                    <HStack className="gap-2">
+                                                        <Radio value="DOLA">DOLA</Radio>
+                                                        <Radio value="sDOLA">sDOLA</Radio>
+                                                    </HStack>
+                                                </RadioGroup>
+                                            </HStack>
+                                        }
                                         {/* <Text>
                                             DOLA balance in wallet: <b>{dolaBalance ? preciseCommify(dolaBalance, 2) : '-'}</b>
                                         </Text> */}
-                                        <Text>
-                                            Your staked DOLA: <b>{dolaStakedInVault ? preciseCommify(realTimeBalance, 8) : '-'}</b>
-                                        </Text>
+                                        {
+                                            !isStake && <Text>
+                                                Your staked sDOLA: <b>{dolaStakedInVault ? `${preciseCommify(realTimeBalance, 8)} (${shortenNumber(sDolaExRate * realTimeBalance, 2)} DOLA)` : '-'}</b>
+                                            </Text>
+                                        }
                                     </VStack>
                                 }
                                 {
                                     tab === 'Infos' ? <StakeJDolaInfos /> : isStake ?
-                                        (useDolaAsMainChoice ?
-                                            <VStack w='full' alignItems="flex-start">
-                                                <NavButtons active={depositTokenSymbol} options={['DOLA', 'sDOLA']} onClick={(v) => setDepositTokenSymbol(v)} />
-                                                <Text fontSize="22px" fontWeight="bold">
+                                        (isLoadingStables && !isPreventLoader ? <SkeletonBlob /> :
+                                            <>
+                                                {/* <Text fontSize="22px" fontWeight="bold">
                                                     {depositTokenSymbol} amount to stake:
-                                                </Text>
+                                                </Text> */}
                                                 <SimpleAmountForm
                                                     btnProps={{ needPoaFirst: true }}
                                                     defaultAmount={dolaAmount}
                                                     address={depositTokenAddress}
                                                     destination={JDOLA_AUCTION_ADDRESS}
+                                                    needApprove={true}
+                                                    approveForceRefresh={true}
                                                     signer={provider?.getSigner()}
                                                     decimals={18}
                                                     onAction={() => handleStake()}
                                                     actionLabel={`Stake`}
-                                                    maxActionLabel={`Stake all`}
                                                     onAmountChange={(v) => setDolaAmount(v)}
                                                     showMaxBtn={false}
                                                     showMax={true}
                                                     hideInputIfNoAllowance={false}
-                                                    showBalance={false}
+                                                    showBalance={true}
                                                     onSuccess={() => resetRealTime()}
-                                                    enableCustomApprove={true}
                                                 />
-                                            </VStack>
-                                            : isLoadingStables && !isPreventLoader ? <SkeletonBlob /> :
-                                                <>
-                                                    <Text fontSize="22px" fontWeight="bold">
-                                                        DOLA amount to stake:
-                                                    </Text>
-                                                    <SimpleAmountForm
-                                                        btnProps={{ needPoaFirst: true }}
-                                                        defaultAmount={dolaAmount}
-                                                        address={"0x865377367054516e17014CcdED1e7d814EDC9ce4"}
-                                                        destination={JDOLA_AUCTION_ADDRESS}
-                                                        needApprove={true}
-                                                        approveForceRefresh={true}
-                                                        signer={provider?.getSigner()}
-                                                        decimals={18}
-                                                        onAction={() => handleStake()}
-                                                        actionLabel={`Stake`}
-                                                        onAmountChange={(v) => setDolaAmount(v)}
-                                                        showMaxBtn={false}
-                                                        showMax={true}
-                                                        hideInputIfNoAllowance={false}
-                                                        showBalance={true}
-                                                        onSuccess={() => resetRealTime()}
-                                                    />
-                                                    <InfoMessage
-                                                        description={
+                                                <InfoMessage
+                                                    description={
+                                                        <VStack alignItems="flex-start">
+                                                            <Text><b>Note</b>: you can stake into jrDOLA from DOLA or sDOLA but unstaking always gives sDOLA.</Text>
                                                             <Text><b>Reminder</b>: staking is intant but unstaking is not and may take several days depending on amount and supply.</Text>
-                                                        }
-                                                    />
-                                                </>
+                                                        </VStack>
+                                                    }
+                                                />
+                                            </>
                                             // <EnsoZap
                                             //     defaultTokenIn={topStable?.token?.address}
                                             //     defaultTokenOut={JDOLA_AUCTION_ADDRESS}
