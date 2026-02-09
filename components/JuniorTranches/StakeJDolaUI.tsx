@@ -236,7 +236,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                     </VStack>
                                 }
                                 {
-                                    tab === 'Infos' ? <StakeJDolaInfos /> : isStake ?
+                                    tab === 'Infos' ? <StakeJDolaInfos sDolaExRate={sDolaExRate} /> : isStake ?
                                         (isLoadingStables && !isPreventLoader ? <SkeletonBlob /> :
                                             <>
                                                 {/* <Text fontSize="22px" fontWeight="bold">
