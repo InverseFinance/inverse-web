@@ -587,6 +587,7 @@ export const DBR_AUCTION_HELPER_ABI = [
   "function getDbrOut(uint _dolaIn) public view returns (uint _dbrOut)",
   "function getDolaIn(uint dbrOut) public view returns (uint dolaIn)",
   "function swapExactDolaForDbr(uint dolaIn, uint dbrOutMin) external returns (uint dbrOut)",
+  "function swapExactsDolaForDbr(uint sDolaIn, uint dbrOutMin) external returns (uint dbrOut)",
   "function swapDolaForExactDbr(uint dbrOut, uint dolaInMax) external returns (uint dolaIn)",
   "function depositDola(uint dolaAmount, uint minSharesOut) external returns (uint jrDolaOut) ",
 ];

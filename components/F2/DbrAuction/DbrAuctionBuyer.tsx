@@ -1,5 +1,5 @@
 import { VStack, Text, HStack, Divider, Badge, useDisclosure } from "@chakra-ui/react"
-import { swapDolaForExactDbr, swapExactDolaForDbr, useDbrAuctionPricing } from "@app/util/dbr-auction"
+import { swapDolaForExactDbr, swapExactDolaForDbr, swapExactSDolaForDbr, useDbrAuctionPricing } from "@app/util/dbr-auction"
 import { useWeb3React } from "@web3-react/core";
 import { shortenNumber } from "@app/util/markets";
 import { TextInfo } from "../../common/Messages/TextInfo";
@@ -18,7 +18,7 @@ import { useDOLABalance } from "@app/hooks/useDOLA";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 import { DbrAuctionParametersWrapper } from "./DbrAuctionInfos";
  
-import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, JDOLA_AUCTION_ADDRESS, JDOLA_AUCTION_HELPER_ADDRESS, ONE_DAY_SECS, SDOLA_HELPER_ADDRESS, SINV_ADDRESS, SINV_HELPER_ADDRESS } from "@app/config/constants";
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, JDOLA_AUCTION_ADDRESS, JDOLA_AUCTION_HELPER_ADDRESS, ONE_DAY_SECS, SDOLA_ADDRESS, SDOLA_HELPER_ADDRESS, SINV_ADDRESS, SINV_HELPER_ADDRESS } from "@app/config/constants";
 import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect";
 import { RadioCardGroup } from "@app/components/common/Input/RadioCardGroup";
 import { DbrAuctionType } from "@app/types";
@@ -26,6 +26,7 @@ import { swapExactInvForDbr } from "@app/util/sINV";
 import { useINVBalance } from "@app/hooks/useBalances";
 import ConfirmModal from "@app/components/common/Modal/ConfirmModal";
 import { timeSince } from "@app/util/time";
+import { useStakedDola, useStakedDolaBalance } from "@app/util/dola-staking";
 
 const { DOLA, INV } = getNetworkConfigConstants();
 
@@ -34,9 +35,14 @@ const defaultRefSdolaAmount = '1';
 
 const EXACT_DBR = 'Buy DBR';
 const SELL_DOLA = 'Sell DOLA';
+const SELL_sDOLA = 'Sell sDOLA';
 const SELL_INV = 'Sell INV';
 const INFOS = 'Info';
-const TAB_OPTIONS = [SELL_DOLA, SELL_INV, INFOS];
+const TAB_OPTIONS = [
+    SELL_DOLA, 
+    // SELL_sDOLA, 
+    SELL_INV, 
+    INFOS];
 
 const ListLabelValues = ({ items }: { items: { label: string, value: string | any, color?: string, isLoading?: boolean }[] }) => {
     return <VStack w='full' spacing="2" alignItems="flex-start">
@@ -109,12 +115,14 @@ export const DbrAuctionBuyer = ({
     title,
 }) => {
     const { price: dolaPrice } = useDOLAPriceLive();
+    const { sDolaExRate } = useStakedDola();
     const { isOpen, onClose, onOpen } = useDisclosure();
     const { markets, isLoading: isLoadingMarkets } = useDBRMarkets();
     const invMarket = markets?.find(m => m.isInv);
     const invPrice = invMarket?.price || 0;
     const { provider, account } = useWeb3React();
     const [dolaAmount, setDolaAmount] = useState('');
+    const [sDolaAmount, setSDolaAmount] = useState('');
     const [invAmount, setInvAmount] = useState('');
     const [dbrAmount, setDbrAmount] = useState('');
     const [dolaAuctionType, setDolaAuctionType] = useState<DbrAuctionType>('classic');
@@ -124,17 +132,19 @@ export const DbrAuctionBuyer = ({
     const { signedBalance: dbrBalance } = useAccountDBR(account);
     const { balance: dolaBalance } = useDOLABalance(account);
     const { balance: invBalance } = useINVBalance(account);
+    const { balance: sDolaBalance } = useStakedDolaBalance(account);
 
     const [slippage, setSlippage] = useState('1');
     const [tab, setTab] = useState(TAB_OPTIONS[0]);
-    const isSellMode = tab === SELL_DOLA || tab === SELL_INV;
+    const isSellMode = tab === SELL_DOLA || tab === SELL_INV || tab === SELL_sDOLA;
     const isExactDola = tab === SELL_DOLA;
     const isExactInv = tab === SELL_INV;
-    const selectedAuction = isExactInv ? 'sinv' : dolaAuctionType;
+    const isExactSdola = tab === SELL_sDOLA;
+    const selectedAuction = isExactSdola ? 'jdola' : isExactInv ? 'sinv' : dolaAuctionType;
     const isClassicDbrAuction = dolaAuctionType === 'classic';
-    const isJDolaDbrAuction = dolaAuctionType === 'jdola';
-    const sellTokenSymobl = isExactInv ? 'INV' : 'DOLA';
-    const sellTokenPrice = tab === SELL_DOLA ? dolaPrice : invPrice;
+    const isJDolaDbrAuction = isExactSdola// || dolaAuctionType === 'jdola';
+    const sellTokenSymobl = isExactSdola ? 'sDOLA' : isExactInv ? 'INV' : 'DOLA';
+    const sellTokenPrice = isExactSdola ? (dolaPrice||1) * sDolaExRate : isExactDola ? dolaPrice : invPrice;
     const helperAddress = AUCTION_TYPES[selectedAuction].helper;
     const defaultRefAmount = isClassicDbrAuction || isJDolaDbrAuction ? defaultRefClassicAmount : defaultRefSdolaAmount;
 
@@ -145,7 +155,7 @@ export const DbrAuctionBuyer = ({
     const dbrSwapPriceInToken = dbrSwapPrice ? 1 / dbrSwapPrice : 0;
     const dbrSwapPriceRefInToken = dbrSwapPriceRef ? 1 / dbrSwapPriceRef : 0;
 
-    const jdolaAuctionPricingData = useDbrAuctionPricing({ auctionType: 'jdola', helperAddress: JDOLA_AUCTION_HELPER_ADDRESS, tokenAmount: dolaAmount, dbrAmount, slippage, isExactToken: isSellMode, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
+    const jdolaAuctionPricingData = useDbrAuctionPricing({ auctionType: 'jdola', helperAddress: JDOLA_AUCTION_HELPER_ADDRESS, tokenAmount: sDolaAmount, dbrAmount, slippage, isExactToken: isSellMode, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
     const classicAuctionPricingData = useDbrAuctionPricing({ auctionType: 'classic', helperAddress: DBR_AUCTION_HELPER_ADDRESS, tokenAmount: dolaAmount, dbrAmount, slippage, isExactToken: isSellMode, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
     const sdolaAuctionPricingData = useDbrAuctionPricing({ auctionType: 'sdola', helperAddress: SDOLA_HELPER_ADDRESS, tokenAmount: dolaAmount, dbrAmount, slippage, isExactToken: isSellMode, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
     const sinvAuctionPricingData = useDbrAuctionPricing({ auctionType: 'sinv', helperAddress: SINV_HELPER_ADDRESS, tokenAmount: invAmount, dbrAmount, slippage, isExactToken: isSellMode, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
@@ -170,8 +180,8 @@ export const DbrAuctionBuyer = ({
     const auctionPriceColor = !dbrSwapPriceInToken || !selectedAuctionData?.dbrAuctionPriceInToken ? undefined : selectedAuctionData?.dbrAuctionPriceInToken < dbrSwapPriceInToken ? 'success' : 'warning';
 
     const isInvalidSlippage = !slippage || parseFloat(slippage) <= 0 || parseFloat(slippage) >= 20;
-    const tokenAmount = isExactDola ? dolaAmount : invAmount;
-    const tokenBalance = isExactDola ? dolaBalance : invBalance;
+    const tokenAmount = isExactSdola ? sDolaAmount : isExactDola ? dolaAmount : invAmount;
+    const tokenBalance = isExactSdola ? sDolaBalance : isExactDola ? dolaBalance : invBalance;
     const notEnoughToken = !!tokenAmount && (isSellMode ? tokenBalance < parseFloat(tokenAmount) : tokenBalance < maxTokenInNum);
     const isExactTokenBtnDisabled = isInvalidSlippage || !tokenAmount || parseFloat(tokenAmount) <= 0;
     const isExactDbrBtnDisabled = isInvalidSlippage || !dbrAmount || parseFloat(dbrAmount) <= 0 || (notEnoughToken);
@@ -194,6 +204,9 @@ export const DbrAuctionBuyer = ({
         if (isExactDola) {
             return swapExactDolaForDbr(provider?.getSigner(), parseEther(dolaAmount), minDbrOut, helperAddress);
         }
+        else if(isExactSdola){
+            return swapExactSDolaForDbr(provider?.getSigner(), parseEther(sDolaAmount), minDbrOut, helperAddress);
+        }
         else if (isExactInv) {
             return swapExactInvForDbr(provider?.getSigner(), parseEther(invAmount), minDbrOut);
         }
@@ -204,6 +217,7 @@ export const DbrAuctionBuyer = ({
         setDolaAmount('');
         setDbrAmount('');
         setInvAmount('');
+        setSDolaAmount('');
     }
 
     useDualSpeedEffect(() => {
@@ -214,7 +228,9 @@ export const DbrAuctionBuyer = ({
         if (isLoading) {
             return;
         }
-        const bestPriceSrc = (classicAuctionPricingData?.dbrAuctionPriceInToken < sdolaAuctionPricingData?.dbrAuctionPriceInToken ? classicAuctionPricingData?.dbrAuctionPriceInToken < jdolaAuctionPricingData?.dbrAuctionPriceInToken ? 'classic' : 'jdola' : sdolaAuctionPricingData?.dbrAuctionPriceInToken < jdolaAuctionPricingData?.dbrAuctionPriceInToken ? 'sdola' : 'jdola'); 
+        const bestPriceSrc = (classicAuctionPricingData?.dbrAuctionPriceInToken < sdolaAuctionPricingData?.dbrAuctionPriceInToken ? 'classic' : 'sdola');
+        // if jrDOLA has DOLA as base asset only
+        // const bestPriceSrc = (classicAuctionPricingData?.dbrAuctionPriceInToken < sdolaAuctionPricingData?.dbrAuctionPriceInToken ? classicAuctionPricingData?.dbrAuctionPriceInToken < jdolaAuctionPricingData?.dbrAuctionPriceInToken ? 'classic' : 'jdola' : sdolaAuctionPricingData?.dbrAuctionPriceInToken < jdolaAuctionPricingData?.dbrAuctionPriceInToken ? 'sdola' : 'jdola'); 
         setBestAuctionSrc(bestPriceSrc);
         if (isInited) {
             return;
@@ -222,7 +238,7 @@ export const DbrAuctionBuyer = ({
         setDolaAuctionType(bestPriceSrc);
         setIsInited(true);
     }, [
-        jdolaAuctionPricingData?.dbrAuctionPriceInToken,
+        // jdolaAuctionPricingData?.dbrAuctionPriceInToken,
         classicAuctionPricingData?.dbrAuctionPriceInToken,
         sdolaAuctionPricingData?.dbrAuctionPriceInToken,
         isLoading,
@@ -316,14 +332,14 @@ export const DbrAuctionBuyer = ({
                                             tab === SELL_INV ?
                                                 <Text fontSize="14px">
                                                     INV balance: <b>{preciseCommify(invBalance, 2)}</b>
-                                                </Text> :
+                                                </Text> : tab === SELL_DOLA ?
                                                 <Text fontSize="14px">
                                                     DOLA balance: <b>{preciseCommify(dolaBalance, 2)}</b>
-                                                </Text>
+                                                </Text> : null
                                         }
                                     </HStack>
                                     {
-                                        tab !== SELL_INV && <RadioCardGroup
+                                        tab !== SELL_INV && tab !== SELL_sDOLA && <RadioCardGroup
                                             wrapperProps={{ w: 'full', pt: '2', alignItems: 'center', justify: { base: 'center', sm: 'space-between' } }}
                                             group={{
                                                 name: 'auctionSel',
@@ -334,7 +350,7 @@ export const DbrAuctionBuyer = ({
                                             options={[
                                                 { value: 'classic', label: <AuctionRadioOption isBest={bestAuctionSrc === 'classic'} label="Virtual auction DBR price" dbrAuctionPriceInDola={classicAuctionPricingData.dbrAuctionPriceInToken} dolaPrice={dolaPrice} /> },
                                                 { value: 'sdola', label: <AuctionRadioOption isBest={bestAuctionSrc === 'sdola'} label="sDOLA auction DBR price" dbrAuctionPriceInDola={sdolaAuctionPricingData.dbrAuctionPriceInToken} dolaPrice={dolaPrice} /> },
-                                                { value: 'jdola', label: <AuctionRadioOption isBest={bestAuctionSrc === 'jdola'} label="jrDOLA auction DBR price" dbrAuctionPriceInDola={jdolaAuctionPricingData.dbrAuctionPriceInToken} dolaPrice={dolaPrice} /> },
+                                                // { value: 'jdola', label: <AuctionRadioOption isBest={bestAuctionSrc === 'jdola'} label="jrDOLA auction DBR price" dbrAuctionPriceInDola={jdolaAuctionPricingData.dbrAuctionPriceInToken} dolaPrice={dolaPrice} /> },
                                             ]}
                                         />
                                     }
@@ -358,6 +374,31 @@ export const DbrAuctionBuyer = ({
                                                 hideInputIfNoAllowance={false}
                                                 showBalance={true}
                                                 isDisabled={isExactTokenBtnDisabled || isLoading}
+                                                checkBalanceOnTopOfIsDisabled={true}
+                                                onSuccess={() => resetForm()}
+                                            />
+                                        </VStack>
+                                    }
+                                    {
+                                        tab === SELL_sDOLA &&
+                                        <VStack w='full' alignItems="flex-start">
+                                            <TextInfo message="Amount of sDOLA in exchange for DBR, the auction formula is of type K=xy">
+                                                <Text fontWeight="bold" fontSize="16px">Amount of sDOLA to sell:</Text>
+                                            </TextInfo>
+                                            <SimpleAmountForm
+                                                btnProps={{ needPoaFirst: true }}
+                                                defaultAmount={dolaAmount}
+                                                address={SDOLA_ADDRESS}
+                                                destination={JDOLA_AUCTION_HELPER_ADDRESS}
+                                                signer={provider?.getSigner()}
+                                                decimals={18}
+                                                onAction={() => sell(auctionPriceColor === 'warning')}
+                                                actionLabel={`Sell sDOLA for DBR`}
+                                                onAmountChange={(v) => setSDolaAmount(v)}
+                                                showMaxBtn={false}
+                                                hideInputIfNoAllowance={false}
+                                                showBalance={true}
+                                                isDisabled={isExactTokenBtnDisabled}
                                                 checkBalanceOnTopOfIsDisabled={true}
                                                 onSuccess={() => resetForm()}
                                             />

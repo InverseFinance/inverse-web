@@ -32,6 +32,11 @@ export const swapExactDolaForDbr = (signerOrProvider: JsonRpcSigner, dolaToSell:
     return contract.swapExactDolaForDbr(dolaToSell, minDbrOut);
 }
 
+export const swapExactSDolaForDbr = (signerOrProvider: JsonRpcSigner, sDolaToSell: BigNumber, minDbrOut: BigNumber, helperAddress = DBR_AUCTION_HELPER_ADDRESS) => {
+    const contract = getDbrAuctionHelperContract(signerOrProvider, helperAddress);
+    return contract.swapExactsDolaForDbr(sDolaToSell, minDbrOut);
+}
+
 export const swapDolaForExactDbr = (signerOrProvider: JsonRpcSigner, dolaInMax: BigNumber, dbrOut: BigNumber, helperAddress = DBR_AUCTION_HELPER_ADDRESS) => {
     const contract = getDbrAuctionHelperContract(signerOrProvider, helperAddress);
     return contract.swapDolaForExactDbr(dbrOut, dolaInMax);
