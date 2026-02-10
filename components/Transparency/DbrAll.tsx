@@ -141,7 +141,8 @@ export const DbrAll = ({
         const todayIndex = combodata.findIndex(d => d.date === todayUTC);
         const totalAnnualizedIssuance = auctionYearlyRate + yearlyRewardRate + dsaYearlyDbrEarnings;
         const inventory = currentInventory || lastCombodata?.inventory;
-        combodata.splice(todayIndex, combodata.length - (todayIndex), {
+        const todayInHisto = todayIndex !== -1;
+        combodata.splice(todayInHisto ? todayIndex : combodata.length - 1, todayInHisto ? 1 : 0, {
             ...lastCombodata,
             inventory,
             totalUserDbrBalance: inventory * totalDebt / 365,
