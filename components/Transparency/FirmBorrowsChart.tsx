@@ -114,7 +114,7 @@ export const FirmBorrowsChart = ({
                     labelStyle={{ fontWeight: 'bold' }}
                     itemStyle={{ fontWeight: 'bold' }}
                     formatter={(value, name, d) => {
-                        return !value ? 'none' : preciseCommify(value, 0, useUsd)
+                        return !value ? 'none' : preciseCommify(value, name === KEYS.INVENTORY ? 2 : 0, useUsd)
                     }}
                 />
                 <Line opacity={actives[KEYS.INVENTORY] ? 1 : 0} strokeWidth={2} name={KEYS.INVENTORY} yAxisId="right" type="monotone" dataKey={actives[KEYS.INVENTORY] ? 'inventory' : ''} stroke={themeStyles.colors.info} dot={false} />
