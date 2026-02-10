@@ -32,6 +32,11 @@ export const swapExactDolaForDbr = (signerOrProvider: JsonRpcSigner, dolaToSell:
     return contract.swapExactDolaForDbr(dolaToSell, minDbrOut);
 }
 
+export const swapExactSDolaForDbr = (signerOrProvider: JsonRpcSigner, sDolaToSell: BigNumber, minDbrOut: BigNumber, helperAddress = DBR_AUCTION_HELPER_ADDRESS) => {
+    const contract = getDbrAuctionHelperContract(signerOrProvider, helperAddress);
+    return contract.swapExactsDolaForDbr(sDolaToSell, minDbrOut);
+}
+
 export const swapDolaForExactDbr = (signerOrProvider: JsonRpcSigner, dolaInMax: BigNumber, dbrOut: BigNumber, helperAddress = DBR_AUCTION_HELPER_ADDRESS) => {
     const contract = getDbrAuctionHelperContract(signerOrProvider, helperAddress);
     return contract.swapDolaForExactDbr(dbrOut, dolaInMax);
@@ -510,7 +515,7 @@ export const useDbrAuctionPricing = ({
     slippage: string,
     isExactToken: boolean,
     dbrSwapPriceRefInToken: number,
-    auctionType: 'classic' | 'sdola' | 'sinv',
+    auctionType: 'classic' | 'sdola' | 'sinv' | 'jdola',
 }) => {
     const [estimatedTimeToReachMarketPrice, setEstimatedTimeToReachMarketPrice] = useState(0);
     const isClassicDbrAuction = auctionType === 'classic';
@@ -522,6 +527,7 @@ export const useDbrAuctionPricing = ({
         [helperAddress, 'getDbrOut', parseEther(tokenAmount || defaultRefAmount)],
         [helperAddress, 'getDbrOut', parseEther(defaultRefAmount)],
     ]);
+    
     const { data: dataIn } = useEtherSWR([
         [helperAddress, isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
         [helperAddress, isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(defaultRefAmount)],

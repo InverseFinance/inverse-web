@@ -36,26 +36,32 @@ export default async function handler(req, res) {
         const sinvContract = getSInvContract(paidProvider);
         const sinvContractV1 = getSInvContract(paidProvider, SINV_ADDRESS_V1);
 
-        const archived = cachedData || { dailyBuys: [], last100: [], last100VirtualAuctionEvents: [], last100SdolaAuctionEvents: [], last100SinvAuctionEvents: [] };
+        const archived = cachedData || {
+            dailyBuys: [],
+            last100: [],
+            last100VirtualAuctionEvents: [],
+            last100SdolaAuctionEvents: [],
+            last100SinvAuctionEvents: [],
+        };
 
         const lastKnownEvent = archived?.last100?.length > 0 ? (archived.last100[archived.last100.length - 1]) : {};
         const newStartingBlock = archived?.lastBlocknumber ? archived?.lastBlocknumber + 1 : (lastKnownEvent?.blockNumber ? lastKnownEvent?.blockNumber + 1 : undefined);
 
         const [generalAuctionBuys, sdolaAuctionBuys, sinvAuctionBuys, sinvAuctionBuysV1] = await Promise.all([
             dbrAuctionContract.queryFilter(
-                dbrAuctionContract.filters.Buy(),            
+                dbrAuctionContract.filters.Buy(),
                 newStartingBlock ? newStartingBlock : 0x0,
             ),
             sdolaContract.queryFilter(
-                sdolaContract.filters.Buy(),            
+                sdolaContract.filters.Buy(),
                 newStartingBlock ? newStartingBlock : 0x0,
             ),
             sinvContract.queryFilter(
-                sinvContract.filters.Buy(),            
+                sinvContract.filters.Buy(),
                 newStartingBlock ? newStartingBlock : 0x0,
             ),
             sinvContractV1.queryFilter(
-                sinvContractV1.filters.Buy(),        
+                sinvContractV1.filters.Buy(),
                 newStartingBlock ? newStartingBlock : 0x0,
             )
         ]);
@@ -80,7 +86,7 @@ export default async function handler(req, res) {
         const sinvHelperAddressesLc = [SINV_HELPER_ADDRESS_V1, SINV_HELPER_ADDRESS].map(a => a.toLowerCase());
 
         const newBuys = newBuyEvents.map(e => {
-            const isSinvType = sinvAddressesLc.includes(e.address.toLowerCase()) || sinvHelperAddressesLc.includes(e.args[0].toLowerCase());     
+            const isSinvType = sinvAddressesLc.includes(e.address.toLowerCase()) || sinvHelperAddressesLc.includes(e.args[0].toLowerCase());
             const isSInvV2 = SINV_HELPER_ADDRESS !== SINV_HELPER_ADDRESS_V1 && e.address.toLowerCase() === sinvContract.address.toLowerCase() || e.args[0].toLowerCase() === SINV_HELPER_ADDRESS.toLowerCase();
             return {
                 txHash: e.transactionHash,
@@ -96,8 +102,6 @@ export default async function handler(req, res) {
             };
         });
 
-        console.log(newBuys.length)
-        
         newMarketPrices.forEach((m, i) => {
             newBuys[i].marketPriceInDola = m.priceInDola;
             newBuys[i].marketPriceInInv = m.priceInInv;

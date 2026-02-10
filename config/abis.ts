@@ -1,7 +1,7 @@
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
 import { BOND_V2_AGGREGATOR, BOND_V2_FIXED_TERM, BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
 import { BONDS } from '@app/variables/tokens';
-import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_PAYROLL_V2, DOLA_SAVINGS_ADDRESS, DWF_PURCHASER, FIRM_VIEWER, OLD_BORROW_CONTROLLER, PSM_ADDRESS, SDOLA_ADDRESS, SDOLA_HELPER_ADDRESS, SINV_ADDRESS, SINV_ADDRESS_V1, SINV_ESCROW_ADDRESS, SINV_ESCROW_ADDRESS_V1, SINV_HELPER_ADDRESS, SINV_HELPER_ADDRESS_V1, TOKENS_VIEWER } from './constants';
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_PAYROLL_V2, DOLA_SAVINGS_ADDRESS, DWF_PURCHASER, FIRM_VIEWER, JUNIOR_MARKETS_ADDRESS, OLD_BORROW_CONTROLLER, PSM_ADDRESS, SDOLA_ADDRESS, SDOLA_HELPER_ADDRESS, SINV_ADDRESS, SINV_ADDRESS_V1, SINV_ESCROW_ADDRESS, SINV_ESCROW_ADDRESS_V1, SINV_HELPER_ADDRESS, SINV_HELPER_ADDRESS_V1, TOKENS_VIEWER, JDOLA_AUCTION_ADDRESS, JUNIOR_ESCROW_ADDRESS, JDOLA_AUCTION_HELPER_ADDRESS } from './constants';
 import { VIEWER_ABI } from './viewer-abi';
 
 // TODO: Clean-up ABIs
@@ -582,11 +582,14 @@ export const DBR_AUCTION_ABI = [
   "event Buy(address indexed caller, address indexed to, uint dolaIn, uint dbrOut)",
   "event RateUpdate(uint newRate)",
 ];
+
 export const DBR_AUCTION_HELPER_ABI = [
   "function getDbrOut(uint _dolaIn) public view returns (uint _dbrOut)",
   "function getDolaIn(uint dbrOut) public view returns (uint dolaIn)",
   "function swapExactDolaForDbr(uint dolaIn, uint dbrOutMin) external returns (uint dbrOut)",
+  "function swapExactsDolaForDbr(uint sDolaIn, uint dbrOutMin) external returns (uint dbrOut)",
   "function swapDolaForExactDbr(uint dbrOut, uint dolaInMax) external returns (uint dolaIn)",
+  "function depositDola(uint dolaAmount, uint minSharesOut) external returns (uint jrDolaOut) ",
 ];
 
 export const DOLA_SAVINGS_ABI = [
@@ -682,6 +685,54 @@ export const PSM_ABI = [
   "event ProfitTaken(uint256 colAmount)",
 ]
 
+export const JUNIOR_SLASHING_MODULE_ABI = [
+  "event NewPendingGov(address)",
+  "event NewGov(address)",
+  "event NewGuardian(address)",
+  "event NewMarket(address, uint activationTime)",
+  "event MarketRemoved(address)",
+  "event Slash(address indexed market, address indexed borrower, uint amount)",
+]
+
+export const JUNIOR_ESCROW_ABI = [
+  "function queueWithdrawal(uint amount, uint maxWithdrawDelay) external",
+  "function withdrawFeeBps() public view returns (uint)",
+  "function exitWindow() public view returns (uint)",
+  "function withdrawAmounts(address account) public view returns (uint)",
+  "function exitWindows(address account) public view returns (tuple(uint128 start, uint128 end))",
+  "function completeWithdraw() external",
+  "function cancelWithdrawal() external",
+  "function getWithdrawDelay(uint totalSupply, uint totalWithdrawing, address withdrawer) external returns(uint)",
+  "event Queue(address indexed withdrawer, uint amount, uint fee, uint start, uint end)",
+  "event Withdraw(address indexed withdrawer, uint amount)",
+  "event Cancel(address indexed withdrawer, uint amount, uint start, uint end)",
+]
+
+export const JDOLA_AUCTION_ABI = [
+  'function balanceOf(address account) public view returns (uint)',
+  'function totalSupply() public view returns (uint)',
+  'function totalAssets() public view returns (uint)',
+  'function deposit(uint amount, address receiver) external',
+  'function redeem(uint amount, address receiver) external',
+  'function maxRedeem(address owner) external',
+  'function withdraw(uint amount) external',
+  "function dolaReserve() public view returns (uint256)",
+  "function dbrReserve() public view returns (uint256)",
+  "function yearlyRewardBudget() public view returns (uint256)",
+  "function maxYearlyRewardBudget() public view returns (uint256)",
+  "function maxDbrDolaRatioBps() public view returns (uint256)",
+  "function lastUpdate() public view returns (uint256)",
+  "function getReserves() public view returns (uint256 _dolaReserve, uint256 _dbrReserve)",
+  "function buyDbr(uint exactDolaIn, uint exactDbrOut, address to) external",
+  "function weeklyRevenue(uint) public view returns (uint)",
+  "function maxDeposit(address) public view returns(uint)",
+  "event Buy(address indexed caller, address indexed to, uint dolaIn, uint dbrOut)",
+  "event SetYearlyRewardBudget(uint newRate)",
+  "event Slashing(address indexed slashingModule, uint slashed)",
+  "event AddSlashingModule(address)",
+  "event RemoveSlashingModule(address)",
+];
+
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
@@ -762,6 +813,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI],
         [DBR_AUCTION_ADDRESS, DBR_AUCTION_ABI],
         [DBR_AUCTION_HELPER_ADDRESS, DBR_AUCTION_HELPER_ABI],
+        [JDOLA_AUCTION_HELPER_ADDRESS, DBR_AUCTION_HELPER_ABI],
         [DOLA_SAVINGS_ADDRESS, DOLA_SAVINGS_ABI],
         [SDOLA_HELPER_ADDRESS, SDOLA_HELPER_ABI],
         [SINV_HELPER_ADDRESS, SINV_HELPER_ABI],
@@ -773,6 +825,9 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [FIRM_VIEWER, VIEWER_ABI],
         [TOKENS_VIEWER, VIEWER_ABI],
         [PSM_ADDRESS, PSM_ABI],
+        [JUNIOR_MARKETS_ADDRESS, JUNIOR_SLASHING_MODULE_ABI],
+        [JDOLA_AUCTION_ADDRESS, JDOLA_AUCTION_ABI],
+        [JUNIOR_ESCROW_ADDRESS, JUNIOR_ESCROW_ABI],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),
