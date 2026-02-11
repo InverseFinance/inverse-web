@@ -745,6 +745,13 @@ export const INV_BUY_BACK_AUCTION_ABI = [
   "event MinRateUpdate(uint newMinRate)",
 ]
 
+export const INV_BUY_BACK_AUCTION_HELPER_ABI = [
+  "function getDbrOut(uint _invIn) public view returns (uint _dbrOut)",
+  "function getAssetIn(uint dbrOut) public view returns (uint invIn)",
+  "function swapExactAssetForDbr(uint invIn, uint dbrOutMin) external returns (uint dbrOut)",
+  // "function swapAssetForExactDbr(uint dbrOut, uint invInMax) external returns (uint invIn)",
+];
+
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
