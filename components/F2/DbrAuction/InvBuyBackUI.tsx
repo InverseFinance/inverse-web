@@ -90,7 +90,7 @@ export const InvBuyBackUI = () => {
 
   return (
     <Container
-      label="INV Buy Back Auction"
+      label="Manual INV Buy Back"
       description="Helper contract"
       href={`https://etherscan.io/address/${INV_BUY_BACK_AUCTION_HELPER}`}
       noPadding
@@ -106,11 +106,11 @@ export const InvBuyBackUI = () => {
           />
         ) : (
           <>
-            <HStack w="full" justify="space-between">
+            {/* <HStack w="full" justify="space-between">
               <Text fontSize="14px">
                 INV balance: <b>{shortenNumber(invBalance, 4)}</b>
               </Text>
-            </HStack>
+            </HStack> */}
             <VStack w="full" alignItems="flex-start">
               <TextInfo message="You give INV which is removed from circulation and sent to the Inverse Finance treasury and you receive DBR in exchange.">
                 <Text fontWeight="bold" fontSize="16px">
@@ -179,7 +179,7 @@ export const InvBuyBackUI = () => {
                 </Text>
               )}
               <Text fontSize="12px" color="secondaryTextColor">
-                Minimum DBR (after slippage):{" "}
+                Min. DBR to receive:{" "}
                 {minDbrOut && minDbrOut.gt(0)
                   ? `${shortenNumber(getBnToNumber(minDbrOut), 4)} DBR`
                   : "-"}
