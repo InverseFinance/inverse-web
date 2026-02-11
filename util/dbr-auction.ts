@@ -1,4 +1,4 @@
-import { DBR_AUCTION_ABI, DBR_AUCTION_HELPER_ABI, SINV_ABI } from "@app/config/abis";
+import { DBR_AUCTION_ABI, DBR_AUCTION_HELPER_ABI, INV_BUY_BACK_AUCTION_HELPER_ABI, SINV_ABI } from "@app/config/abis";
 import { useContractEvents } from "@app/hooks/useContractEvents";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
@@ -8,7 +8,7 @@ import { getBnToNumber, getNumberToBn } from "./markets";
 import { useCacheFirstSWR, useCustomSWR, useLocalCacheOnly } from "@app/hooks/useCustomSWR";
 import { SWR } from "@app/types";
 import { fetcher } from "./web3";
-import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, SDOLA_ADDRESS, SINV_ADDRESS } from "@app/config/constants";
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, INV_BUY_BACK_AUCTION_HELPER, SDOLA_ADDRESS, SINV_ADDRESS } from "@app/config/constants";
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { parseEther } from "@ethersproject/units";
 import { useEffect, useState } from "react";
@@ -20,6 +20,10 @@ export const getDbrAuctionContract = (signerOrProvider: JsonRpcSigner, auctionAd
 
 export const getDbrAuctionHelperContract = (signerOrProvider: JsonRpcSigner, helperAddress = DBR_AUCTION_HELPER_ADDRESS) => {
     return new Contract(helperAddress, DBR_AUCTION_HELPER_ABI, signerOrProvider);
+}
+
+export const getInvBuyBackAuctionHelperContract = (signerOrProvider: JsonRpcSigner, helperAddress = INV_BUY_BACK_AUCTION_HELPER) => {
+    return new Contract(helperAddress, INV_BUY_BACK_AUCTION_HELPER_ABI, signerOrProvider);
 }
 
 export const sellDolaForDbr = async (signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber, minDbrOut: BigNumber, auctionAddress = DBR_AUCTION_ADDRESS) => {
@@ -45,6 +49,11 @@ export const swapDolaForExactDbr = (signerOrProvider: JsonRpcSigner, dolaInMax: 
 export const getDbrOut = async (signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber, helperAddress = DBR_AUCTION_HELPER_ADDRESS) => {
     const contract = getDbrAuctionHelperContract(signerOrProvider, helperAddress);
     return contract.getDbrOut(dolaToSell);
+}
+
+export const buyBackInvForDbr = (signerOrProvider: JsonRpcSigner, invToSell: BigNumber, minDbrOut: BigNumber, helperAddress = INV_BUY_BACK_AUCTION_HELPER) => {
+    const contract = getInvBuyBackAuctionHelperContract(signerOrProvider, helperAddress);
+    return contract.swapExactAssetForDbr(invToSell, minDbrOut);
 }
 
 const estimateFuturAuctionDbrPrice = (
