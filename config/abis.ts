@@ -733,6 +733,18 @@ export const JDOLA_AUCTION_ABI = [
   "event RemoveSlashingModule(address)",
 ];
 
+export const INV_BUY_BACK_AUCTION_ABI = [
+  "function getCurrentReserves() public view returns (uint256 invReserve, uint256 dbrReserve)",
+  "function maxDbrRatePerYear() public view returns (uint256)",
+  "function minDbrRatePerYear() public view returns (uint256)",
+  "function dbrRatePerYear() public view returns (uint256)",
+  "function buyDBR(uint exactInvIn, uint exactDbrOut, address to) external",
+  "event Buy(address indexed caller, address indexed to, uint assetIn, uint dbrOut)",
+  "event RateUpdate(uint newRate)",
+  "event MaxRateUpdate(uint newMaxRate)",
+  "event MinRateUpdate(uint newMinRate)",
+]
+
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
