@@ -91,7 +91,7 @@ export const InvBuyBackUI = () => {
   return (
     <Container
       label="Manual INV Buy Back"
-      description="Helper contract"
+      description="See buyer contract on Etherscan"
       href={`https://etherscan.io/address/${INV_BUY_BACK_AUCTION_HELPER}`}
       noPadding
       m="0"

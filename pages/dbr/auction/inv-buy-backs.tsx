@@ -11,9 +11,10 @@ import Container from '@app/components/common/Container';
 import Table from '@app/components/common/Table';
 import ScannerLink from '@app/components/common/ScannerLink';
 import { Timestamp } from '@app/components/common/BlockTimestamp/Timestamp';
+import { INV_BUY_BACK_AUCTION } from '@app/config/constants';
 
 export const InvBuyBacksPage = () => {
-  const account = useAccount();  
+  const account = useAccount();
   const { data, isLoading } = useCustomSWR('/api/auctions/inv-buy-backs');
 
   const invReserve = data?.invReserve || 0;
@@ -66,7 +67,7 @@ export const InvBuyBacksPage = () => {
       ),
     },
   ];
-  
+
   return (
     <Layout>
       <Head>
@@ -143,56 +144,62 @@ export const InvBuyBacksPage = () => {
               <InvBuyBackUI />
             </VStack>
             <Stack alignItems="flex-end" w={{ base: 'full', lg: '35%' }}>
-              <InfoMessage
-                alertProps={{ w: 'full' }}
-                title="INV Buy Back Program"
-                description={
-                  <ChakraVStack alignItems="flex-start" spacing={1}>
-                    <Text fontWeight="bold" pt={2}>
-                      Auction reserves
-                    </Text>
-                    <Text fontSize="14px">
-                      INV reserve:{' '}
-                      <b>
-                        {isLoading ? '-' : `${smartShortNumber(invReserve, 2)} INV`}
-                      </b>
-                    </Text>
-                    <Text fontSize="14px">
-                      DBR reserve:{' '}
-                      <b>
-                        {isLoading ? '-' : `${smartShortNumber(dbrReserve, 2)} DBR`}
-                      </b>
-                    </Text>
-                    <Text fontWeight="bold" pt={2}>
-                      DBR emission parameters
-                    </Text>
-                    <Text fontSize="14px">
-                      Current DBR rate per year:{' '}
-                      <b>
-                        {isLoading
-                          ? '-'
-                          : `${shortenNumber(dbrRatePerYear, 2)} DBR / year`}
-                      </b>
-                    </Text>
-                    <Text fontSize="14px">
-                      Min DBR rate per year:{' '}
-                      <b>
-                        {isLoading
-                          ? '-'
-                          : `${shortenNumber(minDbrRatePerYear, 2)} DBR / year`}
-                      </b>
-                    </Text>
-                    <Text fontSize="14px">
-                      Max DBR rate per year:{' '}
-                      <b>
-                        {isLoading
-                          ? '-'
-                          : `${shortenNumber(maxDbrRatePerYear, 2)} DBR / year`}
-                      </b>
-                    </Text>
-                  </ChakraVStack>
-                }
-              />
+              <Container noPadding p="0" 
+              label="INV Buy Back Auction contract"
+              description="See on Etherscan"
+              href={`https://etherscan.io/address/${INV_BUY_BACK_AUCTION}`}
+              >
+                <InfoMessage
+                  alertProps={{ w: 'full' }}
+                  title="INV Buy Back Program"
+                  description={
+                    <ChakraVStack alignItems="flex-start" spacing={1}>
+                      <Text fontWeight="bold" pt={2}>
+                        Auction reserves
+                      </Text>
+                      <Text fontSize="14px">
+                        INV reserve:{' '}
+                        <b>
+                          {isLoading ? '-' : `${smartShortNumber(invReserve, 2)} INV`}
+                        </b>
+                      </Text>
+                      <Text fontSize="14px">
+                        DBR reserve:{' '}
+                        <b>
+                          {isLoading ? '-' : `${smartShortNumber(dbrReserve, 2)} DBR`}
+                        </b>
+                      </Text>
+                      <Text fontWeight="bold" pt={2}>
+                        DBR emission parameters
+                      </Text>
+                      <Text fontSize="14px">
+                        Current DBR rate per year:{' '}
+                        <b>
+                          {isLoading
+                            ? '-'
+                            : `${shortenNumber(dbrRatePerYear, 2)} DBR / year`}
+                        </b>
+                      </Text>
+                      <Text fontSize="14px">
+                        Min DBR rate per year:{' '}
+                        <b>
+                          {isLoading
+                            ? '-'
+                            : `${shortenNumber(minDbrRatePerYear, 2)} DBR / year`}
+                        </b>
+                      </Text>
+                      <Text fontSize="14px">
+                        Max DBR rate per year:{' '}
+                        <b>
+                          {isLoading
+                            ? '-'
+                            : `${shortenNumber(maxDbrRatePerYear, 2)} DBR / year`}
+                        </b>
+                      </Text>
+                    </ChakraVStack>
+                  }
+                />
+              </Container>
             </Stack>
           </Stack>
         </VStack>
