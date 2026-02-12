@@ -524,13 +524,14 @@ export const useDbrAuctionPricing = ({
     slippage: string,
     isExactToken: boolean,
     dbrSwapPriceRefInToken: number,
-    auctionType: 'classic' | 'sdola' | 'sinv' | 'jdola',
+    auctionType: 'classic' | 'sdola' | 'sinv' | 'jdola' | 'invBuyBack',
 }) => {
     const [estimatedTimeToReachMarketPrice, setEstimatedTimeToReachMarketPrice] = useState(0);
     const isClassicDbrAuction = auctionType === 'classic';
     const defaultRefAmount = isClassicDbrAuction ? defaultRefClassicAmount : defaultRefSdolaAmount;
     const { tokenReserve, dbrReserve, dbrRatePerYear } = useDbrAuction(auctionType);
     const isSinvAuction = auctionType === 'sinv';
+    const isInvBuyBackAuction = auctionType === 'invBuyBack';
 
     const { data: dataOut, error } = useEtherSWR([
         [helperAddress, 'getDbrOut', parseEther(tokenAmount || defaultRefAmount)],
@@ -538,8 +539,8 @@ export const useDbrAuctionPricing = ({
     ]);
     
     const { data: dataIn } = useEtherSWR([
-        [helperAddress, isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
-        [helperAddress, isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(defaultRefAmount)],
+        [helperAddress, isInvBuyBackAuction ? 'getAssetIn' : isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
+        [helperAddress, isInvBuyBackAuction ? 'getAssetIn' : isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(defaultRefAmount)],
     ]);
 
     const isLoading = (!dataOut && !error);

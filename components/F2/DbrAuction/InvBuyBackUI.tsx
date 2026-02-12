@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { HStack, Input, Text, VStack } from "@chakra-ui/react";
+import { Divider, HStack, Text, VStack } from "@chakra-ui/react";
 import Container from "@app/components/common/Container";
 import { TextInfo } from "@app/components/common/Messages/TextInfo";
 import { SimpleAmountForm } from "@app/components/common/SimpleAmountForm";
@@ -7,65 +7,56 @@ import { InfoMessage } from "@app/components/common/Messages";
 import { useWeb3React } from "@web3-react/core";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { INV_BUY_BACK_AUCTION_HELPER } from "@app/config/constants";
-import { buyBackInvForDbr } from "@app/util/dbr-auction";
+import { buyBackInvForDbr, useDbrAuctionPricing } from "@app/util/dbr-auction";
 import { parseEther } from "@ethersproject/units";
 import { BigNumber, Contract } from "ethers";
 import { INV_BUY_BACK_AUCTION_HELPER_ABI } from "@app/config/abis";
 import { getBnToNumber, getNumberToBn, shortenNumber } from "@app/util/markets";
-import { useDBRPrice } from "@app/hooks/useDBR";
+import { useDBRMarkets, useDBRPrice, useTriCryptoSwap } from "@app/hooks/useDBR";
 import { useINVBalance } from "@app/hooks/useBalances";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
+import { Input } from "@app/components/common/Input";
 
 const { INV } = getNetworkConfigConstants();
 
 export const InvBuyBackUI = () => {
   const { provider, account } = useWeb3React();
-  const { balance: invBalance } = useINVBalance(account);
   const { priceUsd: dbrPriceUsd } = useDBRPrice();
+
+  const { markets, isLoading: isLoadingMarkets } = useDBRMarkets();
+  const invMarket = markets?.find(m => m.isInv);
+  const invPrice = invMarket?.price || 0;
 
   const [invAmount, setInvAmount] = useState("");
   const [slippage, setSlippage] = useState("1");
-  const [estimatedDbrOut, setEstimatedDbrOut] = useState(0);
-  const [minDbrOut, setMinDbrOut] = useState<BigNumber | null>(null);
-  const [isEstimating, setIsEstimating] = useState(false);
 
   const floatInvAmount = parseFloat(invAmount || "0") || 0;
   const isInvalidSlippage =
     !slippage || parseFloat(slippage) <= 0 || parseFloat(slippage) >= 20;
 
-  useEffect(() => {
-    const estimate = async () => {
-      if (!provider || !invAmount || floatInvAmount <= 0 || isInvalidSlippage) {
-        setEstimatedDbrOut(0);
-        setMinDbrOut(null);
-        return;
-      }
-      try {
-        setIsEstimating(true);
-        const bnInv = parseEther(invAmount);
-        const contract = new Contract(
-          INV_BUY_BACK_AUCTION_HELPER,
-          INV_BUY_BACK_AUCTION_HELPER_ABI,
-          provider
-        );
-        const dbrOutBn: BigNumber = await contract.getDbrOut(bnInv);
-        const dbrOutNum = getBnToNumber(dbrOutBn);
-        const slip = parseFloat(slippage || "0");
-        const minOutBn =
-          dbrOutNum > 0 && slip > 0
-            ? getNumberToBn(dbrOutNum * (1 - slip / 100))
-            : BigNumber.from("0");
-        setEstimatedDbrOut(dbrOutNum);
-        setMinDbrOut(minOutBn);
-      } catch (e) {
-        setEstimatedDbrOut(0);
-        setMinDbrOut(null);
-      } finally {
-        setIsEstimating(false);
-      }
-    };
-    estimate();
-  }, [provider, invAmount, slippage, floatInvAmount, isInvalidSlippage]);
+  const defaultRefAmount = "1"
+
+  const srcIndex = 2
+  const { price: dbrSwapPriceRef } = useTriCryptoSwap(parseFloat(defaultRefAmount), srcIndex, 1);
+  const { price: dbrSwapPrice, isLoading: isCurvePriceLoading } = useTriCryptoSwap(parseFloat(!invAmount || invAmount === '0' ? defaultRefAmount : invAmount), srcIndex, 1);
+
+  const dbrSwapPriceInToken = dbrSwapPrice ? 1 / dbrSwapPrice : 0;
+  const dbrSwapPriceRefInToken = dbrSwapPriceRef ? 1 / dbrSwapPriceRef : 0;
+  const invMarketPrice = dbrSwapPriceInToken || dbrSwapPriceRefInToken;
+  const invAuctionPricingData = useDbrAuctionPricing({ auctionType: 'invBuyBack', helperAddress: INV_BUY_BACK_AUCTION_HELPER, tokenAmount: invAmount, dbrAmount: '1', slippage, isExactToken: true, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
+
+  const {
+    estimatedTimestampToReachMarketPrice,
+    estimatedTimeToReachMarketPrice,
+    dbrAuctionPriceInToken,
+    minDbrOut,
+    maxTokenIn,
+    minDbrOutNum,
+    maxTokenInNum,
+    estimatedTokenIn,
+    estimatedDbrOut,
+    isLoading: isEstimating,
+  } = invAuctionPricingData;
 
   const isFormDisabled =
     !account ||
@@ -134,18 +125,61 @@ export const InvBuyBackUI = () => {
                 checkBalanceOnTopOfIsDisabled={true}
                 onSuccess={() => {
                   setInvAmount("");
-                  setEstimatedDbrOut(0);
-                  setMinDbrOut(null);
                 }}
               />
             </VStack>
-            <HStack w="full" justify="space-between" alignItems="center">
-              <HStack spacing="2">
+
+            <VStack w="full" alignItems="flex-start" spacing={1}>
+              <HStack w="full" justify="space-between">
+                <Text fontSize="14px">
+                  Estimated DBR to receive:
+                </Text>
+                {isEstimating ? (
+                  <SmallTextLoader height="10px" width="80px" />
+                ) : (
+                  <Text fontSize="14px" fontWeight="bold">
+                    {estimatedDbrOut > 0
+                      ? `${shortenNumber(estimatedDbrOut, 4)} DBR${dbrPriceUsd
+                        ? ` (${shortenNumber(
+                          estimatedDbrOut * dbrPriceUsd,
+                          2,
+                          true
+                        )})`
+                        : ""
+                      }`
+                      : "-"}
+                  </Text>
+                )}
+              </HStack>
+              <HStack w="full" justify="space-between">
+                <Text fontSize="12px" color={dbrAuctionPriceInToken < dbrSwapPriceInToken ? 'success' : 'warning'}>
+                  Auction price:
+                </Text>
+                <Text fontSize="12px" fontWeight="bold">
+                  {dbrAuctionPriceInToken > 0
+                    ? `${shortenNumber(dbrAuctionPriceInToken, 4)} (${shortenNumber(dbrAuctionPriceInToken * invPrice, 4, true)})`
+                    : "-"}
+                </Text>
+              </HStack>
+              <HStack w="full" justify="space-between">
+                <Text fontSize="12px">
+                  INV market price:
+                </Text>
+                <Text fontSize="12px" fontWeight="bold">
+                  {dbrSwapPriceInToken > 0 && dbrPriceUsd > 0
+                    ? `${shortenNumber(dbrSwapPriceInToken, 4)} INV (${shortenNumber(dbrSwapPriceInToken * invPrice, 4, true)})`
+                    : "-"}
+                </Text>
+              </HStack>
+              <Divider />
+              <HStack w="full" justify="space-between" alignItems="center">
                 <Text fontSize="14px">Max slippage %:</Text>
                 <Input
+                  py="0"
+                  maxH="30px"
+                  w='90px'
                   value={slippage}
-                  maxW="80px"
-                  size="sm"
+                  _focusVisible={false}
                   isInvalid={isInvalidSlippage}
                   onChange={(e) =>
                     setSlippage(
@@ -156,34 +190,16 @@ export const InvBuyBackUI = () => {
                   }
                 />
               </HStack>
-            </HStack>
-            <VStack w="full" alignItems="flex-start" spacing={1}>
-              <Text fontSize="14px" color="secondaryTextColor">
-                Estimated DBR to receive:
-              </Text>
-              {isEstimating ? (
-                <SmallTextLoader height="10px" width="80px" />
-              ) : (
-                <Text fontSize="14px" fontWeight="bold">
-                  {estimatedDbrOut > 0
-                    ? `${shortenNumber(estimatedDbrOut, 4)} DBR${
-                        dbrPriceUsd
-                          ? ` (${shortenNumber(
-                              estimatedDbrOut * dbrPriceUsd,
-                              2,
-                              true
-                            )})`
-                          : ""
-                      }`
+              <HStack w="full" justify="space-between">
+                <Text fontSize="12px">
+                  Min. DBR to receive:
+                </Text>
+                <Text fontSize="12px" fontWeight="bold">
+                  {minDbrOut && minDbrOut.gt(0)
+                    ? `${shortenNumber(getBnToNumber(minDbrOut), 4)} DBR (${shortenNumber(getBnToNumber(minDbrOut) * dbrPriceUsd, 2, true)})`
                     : "-"}
                 </Text>
-              )}
-              <Text fontSize="12px" color="secondaryTextColor">
-                Min. DBR to receive:{" "}
-                {minDbrOut && minDbrOut.gt(0)
-                  ? `${shortenNumber(getBnToNumber(minDbrOut), 4)} DBR`
-                  : "-"}
-              </Text>
+              </HStack>
             </VStack>
           </>
         )}
