@@ -27,6 +27,16 @@ export const InvBuyBacksPage = () => {
 
   const buyColumns = [
     {
+      field: 'txHash',
+      label: 'Tx',
+      header: ({ ...props }) => <HStack justify="flex-start" minWidth="120px" fontSize="14px" fontWeight="extrabold" {...props} />,
+      value: ({ txHash }) => (
+        <HStack justify="flex-start" minWidth="120px" fontSize="14px">
+          <ScannerLink value={txHash} type="tx" />
+        </HStack>
+      ),
+    },
+    {
       field: 'timestamp',
       label: 'Date',
       header: ({ ...props }) => <HStack justify="flex-start" minWidth="140px" fontSize="14px" fontWeight="extrabold" {...props} />,
@@ -53,16 +63,6 @@ export const InvBuyBacksPage = () => {
       value: ({ dbrOut }) => (
         <HStack justify="center" minWidth="100px" fontSize="14px">
           <Text fontWeight="bold">{shortenNumber(dbrOut, 4)}</Text>
-        </HStack>
-      ),
-    },
-    {
-      field: 'txHash',
-      label: 'Tx',
-      header: ({ ...props }) => <HStack justify="flex-start" minWidth="120px" fontSize="14px" fontWeight="extrabold" {...props} />,
-      value: ({ txHash }) => (
-        <HStack justify="flex-start" minWidth="120px" fontSize="14px">
-          <ScannerLink value={txHash} type="tx" />
         </HStack>
       ),
     },
