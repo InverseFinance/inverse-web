@@ -224,30 +224,30 @@ export default async function handler(req, res) {
             //     "txHash": "0x3fbe1d8acd10627e490eae0b5b1ca3abed6b22a7ed764f99292f1836838f0240",
             //     "logIndex": 74
             // },
-            {
-                txHash: "0xbbc5587dadea0bf6eeb83de9b6de55ac4b8b47664f6c25e4e501a8ddfe19c23c",
-                blocknumber: 24439816,
-                amount: 43951.543867165277317571,
-                timestamp: 1770888683000,
-                date: "2026-02-12",
-                logIndex: 610,
-            },
-            {
-                txHash: "0x91be71aabd4f95f8b417b3a4e05b95d7cc834a3f502d9fd4a17ef2e6984b2e61",
-                blocknumber: 24439957,
-                amount: 182528.564852162361145019,
-                timestamp: 1770890375000,
-                date: "2026-02-12",
-                logIndex: 936,
-            },
-            {
-                txHash: "0x7b9a0a5318d2e0c04fe741b8d6ba8cf923faac33696d327e8af4196c841350e8",
-                blocknumber: 24440438,
-                amount: 89200.18646240234375,
-                timestamp: 1770896159000,
-                date: "2026-02-12",
-                logIndex: 753,
-            },
+            // {
+            //     txHash: "0xbbc5587dadea0bf6eeb83de9b6de55ac4b8b47664f6c25e4e501a8ddfe19c23c",
+            //     blocknumber: 24439816,
+            //     amount: 43951.543867165277317571,
+            //     timestamp: 1770888683000,
+            //     date: "2026-02-12",
+            //     logIndex: 610,
+            // },
+            // {
+            //     txHash: "0x91be71aabd4f95f8b417b3a4e05b95d7cc834a3f502d9fd4a17ef2e6984b2e61",
+            //     blocknumber: 24439957,
+            //     amount: 182528.564852162361145019,
+            //     timestamp: 1770890375000,
+            //     date: "2026-02-12",
+            //     logIndex: 936,
+            // },
+            // {
+            //     txHash: "0x7b9a0a5318d2e0c04fe741b8d6ba8cf923faac33696d327e8af4196c841350e8",
+            //     blocknumber: 24440438,
+            //     amount: 89200.18646240234375,
+            //     timestamp: 1770896159000,
+            //     date: "2026-02-12",
+            //     logIndex: 753,
+            // },
         ];
 
         const totalDolaRepaidByDAO = archivedData
