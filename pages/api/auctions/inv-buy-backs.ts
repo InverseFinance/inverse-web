@@ -3,11 +3,10 @@ import { Contract } from 'ethers';
 import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis';
 import { getBnToNumber } from '@app/util/markets';
-import { CHAIN_ID, INV_BUY_BACK_AUCTION } from '@app/config/constants';
+import { INV_BUY_BACK_AUCTION } from '@app/config/constants';
 import { INV_BUY_BACK_AUCTION_ABI } from '@app/config/abis';
 import { getMulticallOutput } from '@app/util/multicall';
 import { estimateBlockTimestamp } from '@app/util/misc';
-import { JsonRpcProvider } from '@ethersproject/providers';
 
 const INV_BUY_BACK_CACHE_KEY = 'inv-buy-back-auction-v1.0.2';
 
@@ -27,9 +26,8 @@ export default async function handler(req, res) {
       return;
     }
 
-    const simProvider = new JsonRpcProvider("https://virtual.mainnet.eu.rpc.tenderly.co/2663abc9-fe38-4f6b-8576-2a7ddc98f932");
-    const provider = simProvider//getProvider(CHAIN_ID);
-    const paidProvider = simProvider//getPaidProvider(1);
+    const provider = getProvider(1);
+    const paidProvider = getPaidProvider(1);
 
     const auctionRead = new Contract(
       INV_BUY_BACK_AUCTION,
