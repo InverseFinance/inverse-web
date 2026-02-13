@@ -40,7 +40,7 @@ const SELL_INV = 'Sell INV';
 const INFOS = 'Info';
 const TAB_OPTIONS = [
     SELL_DOLA, 
-    SELL_sDOLA, 
+    // SELL_sDOLA, 
     SELL_INV, 
     INFOS];
 
