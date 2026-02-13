@@ -8,6 +8,7 @@ import { FunctionFragment } from 'ethers/lib/utils';
 import { ProposalStatus } from '@app/types';
 import { genTransactionParams } from '@app/util/web3';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
+import { throttledPromises } from '@app/util/misc';
 
 const { TREASURY, DEPLOYER, F2_MARKETS, DBR } = getNetworkConfigConstants();
 
@@ -45,7 +46,7 @@ async function mainnetFork(newSimId: number, title: string) {
     {
       method: 'POST',
       body: JSON.stringify({
-        "slug": SLUG_BASE+"prop-sim-"+newSimId,
+        "slug": SLUG_BASE + "prop-sim-" + newSimId,
         "display_name": title,
         "fork_config": {
           "network_id": 1,
@@ -81,24 +82,24 @@ export default async function handler(req, res) {
   let proposalId;
 
   try {
-    const cached = (await getCacheFromRedis(SIMS_CACHE_KEY, false));    
-    const { lastSimId, ids } =  cached || { lastSimId: 0, ids: [] };
-    const newSimId = (lastSimId||0) + 1;
+    const cached = (await getCacheFromRedis(SIMS_CACHE_KEY, false));
+    const { lastSimId, ids } = cached || { lastSimId: 0, ids: [] };
+    const newSimId = (lastSimId || 0) + 1;
     const vnetTitle = `Sim-${newSimId}: ${form.title.substring(0, 100)}`;
     const forkResponse = await mainnetFork(newSimId, vnetTitle);
     const now = Date.now();
     let hasError = false;
-    
+
     // const tdlyRemaining = forkResponse.headers.get('X-Tdly-Remaining');
     // const rateLimitRemaining = forkResponse.headers.get('x-ratelimit-remaining');
-    
+
     const fork = await forkResponse.json();
 
     const forkId = fork?.id;
     let _ids = ids || [];
     const adminRpc = fork.rpcs[0].url;
     const publicRpc = fork.rpcs[2].url;
-    const publicId = publicRpc.substring(publicRpc.lastIndexOf("/")+1);
+    const publicId = publicRpc.substring(publicRpc.lastIndexOf("/") + 1);
 
     _ids.push({ timestamp: now, id: forkId, publicId, publicRpc, adminRpc, title: form.title });
     await redisSetWithTimestamp(SIMS_CACHE_KEY, { lastSimId: newSimId, ids: _ids });
@@ -175,15 +176,15 @@ export default async function handler(req, res) {
       form.status = ProposalStatus.succeeded;
     }
 
-    if (!form.status || form.status === ProposalStatus.succeeded) {      
+    if (!form.status || form.status === ProposalStatus.succeeded) {
       await govContract.queue(proposalId);
       form.status = ProposalStatus.queued;
     }
 
     let txHash = '';
-    if (!form.status || form.status === ProposalStatus.queued) {      
+    if (!form.status || form.status === ProposalStatus.queued) {
       //pass time      
-      if(!form.status || !form.etaTimestamp || (!!form.etaTimestamp && now < form.etaTimestamp)) {
+      if (!form.status || !form.etaTimestamp || (!!form.etaTimestamp && now < form.etaTimestamp)) {
         await forkProvider.send('evm_increaseTime', [
           ethers.utils.hexValue(60 * 60 * 24 * 5)
         ]);
@@ -199,7 +200,7 @@ export default async function handler(req, res) {
         }
         // avoid stale price reverts
         await forkProvider.send('evm_setNextBlockTimestamp', [
-          parseInt(now/1000).toString()
+          parseInt(now / 1000).toString()
         ]);
       } catch (e) {
         console.log('error executing')
@@ -218,18 +219,25 @@ export default async function handler(req, res) {
 
     let marketsReports: any[] = [];
     const proposalAddresses = getProposalAddresses(form.actions);
-    const marketsInProposal = F2_MARKETS.filter(m => proposalAddresses.includes(m.address.toLowerCase()) || proposalAddresses.includes(m.collateral.toLowerCase())).map(m => m.address.toLowerCase());
+    const marketsInProposal = [...new Set(F2_MARKETS.filter(m => proposalAddresses.includes(m.address.toLowerCase()) || proposalAddresses.includes(m.collateral.toLowerCase())).map(m => m.address.toLowerCase()))];
     for (const action of form.actions) {
-      if(action.func === 'addMarket(address)' && action.contractAddress.toLowerCase() === DBR.toLowerCase()) {
+      if (action.func === 'addMarket(address)' && action.contractAddress.toLowerCase() === DBR.toLowerCase()) {
         const marketToAdd = action.args[0].value.toLowerCase();
-        if(!marketsInProposal.includes(marketToAdd)){
+        if (!marketsInProposal.includes(marketToAdd)) {
           marketsInProposal.push(marketToAdd);
         }
       }
     }
-    if(!hasError) {
-      const reports = await Promise.allSettled(marketsInProposal.map(address => getMarketCheckerReport(address, publicId)));
-      marketsReports = reports.map((r,i) => {
+    if (!hasError) {
+      // 3 requests per sec max supported
+      const reports = await throttledPromises(
+        (address: string) => getMarketCheckerReport(address, publicId),
+        marketsInProposal,
+        3,
+        1100,
+        'allSettled',
+      );
+      marketsReports = reports.map((r, i) => {
         const marketAddress = marketsInProposal[i];
         const market = F2_MARKETS.find(m => m.address.toLowerCase() === marketAddress);
         const report = r.status === 'fulfilled' ? r.value : null;
