@@ -17,6 +17,7 @@ const { TENDERLY_USER, TENDERLY_KEY } = process.env;
 export const SLUG_BASE = process.env.VERCEL_ENV === 'production' ? 'p' : 'd';
 
 const getMarketCheckerReport = async (marketAddress: string, vnetId: string) => {
+  console.log('getMarketCheckerReport', marketAddress, vnetId);
   const response = await fetch('http://164.92.150.8:5000/api/analyze', {
     method: 'POST',
     headers: {
