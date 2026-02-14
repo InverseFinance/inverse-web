@@ -3,13 +3,13 @@ import 'source-map-support'
 import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
-import { formatDailyAuctionAggreg, getDbrAuctionContract, getGroupedByDayAuctionBuys } from '@app/util/dbr-auction';
+import { formatDailyAuctionAggreg, getDbrAuctionContract, getGroupedByDayAuctionBuys, getInvBuyBackAuctionContract } from '@app/util/dbr-auction';
 import { NetworkIds } from '@app/types';
 import { getSdolaContract } from '@app/util/dola-staking';
 import { ascendingEventsSorter, estimateBlockTimestamp } from '@app/util/misc';
 import { getHistoricDbrPriceOnCurve } from '@app/util/f2';
 import { getSInvContract } from '@app/util/sINV';
-import { SINV_ADDRESS, SINV_ADDRESS_V1, SINV_HELPER_ADDRESS, SINV_HELPER_ADDRESS_V1 } from '@app/config/constants';
+import { INV_BUY_BACK_AUCTION_HELPER, SINV_ADDRESS, SINV_ADDRESS_V1, SINV_HELPER_ADDRESS, SINV_HELPER_ADDRESS_V1 } from '@app/config/constants';
 import { Contract } from 'ethers';
 
 const DBR_AUCTION_BUYS_CACHE_KEY_V2 = 'dbr-auction-buys-v2.0.1'
@@ -35,6 +35,7 @@ export default async function handler(req, res) {
         const sdolaContract = getSdolaContract(paidProvider);
         const sinvContract = getSInvContract(paidProvider);
         const sinvContractV1 = getSInvContract(paidProvider, SINV_ADDRESS_V1);
+        const invBuyBackAuctionContract = getInvBuyBackAuctionContract(paidProvider);
 
         const archived = cachedData || {
             dailyBuys: [],
@@ -42,12 +43,19 @@ export default async function handler(req, res) {
             last100VirtualAuctionEvents: [],
             last100SdolaAuctionEvents: [],
             last100SinvAuctionEvents: [],
+            last100InvBuyBackAuctionEvents: [],
         };
 
         const lastKnownEvent = archived?.last100?.length > 0 ? (archived.last100[archived.last100.length - 1]) : {};
         const newStartingBlock = archived?.lastBlocknumber ? archived?.lastBlocknumber + 1 : (lastKnownEvent?.blockNumber ? lastKnownEvent?.blockNumber + 1 : undefined);
 
-        const [generalAuctionBuys, sdolaAuctionBuys, sinvAuctionBuys, sinvAuctionBuysV1] = await Promise.all([
+        const [
+            generalAuctionBuys, 
+            sdolaAuctionBuys, 
+            sinvAuctionBuys, 
+            sinvAuctionBuysV1,
+            invBuyBackAuctionBuys,
+        ] = await Promise.all([
             dbrAuctionContract.queryFilter(
                 dbrAuctionContract.filters.Buy(),
                 newStartingBlock ? newStartingBlock : 0x0,
@@ -63,12 +71,17 @@ export default async function handler(req, res) {
             sinvContractV1.queryFilter(
                 sinvContractV1.filters.Buy(),
                 newStartingBlock ? newStartingBlock : 0x0,
-            )
+            ),
+            invBuyBackAuctionContract.queryFilter(
+                invBuyBackAuctionContract.filters.Buy(),
+                newStartingBlock ? newStartingBlock : 0x0,
+            ),
         ]);
 
         const newBuyEvents = generalAuctionBuys
             .concat(sdolaAuctionBuys)
             .concat(sinvAuctionBuys)
+            .concat(invBuyBackAuctionBuys)
             .concat(SINV_ADDRESS_V1 !== SINV_ADDRESS ? sinvAuctionBuysV1 : []);
         newBuyEvents.sort(ascendingEventsSorter);
 
@@ -86,6 +99,7 @@ export default async function handler(req, res) {
         const sinvHelperAddressesLc = [SINV_HELPER_ADDRESS_V1, SINV_HELPER_ADDRESS].map(a => a.toLowerCase());
 
         const newBuys = newBuyEvents.map(e => {
+            const isInvBuyBackType = e.address.toLowerCase() === invBuyBackAuctionContract.address.toLowerCase() || INV_BUY_BACK_AUCTION_HELPER.toLowerCase() === e.args[0].toLowerCase();
             const isSinvType = sinvAddressesLc.includes(e.address.toLowerCase()) || sinvHelperAddressesLc.includes(e.args[0].toLowerCase());
             const isSInvV2 = SINV_HELPER_ADDRESS !== SINV_HELPER_ADDRESS_V1 && e.address.toLowerCase() === sinvContract.address.toLowerCase() || e.args[0].toLowerCase() === SINV_HELPER_ADDRESS.toLowerCase();
             return {
@@ -94,11 +108,11 @@ export default async function handler(req, res) {
                 blockNumber: e.blockNumber,
                 caller: e.args[0],
                 to: e.args[1],
-                invIn: isSinvType ? getBnToNumber(e.args[2]) : 0,
-                dolaIn: isSinvType ? 0 : getBnToNumber(e.args[2]),
+                invIn: isSinvType || isInvBuyBackType ? getBnToNumber(e.args[2]) : 0,
+                dolaIn: isSinvType || isInvBuyBackType ? 0 : getBnToNumber(e.args[2]),
                 dbrOut: getBnToNumber(e.args[3]),
                 version: isSinvType ? isSInvV2 ? 'V2' : 'V1' : undefined,
-                auctionType: e.address.toLowerCase() === sdolaContract.address.toLowerCase() ? 'sDOLA' : isSinvType ? 'sINV' : 'Virtual',
+                auctionType: e.address.toLowerCase() === sdolaContract.address.toLowerCase() ? 'sDOLA' : isSinvType ? 'sINV' : isInvBuyBackType ? 'INV buyback' : 'Virtual',
             };
         });
 
@@ -114,6 +128,7 @@ export default async function handler(req, res) {
         const last100VirtualAuctionEvents = archived.last100VirtualAuctionEvents.concat(newBuys.filter(e => e.auctionType === 'Virtual')).slice(-100);
         const last100SdolaAuctionEvents = archived.last100SdolaAuctionEvents.concat(newBuys.filter(e => e.auctionType === 'sDOLA')).slice(-100);
         const last100SinvAuctionEvents = archived.last100SinvAuctionEvents.concat(newBuys.filter(e => e.auctionType === 'sINV')).slice(-100);
+        const last100InvBuyBackAuctionEvents = archived.last100InvBuyBackAuctionEvents.concat(newBuys.filter(e => e.auctionType === 'INV buyback')).slice(-100);
 
         const newTotalDailyBuys = getGroupedByDayAuctionBuys(newBuys.map(formatDailyAuctionAggreg), archived?.dailyBuys || []);
 
@@ -125,6 +140,7 @@ export default async function handler(req, res) {
             last100VirtualAuctionEvents,
             last100SdolaAuctionEvents,
             last100SinvAuctionEvents,
+            last100InvBuyBackAuctionEvents,
             dailyBuys: newTotalDailyBuys,
         };
 

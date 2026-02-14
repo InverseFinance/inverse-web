@@ -160,7 +160,6 @@ export const DbrAuctionBuyer = ({
     const sdolaAuctionPricingData = useDbrAuctionPricing({ auctionType: 'sdola', helperAddress: SDOLA_HELPER_ADDRESS, tokenAmount: dolaAmount, dbrAmount, slippage, isExactToken: isSellMode, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
     const sinvAuctionPricingData = useDbrAuctionPricing({ auctionType: 'sinv', helperAddress: SINV_HELPER_ADDRESS, tokenAmount: invAmount, dbrAmount, slippage, isExactToken: isSellMode, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
     const selectedAuctionData = isExactInv ? sinvAuctionPricingData : (isJDolaDbrAuction ? jdolaAuctionPricingData : isClassicDbrAuction ? classicAuctionPricingData : sdolaAuctionPricingData);
-    
     const {
         estimatedTimestampToReachMarketPrice,
         estimatedTimeToReachMarketPrice,
@@ -321,7 +320,7 @@ export const DbrAuctionBuyer = ({
                         {
                             tab === INFOS ?
                                 <VStack w='full' alignItems="flex-start">
-                                    <DbrAuctionParametersWrapper dolaPrice={dolaPrice} invPrice={invPrice} />
+                                    <DbrAuctionParametersWrapper dolaPrice={dolaPrice} invPrice={invPrice} sDolaPrice={dolaPrice * sDolaExRate} />
                                 </VStack>
                                 : <>
                                     <HStack w='full' justify="space-between">
@@ -387,7 +386,7 @@ export const DbrAuctionBuyer = ({
                                             </TextInfo>
                                             <SimpleAmountForm
                                                 btnProps={{ needPoaFirst: true }}
-                                                defaultAmount={dolaAmount}
+                                                defaultAmount={sDolaAmount}
                                                 address={SDOLA_ADDRESS}
                                                 destination={JDOLA_AUCTION_HELPER_ADDRESS}
                                                 signer={provider?.getSigner()}

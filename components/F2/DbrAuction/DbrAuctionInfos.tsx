@@ -91,11 +91,11 @@ export const useDbrAuction = (auctionType: 'classic' | 'sdola' | 'sinv' | 'jdola
     }
 }
 
-export const DbrAuctionParametersWrapper = ({ dolaPrice, invPrice }: { dolaPrice: number, invPrice: number }) => {
+export const DbrAuctionParametersWrapper = ({ dolaPrice, invPrice, sDolaPrice }: { dolaPrice: number, invPrice: number, sDolaPrice: number }) => {
     const { priceUsd: dbrPrice } = useDBRPrice(); 
     return <VStack w='full' alignItems="flex-start">
-        {/* <Text fontWeight="bold">jrDOLA auction infos:</Text>
-        <DbrAuctionJDolaParameters dbrPrice={dbrPrice} tokenPrice={dolaPrice} /> */}
+        <Text fontWeight="bold">jrDOLA auction infos:</Text>
+        <DbrAuctionJDolaParameters dbrPrice={dbrPrice} tokenPrice={sDolaPrice} />
         <Text fontWeight="bold">Virtual auction infos:</Text>
         <DbrAuctionClassicParameters dbrPrice={dbrPrice} tokenPrice={dolaPrice} />
         <Text fontWeight="bold">sDOLA auction infos:</Text>
@@ -122,7 +122,7 @@ export const DbrAuctionSDolaParameters = ({ dbrPrice, tokenPrice }) => {
 export const DbrAuctionJDolaParameters = ({ dbrPrice, tokenPrice }) => {
     const { tokenReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading } = useDbrAuction('jdola');
     return <DbrAuctionParameters
-        tokenSymbol='DOLA'
+        tokenSymbol='sDOLA'
         tokenReserve={tokenReserve}
         dbrReserve={dbrReserve}
         dbrRatePerYear={dbrRatePerYear}

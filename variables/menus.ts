@@ -70,6 +70,10 @@ export const MENUS = {
           label: 'Buy DBR (auction)',
           href: '/dbr/auction',        
         },
+        {
+          label: 'INV buy backs',
+          href: '/dbr/auction/inv-buy-backs',        
+        },
       ],
     },
     {
