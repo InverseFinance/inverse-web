@@ -23,6 +23,7 @@ export const InvBuyBacksPage = () => {
   const maxDbrRatePerYear = data?.maxDbrRatePerYear || 0;
   const minDbrRatePerYear = data?.minDbrRatePerYear || 0;
   const totalInvIn = data?.totalInvIn || 0;
+  const totalInvInWorth = data?.totalInvInWorth || 0;
   const last100Buys = (data?.last100Buys || []).slice().sort((a, b) => b.timestamp - a.timestamp);
 
   const buyColumns = [
@@ -125,7 +126,7 @@ export const InvBuyBacksPage = () => {
                   Total INV bought back
                 </Text>
                 <Text fontSize="lg" fontWeight="bold">
-                  {isLoading ? '-' : `${shortenNumber(totalInvIn, 4)} INV`}
+                  {isLoading ? '-' : `${shortenNumber(totalInvIn, 2)} INV (~${smartShortNumber(totalInvInWorth, 2, true)} buying pressure)`}
                 </Text>
               </VStack>
             </HStack>
@@ -213,10 +214,6 @@ export const InvBuyBacksPage = () => {
           p="0"
         >
           <VStack w="full" alignItems="flex-start" p={4} spacing={4}>
-            <Text fontSize="14px" color="secondaryTextColor">
-              Total INV bought back so far:{' '}
-              <b>{isLoading ? '-' : `${shortenNumber(totalInvIn, 4)} INV`}</b>
-            </Text>
             <Table
               keyName="txHash"
               noDataMessage="No buys yet"
