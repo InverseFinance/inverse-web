@@ -606,6 +606,7 @@ export const F2Markets = ({
     const [newDbrUserRefPrice, setNewDbrUserRefPrice] = useState(dbrUserRefPrice);
 
     useEffect(() => {
+        const userPhasingOutMarkets = accountMarkets?.filter(m => m.isPhasingOut && (m.debt > 0 || (m.deposits * m.price) >= 1));
         if(!hasPhasingOutPositionChecked[account] && userPhasingOutMarkets.length > 0) {
             showToast({
                 title: 'Warning: position in a phasing out market',
