@@ -6,7 +6,7 @@ import Link from '@app/components/common/Link'
 import { useAppTheme, useAppThemeParams } from '@app/hooks/useAppTheme';
 import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { SmallTextLoader } from '../Loaders/SmallTextLoader';
-import { useCustomSWR } from '@app/hooks/useCustomSWR';
+import { useCacheFirstSWR, useCustomSWR } from '@app/hooks/useCustomSWR';
 import { useMemo } from 'react';
 
 const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
@@ -27,7 +27,7 @@ export const SDolaAnnouncement = () => {
   const { themeStyles } = useAppTheme();
   const { ANNOUNCEMENT_BAR_BORDER } = useAppThemeParams();
   // const { data: apiData, error: apiErr } = useCustomSWR(`/api/dola-staking?v=2&cacheFirst=true&includeSpectra=true`);
-  const { data: invBuyBacksData } = useCustomSWR('/api/auctions/inv-buy-backs');
+  const { data: invBuyBacksData } = useCacheFirstSWR('/api/auctions/inv-buy-backs');
   // const spectraPool = apiData?.spectraPool;
   // const sDolaApy = apiData?.apy;
 
@@ -83,20 +83,24 @@ export const SDolaAnnouncement = () => {
           target="_self"
           _hover={{ color: 'lightAccentTextColor' }}
         >
-          <HStack textDecoration="underline" spacing="1">
-            <Text className="heading-font">
-              INV buybacks are live:  
-              {
-                totalInvIn > 0 ?
+          <VStack spacing="0" alignItems="center">
+            <HStack textDecoration="underline" spacing="1">
+              <Text className="heading-font">
+                INV buybacks are live!
+              </Text>
+              <Image borderRadius="full" src="/assets/inv-square-dark.jpeg" h="20px" w="20px" />
+            </HStack>
+            {
+              totalInvIn > 0 ?
+                <Text className="heading-font">
                   <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>
-                    {shortenNumber(totalInvIn, 2)} (~{smartShortNumber(totalInvInWorth, 2, true)}) were purchased from the market
-                  </b>
-                  :
-                  ''
-              }
-            </Text>
-            <Image borderRadius="full" src="/assets/inv-square-dark.jpeg" h="20px" w="20px" />
-          </HStack>
+                    {shortenNumber(totalInvIn, 2)} (~{smartShortNumber(totalInvInWorth, 2, true)}) INV
+                  </b> bought back so far
+                </Text>
+                :
+                <SmallTextLoader />
+            }
+          </VStack>
         </Link>
       </Stack>
     </Flex>
