@@ -195,21 +195,21 @@ export const NumberCard = ({ imageSrc = '', noDataFallback = undefined, href = u
     </DashBoardCard>
 }
 
-const StringItem = ({ footer = undefined, color = 'mainTextColor', value = '', label = '', isLoading = false }) => {
+const StringItem = ({ footer = undefined, color = 'mainTextColor', value = '', label = '', isLoading = false, valueProps, labelProps }) => {
     return <VStack spacing="0" justify="center" alignItems="flex-end" w='full'>
         <VStack alignItems="flex-end" w='full' spacing="1">
             {
-                isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize="30px" color={color}>{value}</Text>
+                isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize="30px" color={color} {...valueProps}>{value}</Text>
             }
-            <Text fontSize="18px" fontWeight="bold" color={'mainTextColorLight'}>{label}</Text>
+            <Text fontSize="18px" fontWeight="bold" color={'mainTextColorLight'} {...labelProps}>{label}</Text>
             {footer}
         </VStack>
     </VStack>
 }
 
-const StringCard = ({ imageSrc = '', footer = undefined, color = undefined, value = '', label = '', isLoading = false }) => {
+export const StringCard = ({ imageSrc = '', footer = undefined, color = undefined, value = '', label = '', isLoading = false, valueProps, labelProps }) => {
     return <DashBoardCard imageSrc={imageSrc}>
-        <StringItem footer={footer} color={color} isLoading={isLoading} value={value} label={label} />
+        <StringItem footer={footer} color={color} isLoading={isLoading} value={value} label={label} valueProps={valueProps} labelProps={labelProps} />
     </DashBoardCard>
 }
 

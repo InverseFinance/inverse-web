@@ -1,4 +1,4 @@
-import { Box, HStack, Image, Stack, Text, VStack, VStack as ChakraVStack } from '@chakra-ui/react'
+import { Box, HStack, Image, Stack, Text, VStack, VStack as ChakraVStack, SimpleGrid } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
@@ -13,6 +13,8 @@ import ScannerLink from '@app/components/common/ScannerLink';
 import { Timestamp } from '@app/components/common/BlockTimestamp/Timestamp';
 import { INV_BUY_BACK_AUCTION } from '@app/config/constants';
 import { useDBRPrice, useDBRMarkets } from '@app/hooks/useDBR';
+import { StringCard } from '@app/components/F2/UserDashboard';
+import { timeSince } from '@app/util/time';
 
 export const InvBuyBacksPage = () => {
   const { priceUsd: dbrPriceUsd } = useDBRPrice();
@@ -28,14 +30,34 @@ export const InvBuyBacksPage = () => {
   const minDbrRatePerYear = data?.minDbrRatePerYear || 0;
   const totalInvIn = data?.totalInvIn || 0;
   const totalInvInWorth = totalInvIn * invPrice; //data?.totalInvInWorth || 0;
-  const last100Buys = (data?.last100Buys || []).slice().sort((a, b) => b.timestamp - a.timestamp);
+  const last100Buys = (data?.last100Buys || []).slice().sort((a: any, b: any) => b.timestamp - a.timestamp);
 
-  const buyColumns = [
+  // Calculate average hourly rate from last100Buys
+  const now = Date.now();
+  const oneDayAgo = now - 24 * 60 * 60 * 1000;
+  const last24hBuys = last100Buys.filter((buy: any) => buy.timestamp >= oneDayAgo);
+  const last24hInvIn = last24hBuys.reduce((sum: number, buy: any) => sum + (buy.invIn || 0), 0);
+  const last24hInvInWorth = last24hInvIn * invPrice;
+
+  // Calculate average hourly rate
+  let avgHourlyRate = 0;
+  if (last100Buys.length > 1) {
+    const oldestBuy = last100Buys[last100Buys.length - 1];
+    const newestBuy = last100Buys[0];
+    const timeSpanHours = (newestBuy.timestamp - oldestBuy.timestamp) / (1000 * 60 * 60);
+    if (timeSpanHours > 0) {
+      avgHourlyRate = last100Buys.reduce((prev, curr) => prev + (curr.invIn || 0), 0) / timeSpanHours;
+    }
+  }
+
+  const estimatedMonthlyBuyPressure = (dbrRatePerYear * dbrPriceUsd) / 12;
+
+  const buyColumns: any[] = [
     {
       field: 'txHash',
       label: 'Tx',
-      header: ({ ...props }) => <HStack justify="flex-start" minWidth="120px" fontSize="14px" fontWeight="extrabold" {...props} />,
-      value: ({ txHash }) => (
+      header: ({ ...props }: any) => <HStack justify="flex-start" minWidth="120px" fontSize="14px" fontWeight="extrabold" {...props} />,
+      value: ({ txHash }: any) => (
         <HStack justify="flex-start" minWidth="120px" fontSize="14px">
           <ScannerLink value={txHash} type="tx" />
         </HStack>
@@ -44,8 +66,8 @@ export const InvBuyBacksPage = () => {
     {
       field: 'timestamp',
       label: 'Date',
-      header: ({ ...props }) => <HStack justify="flex-start" minWidth="140px" fontSize="14px" fontWeight="extrabold" {...props} />,
-      value: ({ timestamp }) => (
+      header: ({ ...props }: any) => <HStack justify="flex-start" minWidth="140px" fontSize="14px" fontWeight="extrabold" {...props} />,
+      value: ({ timestamp }: any) => (
         <HStack minWidth="140px" fontSize="14px">
           <Timestamp timestamp={timestamp} text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px' }} />
         </HStack>
@@ -54,8 +76,8 @@ export const InvBuyBacksPage = () => {
     {
       field: 'invIn',
       label: 'INV In',
-      header: ({ ...props }) => <HStack justify="center" minWidth="100px" fontSize="14px" fontWeight="extrabold" {...props} />,
-      value: ({ invIn }) => (
+      header: ({ ...props }: any) => <HStack justify="center" minWidth="100px" fontSize="14px" fontWeight="extrabold" {...props} />,
+      value: ({ invIn }: any) => (
         <HStack justify="center" minWidth="100px" fontSize="14px">
           <Text fontWeight="bold">{shortenNumber(invIn, 4)}</Text>
         </HStack>
@@ -64,8 +86,8 @@ export const InvBuyBacksPage = () => {
     {
       field: 'dbrOut',
       label: 'DBR Out',
-      header: ({ ...props }) => <HStack justify="center" minWidth="100px" fontSize="14px" fontWeight="extrabold" {...props} />,
-      value: ({ dbrOut }) => (
+      header: ({ ...props }: any) => <HStack justify="center" minWidth="100px" fontSize="14px" fontWeight="extrabold" {...props} />,
+      value: ({ dbrOut }: any) => (
         <HStack justify="center" minWidth="100px" fontSize="14px">
           <Text fontWeight="bold">{shortenNumber(dbrOut, 4)}</Text>
         </HStack>
@@ -122,20 +144,89 @@ export const InvBuyBacksPage = () => {
               INV buyback automated program
             </Text>
             <Text fontSize={{ base: 'md', md: 'lg' }} color="secondaryTextColor">
-              An automated program that buys back INV from the market using DBR auction flows, removing INV from circulation and sending it back to the Inverse Finance treasury, this creates buying pressure on INV and selling pressure on DBR.
+              An automated program starting Feb 16th 2026 that buys back INV from the market using DBR auction flows, removing INV from circulation and sending it back to the Inverse Finance treasury, this creates buying pressure on INV and selling pressure on DBR.
             </Text>
-            <HStack spacing={6} pt={2}>
-              <VStack alignItems="flex-start" spacing={0}>
+            <HStack spacing={6} pt={2} flexWrap="wrap" rowGap={4} w='full'>
+              <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={{ base: 2, md: 4 }} w='full'>
+                <StringCard
+                  valueProps={{ fontSize: '18px' }} labelProps={{ fontSize: '13px' }}
+                  value={isLoading ? '-' : `${shortenNumber(last24hInvIn, 2)} INV (~${smartShortNumber(last24hInvInWorth, 2, true)})`}
+                  label="Last 24h buys"
+                />
+                <StringCard
+                  valueProps={{ fontSize: '18px' }} labelProps={{ fontSize: '13px' }}
+                  value={isLoading ? '-' : `${shortenNumber(totalInvIn, 2)} INV (~${smartShortNumber(totalInvInWorth, 2, true)})`}
+                  label="Total buybacks"
+                />
+                <StringCard
+                  valueProps={{ fontSize: '18px' }} labelProps={{ fontSize: '13px' }}
+                  value={isLoading || !invPrice ? '-' : `${shortenNumber(estimatedMonthlyBuyPressure / invPrice, 2)} INV (${smartShortNumber(estimatedMonthlyBuyPressure, 2, true)})`}
+                  label="Est. monthly buying pressure"
+                />
+                <StringCard
+                  valueProps={{ fontSize: '18px' }} labelProps={{ fontSize: '13px' }}
+                  value={isLoading ? '-' : smartShortNumber(dbrRatePerYear * dbrPriceUsd, 2, true)}
+                  label="Current yearly DBR budget"
+                />
+              </SimpleGrid>
+
+              {/* <VStack alignItems="flex-start" spacing={0}>
+                <Text fontSize="12px" color="secondaryTextColor">
+                  Last 24h buys
+                </Text>
+                <Text fontSize="lg" fontWeight="bold">
+                  {isLoading ? '-' : `${shortenNumber(last24hInvIn, 2)} INV (~${smartShortNumber(last24hInvInWorth, 2, true)})`}
+                </Text>
+              </VStack> */}
+              {/* <VStack alignItems="flex-start" spacing={0}>
                 <Text fontSize="12px" color="secondaryTextColor">
                   Total INV bought back since Feb 16th 2026
                 </Text>
                 <Text fontSize="lg" fontWeight="bold">
-                  {isLoading ? '-' : `${shortenNumber(totalInvIn, 2)} INV (~${smartShortNumber(totalInvInWorth, 2, true)} buying pressure)`}
+                  {isLoading ? '-' : `${shortenNumber(totalInvIn, 2)} INV (~${smartShortNumber(totalInvInWorth, 2, true)})`}
                 </Text>
               </VStack>
+              <VStack alignItems="flex-start" spacing={0}>
+                <Text fontSize="12px" color="secondaryTextColor">
+                  Avg. buy pace (based on last 100 buys)
+                </Text>
+                <Text fontSize="lg" fontWeight="bold">
+                  {isLoading || last100Buys.length === 0 ? '-' : `${shortenNumber(avgHourlyRate * 24 * 30, 2)} INV/month`}
+                </Text>
+              </VStack>
+
+              <VStack alignItems="flex-start" spacing={0}>
+                <Text fontSize="12px" color="secondaryTextColor">
+                  Yearly DBR budget for buybacks
+                </Text>
+                <Text fontSize="lg" fontWeight="bold">
+                  {isLoading ? '-' : smartShortNumber(dbrRatePerYear * dbrPriceUsd, 2, true)}
+                </Text>
+              </VStack> */}
             </HStack>
           </VStack>
         </HStack>
+
+        <Container
+          label="Last 100 INV buybacks"
+          description={last100Buys.length > 0 ? `Last update: ${timeSince(data?.timestamp)}` : 'Loading...'}
+          w="full"
+          contentProps={{ p: 0, overflowX: 'auto' }}
+          noPadding
+          p="0"
+          collapsable={true}
+        >
+          <VStack w="full" alignItems="flex-start" p={4} spacing={4}>
+            <Table
+              keyName="txHash"
+              noDataMessage="No buys yet"
+              columns={buyColumns}
+              items={last100Buys}
+              defaultSort="timestamp"
+              defaultSortDir="desc"
+            />
+          </VStack>
+        </Container>
 
         <VStack spacing="4" w='full'>
           <Stack
@@ -149,10 +240,10 @@ export const InvBuyBacksPage = () => {
               <InvBuyBackUI />
             </VStack>
             <Stack alignItems="flex-end" w={{ base: 'full', lg: '35%' }}>
-              <Container noPadding p="0" 
-              label="INV buyback Auction contract"
-              description="See on Etherscan"
-              href={`https://etherscan.io/address/${INV_BUY_BACK_AUCTION}`}
+              <Container noPadding p="0"
+                label="INV buyback Auction contract"
+                description="See on Etherscan"
+                href={`https://etherscan.io/address/${INV_BUY_BACK_AUCTION}`}
               >
                 <InfoMessage
                   alertProps={{ w: 'full' }}
@@ -208,26 +299,6 @@ export const InvBuyBacksPage = () => {
             </Stack>
           </Stack>
         </VStack>
-
-        <Container
-          label="Latest INV buyback"
-          description="Last 100 buys executed by the program"
-          w="full"
-          contentProps={{ p: 0, overflowX: 'auto' }}
-          noPadding
-          p="0"
-        >
-          <VStack w="full" alignItems="flex-start" p={4} spacing={4}>
-            <Table
-              keyName="txHash"
-              noDataMessage="No buys yet"
-              columns={buyColumns}
-              items={last100Buys}
-              defaultSort="timestamp"
-              defaultSortDir="desc"
-            />
-          </VStack>
-        </Container>
       </VStack>
     </Layout>
   )
