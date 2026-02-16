@@ -7,8 +7,9 @@ import { INV_BUY_BACK_AUCTION } from '@app/config/constants';
 import { INV_BUY_BACK_AUCTION_ABI } from '@app/config/abis';
 import { getMulticallOutput } from '@app/util/multicall';
 import { estimateBlockTimestamp } from '@app/util/misc';
+import { getHistoricDbrPriceOnCurve } from '@app/util/f2';
 
-const INV_BUY_BACK_CACHE_KEY = 'inv-buy-back-auction-v1.0.2';
+const INV_BUY_BACK_CACHE_KEY = 'inv-buy-back-auction-v1.0.3';
 
 export default async function handler(req, res) {
   try {
@@ -85,6 +86,16 @@ export default async function handler(req, res) {
     const maxDbrRatePerYear = getBnToNumber(infoData[2]);
     const minDbrRatePerYear = getBnToNumber(infoData[3]);
 
+    const blocks = buyEvents.map(e => e.blockNumber);
+    const marketPriceBlocks = blocks.map(block => (block - 1));
+
+    // take market price one block before
+    const newMarketPrices = await Promise.all(
+        marketPriceBlocks.map(block => {
+            return getHistoricDbrPriceOnCurve(paidProvider, block)
+        })
+    );
+
     const newBuys = buyEvents.map((e) => {
       return {
         txHash: e.transactionHash,
@@ -98,6 +109,8 @@ export default async function handler(req, res) {
         to: e.args[1],
         invIn: getBnToNumber(e.args[2]),
         dbrOut: getBnToNumber(e.args[3]),
+        marketPriceInDola: newMarketPrices[i].priceInDola,
+        marketPriceInInv: newMarketPrices[i].priceInInv,
       };
     });
 
@@ -117,6 +130,7 @@ export default async function handler(req, res) {
     const totalInvIn =
       (archived.totalInvIn || 0) +
       newBuys.reduce((prev, curr) => prev + (curr.invIn || 0), 0);
+
     const totalDbrOut =
       (archived.totalDbrOut || 0) +
       newBuys.reduce((prev, curr) => prev + (curr.dbrOut || 0), 0);
@@ -131,6 +145,7 @@ export default async function handler(req, res) {
 
     const resultData = {
       timestamp: Date.now(),
+      totalInvInWorth: (archived.totalInvInWorth || 0) + newBuys.reduce((prev, curr) => prev + (curr.dbrOut * curr.marketPriceInDola || 0), 0),
       lastBlocknumber: currentBlocknumber,
       invReserve,
       dbrReserve,
