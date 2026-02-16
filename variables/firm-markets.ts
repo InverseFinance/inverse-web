@@ -546,6 +546,9 @@ export const FIRM_MARKETS = [
         isAleWithoutSwap: true,
         convexRewardsAddress: '0x731868E273CDD4fC2dDC91c7E9553986355B5C3a',
         isInv: false,
+        isPhasingOut: true,
+        phasingOutComment: `Risk of liquidation: please unwind your positions if any as all crvUSD related markets are being phased out due to concerns regarding peg stability.`,
+        phasingOutLink: `https://www.inverse.finance/governance/proposals/mills/350`,
     },
     {
         name: 'yv-scrvUSD-sDOLA',
@@ -565,6 +568,9 @@ export const FIRM_MARKETS = [
         underlyingSymbol: 'scrvUSD-sDOLA',
         isAleWithoutSwap: true,
         isInv: false,
+        isPhasingOut: true,
+        phasingOutComment: `Risk of liquidation: please unwind your positions if any as all crvUSD related markets are being phased out due to concerns regarding peg stability.`,
+        phasingOutLink: `https://www.inverse.finance/governance/proposals/mills/350`,
     },
     {
         name: 'deUSD-DOLA',
