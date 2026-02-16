@@ -1,4 +1,4 @@
-import { DBR_AUCTION_ABI, DBR_AUCTION_HELPER_ABI, SINV_ABI } from "@app/config/abis";
+import { DBR_AUCTION_ABI, DBR_AUCTION_HELPER_ABI, INV_BUY_BACK_AUCTION_ABI, INV_BUY_BACK_AUCTION_HELPER_ABI, SINV_ABI } from "@app/config/abis";
 import { useContractEvents } from "@app/hooks/useContractEvents";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
@@ -8,7 +8,7 @@ import { getBnToNumber, getNumberToBn } from "./markets";
 import { useCacheFirstSWR, useCustomSWR, useLocalCacheOnly } from "@app/hooks/useCustomSWR";
 import { SWR } from "@app/types";
 import { fetcher } from "./web3";
-import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, SDOLA_ADDRESS, SINV_ADDRESS } from "@app/config/constants";
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, INV_BUY_BACK_AUCTION, INV_BUY_BACK_AUCTION_HELPER, SDOLA_ADDRESS, SINV_ADDRESS } from "@app/config/constants";
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { parseEther } from "@ethersproject/units";
 import { useEffect, useState } from "react";
@@ -20,6 +20,14 @@ export const getDbrAuctionContract = (signerOrProvider: JsonRpcSigner, auctionAd
 
 export const getDbrAuctionHelperContract = (signerOrProvider: JsonRpcSigner, helperAddress = DBR_AUCTION_HELPER_ADDRESS) => {
     return new Contract(helperAddress, DBR_AUCTION_HELPER_ABI, signerOrProvider);
+}
+
+export const getInvBuyBackAuctionHelperContract = (signerOrProvider: JsonRpcSigner, helperAddress = INV_BUY_BACK_AUCTION_HELPER) => {
+    return new Contract(helperAddress, INV_BUY_BACK_AUCTION_HELPER_ABI, signerOrProvider);
+}
+
+export const getInvBuyBackAuctionContract = (signerOrProvider: JsonRpcSigner, auctionAddress = INV_BUY_BACK_AUCTION) => {
+    return new Contract(auctionAddress, INV_BUY_BACK_AUCTION_ABI, signerOrProvider);
 }
 
 export const sellDolaForDbr = async (signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber, minDbrOut: BigNumber, auctionAddress = DBR_AUCTION_ADDRESS) => {
@@ -45,6 +53,11 @@ export const swapDolaForExactDbr = (signerOrProvider: JsonRpcSigner, dolaInMax: 
 export const getDbrOut = async (signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber, helperAddress = DBR_AUCTION_HELPER_ADDRESS) => {
     const contract = getDbrAuctionHelperContract(signerOrProvider, helperAddress);
     return contract.getDbrOut(dolaToSell);
+}
+
+export const buyBackInvForDbr = (signerOrProvider: JsonRpcSigner, invToSell: BigNumber, minDbrOut: BigNumber, helperAddress = INV_BUY_BACK_AUCTION_HELPER) => {
+    const contract = getInvBuyBackAuctionHelperContract(signerOrProvider, helperAddress);
+    return contract.swapExactAssetForDbr(invToSell, minDbrOut);
 }
 
 const estimateFuturAuctionDbrPrice = (
@@ -101,7 +114,7 @@ export const estimateAuctionTimeToReachMarketPrice = (
 }
 
 export const formatDailyAuctionAggreg = (e: any, i: number) => {
-    const isInvCase = e.auctionType === 'sINV';
+    const isInvCase = e.auctionType === 'sINV' || e.auctionType === 'INV buyback';
     const priceInDola = ((e.dolaIn || 0) / e.dbrOut);
     const priceInInv = ((e.invIn || 0) / e.dbrOut);
     const amountIn = isInvCase ? e.invIn : e.dolaIn;
@@ -124,7 +137,7 @@ export const formatDailyAuctionAggreg = (e: any, i: number) => {
 }
 
 export const formatAuctionEvents = (e: any, i: number) => {
-    const isInvCase = e.auctionType === 'sINV';
+    const isInvCase = e.auctionType === 'sINV' || e.auctionType === 'INV buyback';
     const priceInDola = ((e.dolaIn || 0) / e.dbrOut);
     const priceInInv = ((e.invIn || 0) / e.dbrOut);
     const amountIn = isInvCase ? e.invIn : e.dolaIn;
@@ -142,7 +155,7 @@ export const formatAuctionEvents = (e: any, i: number) => {
         worthOut,
         arb,
         arbPerc: arb / (priceAvg) * 100,
-        version: e.version || (isInvCase ? 'V1' : undefined),
+        version: e.auctionType === 'INV buyback' ? undefined : e.version || (isInvCase ? 'V1' : undefined),
     };
 }
 
@@ -176,7 +189,7 @@ export const getGroupedByDayAuctionBuys = (buyEvents: any[], archivedDailyBuys: 
         }
     });
 
-    const types = ['Virtual', 'sDOLA', 'sINV'];
+    const types = ['Virtual', 'sDOLA', 'sINV', 'INV buyback'];
     const uniqueDays = [...new Set([...archivedDailyBuys.map(e => e.utcDate), ...events.map(e => e.utcDate)])];
 
     return uniqueDays.map((utcDateString,i) => {
@@ -233,15 +246,18 @@ export const getFormattedAuctionBuys = (events: any[]) => {
     const sinvAuctionEvents = events.map(e => ({...e, ...e.sINV}));
     const virtualAuctionEvents = events.map(e => ({...e, ...e.Virtual}));
     const sdolaAuctionEvents = events.map(e => ({...e, ...e.sDOLA}));
+    const invBuyBackAuctionEvents = events.map(e => ({...e, ...e['INV buyback']}));
 
     const accDolaIn = dolaEvents.reduce((prev, curr) => prev + curr.amountIn || 0, 0);
     const accInvWorthIn = sinvAuctionEvents.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
+    const accInvBuyBackWorthIn = invBuyBackAuctionEvents.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
     const accWorthIn = events.reduce((prev, curr) => prev + curr.all.worthIn || 0, 0);
     const accWorthOut = events.reduce((prev, curr) => prev + curr.all.worthOut || 0, 0);
     const accDolaWorthOut = dolaEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
     const accVirtualWorthOut = virtualAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
     const accSdolaWorthOut = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
     const accInvWorthOut = sinvAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
+    const accInvBuyBackWorthOut = invBuyBackAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
     const accDbrOutFromDola = dolaEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
     const accDbrOut = events.reduce((prev, curr) => prev + curr.all.dbrOut, 0);
 
@@ -252,8 +268,9 @@ export const getFormattedAuctionBuys = (events: any[]) => {
     const accDbrOutSdola = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut || 0, 0);
 
     const accInvInSinv = sinvAuctionEvents.reduce((prev, curr) => prev + curr.amountIn || 0, 0);
+    const accInvInBuyBack = invBuyBackAuctionEvents.reduce((prev, curr) => prev + curr.amountIn || 0, 0);
     const accDbrOutSinv = sinvAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut || 0, 0);
-    const accInvIn = accInvInSinv;
+    const accInvIn = accInvInSinv + accInvInBuyBack;
 
     const avgDbrPrice = accDolaIn / accDbrOutFromDola;
     const nbBuys = events.reduce((prev, curr) => prev + curr.all.nbBuys, 0);
@@ -264,6 +281,7 @@ export const getFormattedAuctionBuys = (events: any[]) => {
         virtualAuctionEvents,
         sdolaAuctionEvents,
         sinvAuctionEvents,
+        invBuyBackAuctionEvents,
         aggregated: {
             accDolaIn,
             accDbrOut,
@@ -282,6 +300,9 @@ export const getFormattedAuctionBuys = (events: any[]) => {
             accDolaWorthOut,
             accVirtualWorthOut,
             accSdolaWorthOut,
+            accInvBuyBackWorthIn,
+            accInvBuyBackWorthOut,
+            accInvInBuyBack,
             avgDbrPrice,
             nbBuys,
         }
@@ -295,6 +316,7 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     virtualAuctionEvents: any[],
     sdolaAuctionEvents: any[],
     sinvAuctionEvents: any[],
+    invBuyBackAuctionEvents: any[],
     accountEvents: any,
     timestamp: number,
     dbrSaleHandlerRepayPercentage: number,
@@ -317,14 +339,18 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     accDolaWorthOut: number,
     accVirtualWorthOut: number,
     accSdolaWorthOut: number,
+    accInvBuyBackWorthIn: number,
+    accInvBuyBackWorthOut: number,
+    accInvInBuyBack: number,
     last100: any[],
     last100VirtualAuctionEvents: any[],
     last100SdolaAuctionEvents: any[],
     last100SinvAuctionEvents: any[],
+    last100InvBuyBackAuctionEvents: any[],
 } => {
     const { data, error } = useCustomSWR(`/api/auctions/dbr-buys?v=4`, fetcher);
 
-    const { events, dolaEvents, virtualAuctionEvents, sdolaAuctionEvents, sinvAuctionEvents, aggregated } = getFormattedAuctionBuys(data?.dailyBuys || []);
+    const { events, dolaEvents, virtualAuctionEvents, sdolaAuctionEvents, sinvAuctionEvents, invBuyBackAuctionEvents, aggregated } = getFormattedAuctionBuys(data?.dailyBuys || []);
 
     return {
         events,
@@ -332,10 +358,12 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
         virtualAuctionEvents,
         sdolaAuctionEvents,
         sinvAuctionEvents,
+        invBuyBackAuctionEvents,
         last100: (data?.last100 || []).map(formatAuctionEvents),
         last100VirtualAuctionEvents: (data?.last100VirtualAuctionEvents || []).map(formatAuctionEvents),
         last100SdolaAuctionEvents: (data?.last100SdolaAuctionEvents || []).map(formatAuctionEvents),
         last100SinvAuctionEvents: (data?.last100SinvAuctionEvents || []).map(formatAuctionEvents),
+        last100InvBuyBackAuctionEvents: (data?.last100InvBuyBackAuctionEvents || []).map(formatAuctionEvents),
         // accountEvents: events.filter(e => e.to === from),
         ...aggregated,
         dbrSaleHandlerRepayPercentage: data?.dbrSaleHandlerRepayPercentage || 20,
@@ -515,13 +543,14 @@ export const useDbrAuctionPricing = ({
     slippage: string,
     isExactToken: boolean,
     dbrSwapPriceRefInToken: number,
-    auctionType: 'classic' | 'sdola' | 'sinv' | 'jdola',
+    auctionType: 'classic' | 'sdola' | 'sinv' | 'jdola' | 'invBuyBack',
 }) => {
     const [estimatedTimeToReachMarketPrice, setEstimatedTimeToReachMarketPrice] = useState(0);
     const isClassicDbrAuction = auctionType === 'classic';
     const defaultRefAmount = isClassicDbrAuction ? defaultRefClassicAmount : defaultRefSdolaAmount;
     const { tokenReserve, dbrReserve, dbrRatePerYear } = useDbrAuction(auctionType);
     const isSinvAuction = auctionType === 'sinv';
+    const isInvBuyBackAuction = auctionType === 'invBuyBack';
 
     const { data: dataOut, error } = useEtherSWR([
         [helperAddress, 'getDbrOut', parseEther(tokenAmount || defaultRefAmount)],
@@ -529,8 +558,8 @@ export const useDbrAuctionPricing = ({
     ]);
     
     const { data: dataIn } = useEtherSWR([
-        [helperAddress, isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
-        [helperAddress, isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(defaultRefAmount)],
+        [helperAddress, isInvBuyBackAuction ? 'getAssetIn' : isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
+        [helperAddress, isInvBuyBackAuction ? 'getAssetIn' : isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(defaultRefAmount)],
     ]);
 
     const isLoading = (!dataOut && !error);
