@@ -20,6 +20,7 @@ import { DashBoardCard } from "../F2/UserDashboard";
 import FirmLogo from "../common/Logo/FirmLogo";
 import { FirmBorrowsChart } from "./FirmBorrowsChart";
 import { DbrInflationChart } from "./DbrInflationChart";
+import { useCacheFirstSWR } from "@app/hooks/useCustomSWR";
 
 const streamingStartTs = 1684713600000;
 
@@ -54,6 +55,9 @@ export const DbrAll = ({
     const { dsaYearlyDbrEarnings, isLoading: isLoadingStakedDola } = useStakedDola(dbrPriceUsd);
     const { dbrRatePerYear: auctionYearlyRate, historicalRates: auctionHistoricalRates, isLoading: isLoadingAuction } = useDbrAuction("classic");
     const { evolution: dolaStakingEvolution } = useDolaStakingEvolution();
+    const { data: invBuyBacksData, isLoading: isLoadingInvBuyBacks } = useCacheFirstSWR('/api/auctions/inv-buy-backs');
+    const invBuyBacksYearlyRate = invBuyBacksData?.dbrRatePerYear || 0;
+    const invBuyBacksRates = invBuyBacksData?.rateUpdates || [];
     const { positions, inventory: currentInventory } = useFirmUsers();
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
 
@@ -84,6 +88,15 @@ export const DbrAll = ({
         });
     }, [auctionHistoricalRates, histoPrices]);
 
+    // inv buy backs rates
+    const invBuyBacksRateChanges = useMemo(() => {
+        return (invBuyBacksRates || [{ "timestamp": 1771226914716, "block": 24467889, "rate": 24000000 }]).map(e => {
+            const date = timestampToUTC(e.timestamp);
+            const histoPrice = histoPrices[date];
+            return { ...e, histoPrice, worth: e.rate * (histoPrice || 0.05), date };
+        });
+    }, [invBuyBacksRates, histoPrices]);
+
     let accBurnUsd = 0;
     const _burnEvents = useMemo(() => {
         return burnEvents?.map(d => {
@@ -109,8 +122,9 @@ export const DbrAll = ({
         const invHistoMarketCap = invHistoPrice * invHistoCircSupply;
         const yearlyRewardRate = rateChanges.findLast(rd => date >= rd.date)?.yearlyRewardRate || 0;
         const auctionYearlyRewardRate = auctionRateChanges.findLast(rd => date >= rd.date)?.rate || 0;
+        const invBuyBacksYearlyRewardRate = invBuyBacksRateChanges.findLast(rd => date >= rd.date)?.rate || 0;
         const dsaIssuance = dolaStakingEvolution.findLast(rd => date >= timestampToUTC(rd.timestamp))?.dsaYearlyDbrEarnings || 0;
-        const totalAnnualizedIssuance = auctionYearlyRewardRate + yearlyRewardRate + dsaIssuance;
+        const totalAnnualizedIssuance = invBuyBacksYearlyRewardRate + auctionYearlyRewardRate + yearlyRewardRate + dsaIssuance;
         return {
             ...d,
             time: (new Date(date)),
@@ -139,7 +153,7 @@ export const DbrAll = ({
         const now = Date.now();
         const todayUTC = timestampToUTC(now);
         const todayIndex = combodata.findIndex(d => d.date === todayUTC);
-        const totalAnnualizedIssuance = auctionYearlyRate + yearlyRewardRate + dsaYearlyDbrEarnings;
+        const totalAnnualizedIssuance = invBuyBacksYearlyRate + auctionYearlyRate + yearlyRewardRate + dsaYearlyDbrEarnings;
         const inventory = currentInventory || lastCombodata?.inventory;
         const todayInHisto = todayIndex !== -1;
         combodata.splice(todayInHisto ? todayIndex : combodata.length - 1, todayInHisto ? 1 : 0, {
@@ -164,7 +178,7 @@ export const DbrAll = ({
     }
 
     // const annualizedBurn = lastCombodata.debt;
-    const annualizedIssuance = yearlyRewardRate + dsaYearlyDbrEarnings + auctionYearlyRate;
+    const annualizedIssuance = invBuyBacksYearlyRate + yearlyRewardRate + dsaYearlyDbrEarnings + auctionYearlyRate;
 
     const { chartData: burnChartData } = useEventsAsChartData(_burnEvents, useUsd ? 'accBurnUsd' : 'accBurn', useUsd ? 'amountUsd' : 'amount');
     
@@ -201,7 +215,7 @@ export const DbrAll = ({
         <VStack spacing="3">
             <Divider />
             <SimpleGrid gap="2" w='full' columns={{ base: 2, sm: 5 }}>
-                <StatBasic isLoading={!yearlyRewardRate || isLoadingStakedDola || isLoadingAuction} name="Annualized Issuance" value={`${shortenNumber(annualizedIssuance, 2)} (${shortenNumber(annualizedIssuance * dbrPriceUsd, 2, true)})`} />
+                <StatBasic isLoading={!yearlyRewardRate || isLoadingStakedDola || isLoadingAuction || isLoadingInvBuyBacks} name="Annualized Issuance" value={`${shortenNumber(annualizedIssuance, 2)} (${shortenNumber(annualizedIssuance * dbrPriceUsd, 2, true)})`} />
                 <StatBasic isLoading={!totalDebt} name="Annualized Burn" value={`${shortenNumber(totalDebt, 2)} (${shortenNumber(totalDebt * dbrPriceUsd, 2, true)})`} />
                 <StatBasic isLoading={!currentInventory} name="Inventory Days" value={`${shortenNumber(currentInventory, 2)}`} />
                 <StatBasic isLoading={isEmmissionLoading} name="Claimed by stakers" value={`${shortenNumber(totalClaimed, 2)} (${shortenNumber(useUsd ? totalClaimedUsd : totalClaimed * dbrPriceUsd, 2, true)})`} />
