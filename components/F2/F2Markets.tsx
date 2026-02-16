@@ -598,7 +598,7 @@ export const F2Markets = ({
     const [showOther, setShowOther] = useState(true);
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('leverage');
-    const [hasPhasingOutPositionChecked, setHasPhasingOutPositionChecked] = useState(false);
+    const [hasPhasingOutPositionChecked, setHasPhasingOutPositionChecked] = useState({});
     const [isSmallerThan] = useMediaQuery(`(max-width: ${responsiveThreshold}px)`);
     const { isOpen: isSetDbrUserRefPriceOpen, onOpen: openSetDbrUserRefPrice, onClose: closeSetDbrUserRefPrice } = useDisclosure();
     const { isOpen: isOpenYieldBreakdown, onOpen: openYieldBreakdown, onClose: closeYieldBreakdown } = useDisclosure();
@@ -606,12 +606,8 @@ export const F2Markets = ({
     const [newDbrUserRefPrice, setNewDbrUserRefPrice] = useState(dbrUserRefPrice);
 
     useEffect(() => {
-        setHasPhasingOutPositionChecked(false);
-    }, [account])
-
-    useEffect(() => {
-        if(hasPhasingOutPositionChecked || !account) return;
-        setHasPhasingOutPositionChecked(true); 
+        if(!account || !!hasPhasingOutPositionChecked[account]) return;
+        setHasPhasingOutPositionChecked({ ...hasPhasingOutPositionChecked, [account]: true });
         const userPhasingOutMarkets = accountMarkets.filter(m => m.isPhasingOut && (m.debt > 0 || (m.deposits * m.price) >= 1));
         if(userPhasingOutMarkets.length > 0) {
             showToast({
@@ -625,7 +621,7 @@ export const F2Markets = ({
                         {userPhasingOutMarkets.map(m => (
                             <VStack key={m.address} w='full' alignItems='flex-start'>
                                 <Text fontWeight="bold" key={m.address}>- {m.name}</Text>
-                                <Text fontSize="12px" color="secondaryTextColor">{m.phasingOutComment}</Text>
+                                <Text fontSize="12px">{m.phasingOutComment}</Text>
                                 {
                                     !!m.phasingOutLink && <Link isExternal={true} target="_blank" textDecoration="underline" href={m.phasingOutLink}>
                                         Read corresponding Governance proposal
