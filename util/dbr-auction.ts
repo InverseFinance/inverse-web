@@ -249,14 +249,14 @@ export const getFormattedAuctionBuys = (events: any[]) => {
     const invBuyBackAuctionEvents = events.map(e => ({...e, ...e['INV buyback']}));
 
     const accDolaIn = dolaEvents.reduce((prev, curr) => prev + curr.amountIn || 0, 0);
-    const accInvinSinvWorthIn = sinvAuctionEvents.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
+    const accInvInSinvWorthIn = sinvAuctionEvents.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
     const accInvBuyBackWorthIn = invBuyBackAuctionEvents.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
     const accWorthIn = events.reduce((prev, curr) => prev + curr.all.worthIn || 0, 0);
     const accWorthOut = events.reduce((prev, curr) => prev + curr.all.worthOut || 0, 0);
     const accDolaWorthOut = dolaEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
     const accVirtualWorthOut = virtualAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
     const accSdolaWorthOut = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
-    const accInvinSinvWorthOut = sinvAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
+    const accInvInSinvWorthOut = sinvAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
     const accInvBuyBackWorthOut = invBuyBackAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
     const accDbrOutFromDola = dolaEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
     const accDbrOut = events.reduce((prev, curr) => prev + curr.all.dbrOut, 0);
@@ -271,8 +271,8 @@ export const getFormattedAuctionBuys = (events: any[]) => {
     const accInvInBuyBack = invBuyBackAuctionEvents.reduce((prev, curr) => prev + curr.amountIn || 0, 0);
     const accDbrOutSinv = sinvAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut || 0, 0);
     const accInvIn = accInvInSinv + accInvInBuyBack;
-    const accInvWorthIn = accInvinSinvWorthIn + accInvBuyBackWorthIn;
-    const accInvWorthOut = accInvinSinvWorthOut + accInvBuyBackWorthOut;
+    const accInvWorthIn = accInvInSinvWorthIn + accInvBuyBackWorthIn;
+    const accInvWorthOut = accInvInSinvWorthOut + accInvBuyBackWorthOut;
 
     const avgDbrPrice = accDolaIn / accDbrOutFromDola;
     const nbBuys = events.reduce((prev, curr) => prev + curr.all.nbBuys, 0);
@@ -305,8 +305,8 @@ export const getFormattedAuctionBuys = (events: any[]) => {
             accInvBuyBackWorthIn,
             accInvBuyBackWorthOut,
             accInvInBuyBack,
-            accInvinSinvWorthIn,
-            accInvinSinvWorthOut,
+            accInvInSinvWorthIn,
+            accInvInSinvWorthOut,
             avgDbrPrice,
             nbBuys,
         }
