@@ -1,10 +1,10 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Text, Image } from '@chakra-ui/react'
-import { Flex, HStack, VStack } from '@chakra-ui/layout'
+import { Flex, HStack, Stack, VStack } from '@chakra-ui/layout'
 import Link from '@app/components/common/Link'
 
 import { useAppTheme, useAppThemeParams } from '@app/hooks/useAppTheme';
-import { shortenNumber } from '@app/util/markets';
+import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { SmallTextLoader } from '../Loaders/SmallTextLoader';
 import { useCustomSWR } from '@app/hooks/useCustomSWR';
 import { useMemo } from 'react';
@@ -27,6 +27,7 @@ export const SDolaAnnouncement = () => {
   const { themeStyles } = useAppTheme();
   const { ANNOUNCEMENT_BAR_BORDER } = useAppThemeParams();
   const { data: apiData, error: apiErr } = useCustomSWR(`/api/dola-staking?v=2&cacheFirst=true&includeSpectra=true`);
+  const { data: invBuyBacksData } = useCustomSWR('/api/auctions/inv-buy-backs');
   const spectraPool = apiData?.spectraPool;
   const sDolaApy = apiData?.apy;
 
@@ -39,6 +40,9 @@ export const SDolaAnnouncement = () => {
   // const isSpectraCase = useMemo(() => {
   //   return highestApy === spectraPool?.apy;
   // }, [highestApy, spectraPool]);
+
+  const totalInvInWorth = invBuyBacksData?.totalInvInWorth || 0;
+  const totalInvIn = invBuyBacksData?.totalInvIn || 0;
 
   return (
     <Flex
@@ -56,14 +60,14 @@ export const SDolaAnnouncement = () => {
       color={'mainTextColor'}
       cursor="pointer"
     >
-      <Link
-        color="mainTextColor"
-        href={isSpectraCase ? spectraPool.pool : '/sDOLA'}
-        target={isSpectraCase ? '_blank' : '_self'}
-        isExternal={isSpectraCase}
-        _hover={{ color: 'lightAccentTextColor' }}
-      >
-        <VStack spacing="0">
+      <Stack spacing={{ base: '0', lg: '4' }} direction={{ base: 'column', lg: 'row' }}>
+        <Link
+          color="mainTextColor"
+          href={isSpectraCase ? spectraPool.pool : '/sDOLA'}
+          target={isSpectraCase ? '_blank' : '_self'}
+          isExternal={isSpectraCase}
+          _hover={{ color: 'lightAccentTextColor' }}
+        >
           {
             highestApy > 0 ?
               <HStack textDecoration="underline" spacing="1">
@@ -72,8 +76,24 @@ export const SDolaAnnouncement = () => {
               </HStack>
               : <SmallTextLoader />
           }
-        </VStack>
-      </Link>
+        </Link>
+        <Link
+          color="mainTextColor"
+          href="/dbr/auction/inv-buy-backs"
+          target="_self"
+          _hover={{ color: 'lightAccentTextColor' }}
+        >
+          <HStack textDecoration="underline" spacing="1">
+            <Text className="heading-font">
+              INV buybacks are live! {totalInvIn > 0 ?
+                <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>{shortenNumber(totalInvIn, 2)} INV in buybacks so far (~{smartShortNumber(totalInvInWorth, 2, true)})</b>
+                :
+                ''}
+            </Text>
+            <Image borderRadius="full" src="/assets/inv-square-dark.jpeg" h="20px" w="20px" />
+          </HStack>
+        </Link>
+      </Stack>
     </Flex>
   )
 }
