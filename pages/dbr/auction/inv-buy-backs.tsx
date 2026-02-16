@@ -166,7 +166,7 @@ export const InvBuyBacksPage = () => {
                 <StringCard
                   valueProps={{ fontSize: '18px' }} labelProps={{ fontSize: '13px' }}
                   value={isLoading ? '-' : smartShortNumber(dbrRatePerYear * dbrPriceUsd, 2, true)}
-                  label="Yearly DBR budget"
+                  label="Current yearly DBR budget"
                 />
               </SimpleGrid>
 
