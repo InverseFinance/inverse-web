@@ -547,7 +547,7 @@ export const FIRM_MARKETS = [
         convexRewardsAddress: '0x731868E273CDD4fC2dDC91c7E9553986355B5C3a',
         isInv: false,
         isPhasingOut: true,
-        phasingOutComment: `Please unwind your positions if any: all crvUSD related markets are being phased out due to concerns regarding peg stability.`,
+        phasingOutComment: `Risk of liquidation: please unwind your positions if any as all crvUSD related markets are being phased out due to concerns regarding peg stability.`,
         phasingOutLink: `https://www.inverse.finance/governance/proposals/mills/350`,
     },
     {
@@ -569,7 +569,7 @@ export const FIRM_MARKETS = [
         isAleWithoutSwap: true,
         isInv: false,
         isPhasingOut: true,
-        phasingOutComment: `Please unwind your positions if any: all crvUSD related markets are being phased out due to concerns regarding peg stability.`,
+        phasingOutComment: `Risk of liquidation: please unwind your positions if any as all crvUSD related markets are being phased out due to concerns regarding peg stability.`,
         phasingOutLink: `https://www.inverse.finance/governance/proposals/mills/350`,
     },
     {
