@@ -55,7 +55,7 @@ export const DbrAll = ({
     const { dsaYearlyDbrEarnings, isLoading: isLoadingStakedDola } = useStakedDola(dbrPriceUsd);
     const { dbrRatePerYear: auctionYearlyRate, historicalRates: auctionHistoricalRates, isLoading: isLoadingAuction } = useDbrAuction("classic");
     const { evolution: dolaStakingEvolution } = useDolaStakingEvolution();
-    const { data: invBuyBacksData } = useCacheFirstSWR('/api/auctions/inv-buy-backs');
+    const { data: invBuyBacksData, isLoading: isLoadingInvBuyBacks } = useCacheFirstSWR('/api/auctions/inv-buy-backs');
     const invBuyBacksYearlyRate = invBuyBacksData?.dbrRatePerYear || 0;
     const invBuyBacksRates = invBuyBacksData?.rateUpdates || [];
     const { positions, inventory: currentInventory } = useFirmUsers();
@@ -215,7 +215,7 @@ export const DbrAll = ({
         <VStack spacing="3">
             <Divider />
             <SimpleGrid gap="2" w='full' columns={{ base: 2, sm: 5 }}>
-                <StatBasic isLoading={!yearlyRewardRate || isLoadingStakedDola || isLoadingAuction} name="Annualized Issuance" value={`${shortenNumber(annualizedIssuance, 2)} (${shortenNumber(annualizedIssuance * dbrPriceUsd, 2, true)})`} />
+                <StatBasic isLoading={!yearlyRewardRate || isLoadingStakedDola || isLoadingAuction || isLoadingInvBuyBacks} name="Annualized Issuance" value={`${shortenNumber(annualizedIssuance, 2)} (${shortenNumber(annualizedIssuance * dbrPriceUsd, 2, true)})`} />
                 <StatBasic isLoading={!totalDebt} name="Annualized Burn" value={`${shortenNumber(totalDebt, 2)} (${shortenNumber(totalDebt * dbrPriceUsd, 2, true)})`} />
                 <StatBasic isLoading={!currentInventory} name="Inventory Days" value={`${shortenNumber(currentInventory, 2)}`} />
                 <StatBasic isLoading={isEmmissionLoading} name="Claimed by stakers" value={`${shortenNumber(totalClaimed, 2)} (${shortenNumber(useUsd ? totalClaimedUsd : totalClaimed * dbrPriceUsd, 2, true)})`} />
