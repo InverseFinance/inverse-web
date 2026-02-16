@@ -8,6 +8,8 @@ import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { SmallTextLoader } from '../Loaders/SmallTextLoader';
 import { useCacheFirstSWR, useCustomSWR } from '@app/hooks/useCustomSWR';
 import { useMemo } from 'react';
+import { useINVPrice } from '@app/hooks/usePrices';
+import { useDBRMarkets } from '@app/hooks/useDBR';
 
 const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
   return <Link
@@ -26,6 +28,10 @@ const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
 export const SDolaAnnouncement = () => {
   const { themeStyles } = useAppTheme();
   const { ANNOUNCEMENT_BAR_BORDER } = useAppThemeParams();
+
+  const { markets, isLoading: isDBRMarketsLoading } = useDBRMarkets();
+  const invMarket = markets?.find(m => m.isInv);
+  const invPrice = invMarket?.price || 0;
   // const { data: apiData, error: apiErr } = useCustomSWR(`/api/dola-staking?v=2&cacheFirst=true&includeSpectra=true`);
   const { data: invBuyBacksData } = useCacheFirstSWR('/api/auctions/inv-buy-backs');
   // const spectraPool = apiData?.spectraPool;
@@ -41,8 +47,8 @@ export const SDolaAnnouncement = () => {
   //   return highestApy === spectraPool?.apy;
   // }, [highestApy, spectraPool]);
 
-  const totalInvInWorth = invBuyBacksData?.totalInvInWorth || 0;
   const totalInvIn = invBuyBacksData?.totalInvIn || 0;
+  const totalInvInWorth = totalInvIn * invPrice; //invBuyBacksData?.totalInvInWorth || 0;
 
   return (
     <Flex

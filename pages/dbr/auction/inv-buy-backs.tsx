@@ -27,7 +27,7 @@ export const InvBuyBacksPage = () => {
   const maxDbrRatePerYear = data?.maxDbrRatePerYear || 0;
   const minDbrRatePerYear = data?.minDbrRatePerYear || 0;
   const totalInvIn = data?.totalInvIn || 0;
-  const totalInvInWorth = data?.totalInvInWorth || 0;
+  const totalInvInWorth = totalInvIn * invPrice; //data?.totalInvInWorth || 0;
   const last100Buys = (data?.last100Buys || []).slice().sort((a, b) => b.timestamp - a.timestamp);
 
   const buyColumns = [
