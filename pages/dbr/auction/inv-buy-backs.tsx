@@ -14,6 +14,7 @@ import { Timestamp } from '@app/components/common/BlockTimestamp/Timestamp';
 import { INV_BUY_BACK_AUCTION } from '@app/config/constants';
 import { useDBRPrice, useDBRMarkets } from '@app/hooks/useDBR';
 import { StringCard } from '@app/components/F2/UserDashboard';
+import { timeSince } from '@app/util/time';
 
 export const InvBuyBacksPage = () => {
   const { priceUsd: dbrPriceUsd } = useDBRPrice();
@@ -206,6 +207,27 @@ export const InvBuyBacksPage = () => {
           </VStack>
         </HStack>
 
+        <Container
+          label="Last 100 INV buybacks"
+          description={last100Buys.length > 0 ? `Last update: ${timeSince(data?.timestamp)}` : 'Loading...'}
+          w="full"
+          contentProps={{ p: 0, overflowX: 'auto' }}
+          noPadding
+          p="0"
+          collapsable={true}
+        >
+          <VStack w="full" alignItems="flex-start" p={4} spacing={4}>
+            <Table
+              keyName="txHash"
+              noDataMessage="No buys yet"
+              columns={buyColumns}
+              items={last100Buys}
+              defaultSort="timestamp"
+              defaultSortDir="desc"
+            />
+          </VStack>
+        </Container>
+
         <VStack spacing="4" w='full'>
           <Stack
             spacing={{ base: '2', xl: '0' }}
@@ -277,26 +299,6 @@ export const InvBuyBacksPage = () => {
             </Stack>
           </Stack>
         </VStack>
-
-        <Container
-          label="Latest INV buyback"
-          description="Last 100 buys executed by the program"
-          w="full"
-          contentProps={{ p: 0, overflowX: 'auto' }}
-          noPadding
-          p="0"
-        >
-          <VStack w="full" alignItems="flex-start" p={4} spacing={4}>
-            <Table
-              keyName="txHash"
-              noDataMessage="No buys yet"
-              columns={buyColumns}
-              items={last100Buys}
-              defaultSort="timestamp"
-              defaultSortDir="desc"
-            />
-          </VStack>
-        </Container>
       </VStack>
     </Layout>
   )
