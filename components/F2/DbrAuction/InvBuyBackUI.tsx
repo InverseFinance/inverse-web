@@ -81,7 +81,7 @@ export const InvBuyBackUI = () => {
 
   return (
     <Container
-      label="Manual INV Buy Back"
+      label="Manual INV Buyback"
       description="See buyer contract on Etherscan"
       href={`https://etherscan.io/address/${INV_BUY_BACK_AUCTION_HELPER}`}
       noPadding
@@ -93,7 +93,7 @@ export const InvBuyBackUI = () => {
         {!account ? (
           <InfoMessage
             alertProps={{ w: "full" }}
-            description="Please connect your wallet to participate in the INV buy back."
+            description="Please connect your wallet to participate in the INV buyback."
           />
         ) : (
           <>

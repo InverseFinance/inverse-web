@@ -71,13 +71,13 @@ export const InvBuyBacksPage = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - INV buy backs</title>
-        <meta name="og:title" content="Inverse Finance - INV buy backs" />
-        <meta name="og:description" content="INV buy backs" />
-        <meta name="description" content="INV buy backs" />
-        <meta name="keywords" content="Inverse Finance, DBR, INV buy backs, INV" />
+        <title>Inverse Finance - INV buyback</title>
+        <meta name="og:title" content="Inverse Finance - INV buyback" />
+        <meta name="og:description" content="INV buyback" />
+        <meta name="description" content="INV buyback" />
+        <meta name="keywords" content="Inverse Finance, DBR, INV buyback, INV" />
       </Head>
-      <AppNav active="Stake" activeSubmenu="INV buy backs" />
+      <AppNav active="Stake" activeSubmenu="INV buyback" />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
         mt='6'
@@ -114,7 +114,7 @@ export const InvBuyBacksPage = () => {
           </HStack>
           <VStack alignItems="flex-start" spacing={2} flex="1">
             <Text fontSize={{ base: '2xl', md: '3xl' }} fontWeight="extrabold">
-              INV Buy Back automated program
+              INV buyback automated program
             </Text>
             <Text fontSize={{ base: 'md', md: 'lg' }} color="secondaryTextColor">
               An automated program that buys back INV from the market using DBR auction flows, removing INV from circulation and sending it back to the Inverse Finance treasury, this creates buying pressure on INV and selling pressure on DBR.
@@ -145,13 +145,13 @@ export const InvBuyBacksPage = () => {
             </VStack>
             <Stack alignItems="flex-end" w={{ base: 'full', lg: '35%' }}>
               <Container noPadding p="0" 
-              label="INV Buy Back Auction contract"
+              label="INV buyback Auction contract"
               description="See on Etherscan"
               href={`https://etherscan.io/address/${INV_BUY_BACK_AUCTION}`}
               >
                 <InfoMessage
                   alertProps={{ w: 'full' }}
-                  title="INV Buy Back Program"
+                  title="INV buyback Program"
                   description={
                     <ChakraVStack alignItems="flex-start" spacing={1}>
                       <Text fontWeight="bold" pt={2}>
@@ -205,7 +205,7 @@ export const InvBuyBacksPage = () => {
         </VStack>
 
         <Container
-          label="Latest INV Buy Backs"
+          label="Latest INV buyback"
           description="Last 100 buys executed by the program"
           w="full"
           contentProps={{ p: 0, overflowX: 'auto' }}

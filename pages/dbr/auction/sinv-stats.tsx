@@ -14,7 +14,7 @@ import { shortenNumber } from '@app/util/markets';
 import { InfoMessage } from '@app/components/common/Messages';
 
 export const DbrAuctionSInvStatsPage = () => {
-  const { isLoading, sinvAuctionEvents: events, accInvInSinv: accInvIn, accDbrOutSinv: accDbrOut, accInvWorthIn, accInvWorthOut, last100SinvAuctionEvents, timestamp } = useDbrAuctionActivity();
+  const { isLoading, sinvAuctionEvents: events, accInvInSinv: accInvIn, accDbrOutSinv: accDbrOut, accInvInSinvWorthIn: accInvWorthIn, accInvInSinvWorthOut: accInvWorthOut, last100SinvAuctionEvents, timestamp } = useDbrAuctionActivity();
   return (
     <Layout>
       <Head>

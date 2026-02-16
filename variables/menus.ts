@@ -71,7 +71,7 @@ export const MENUS = {
           href: '/dbr/auction',        
         },
         {
-          label: 'INV buy backs',
+          label: 'INV buyback',
           href: '/dbr/auction/inv-buy-backs',        
         },
       ],
