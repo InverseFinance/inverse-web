@@ -32,6 +32,7 @@ import InfoModal from "../common/Modal/InfoModal";
 import { YieldBreakdownTable } from "./rewards/YieldBreakdownTable";
 import { OLD_BORROW_CONTROLLER } from "@app/config/constants";
 import { ptMarkets } from "@app/util/pendle";
+import { showToast } from "@app/util/notify";
 
 export const MARKET_INFOS = {
     'INV': {
@@ -597,11 +598,46 @@ export const F2Markets = ({
     const [showOther, setShowOther] = useState(true);
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('leverage');
+    const [hasPhasingOutPositionChecked, setHasPhasingOutPositionChecked] = useState(false);
     const [isSmallerThan] = useMediaQuery(`(max-width: ${responsiveThreshold}px)`);
     const { isOpen: isSetDbrUserRefPriceOpen, onOpen: openSetDbrUserRefPrice, onClose: closeSetDbrUserRefPrice } = useDisclosure();
     const { isOpen: isOpenYieldBreakdown, onOpen: openYieldBreakdown, onClose: closeYieldBreakdown } = useDisclosure();
     const { value: dbrUserRefPrice, setter: saveDbrUserRefPrice } = useStorage(`dbr-user-ref-price-${account}`);
     const [newDbrUserRefPrice, setNewDbrUserRefPrice] = useState(dbrUserRefPrice);
+
+    useEffect(() => {
+        setHasPhasingOutPositionChecked(false);
+    }, [account])
+
+    useEffect(() => {
+        if(hasPhasingOutPositionChecked || !account) return;
+        setHasPhasingOutPositionChecked(true); 
+        const userPhasingOutMarkets = accountMarkets.filter(m => m.isPhasingOut && (m.debt > 0 || (m.deposits * m.price) >= 1));
+        if(userPhasingOutMarkets.length > 0) {
+            showToast({
+                title: 'Warning: position in a phasing out market',
+                status: 'warning',
+                id: 'phasing-out-markets-warning',
+                duration: null,
+                description: <VStack w='full' alignItems='flex-start'>
+                    <Text>Please unwind your positions in the following markets:</Text>
+                    <Stack direction="row" spacing="0">
+                        {userPhasingOutMarkets.map(m => (
+                            <VStack key={m.address} w='full' alignItems='flex-start'>
+                                <Text fontWeight="bold" key={m.address}>- {m.name}</Text>
+                                <Text fontSize="12px" color="secondaryTextColor">{m.phasingOutComment}</Text>
+                                {
+                                    !!m.phasingOutLink && <Link isExternal={true} target="_blank" textDecoration="underline" href={m.phasingOutLink}>
+                                        Read corresponding Governance proposal
+                                    </Link>
+                                }
+                            </VStack>
+                        ))}
+                    </Stack>
+                </VStack>,
+            });
+        }
+    }, [account, accountMarkets, hasPhasingOutPositionChecked])
 
     useEffect(() => {
         if (dbrUserRefPrice !== newDbrUserRefPrice) {
