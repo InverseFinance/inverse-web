@@ -26,17 +26,17 @@ const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
 export const SDolaAnnouncement = () => {
   const { themeStyles } = useAppTheme();
   const { ANNOUNCEMENT_BAR_BORDER } = useAppThemeParams();
-  const { data: apiData, error: apiErr } = useCustomSWR(`/api/dola-staking?v=2&cacheFirst=true&includeSpectra=true`);
+  // const { data: apiData, error: apiErr } = useCustomSWR(`/api/dola-staking?v=2&cacheFirst=true&includeSpectra=true`);
   const { data: invBuyBacksData } = useCustomSWR('/api/auctions/inv-buy-backs');
-  const spectraPool = apiData?.spectraPool;
-  const sDolaApy = apiData?.apy;
+  // const spectraPool = apiData?.spectraPool;
+  // const sDolaApy = apiData?.apy;
 
-  const highestApy = sDolaApy;
+  // const highestApy = sDolaApy;
   // const highestApy = useMemo(() => {
   //   return Math.max(sDolaApy, spectraPool?.apy || 0);
   // }, [sDolaApy, spectraPool]);
 
-  const isSpectraCase = false;
+  // const isSpectraCase = false;
   // const isSpectraCase = useMemo(() => {
   //   return highestApy === spectraPool?.apy;
   // }, [highestApy, spectraPool]);
@@ -61,7 +61,7 @@ export const SDolaAnnouncement = () => {
       cursor="pointer"
     >
       <Stack direction="column" spacing="0" alignItems="center">
-        <Link
+        {/* <Link
           color="mainTextColor"
           href={isSpectraCase ? spectraPool.pool : '/sDOLA'}
           target={isSpectraCase ? '_blank' : '_self'}
@@ -76,7 +76,7 @@ export const SDolaAnnouncement = () => {
               </HStack>
               : <SmallTextLoader />
           }
-        </Link>
+        </Link> */}
         <Link
           color="mainTextColor"
           href="/dbr/auction/inv-buy-backs"
@@ -89,7 +89,7 @@ export const SDolaAnnouncement = () => {
               {
                 totalInvIn > 0 ?
                   <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>
-                    {shortenNumber(totalInvIn, 2)} (~{smartShortNumber(totalInvInWorth, 2, true)}) purchased from the market
+                    {shortenNumber(totalInvIn, 2)} (~{smartShortNumber(totalInvInWorth, 2, true)}) were purchased from the market
                   </b>
                   :
                   ''
