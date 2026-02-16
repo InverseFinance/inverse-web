@@ -12,13 +12,14 @@ import { getHistoricDbrPriceOnCurve } from '@app/util/f2';
 const INV_BUY_BACK_CACHE_KEY = 'inv-buy-back-auction-v1.0.3';
 
 export default async function handler(req, res) {
+  const cacheFirst = req.query.cacheFirst === 'true';
   try {
     const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(
       INV_BUY_BACK_CACHE_KEY,
-      true,
+      !cacheFirst,
       cacheDuration,
     );
 
