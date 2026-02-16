@@ -144,7 +144,7 @@ export const InvBuyBacksPage = () => {
               INV buyback automated program
             </Text>
             <Text fontSize={{ base: 'md', md: 'lg' }} color="secondaryTextColor">
-              An automated program that buys back INV from the market using DBR auction flows, removing INV from circulation and sending it back to the Inverse Finance treasury, this creates buying pressure on INV and selling pressure on DBR.
+              An automated program starting Feb 16th 2026 that buys back INV from the market using DBR auction flows, removing INV from circulation and sending it back to the Inverse Finance treasury, this creates buying pressure on INV and selling pressure on DBR.
             </Text>
             <HStack spacing={6} pt={2} flexWrap="wrap" rowGap={4} w='full'>
               <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={{ base: 2, md: 4 }} w='full'>
@@ -156,7 +156,7 @@ export const InvBuyBacksPage = () => {
                 <StringCard
                   valueProps={{ fontSize: '18px' }} labelProps={{ fontSize: '13px' }}
                   value={isLoading ? '-' : `${shortenNumber(totalInvIn, 2)} INV (~${smartShortNumber(totalInvInWorth, 2, true)})`}
-                  label="Buybacks since Feb 16th 2026"
+                  label="Total buybacks"
                 />
                 <StringCard
                   valueProps={{ fontSize: '18px' }} labelProps={{ fontSize: '13px' }}
