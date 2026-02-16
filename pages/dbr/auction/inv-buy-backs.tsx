@@ -12,11 +12,14 @@ import Table from '@app/components/common/Table';
 import ScannerLink from '@app/components/common/ScannerLink';
 import { Timestamp } from '@app/components/common/BlockTimestamp/Timestamp';
 import { INV_BUY_BACK_AUCTION } from '@app/config/constants';
-import { useDBRPrice } from '@app/hooks/useDBR';
+import { useDBRPrice, useDBRMarkets } from '@app/hooks/useDBR';
 
 export const InvBuyBacksPage = () => {
   const { priceUsd: dbrPriceUsd } = useDBRPrice();
   const { data, isLoading } = useCustomSWR('/api/auctions/inv-buy-backs');
+  const { markets, isLoading: isLoadingMarkets } = useDBRMarkets();
+  const invMarket = markets?.find(m => m.isInv);
+  const invPrice = invMarket?.price || 0;
 
   const invReserve = data?.invReserve || 0;
   const dbrReserve = data?.dbrReserve || 0;
@@ -162,7 +165,7 @@ export const InvBuyBacksPage = () => {
                       <Text fontSize="14px">
                         INV reserve:{' '}
                         <b>
-                          {isLoading ? '-' : `${smartShortNumber(invReserve, 2)} INV`}
+                          {isLoading ? '-' : `${smartShortNumber(invReserve, 2)} (${smartShortNumber(invReserve * invPrice, 2, true)})`}
                         </b>
                       </Text>
                       <Text fontSize="14px">
@@ -179,7 +182,7 @@ export const InvBuyBacksPage = () => {
                         <b>
                           {isLoading
                             ? '-'
-                            : `${shortenNumber(dbrRatePerYear, 2)} (${smartShortNumber(dbrRatePerYear * dbrPriceUsd, 2, true)})`}
+                            : `${smartShortNumber(dbrRatePerYear, 2)} (${smartShortNumber(dbrRatePerYear * dbrPriceUsd, 2, true)})`}
                         </b>
                       </Text>
                       <Text fontSize="14px">
@@ -187,7 +190,7 @@ export const InvBuyBacksPage = () => {
                         <b>
                           {isLoading
                             ? '-'
-                            : `${shortenNumber(minDbrRatePerYear, 2)} (${smartShortNumber(minDbrRatePerYear * dbrPriceUsd, 2, true)})`}
+                            : `${smartShortNumber(minDbrRatePerYear, 2)} (${smartShortNumber(minDbrRatePerYear * dbrPriceUsd, 2, true)})`}
                         </b>
                       </Text>
                       <Text fontSize="14px">
@@ -195,7 +198,7 @@ export const InvBuyBacksPage = () => {
                         <b>
                           {isLoading
                             ? '-'
-                            : `${shortenNumber(maxDbrRatePerYear, 2)} (${smartShortNumber(maxDbrRatePerYear * dbrPriceUsd, 2, true)})`}
+                            : `${smartShortNumber(maxDbrRatePerYear, 2)} (${smartShortNumber(maxDbrRatePerYear * dbrPriceUsd, 2, true)})`}
                         </b>
                       </Text>
                     </ChakraVStack>
