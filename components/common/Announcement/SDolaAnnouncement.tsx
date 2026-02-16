@@ -27,7 +27,7 @@ export const SDolaAnnouncement = () => {
   const { themeStyles } = useAppTheme();
   const { ANNOUNCEMENT_BAR_BORDER } = useAppThemeParams();
   const { data: apiData, error: apiErr } = useCustomSWR(`/api/dola-staking?v=2&cacheFirst=true&includeSpectra=true`);
-  const { data: invBuyBacksData } = useCustomSWR('/api/auctions/inv-buy-backs');
+  // const { data: invBuyBacksData } = useCustomSWR('/api/auctions/inv-buy-backs');
   const spectraPool = apiData?.spectraPool;
   const sDolaApy = apiData?.apy;
 
@@ -41,8 +41,8 @@ export const SDolaAnnouncement = () => {
   //   return highestApy === spectraPool?.apy;
   // }, [highestApy, spectraPool]);
 
-  const totalInvInWorth = invBuyBacksData?.totalInvInWorth || 0;
-  const totalInvIn = invBuyBacksData?.totalInvIn || 0;
+  // const totalInvInWorth = invBuyBacksData?.totalInvInWorth || 0;
+  // const totalInvIn = invBuyBacksData?.totalInvIn || 0;
 
   return (
     <Flex
@@ -60,7 +60,7 @@ export const SDolaAnnouncement = () => {
       color={'mainTextColor'}
       cursor="pointer"
     >
-      <Stack spacing={{ base: '0', lg: '4' }} direction={{ base: 'column', lg: 'row' }}>
+      <Stack direction="column" spacing="0" alignItems="center">
         <Link
           color="mainTextColor"
           href={isSpectraCase ? spectraPool.pool : '/sDOLA'}
@@ -85,10 +85,15 @@ export const SDolaAnnouncement = () => {
         >
           <HStack textDecoration="underline" spacing="1">
             <Text className="heading-font">
-              INV buybacks are live! {totalInvIn > 0 ?
-                <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>{shortenNumber(totalInvIn, 2)} INV in buybacks so far (~{smartShortNumber(totalInvInWorth, 2, true)})</b>
-                :
-                ''}
+              Automated INV buybacks are live! 
+              {/* {
+                totalInvIn > 0 ?
+                  <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>
+                    {shortenNumber(totalInvIn, 2)} (~{smartShortNumber(totalInvInWorth, 2, true)})
+                  </b>
+                  :
+                  ''
+              } */}
             </Text>
             <Image borderRadius="full" src="/assets/inv-square-dark.jpeg" h="20px" w="20px" />
           </HStack>
