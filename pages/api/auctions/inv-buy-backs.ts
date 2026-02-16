@@ -96,7 +96,7 @@ export default async function handler(req, res) {
         })
     );
 
-    const newBuys = buyEvents.map((e) => {
+    const newBuys = buyEvents.map((e,i) => {
       return {
         txHash: e.transactionHash,
         timestamp: estimateBlockTimestamp(
