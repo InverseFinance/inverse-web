@@ -113,6 +113,9 @@ export const DBRTransparency = () => {
                                     <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/167" isExternal target="_blank">
                                         See DSA & sDOLA proposal.
                                     </Link>
+                                    <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/345" isExternal target="_blank">
+                                        See INV buybacks proposal.
+                                    </Link>
                                     <Link textDecoration="underline" color="secondaryTextColor" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr#dbr-issuance" isExternal target="_blank">
                                         DBR issuance documentation
                                     </Link>
