@@ -606,8 +606,7 @@ export const F2Markets = ({
     const [newDbrUserRefPrice, setNewDbrUserRefPrice] = useState(dbrUserRefPrice);
 
     useEffect(() => {
-        if(!account || !!hasPhasingOutPositionChecked[account]) return;
-        setHasPhasingOutPositionChecked({ ...hasPhasingOutPositionChecked, [account]: true });
+        if(!account || !!hasPhasingOutPositionChecked[account] || !accountMarkets?.length) return;
         const userPhasingOutMarkets = accountMarkets.filter(m => m.isPhasingOut && (m.debt > 0 || (m.deposits * m.price) >= 1));
         if(userPhasingOutMarkets.length > 0) {
             showToast({
@@ -633,6 +632,7 @@ export const F2Markets = ({
                 </VStack>,
             });
         }
+        setHasPhasingOutPositionChecked({ ...hasPhasingOutPositionChecked, [account]: true });
     }, [account, accountMarkets, hasPhasingOutPositionChecked])
 
     useEffect(() => {
