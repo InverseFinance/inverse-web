@@ -62,8 +62,8 @@ export const formatJDolaStakingData = (
     const jDolaSupply = (jdolaStakingData ? getBnToNumber(jdolaStakingData[0]) : fallbackData?.jDolaSupply || 0);
     const yearlyRewardBudget = jdolaStakingData ? getBnToNumber(jdolaStakingData[1]) : fallbackData?.yearlyRewardBudget || 0;
     const maxYearlyRewardBudget = jdolaStakingData ? getBnToNumber(jdolaStakingData[2]) : fallbackData?.maxYearlyRewardBudget || 0;
-    const maxDbrDolaRatioBps = jdolaStakingData ? getBnToNumber(jdolaStakingData[3]) : fallbackData?.maxDbrDolaRatioBps || 0;
-    const maxRewardPerDolaMantissa = maxDbrDolaRatioBps * 1e14;
+    const maxDolaDbrRatioBps = jdolaStakingData ? getBnToNumber(jdolaStakingData[3]) : fallbackData?.maxDolaDbrRatioBps || 0;
+    const maxRewardPerDolaMantissa = maxDolaDbrRatioBps * 1e14;
     
     const weeklyRevenue = jdolaStakingData ? getBnToNumber(jdolaStakingData[4]) : fallbackData?.weeklyRevenue || 0;
     const pastWeekRevenue = jdolaStakingData ? getBnToNumber(jdolaStakingData[5]) : fallbackData?.pastWeekRevenue || 0;
@@ -87,7 +87,7 @@ export const formatJDolaStakingData = (
 
     return {
         exitWindow: jdolaStakingData ? getBnToNumber(jdolaStakingData[7], 0) : 86400*2,
-        withdrawFee: jdolaStakingData ? getBnToNumber(jdolaStakingData[8], 0)/10000 : 0,
+        withdrawFeePerc: jdolaStakingData ? getBnToNumber(jdolaStakingData[8], 0)/100 : 0,
         jDolaExRate,
         jDolaSupply,
         jDolaTotalAssets,
@@ -104,7 +104,7 @@ export const formatJDolaStakingData = (
         nextApr,
         nextApy: aprToApy(nextApr, WEEKS_PER_YEAR),
         projectedApr,
-        projectedApy: aprToApy(projectedApr, WEEKS_PER_YEAR),
+        projectedApy: aprToApy(projectedApr, WEEKS_PER_YEAR) || 0,
     }
 }
 
@@ -130,7 +130,7 @@ export const useStakedJDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
     jDolaExRate: number;
     yearlyDbrEarnings: number;
     exitWindow: number;
-    withdrawFee: number;
+    withdrawFeePerc: number;
 } => {
     const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/junior/jdola-staking`);   
     const weekIndexUtc = getWeekIndexUtc();
@@ -139,7 +139,7 @@ export const useStakedJDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
         [JDOLA_AUCTION_ADDRESS, 'totalSupply'],
         [JDOLA_AUCTION_ADDRESS, 'yearlyRewardBudget'],
         [JDOLA_AUCTION_ADDRESS, 'maxYearlyRewardBudget'],
-        [JDOLA_AUCTION_ADDRESS, 'maxDbrDolaRatioBps'],  
+        [JDOLA_AUCTION_ADDRESS, 'maxDolaDbrRatioBps'],  
         [JDOLA_AUCTION_ADDRESS, 'weeklyRevenue', weekIndexUtc],
         [JDOLA_AUCTION_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1],
         [JDOLA_AUCTION_ADDRESS, 'totalAssets'],     

@@ -11,7 +11,7 @@ import { getBnToNumber } from '@app/util/markets';
 import { formatJDolaStakingData, getJdolaContract, getJuniorEscrowContract } from '@app/util/junior';
 import { JsonRpcProvider } from '@ethersproject/providers';
 
-export const jdolaStakingCacheKey = `jdola-staking-v1.0.0`;
+export const jdolaStakingCacheKey = `jdola-staking-v1.0.1`;
 
 export default async function handler(req, res) {
     const { cacheFirst, ignoreCache, includeSpectra } = req.query;
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
         }
 
         // const provider = getProvider(CHAIN_ID);
-        const provider = new JsonRpcProvider("https://virtual.mainnet.eu.rpc.tenderly.co/a6100ef2-1d15-4265-aa70-d9dfad68fec1");
+        const provider = new JsonRpcProvider("https://virtual.mainnet.eu.rpc.tenderly.co/fb462934-df02-4a6b-911b-94d7ccfdd691");
         const jDolaContract = getJdolaContract(provider);
         const escrowContract = getJuniorEscrowContract(provider);
 
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
             { contract: jDolaContract, functionName: 'totalSupply' },
             { contract: jDolaContract, functionName: 'yearlyRewardBudget' },
             { contract: jDolaContract, functionName: 'maxYearlyRewardBudget' },
-            { contract: jDolaContract, functionName: 'maxDbrDolaRatioBps' },
+            { contract: jDolaContract, functionName: 'maxDolaDbrRatioBps' },
             { contract: jDolaContract, functionName: 'weeklyRevenue', params: [weekIndexUtc] },
             { contract: jDolaContract, functionName: 'weeklyRevenue', params: [weekIndexUtc - 1] },
             { contract: jDolaContract, functionName: 'totalAssets' },

@@ -720,7 +720,7 @@ export const JDOLA_AUCTION_ABI = [
   "function dbrReserve() public view returns (uint256)",
   "function yearlyRewardBudget() public view returns (uint256)",
   "function maxYearlyRewardBudget() public view returns (uint256)",
-  "function maxDbrDolaRatioBps() public view returns (uint256)",
+  "function maxDolaDbrRatioBps() public view returns (uint256)",
   "function lastUpdate() public view returns (uint256)",
   "function getReserves() public view returns (uint256 _dolaReserve, uint256 _dbrReserve)",
   "function buyDbr(uint exactDolaIn, uint exactDbrOut, address to) external",
