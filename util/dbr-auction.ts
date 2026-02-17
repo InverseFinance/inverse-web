@@ -138,9 +138,11 @@ export const formatDailyAuctionAggreg = (e: any, i: number) => {
 
 export const formatAuctionEvents = (e: any, i: number) => {
     const isInvCase = e.auctionType === 'sINV' || e.auctionType === 'INV buyback';
+    const isJrDolaCase = e.auctionType === 'jrDOLA';
     const priceInDola = ((e.dolaIn || 0) / e.dbrOut);
     const priceInInv = ((e.invIn || 0) / e.dbrOut);
-    const amountIn = isInvCase ? e.invIn : e.dolaIn;
+    const priceInSdola = ((e.sDolaIn || 0) / e.dbrOut);
+    const amountIn = isJrDolaCase ? e.sDolaIn : isInvCase ? e.invIn : e.dolaIn;
     const arb = isInvCase ? e.marketPriceInInv - priceInInv : e.marketPriceInDola - priceInDola;
     const worthIn = e.dolaIn ? e.dolaIn : e.invIn * 1 / e.marketPriceInInv * e.marketPriceInDola;
     const worthOut = e.dbrOut * e.marketPriceInDola;
@@ -151,6 +153,7 @@ export const formatAuctionEvents = (e: any, i: number) => {
         priceInDola,
         priceInInv,
         amountIn,
+        priceInSdola,
         worthIn,
         worthOut,
         arb,
@@ -189,7 +192,7 @@ export const getGroupedByDayAuctionBuys = (buyEvents: any[], archivedDailyBuys: 
         }
     });
 
-    const types = ['Virtual', 'sDOLA', 'sINV', 'INV buyback'];
+    const types = ['Virtual', 'sDOLA', 'sINV', 'INV buyback', 'jrDOLA'];
     const uniqueDays = [...new Set([...archivedDailyBuys.map(e => e.utcDate), ...events.map(e => e.utcDate)])];
 
     return uniqueDays.map((utcDateString,i) => {
@@ -247,6 +250,7 @@ export const getFormattedAuctionBuys = (events: any[]) => {
     const virtualAuctionEvents = events.map(e => ({...e, ...e.Virtual}));
     const sdolaAuctionEvents = events.map(e => ({...e, ...e.sDOLA}));
     const invBuyBackAuctionEvents = events.map(e => ({...e, ...e['INV buyback']}));
+    const jrDolaAuctionEvents = events.map(e => ({...e, ...e['jrDOLA']}));
 
     const accDolaIn = dolaEvents.reduce((prev, curr) => prev + curr.amountIn || 0, 0);
     const accInvInSinvWorthIn = sinvAuctionEvents.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
@@ -260,16 +264,21 @@ export const getFormattedAuctionBuys = (events: any[]) => {
     const accInvBuyBackWorthOut = invBuyBackAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
     const accDbrOutFromDola = dolaEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
     const accDbrOut = events.reduce((prev, curr) => prev + curr.all.dbrOut, 0);
-
+   
     const accDolaInVirtual = virtualAuctionEvents.reduce((prev, curr) => prev + curr.amountIn || 0, 0);
     const accDbrOutVirtual = virtualAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut || 0, 0);
 
     const accDolaInSdola = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.amountIn || 0, 0);
     const accDbrOutSdola = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut || 0, 0);
 
+    const accSDolaInJrDola = jrDolaAuctionEvents.reduce((prev, curr) => prev + curr.amountIn || 0, 0);
+    const accDolaInJrDola = jrDolaAuctionEvents.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
+    const accDbrOutJrDola = jrDolaAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut || 0, 0);
+
     const accInvInSinv = sinvAuctionEvents.reduce((prev, curr) => prev + curr.amountIn || 0, 0);
     const accInvInBuyBack = invBuyBackAuctionEvents.reduce((prev, curr) => prev + curr.amountIn || 0, 0);
     const accDbrOutSinv = sinvAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut || 0, 0);
+
     const accInvIn = accInvInSinv + accInvInBuyBack;
     const accInvWorthIn = accInvInSinvWorthIn + accInvBuyBackWorthIn;
     const accInvWorthOut = accInvInSinvWorthOut + accInvBuyBackWorthOut;
@@ -284,7 +293,10 @@ export const getFormattedAuctionBuys = (events: any[]) => {
         sdolaAuctionEvents,
         sinvAuctionEvents,
         invBuyBackAuctionEvents,
+        jrDolaAuctionEvents,
         aggregated: {
+            // when converting sDOLA proceed to DOLA proceed
+            accTotalDolaIn: accDolaIn + accDolaInJrDola,
             accDolaIn,
             accDbrOut,
             accDolaInVirtual,
@@ -307,6 +319,9 @@ export const getFormattedAuctionBuys = (events: any[]) => {
             accInvInBuyBack,
             accInvInSinvWorthIn,
             accInvInSinvWorthOut,
+            accSDolaInJrDola,
+            accDolaInJrDola,
+            accDbrOutJrDola,
             avgDbrPrice,
             nbBuys,
         }
@@ -321,11 +336,13 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     sdolaAuctionEvents: any[],
     sinvAuctionEvents: any[],
     invBuyBackAuctionEvents: any[],
+    jrDolaAuctionEvents: any[],
     accountEvents: any,
     timestamp: number,
     dbrSaleHandlerRepayPercentage: number,
     avgDbrPrice: number,
     nbBuys: number,
+    accTotalDolaIn: number,
     accDolaIn: number,
     accDbrOut: number,
     accDolaInVirtual: number,
@@ -348,15 +365,19 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     accInvInBuyBack: number,
     accInvInSinvWorthIn: number,
     accInvInSinvWorthOut: number,
+    accSDolaInJrDola: number,
+    accDolaInJrDola: number,
+    accDbrOutJrDola: number,
     last100: any[],
     last100VirtualAuctionEvents: any[],
     last100SdolaAuctionEvents: any[],
     last100SinvAuctionEvents: any[],
     last100InvBuyBackAuctionEvents: any[],
+    last100JrDolaAuctionEvents: any[],
 } => {
     const { data, error } = useCustomSWR(`/api/auctions/dbr-buys?v=4`, fetcher);
 
-    const { events, dolaEvents, virtualAuctionEvents, sdolaAuctionEvents, sinvAuctionEvents, invBuyBackAuctionEvents, aggregated } = getFormattedAuctionBuys(data?.dailyBuys || []);
+    const { events, dolaEvents, virtualAuctionEvents, sdolaAuctionEvents, sinvAuctionEvents, invBuyBackAuctionEvents, jrDolaAuctionEvents, aggregated } = getFormattedAuctionBuys(data?.dailyBuys || []);
 
     return {
         events,
@@ -365,11 +386,13 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
         sdolaAuctionEvents,
         sinvAuctionEvents,
         invBuyBackAuctionEvents,
+        jrDolaAuctionEvents,
         last100: (data?.last100 || []).map(formatAuctionEvents),
         last100VirtualAuctionEvents: (data?.last100VirtualAuctionEvents || []).map(formatAuctionEvents),
         last100SdolaAuctionEvents: (data?.last100SdolaAuctionEvents || []).map(formatAuctionEvents),
         last100SinvAuctionEvents: (data?.last100SinvAuctionEvents || []).map(formatAuctionEvents),
         last100InvBuyBackAuctionEvents: (data?.last100InvBuyBackAuctionEvents || []).map(formatAuctionEvents),
+        last100JrDolaAuctionEvents: (data?.last100JrDolaAuctionEvents || []).map(formatAuctionEvents),
         // accountEvents: events.filter(e => e.to === from),
         ...aggregated,
         dbrSaleHandlerRepayPercentage: data?.dbrSaleHandlerRepayPercentage || 20,

@@ -9,10 +9,25 @@ import { getSdolaContract } from '@app/util/dola-staking';
 import { ascendingEventsSorter, estimateBlockTimestamp } from '@app/util/misc';
 import { getHistoricDbrPriceOnCurve } from '@app/util/f2';
 import { getSInvContract } from '@app/util/sINV';
-import { INV_BUY_BACK_AUCTION_HELPER, SINV_ADDRESS, SINV_ADDRESS_V1, SINV_HELPER_ADDRESS, SINV_HELPER_ADDRESS_V1 } from '@app/config/constants';
+import { INV_BUY_BACK_AUCTION_HELPER, JDOLA_AUCTION_HELPER_ADDRESS, SINV_ADDRESS, SINV_ADDRESS_V1, SINV_HELPER_ADDRESS, SINV_HELPER_ADDRESS_V1 } from '@app/config/constants';
 import { Contract } from 'ethers';
+import { getJrdolaContract } from '@app/util/junior';
+import { JsonRpcProvider } from '@ethersproject/providers';
+import { getMulticallOutput } from '@app/util/multicall';
 
 const DBR_AUCTION_BUYS_CACHE_KEY_V3 = 'dbr-auction-buys-v3.0.0'
+const DBR_AUCTION_BUYS_CACHE_KEY_V4 = 'dbr-auction-buys-v4.0.0'
+
+const getSdolaExRates = async (provider: JsonRpcProvider, blocks: number[]) => {
+    const sdolaContract = getSdolaContract(provider);
+    const ratesArray = await Promise.all(
+        blocks.map(block => sdolaContract.convertToAssets('1000000000000000000', { blockTag: block }))
+    );
+    return ratesArray.reduce((acc, rate, index) => {
+        acc[blocks[index]] = getBnToNumber(rate);
+        return acc;
+    }, {});
+}
 
 export default async function handler(req, res) {
     try {
@@ -36,6 +51,7 @@ export default async function handler(req, res) {
         const sinvContract = getSInvContract(paidProvider);
         const sinvContractV1 = getSInvContract(paidProvider, SINV_ADDRESS_V1);
         const invBuyBackAuctionContract = getInvBuyBackAuctionContract(paidProvider);
+        const jrDolaAuctionContract = getJrdolaContract(paidProvider);
 
         const archived = cachedData || {
             dailyBuys: [],
@@ -44,17 +60,19 @@ export default async function handler(req, res) {
             last100SdolaAuctionEvents: [],
             last100SinvAuctionEvents: [],
             last100InvBuyBackAuctionEvents: [],
+            last100JrDolaAuctionEvents: [],
         };
 
         const lastKnownEvent = archived?.last100?.length > 0 ? (archived.last100[archived.last100.length - 1]) : {};
         const newStartingBlock = archived?.lastBlocknumber ? archived?.lastBlocknumber + 1 : (lastKnownEvent?.blockNumber ? lastKnownEvent?.blockNumber + 1 : undefined);
 
         const [
-            generalAuctionBuys, 
-            sdolaAuctionBuys, 
-            sinvAuctionBuys, 
+            generalAuctionBuys,
+            sdolaAuctionBuys,
+            sinvAuctionBuys,
             sinvAuctionBuysV1,
             invBuyBackAuctionBuys,
+            jrDolaAuctionBuys,
         ] = await Promise.all([
             dbrAuctionContract.queryFilter(
                 dbrAuctionContract.filters.Buy(),
@@ -76,16 +94,23 @@ export default async function handler(req, res) {
                 invBuyBackAuctionContract.filters.Buy(),
                 newStartingBlock ? newStartingBlock : 0x0,
             ),
+            jrDolaAuctionContract.queryFilter(
+                jrDolaAuctionContract.filters.Buy(),
+                newStartingBlock ? newStartingBlock : 0x0,
+            ),
         ]);
 
         const newBuyEvents = generalAuctionBuys
             .concat(sdolaAuctionBuys)
             .concat(sinvAuctionBuys)
             .concat(invBuyBackAuctionBuys)
+            .concat(jrDolaAuctionBuys)
             .concat(SINV_ADDRESS_V1 !== SINV_ADDRESS ? sinvAuctionBuysV1 : []);
         newBuyEvents.sort(ascendingEventsSorter);
 
         const blocks = newBuyEvents.map(e => e.blockNumber);
+        const jrDolaBlocks = jrDolaAuctionBuys.map(e => e.blockNumber);
+
         const marketPriceBlocks = blocks.map(block => (block - 1));
 
         // take market price one block before
@@ -98,7 +123,12 @@ export default async function handler(req, res) {
         const sinvAddressesLc = [SINV_ADDRESS_V1, SINV_ADDRESS].map(a => a.toLowerCase());
         const sinvHelperAddressesLc = [SINV_HELPER_ADDRESS_V1, SINV_HELPER_ADDRESS].map(a => a.toLowerCase());
 
+        const currentSdolaExRateBn = await sdolaContract.convertToAssets('1000000000000000000');
+        const currentSdolaExRate = getBnToNumber(currentSdolaExRateBn);
+        const sDolaExRates = await getSdolaExRates(paidProvider, jrDolaBlocks);
+
         const newBuys = newBuyEvents.map(e => {
+            const isJrDolaType = e.address.toLowerCase() === jrDolaAuctionContract.address.toLowerCase() || e.args[0].toLowerCase() === JDOLA_AUCTION_HELPER_ADDRESS.toLowerCase();
             const isInvBuyBackType = e.address.toLowerCase() === invBuyBackAuctionContract.address.toLowerCase() || INV_BUY_BACK_AUCTION_HELPER.toLowerCase() === e.args[0].toLowerCase();
             const isSinvType = sinvAddressesLc.includes(e.address.toLowerCase()) || sinvHelperAddressesLc.includes(e.args[0].toLowerCase());
             const isSInvV2 = SINV_HELPER_ADDRESS !== SINV_HELPER_ADDRESS_V1 && e.address.toLowerCase() === sinvContract.address.toLowerCase() || e.args[0].toLowerCase() === SINV_HELPER_ADDRESS.toLowerCase();
@@ -109,10 +139,11 @@ export default async function handler(req, res) {
                 caller: e.args[0],
                 to: e.args[1],
                 invIn: isSinvType || isInvBuyBackType ? getBnToNumber(e.args[2]) : 0,
-                dolaIn: isSinvType || isInvBuyBackType ? 0 : getBnToNumber(e.args[2]),
+                dolaIn: isJrDolaType ? getBnToNumber(e.args[2]) * (sDolaExRates[e.blockNumber] || currentSdolaExRate) : isSinvType || isInvBuyBackType ? 0 : getBnToNumber(e.args[2]),
+                sDolaIn: isJrDolaType ? getBnToNumber(e.args[2]) : 0,
                 dbrOut: getBnToNumber(e.args[3]),
                 version: isSinvType ? isSInvV2 ? 'V2' : 'V1' : undefined,
-                auctionType: e.address.toLowerCase() === sdolaContract.address.toLowerCase() ? 'sDOLA' : isSinvType ? 'sINV' : isInvBuyBackType ? 'INV buyback' : 'Virtual',
+                auctionType: e.address.toLowerCase() === sdolaContract.address.toLowerCase() ? 'sDOLA' : isSinvType ? 'sINV' : isInvBuyBackType ? 'INV buyback' : isJrDolaType ? 'jrDOLA' : 'Virtual',
             };
         });
 
@@ -129,6 +160,7 @@ export default async function handler(req, res) {
         const last100SdolaAuctionEvents = archived.last100SdolaAuctionEvents.concat(newBuys.filter(e => e.auctionType === 'sDOLA')).slice(-100);
         const last100SinvAuctionEvents = archived.last100SinvAuctionEvents.concat(newBuys.filter(e => e.auctionType === 'sINV')).slice(-100);
         const last100InvBuyBackAuctionEvents = (archived.last100InvBuyBackAuctionEvents || []).concat(newBuys.filter(e => e.auctionType === 'INV buyback')).slice(-100);
+        const last100JrDolaAuctionEvents = (archived.last100JrDolaAuctionEvents || []).concat(newBuys.filter(e => e.auctionType === 'jrDOLA')).slice(-100);
 
         const newTotalDailyBuys = getGroupedByDayAuctionBuys(newBuys.map(formatDailyAuctionAggreg), archived?.dailyBuys || []);
 
@@ -143,10 +175,11 @@ export default async function handler(req, res) {
             last100SdolaAuctionEvents,
             last100SinvAuctionEvents,
             last100InvBuyBackAuctionEvents,
+            last100JrDolaAuctionEvents,
             dailyBuys: newTotalDailyBuys,
         };
 
-        await redisSetWithTimestamp(DBR_AUCTION_BUYS_CACHE_KEY_V3, resultData);
+        await redisSetWithTimestamp(DBR_AUCTION_BUYS_CACHE_KEY_V4, resultData);
 
         resultData.dailyBuys.sort((a, b) => b.timestamp - a.timestamp);
 

@@ -726,7 +726,7 @@ export const JDOLA_AUCTION_ABI = [
   "function buyDbr(uint exactDolaIn, uint exactDbrOut, address to) external",
   "function weeklyRevenue(uint) public view returns (uint)",
   "function maxDeposit(address) public view returns(uint)",
-  "event Buy(address indexed caller, address indexed to, uint dolaIn, uint dbrOut)",
+  "event Buy(address indexed caller, address indexed to, uint sDolaIn, uint dbrOut)",
   "event SetYearlyRewardBudget(uint newRate)",
   "event Slashing(address indexed slashingModule, uint slashed)",
   "event AddSlashingModule(address)",

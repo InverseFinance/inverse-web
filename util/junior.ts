@@ -12,7 +12,7 @@ import { useContractEvents } from "@app/hooks/useContractEvents";
 import useSWR from "swr";
 import { useWeb3React } from "@web3-react/core";
 
-export const getJdolaContract = (signerOrProvider: JsonRpcSigner) => {
+export const getJrdolaContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(JDOLA_AUCTION_ADDRESS, JDOLA_AUCTION_ABI, signerOrProvider);
 }
 
@@ -24,7 +24,7 @@ export const getJuniorWithdrawModelContract = (signerOrProvider: JsonRpcSigner) 
     return new Contract(JUNIOR_WITHDRAW_MODEL, ["function getWithdrawDelay(uint totalSupply, uint totalWithdrawing, address withdrawer) external returns(uint)"], signerOrProvider);
 }
 
-export const stakeJDola = async (signer: JsonRpcSigner, amount: BigNumber, isDolaCase = false) => {
+export const stakeJDola = async (signer: JsonRpcSigner, amount: BigNumber, isDolaCase = false, minJrDolaShares: BigNumber) => {
     if(isDolaCase) {
         const contract = new Contract(JDOLA_AUCTION_HELPER_ADDRESS, DBR_AUCTION_HELPER_ABI, signer);
         return contract.depositDola(amount, minJrDolaShares);
