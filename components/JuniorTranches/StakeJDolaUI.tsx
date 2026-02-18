@@ -455,7 +455,9 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                             {
                                                 hasComingExit && <InfoMessage
                                                     alertProps={{ w: 'full' }}
-                                                    description="Note: you already have a pending withdrawal, queuing a new withdrawal will merge both with the new queue duration being the longest of the two."
+                                                    description={
+                                                        <Text><b>Note</b>: you already have a pending withdrawal, queuing a new withdrawal will merge both with the new queue duration being the longest of the two.</Text>
+                                                    }
                                                 />
                                             }
                                             <VStack alignItems="flex-start" spacing="0">
