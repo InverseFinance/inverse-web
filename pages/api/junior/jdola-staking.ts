@@ -10,8 +10,9 @@ import { getOnChainData } from '../dola/sdola-comparator';
 import { getBnToNumber } from '@app/util/markets';
 import { formatJDolaStakingData, getJrdolaContract, getJuniorEscrowContract } from '@app/util/junior';
 import { JsonRpcProvider } from '@ethersproject/providers';
+import { dolaStakingCacheKey } from '../dola-staking';
 
-export const jdolaStakingCacheKey = `jdola-staking-v1.0.1`;
+export const jdolaStakingCacheKey = `jdola-staking-v1.0.2`;
 
 export default async function handler(req, res) {
     const { cacheFirst, ignoreCache, includeSpectra } = req.query;
@@ -29,6 +30,9 @@ export default async function handler(req, res) {
         const provider = getProvider(CHAIN_ID);
         const jDolaContract = getJrdolaContract(provider);
         const escrowContract = getJuniorEscrowContract(provider);
+
+        const sDolaCache = await getCacheFromRedis(dolaStakingCacheKey, false, cacheDuration);
+        const { apy: sDolaApy, projectedApy: sDolaProjectedApy, sDolaExRate, apy30d: sDolaApy30d } = sDolaCache;
 
         const weekIndexUtc = getWeekIndexUtc();
 
@@ -53,7 +57,7 @@ export default async function handler(req, res) {
         const [
             dbrPriceData,
             dolaPriceData,
-            historicalSDolaRates,
+            historicalJrDolaRates,
         ] = promises.map(p => p.status === 'fulfilled' ? p.value : undefined);
 
         const { priceInDola: dbrDolaPrice } = dbrPriceData;
@@ -62,10 +66,18 @@ export default async function handler(req, res) {
         const resultData = {
             timestamp: Date.now(),
             dolaPriceUsd,
-            tvlUsd: getBnToNumber(jdolaStakingData[7], 18) * dolaPriceUsd,
-            ...historicalSDolaRates[0],
+            tvlUsd: getBnToNumber(jdolaStakingData[6], 18) * sDolaExRate * dolaPriceUsd,
+            ...historicalJrDolaRates[0],
             ...formatJDolaStakingData(dbrDolaPrice * dolaPriceUsd, jdolaStakingData),
         }
+
+        resultData.totalApy = sDolaApy + resultData.apy;
+        resultData.totalProjectedApy = sDolaProjectedApy + resultData.projectedApy;
+        resultData.sDolaExRate = sDolaExRate;
+        resultData.totalApy30d = sDolaApy30d + resultData.apy30d;
+        resultData.weeklyRevenueInDola = resultData.weeklyRevenue * sDolaExRate;
+        resultData.pastWeekRevenueInDola = resultData.pastWeekRevenue * sDolaExRate;
+        resultData.assetsInDola = resultData.jrDolaTotalAssets * sDolaExRate;
 
         await redisSetWithTimestamp(cacheKey, resultData);
 
