@@ -8,7 +8,7 @@ export default async function handler(req, res) {
         res.status(400).json({ msg: 'invalid request' });
         return;
     }
-    const cacheKey = `jrdola-staking-history-aggregated-${isExlcudeCurrent ? '-exclude-current' : ''}v1.0.2`
+    const cacheKey = `dola-staking-history-aggregated-${isExlcudeCurrent ? '-exclude-current' : ''}v1.0.2`
 
     try {
         const cacheDuration = 60;
@@ -20,8 +20,8 @@ export default async function handler(req, res) {
         }
 
         const [snapshots, latestLiquidityCache] = await Promise.all([
-            getCacheFromRedis('jrdola-staking-history', false, 0, true),
-            excludeCurrent === 'true' ? new Promise((res) => res(undefined)) : fetch(`https://www.inverse.finance/api/junior/jdola-staking?cacheFirst=${cacheFirst}`),
+            getCacheFromRedis('dola-staking-history', false, 0, true),
+            excludeCurrent === 'true' ? new Promise((res) => res(undefined)) : fetch(`https://www.inverse.finance/api/dola-staking?cacheFirst=${cacheFirst}`),
         ]);
 
         const totalEntries = (snapshots?.entries || [])
