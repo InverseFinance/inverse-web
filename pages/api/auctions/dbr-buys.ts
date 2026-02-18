@@ -96,7 +96,7 @@ export default async function handler(req, res) {
             ),
             jrDolaAuctionContract.queryFilter(
                 jrDolaAuctionContract.filters.Buy(),
-                newStartingBlock ? newStartingBlock : 0x0,
+                // newStartingBlock ? newStartingBlock : 0x0,
             ),
         ]);
 

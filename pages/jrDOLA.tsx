@@ -40,7 +40,7 @@ export const JdolaPage = () => {
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/jrDOLA-v3.jpeg" />
       </Head>
       <AppNav active="Stake" activeSubmenu="jrDOLA" hideAnnouncement={true} />
-      <JDolaStakingTabs />
+      {/* <JDolaStakingTabs /> */}
       <VStack
         w={{ base: 'full', lg: '1200px' }}
         mt='6'
