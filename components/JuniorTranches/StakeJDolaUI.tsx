@@ -101,7 +101,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
 
     useInterval(() => {
         const curr = (realTimeBalance || baseBalance);
-        const incPerInterval = ((curr * (totalJrDolaApy / 100)) * (STAKE_BAL_INC_INTERVAL / (ONE_DAY_MS * 365)));
+        const incPerInterval = ((curr * (apy / 100)) * (STAKE_BAL_INC_INTERVAL / (ONE_DAY_MS * 365)));
         const neo = curr + incPerInterval;
         setRealTimeBalance(neo);
     }, STAKE_BAL_INC_INTERVAL);
