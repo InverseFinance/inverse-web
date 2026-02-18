@@ -11,6 +11,9 @@ import { useCacheFirstSWR } from "@app/hooks/useCustomSWR";
 import { useContractEvents } from "@app/hooks/useContractEvents";
 import useSWR from "swr";
 import { useWeb3React } from "@web3-react/core";
+import { useMemo } from "react";
+import { SWR } from "@app/types";
+import { fetcher } from "./web3";
 
 export const getJrdolaContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(JDOLA_AUCTION_ADDRESS, JDOLA_AUCTION_ABI, signerOrProvider);
@@ -25,7 +28,7 @@ export const getJuniorWithdrawModelContract = (signerOrProvider: JsonRpcSigner) 
 }
 
 export const stakeJDola = async (signer: JsonRpcSigner, amount: BigNumber, isDolaCase = false, minJrDolaShares: BigNumber) => {
-    if(isDolaCase) {
+    if (isDolaCase) {
         const contract = new Contract(JDOLA_AUCTION_HELPER_ADDRESS, DBR_AUCTION_HELPER_ABI, signer);
         return contract.depositDola(amount, minJrDolaShares);
     }
@@ -57,19 +60,21 @@ export const formatJDolaStakingData = (
     dbrDolaPriceUsd: number,
     jrDolaStakingData: any[],
     fallbackData?: any,
-    supplyDelta = 0,
+    assetsDelta = 0,
 ) => {
+    // supply in jrDOLA, assets in sDOLA
     const jrDolaSupply = (jrDolaStakingData ? getBnToNumber(jrDolaStakingData[0]) : fallbackData?.jrDolaSupply || 0);
     const yearlyRewardBudget = jrDolaStakingData ? getBnToNumber(jrDolaStakingData[1]) : fallbackData?.yearlyRewardBudget || 0;
     const maxYearlyRewardBudget = jrDolaStakingData ? getBnToNumber(jrDolaStakingData[2]) : fallbackData?.maxYearlyRewardBudget || 0;
-    const maxDolaDbrRatioBps = jrDolaStakingData ? getBnToNumber(jrDolaStakingData[3]) : fallbackData?.maxDolaDbrRatioBps || 0;
-    const maxRewardPerDolaMantissa = maxDolaDbrRatioBps * 1e14;
-    
+    const maxDolaDbrRatio = jrDolaStakingData ? getBnToNumber(jrDolaStakingData[3]) : fallbackData?.maxDolaDbrRatio || 0;
+    const maxRewardPerDolaMantissa = maxDolaDbrRatio * 1e14;
+
     const weeklyRevenue = jrDolaStakingData ? getBnToNumber(jrDolaStakingData[4]) : fallbackData?.weeklyRevenue || 0;
     const pastWeekRevenue = jrDolaStakingData ? getBnToNumber(jrDolaStakingData[5]) : fallbackData?.pastWeekRevenue || 0;
     const jrDolaTotalAssetsCurrent = (jrDolaStakingData ? getBnToNumber(jrDolaStakingData[6]) : fallbackData?.jrDolaTotalAssets || 0);
-    const jrDolaTotalAssets = jrDolaTotalAssetsCurrent + supplyDelta;        
+    const jrDolaTotalAssets = jrDolaTotalAssetsCurrent + assetsDelta;
 
+    // per sDOLA here
     const dbrRatePerDola = jrDolaTotalAssets > 0 ? Math.min(yearlyRewardBudget / jrDolaTotalAssets, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
     const now = Date.now();
     const secondsPastEpoch = (now - getLastThursdayTimestamp()) / 1000;
@@ -86,8 +91,8 @@ export const formatJDolaStakingData = (
     const jrDolaExRate = jrDolaTotalAssetsCurrent && jrDolaSupply ? jrDolaTotalAssetsCurrent / jrDolaSupply : 0;
 
     return {
-        exitWindow: jrDolaStakingData ? getBnToNumber(jrDolaStakingData[7], 0) : 86400*2,
-        withdrawFeePerc: jrDolaStakingData ? getBnToNumber(jrDolaStakingData[8], 0)/100 : 0,
+        exitWindow: jrDolaStakingData ? getBnToNumber(jrDolaStakingData[7], 0) : 86400 * 2,
+        withdrawFeePerc: jrDolaStakingData ? getBnToNumber(jrDolaStakingData[8], 0) / 100 : 0,
         jrDolaExRate,
         jrDolaSupply,
         jrDolaTotalAssets,
@@ -98,6 +103,8 @@ export const formatJDolaStakingData = (
         maxRewardPerDolaMantissa,
         weeklyRevenue,
         pastWeekRevenue,
+        maxDolaDbrRatio,
+        maxDolaDbrRatioBps: maxRewardPerDolaMantissa / 10_000,
         apr,
         // weekly compounding
         apy: aprToApy(apr, WEEKS_PER_YEAR),
@@ -132,17 +139,17 @@ export const useStakedJDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
     exitWindow: number;
     withdrawFeePerc: number;
 } => {
-    const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/junior/jdola-staking`);   
+    const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/junior/jdola-staking`);
     const weekIndexUtc = getWeekIndexUtc();
 
     const { data: jrDolaStakingData, error } = useEtherSWR([
         [JDOLA_AUCTION_ADDRESS, 'totalSupply'],
         [JDOLA_AUCTION_ADDRESS, 'yearlyRewardBudget'],
         [JDOLA_AUCTION_ADDRESS, 'maxYearlyRewardBudget'],
-        [JDOLA_AUCTION_ADDRESS, 'maxDolaDbrRatioBps'],  
+        [JDOLA_AUCTION_ADDRESS, 'maxDolaDbrRatioBps'],
         [JDOLA_AUCTION_ADDRESS, 'weeklyRevenue', weekIndexUtc],
         [JDOLA_AUCTION_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1],
-        [JDOLA_AUCTION_ADDRESS, 'totalAssets'],     
+        [JDOLA_AUCTION_ADDRESS, 'totalAssets'],
         [JUNIOR_ESCROW_ADDRESS, 'exitWindow'],
         [JUNIOR_ESCROW_ADDRESS, 'withdrawFeeBps'],
     ]);
@@ -200,7 +207,7 @@ export const useJuniorWithdrawDelay = (
     withdrawAmount,
     userAddress,
     maxBalanceBn,
-) => {  
+) => {
     const { data: blockData } = useEtherSWR(
         ['getBlock', 'latest']
     );
@@ -210,23 +217,23 @@ export const useJuniorWithdrawDelay = (
         [JUNIOR_ESCROW_ADDRESS, 'exitWindows', userAddress],
         [JUNIOR_ESCROW_ADDRESS, 'withdrawAmounts', userAddress],
     ]);
-    
-    const { data, error } = useSWR(['getWithdrawDelay', parseEther(currentSupply?.toString()||'0').toString(), parseEther(withdrawAmount?.toString()||'0').toString(), userAddress], (...args) => {
-      const [method, ...otherParams] = args
-      if (provider) {
-        return getJuniorWithdrawModelContract(provider?.getSigner()).callStatic[method](...otherParams)
-      }
-      return null
+
+    const { data, error } = useSWR(['getWithdrawDelay', parseEther(currentSupply?.toString() || '0').toString(), parseEther(withdrawAmount?.toString() || '0').toString(), userAddress], (...args) => {
+        const [method, ...otherParams] = args
+        if (provider) {
+            return getJuniorWithdrawModelContract(provider?.getSigner()).callStatic[method](...otherParams)
+        }
+        return null
     })
 
     // unstake all case
-    const { data: dataUnstakeAll } = useSWR(['getWithdrawDelayMax', parseEther(currentSupply?.toString()||'0').toString(), maxBalanceBn, userAddress], (...args) => {
+    const { data: dataUnstakeAll } = useSWR(['getWithdrawDelayMax', parseEther(currentSupply?.toString() || '0').toString(), maxBalanceBn, userAddress], (...args) => {
         const [name, ...otherParams] = args
         if (provider) {
-          return getJuniorWithdrawModelContract(provider?.getSigner()).callStatic['getWithdrawDelay'](...otherParams)
+            return getJuniorWithdrawModelContract(provider?.getSigner()).callStatic['getWithdrawDelay'](...otherParams)
         }
         return null
-      })
+    })
 
     const now = (blockData?.timestamp * 1000) || Date.now();
 
@@ -235,18 +242,36 @@ export const useJuniorWithdrawDelay = (
     const pendingAmount = escrowData && !!escrowData[1] ? getBnToNumber(escrowData[1]) : 0;
 
     return {
-      pendingAmount,
-      // in seconds
-      withdrawDelay: data ? getBnToNumber(data, 0) : BigNumber.from(0),
-      withdrawTimestamp: data ? now + getBnToNumber(data, 0) * 1000 : null,
-      withdrawDelayMax: dataUnstakeAll ? getBnToNumber(dataUnstakeAll, 0) : BigNumber.from(0),
-      withdrawTimestampMax: dataUnstakeAll ? now + getBnToNumber(dataUnstakeAll, 0) * 1000 : null,
-      exitWindowStart,
-      exitWindowEnd,
-      canCancel: !!exitWindowStart && now >= exitWindowStart,
-      isWithinExitWindow: exitWindowStart ? now <= exitWindowEnd && now >= exitWindowStart : false,
-      hasComingExit: exitWindowEnd ? !!exitWindowEnd && now < exitWindowEnd : false,
-      isLoading: !error && !data,
-      isError: error,
+        pendingAmount,
+        // in seconds
+        withdrawDelay: data ? getBnToNumber(data, 0) : BigNumber.from(0),
+        withdrawTimestamp: data ? now + getBnToNumber(data, 0) * 1000 : null,
+        withdrawDelayMax: dataUnstakeAll ? getBnToNumber(dataUnstakeAll, 0) : BigNumber.from(0),
+        withdrawTimestampMax: dataUnstakeAll ? now + getBnToNumber(dataUnstakeAll, 0) * 1000 : null,
+        exitWindowStart,
+        exitWindowEnd,
+        canCancel: !!exitWindowStart && now >= exitWindowStart,
+        isWithinExitWindow: exitWindowStart ? now <= exitWindowEnd && now >= exitWindowStart : false,
+        hasComingExit: exitWindowEnd ? !!exitWindowEnd && now < exitWindowEnd : false,
+        isLoading: !error && !data,
+        isError: error,
     }
-  }
+}
+
+export const useJrDolaStakingEvolution = (): SWR & {
+    evolution: any[],
+    timestamp: number,
+} => {
+    const { data, error } = useCacheFirstSWR(`/api/junior/jdola-staking-history`, fetcher);
+
+    const evolution = useMemo(() => {
+        return (data?.totalEntries || []).map((e) => ({ ...e, apy: aprToApy(e.apr, WEEKS_PER_YEAR) }));
+    }, [data?.timestamp, data?.totalEntries]);
+
+    return {
+        evolution,
+        timestamp: data ? data.timestamp : 0,
+        isLoading: !error && !data,
+        isError: error,
+    }
+}
