@@ -40,9 +40,10 @@ const SELL_INV = 'Sell INV';
 const INFOS = 'Info';
 const TAB_OPTIONS = [
     SELL_DOLA, 
-    // SELL_sDOLA, 
+    SELL_sDOLA,
     SELL_INV, 
-    INFOS];
+    INFOS,
+];
 
 const ListLabelValues = ({ items }: { items: { label: string, value: string | any, color?: string, isLoading?: boolean }[] }) => {
     return <VStack w='full' spacing="2" alignItems="flex-start">

@@ -12,10 +12,10 @@ import { getNextThursdayTimestamp, preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { useDBRPrice } from "@app/hooks/useDBR";
-import { getMonthlyRate, getNumberToBn, shortenNumber } from "@app/util/markets";
+import { getBnToNumber, getMonthlyRate, getNumberToBn, shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
-import { JDOLA_AUCTION_ADDRESS, JUNIOR_ESCROW_ADDRESS, ONE_DAY_MS, SDOLA_ADDRESS, SECONDS_PER_BLOCK } from "@app/config/constants";
+import { JDOLA_AUCTION_ADDRESS, JDOLA_AUCTION_HELPER_ADDRESS, JUNIOR_ESCROW_ADDRESS, ONE_DAY_MS, SDOLA_ADDRESS, SECONDS_PER_BLOCK } from "@app/config/constants";
 import { useAccount } from "@app/hooks/misc";
 import { StakeJDolaInfos } from "./StakeJDolaInfos";
 import { useDOLAPrice } from "@app/hooks/usePrices";
@@ -49,41 +49,51 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
 
     const [depositTokenSymbol, setDepositTokenSymbol] = useState('DOLA');
     const [depositTokenAddress, setDepositTokenAddress] = useState(DOLA);
-    const [dolaAmount, setDolaAmount] = useState('');
+    const [inputAmount, setInputAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
     const [isPreventLoader, setIsPreventLoader] = useState(false);
     const [nowWithInterval, setNowWithInterval] = useState(Date.now());
     const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
+    const isDepositingViaDola = useMemo(() => depositTokenSymbol === 'DOLA', [depositTokenSymbol]);
+
     const { priceUsd: dbrPrice } = useDBRPrice();
 
-    const { apy, apy30d, projectedApy, isLoading, jDolaExRate, jDolaTotalAssets, jDolaSupply, weeklyRevenue, exitWindow, withdrawFee, isLoading: isLoadingStakedDola } = useStakedJDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount), true);
-    const { apy: sDolaApy, sDolaExRate } = useStakedDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount), true);
+    const { apy: sDolaApy, projectedApy: sDolaProjectedApy, sDolaExRate } = useStakedDola(dbrPrice);
+    const { apy, apy30d, projectedApy, isLoading, jrDolaExRate, jrDolaTotalAssets, jrDolaSupply, weeklyRevenue, exitWindow, withdrawFeePerc, isLoading: isLoadingStakedDola } = useStakedJDola(dbrPrice, !inputAmount || isNaN(parseFloat(inputAmount)) ? 0 : isStake ? parseFloat(inputAmount) / (isDepositingViaDola ? (sDolaExRate||1) : 1) : -parseFloat(inputAmount) / (isDepositingViaDola ? (sDolaExRate||1) : 1), true);
+
+    const totalJrDolaApy = apy + sDolaApy;
+    const totalProjectedApy = projectedApy + sDolaProjectedApy;
 
     // value in jrDOLA terms
-    const { stakedDolaBalance, stakedDolaBalanceBn } = useJDolaStakingEarnings(account);
+    const { stakedDolaBalance: jrDolaBalance, stakedDolaBalanceBn: jrDolaBalanceBn } = useJDolaStakingEarnings(account);
 
-    const [previousStakedDolaBalance, setPrevStakedDolaBalance] = useState(stakedDolaBalance);
+    const [previousJrDolaBalance, setPrevJrDolaBalance] = useState(jrDolaBalance);
     const [baseBalance, setBaseBalance] = useState(0);
     const [realTimeBalance, setRealTimeBalance] = useState(0);
     // value in DOLA terms
-    const { withdrawDelay, withdrawDelayMax, withdrawTimestamp, withdrawTimestampMax, exitWindowStart, exitWindowEnd, pendingAmount, hasComingExit, isWithinExitWindow, canCancel } = useJuniorWithdrawDelay(jDolaSupply, parseFloat(dolaAmount || '0') / (jDolaExRate || 1), account, stakedDolaBalanceBn);
+    const { withdrawDelay, withdrawDelayMax, withdrawTimestamp, withdrawTimestampMax, exitWindowStart, exitWindowEnd, pendingAmount, hasComingExit, isWithinExitWindow, canCancel } = useJuniorWithdrawDelay(jrDolaSupply, parseFloat(inputAmount || '0') / (sDolaExRate || 1) / (jrDolaExRate || 1), account, jrDolaBalanceBn);
 
-    const dolaStakedInVault = jDolaExRate * stakedDolaBalance;
-    const pendingAmountInDola = jDolaExRate * pendingAmount;
+    // staked balances in sDOLA & DOLA terms
+    const sdolaStakedInVault = jrDolaExRate * jrDolaBalance;
+    const dolaStakedInVault = sdolaStakedInVault * sDolaExRate;
+
+    // withdrawal pending amounts in sDOLA & DOLA terms
+    const pendingAmountInSDola = jrDolaExRate * pendingAmount;
+    const pendingAmountInDola = pendingAmountInSDola * sDolaExRate;
 
     const nextThursdayTsString = useMemo(() => {
         return new Date(getNextThursdayTimestamp()).toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' });
     }, [nowWithInterval]);
 
     useEffect(() => {
-        if (depositTokenSymbol === 'DOLA') {
+        if (isDepositingViaDola) {
             setDepositTokenAddress(DOLA);
         } else {
             setDepositTokenAddress(SDOLA_ADDRESS);
         }
-    }, [depositTokenSymbol]);
+    }, [isDepositingViaDola]);
 
     useInterval(() => {
         setNowWithInterval(Date.now());
@@ -91,48 +101,51 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
 
     useInterval(() => {
         const curr = (realTimeBalance || baseBalance);
-        const incPerInterval = ((curr * (apy / 100)) * (STAKE_BAL_INC_INTERVAL / (ONE_DAY_MS * 365)));
+        const incPerInterval = ((curr * (totalJrDolaApy / 100)) * (STAKE_BAL_INC_INTERVAL / (ONE_DAY_MS * 365)));
         const neo = curr + incPerInterval;
         setRealTimeBalance(neo);
     }, STAKE_BAL_INC_INTERVAL);
 
     // every ~12s recheck base balance
     useInterval(() => {
-        if (realTimeBalance > dolaStakedInVault) return;
-        setRealTimeBalance(dolaStakedInVault);
-        setBaseBalance(dolaStakedInVault);
+        if (realTimeBalance > sdolaStakedInVault) return;
+        setRealTimeBalance(sdolaStakedInVault);
+        setBaseBalance(sdolaStakedInVault);
     }, MS_PER_BLOCK);
 
     useEffect(() => {
-        if (previousStakedDolaBalance === stakedDolaBalance) return;
-        setBaseBalance(dolaStakedInVault);
-        setRealTimeBalance(dolaStakedInVault);
-        setPrevStakedDolaBalance(stakedDolaBalance);
-    }, [stakedDolaBalance, previousStakedDolaBalance, dolaStakedInVault]);
+        if (previousJrDolaBalance === jrDolaBalance) return;
+        setBaseBalance(sdolaStakedInVault);
+        setRealTimeBalance(sdolaStakedInVault);
+        setPrevJrDolaBalance(jrDolaBalance);
+    }, [jrDolaBalance, previousJrDolaBalance, sdolaStakedInVault]);
 
     useEffect(() => {
         if (!!baseBalance || !dolaStakedInVault) return;
-        setBaseBalance(dolaStakedInVault);
-    }, [baseBalance, dolaStakedInVault]);
+        setBaseBalance(sdolaStakedInVault);
+    }, [baseBalance, sdolaStakedInVault]);
 
     useDebouncedEffect(() => {
         setIsConnected(!!connectedAccount);
     }, [connectedAccount], 500);
 
     const monthlyDolaRewards = useMemo(() => {
-        return (apy > 0 && dolaStakedInVault > 0 ? getMonthlyRate(dolaStakedInVault, apy) : 0);
-    }, [dolaStakedInVault, apy]);
+        return (totalJrDolaApy > 0 && dolaStakedInVault > 0 ? getMonthlyRate(dolaStakedInVault, totalJrDolaApy) : 0);
+    }, [dolaStakedInVault, totalJrDolaApy]);
 
     const handleQueue = async () => {
-        return juniorQueueWithdrawal(provider?.getSigner(), parseEther((parseFloat(dolaAmount) / jDolaExRate).toFixed(6)), withdrawDelay.toString());
+        if(!sDolaExRate || !jrDolaExRate) return;
+        return juniorQueueWithdrawal(provider?.getSigner(), parseEther((parseFloat(inputAmount) / sDolaExRate / jrDolaExRate).toFixed(6)), withdrawDelay.toString());
     }
 
     const handleStake = () => {
-        return stakeJDola(provider?.getSigner(), parseEther(dolaAmount), depositTokenSymbol === 'DOLA');
+        // only required if deposit via DOLA case, 0.1% slippage protection
+        const minJrDolaShares = getNumberToBn(getBnToNumber(parseEther(inputAmount)) / (sDolaExRate || 1) / (jrDolaExRate || 1) * 0.999);
+        return stakeJDola(provider?.getSigner(), parseEther(inputAmount), isDepositingViaDola, minJrDolaShares);
     }
 
     const unstakeAll = async () => {
-        return juniorQueueWithdrawal(provider?.getSigner(), stakedDolaBalanceBn, withdrawDelayMax.toString());
+        return juniorQueueWithdrawal(provider?.getSigner(), jrDolaBalanceBn, withdrawDelayMax.toString());
     }
 
     const handleComplete = () => {
@@ -145,8 +158,8 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
 
     const resetRealTime = () => {
         setTimeout(() => {
-            setBaseBalance(dolaStakedInVault);
-            setRealTimeBalance(dolaStakedInVault);
+            setBaseBalance(sdolaStakedInVault);
+            setRealTimeBalance(sdolaStakedInVault);
         }, 250);
     }
 
@@ -168,27 +181,31 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                     </VStack>
                 </HStack>
                 <HStack justify="space-between" w='full'>
-                    <StatBasic message="This week's APY is calculated with last week's DBR auction revenues and assuming a weekly auto-compounding" isLoading={isLoading} name="Current APY" value={apy ? `${shortenNumber(apy, 2)}%` : '-'} />
-                    <StatBasic message={"The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current's week auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%"} isLoading={isLoading} name="Projected APY" value={projectedApy ? `${shortenNumber(projectedApy, 2)}%` : '-'} />
+                    <StatBasic message="This week's APY is calculated with last week's DBR auction revenues plus sDOLA's apy and assuming a weekly auto-compounding" isLoading={isLoading} name="Current APY" value={totalJrDolaApy ? `${shortenNumber(totalJrDolaApy, 2)}%` : '-'} />
+                    <StatBasic message={"The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current's week auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%"} isLoading={isLoading} name="Projected APY" value={totalProjectedApy ? `${shortenNumber(totalProjectedApy, 2)}%` : '-'} />
                 </HStack>
                 <SuccessMessage
                     showIcon={false}
                     alertProps={{ w: 'full' }}
                     description={
                         <VStack alignItems="flex-start">
+                             <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                                <Text>- sDOLA's APY for reference:</Text>
+                                <Text><b>{sDolaApy ? `${shortenNumber(sDolaApy, 2)}%` : '-'}</b></Text>
+                            </Stack>
                             {
                                 monthlyDolaRewards > 0 && <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                                     <Text>- Your rewards: </Text>
                                     <Text><b>~{preciseCommify(monthlyDolaRewards, 2)} DOLA per month</b></Text>
                                 </Stack>
                             }
-                            <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                            {/* <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                                 <Text>- 30-day average APY:</Text>
                                 <Text><b>{apy30d ? `${shortenNumber(apy30d, 2)}%` : '-'}</b></Text>
-                            </Stack>
+                            </Stack> */}
                             <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                                 <Text>- Total staked by all users:</Text>
-                                <Text><b>{jDolaTotalAssets ? `${shortenNumber(jDolaTotalAssets, 2)} DOLA` : '-'}</b></Text>
+                                <Text><b>{jrDolaTotalAssets ? `${shortenNumber(jrDolaTotalAssets * sDolaExRate, 2)} DOLA` : '-'}</b></Text>
                             </Stack>
                             <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                                 <Text>The projected APY will become the current APY on {nextThursdayTsString}</Text>
@@ -216,7 +233,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                     tab !== 'Infos' && <VStack alignItems="flex-start" w='full' justify="space-between">
                                         {
                                             isStake && <HStack w='full' justify="space-between">
-                                                <Text fontSize="22px" fontWeight="bold">Deposit from:</Text>
+                                                <Text fontSize="20px" fontWeight="bold">Deposit from:</Text>
                                                 <RadioGroup onChange={(v) => setDepositTokenSymbol(v)} value={depositTokenSymbol}>
                                                     <HStack className="gap-2">
                                                         <Radio value="DOLA">DOLA</Radio>
@@ -229,7 +246,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                             DOLA balance in wallet: <b>{dolaBalance ? preciseCommify(dolaBalance, 2) : '-'}</b>
                                         </Text> */}
                                         {
-                                            !isStake && <Text>
+                                            !isStake && <Text color="secondaryTextColor">
                                                 Your staked sDOLA: <b>{dolaStakedInVault ? `${preciseCommify(realTimeBalance, 8)} (${shortenNumber(sDolaExRate * realTimeBalance, 2)} DOLA)` : '-'}</b>
                                             </Text>
                                         }
@@ -239,22 +256,21 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                     tab === 'Infos' ? <StakeJDolaInfos sDolaExRate={sDolaExRate} /> : isStake ?
                                         (isLoadingStables && !isPreventLoader ? <SkeletonBlob /> :
                                             <>
-                                                {/* <Text fontSize="22px" fontWeight="bold">
+                                                {/* <Text fontSize="20px" fontWeight="bold">
                                                     {depositTokenSymbol} amount to stake:
                                                 </Text> */}
                                                 <SimpleAmountForm
                                                     btnProps={{ needPoaFirst: true }}
-                                                    defaultAmount={dolaAmount}
+                                                    defaultAmount={inputAmount}
                                                     address={depositTokenAddress}
-                                                    destination={JDOLA_AUCTION_ADDRESS}
+                                                    destination={isDepositingViaDola ? JDOLA_AUCTION_HELPER_ADDRESS : JDOLA_AUCTION_ADDRESS}
                                                     needApprove={true}
                                                     approveForceRefresh={true}
                                                     signer={provider?.getSigner()}
                                                     decimals={18}
                                                     onAction={() => handleStake()}
                                                     actionLabel={`Stake`}
-                                                    onAmountChange={(v) => setDolaAmount(v)}
-                                                    showMaxBtn={false}
+                                                    onAmountChange={(v) => setInputAmount(v)}
                                                     showMax={true}
                                                     hideInputIfNoAllowance={false}
                                                     showBalance={true}
@@ -276,13 +292,13 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                             //     ensoPools={[{ poolAddress: JDOLA_AUCTION_ADDRESS, chainId: 1 }]}
                                             //     introMessage={''}
                                             //     isSingleChoice={true}
-                                            //     targetAssetPrice={dolaPrice * jDolaExRate}
-                                            //     exRate={jDolaExRate}
+                                            //     targetAssetPrice={dolaPrice * jrDolaExRate}
+                                            //     exRate={jrDolaExRate}
                                             //     isInModal={false}
                                             //     keepAmountOnAssetChange={true}
                                             //     fromText={"Stake from"}
                                             //     fromTextProps={{
-                                            //         fontSize: '22px',
+                                            //         fontSize: '20px',
                                             //         fontWeight: 'bold'
                                             //     }}
                                             //     onAmountChange={(v) => {
@@ -294,12 +310,12 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                         )
                                         :
                                         <VStack w='full' alignItems="flex-start">
-                                            <Text fontSize="22px" fontWeight="bold">
-                                                1) Queue a withdrawal:
+                                            <Text fontSize="20px" fontWeight="bold">
+                                                1) Queue a withdrawal (in DOLA terms):
                                             </Text>
                                             <SimpleAmountForm
                                                 btnProps={{ needPoaFirst: true }}
-                                                defaultAmount={dolaAmount}
+                                                defaultAmount={inputAmount}
                                                 address={JDOLA_AUCTION_ADDRESS}
                                                 destination={JUNIOR_ESCROW_ADDRESS}
                                                 needApprove={true}
@@ -309,10 +325,10 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                 onMaxAction={() => unstakeAll()}
                                                 maxActionLabel={`Initiate full withdrawal`}
                                                 actionLabel={`Initiate withdrawal`}
-                                                onAmountChange={(v) => setDolaAmount(v)}
+                                                onAmountChange={(v) => setInputAmount(v)}
                                                 maxAmountFrom={[getNumberToBn(dolaStakedInVault, 18)]}
-                                                showMaxBtn={stakedDolaBalance > 0}
-                                                showMax={false}
+                                                showMaxBtn={jrDolaBalance > 0}
+                                                showMax={true}
                                                 hideInputIfNoAllowance={false}
                                                 showBalance={false}
                                                 onSuccess={() => resetRealTime()}
@@ -325,10 +341,10 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                             }
                                             <VStack alignItems="flex-start" spacing="0">
                                                 <Text>
-                                                    - Queue duration for {withdrawTimestamp && dolaAmount ? 'chosen amount' : 'max amount'} & the current supply:
+                                                    - Queue duration for {withdrawTimestamp && inputAmount ? 'chosen amount' : 'max amount'} & the current supply:
                                                 </Text>
                                                 <Text fontWeight="bold">
-                                                    <b>{dolaAmount ? fromNow(withdrawTimestamp, true) : withdrawTimestampMax ? fromNow(withdrawTimestampMax, true) : '-'}</b>
+                                                    <b>{inputAmount ? fromNow(withdrawTimestamp, true) : withdrawTimestampMax ? fromNow(withdrawTimestampMax, true) : '-'}</b>
                                                 </Text>
                                             </VStack>
                                             <VStack alignItems="flex-start" spacing="0">
@@ -338,14 +354,17 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                 <Text fontWeight="bold">
                                                     <b>{exitWindow ? `${exitWindow / 86400} days` : '-'}</b>
                                                 </Text>
-                                                <Text>- Withdraw fee: {withdrawFee * 100}%</Text>
+                                                <Text>- Withdraw fee: {withdrawFeePerc ? `${shortenNumber(withdrawFeePerc, 2)}%` : '-'}</Text>
+                                                {
+                                                    withdrawFeePerc > 0 && <Text>- Post-fee withdrawal in DOLA terms: {inputAmount && !!parseFloat(inputAmount) ? `${shortenNumber(parseFloat(inputAmount) - parseFloat(inputAmount)*withdrawFeePerc/100, 2)}` : '-'}</Text>
+                                                }
                                             </VStack>
                                             <Divider />
-                                            <Text fontSize="22px" fontWeight="bold">
+                                            <Text fontSize="20px" fontWeight="bold">
                                                 2) Complete a withdrawal:
                                             </Text>
                                             {
-                                                hasComingExit ? isWithinExitWindow ? <Text>You have a withdrawal of <b>{shortenNumber(pendingAmountInDola, 2)}</b> to complete!</Text> : <Text>You have a pending withdrawal of {shortenNumber(pendingAmountInDola, 2)} in queue phase</Text> : <Text>You don't have any pending withdrawal</Text>
+                                                hasComingExit ? isWithinExitWindow ? <Text>You have a withdrawal of <b>{shortenNumber(pendingAmountInSDola, 2)} sDOLA ({shortenNumber(pendingAmountInDola, 2)} DOLA)</b> to complete!</Text> : <Text>Withdrawal of {shortenNumber(pendingAmountInSDola, 2)} sDOLA ({shortenNumber(pendingAmountInDola, 2)} DOLA) in queue phase</Text> : <Text>You don't have any pending withdrawal</Text>
                                             }
                                             {
                                                 hasComingExit && <StatusMessage
@@ -372,7 +391,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                 hasComingExit && <>
                                                     <Divider />
                                                     <VStack alignItems="flex-start" w='full' spacing="2">
-                                                        <Text fontSize="22px" fontWeight="bold">
+                                                        <Text fontSize="20px" fontWeight="bold">
                                                             Or cancel withdrawal
                                                         </Text>
                                                         <InfoMessage description="Cancelling sends you back the previously queued up jrDOLA" />
@@ -400,7 +419,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                 DOLA-jrDOLA exchange rate:
                                             </Text>
                                             <Text fontSize="16px" color="mainTextColorLight">
-                                                {jDolaExRate ? shortenNumber(1 / jDolaExRate, 6) : '-'}
+                                                {jrDolaExRate ? shortenNumber(1 / jrDolaExRate, 6) : '-'}
                                             </Text>
                                         </HStack> */}
                                     </VStack>

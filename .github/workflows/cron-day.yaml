@@ -36,6 +36,11 @@ jobs:
           curl -v --request POST \
           --url 'https://www.inverse.finance/api/cron-dola-staking' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: jrDOLA snapshot
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-jrdola' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
       - name: sINV snapshot
         run: |
           curl -v --request POST \

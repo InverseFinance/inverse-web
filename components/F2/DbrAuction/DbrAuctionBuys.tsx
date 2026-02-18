@@ -63,7 +63,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
         value: ({ amountIn, auctionType }) => {
             return <Cell minWidth="90px" justify="center" >
-                <CellText fontWeight="bold">{shortenNumber(amountIn, 2, false, true)} {auctionType === 'sINV' ? 'INV' : 'DOLA'}</CellText>
+                <CellText fontWeight="bold">{shortenNumber(amountIn, 2, false, true)} {auctionType === 'sINV' || auctionType === 'INV buyback' ? 'INV' : auctionType === 'jrDOLA' ? 'sDOLA' : 'DOLA'}</CellText>
             </Cell>
         },
     },
