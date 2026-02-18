@@ -456,6 +456,15 @@ export function formatDuration(seconds: number) {
          + `${String(secs).padStart(2, '0')}s`;
 }
 
+export function formatDurationHumanReadable(seconds: number) {
+    const days = Math.floor(seconds / (24 * 3600)); // Total days
+    const hours = Math.floor((seconds % (24 * 3600)) / 3600); // Remaining hours
+    const minutes = Math.floor((seconds % 3600) / 60); // Remaining minutes
+    const secs = Math.floor(seconds % 60); // Remaining seconds
+
+    return `${days === 0 ? '' : `${days} day${days > 1 ? 's' : ''}`} ${hours === 0 ? '' : hours > 1 ? `${hours} hours` : 'hour'} ${minutes === 0 ? '' : minutes > 1 ? `${minutes} minutes` : 'minute'}`.trim();
+}
+
 export const calculateMaxLeverage = (collateralFactor: number) => {
     return 1 / (1 - collateralFactor);
 }
