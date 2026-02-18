@@ -12,15 +12,15 @@ export default async function handler(req, res) {
     const now = Date.now();
     const utcDate = timestampToUTC(now);
 
-    await redisSetWithTimestamp(`jrdola-snapshot-${utcDate}`, {
+    await redisSetWithTimestamp(`jrdola-staking-snapshot-${utcDate}`, {
       apiVersion: jdolaStakingCacheKey,
       ...data,
     });
 
-    const history = await getCacheFromRedis(`jrdola-history`, false, 0, true) || { entries: [] };
+    const history = await getCacheFromRedis(`jrdola-staking-history`, false, 0, true) || { entries: [] };
     history.entries = history.entries.concat(data);
 
-    await redisSetWithTimestamp(`jrdola-history`, {
+    await redisSetWithTimestamp(`jrdola-staking-history`, {
       timestamp: now,
       entries: history.entries,
     }, true);

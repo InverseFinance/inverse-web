@@ -272,6 +272,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     actionLabel={`Stake`}
                                                     onAmountChange={(v) => setInputAmount(v)}
                                                     showMax={true}
+                                                    showMaxBtn={false}
                                                     hideInputIfNoAllowance={false}
                                                     showBalance={true}
                                                     onSuccess={() => resetRealTime()}

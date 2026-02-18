@@ -21,6 +21,7 @@ import FirmLogo from "../common/Logo/FirmLogo";
 import { FirmBorrowsChart } from "./FirmBorrowsChart";
 import { DbrInflationChart } from "./DbrInflationChart";
 import { useCacheFirstSWR } from "@app/hooks/useCustomSWR";
+import { useJrDolaStakingEvolution } from "@app/util/junior";
 
 const streamingStartTs = 1684713600000;
 
@@ -53,8 +54,9 @@ export const DbrAll = ({
 
     const { events: emissionEvents, accClaimedByStakers, rewardRatesHistory, isLoading: isEmmissionLoading, timestamp: emissionTimestamp } = useDBREmissions();
     const { dsaYearlyDbrEarnings, isLoading: isLoadingStakedDola } = useStakedDola(dbrPriceUsd);
-    const { dbrRatePerYear: auctionYearlyRate, historicalRates: auctionHistoricalRates, isLoading: isLoadingAuction } = useDbrAuction("classic");
+    const { dbrEffectiveJrDolaBudget, dbrRatePerYear: auctionYearlyRate, historicalRates: auctionHistoricalRates, isLoading: isLoadingAuction } = useDbrAuction("classic");
     const { evolution: dolaStakingEvolution } = useDolaStakingEvolution();
+    const { evolution: jrDolaStakingEvolution } = useJrDolaStakingEvolution();
     const { data: invBuyBacksData, isLoading: isLoadingInvBuyBacks } = useCacheFirstSWR('/api/auctions/inv-buy-backs');
     const invBuyBacksYearlyRate = invBuyBacksData?.dbrRatePerYear || 0;
     const invBuyBacksRates = invBuyBacksData?.rateUpdates || [];
@@ -124,7 +126,8 @@ export const DbrAll = ({
         const auctionYearlyRewardRate = auctionRateChanges.findLast(rd => date >= rd.date)?.rate || 0;
         const invBuyBacksYearlyRewardRate = invBuyBacksRateChanges.findLast(rd => date >= rd.date)?.rate || 0;
         const dsaIssuance = dolaStakingEvolution.findLast(rd => date >= timestampToUTC(rd.timestamp))?.dsaYearlyDbrEarnings || 0;
-        const totalAnnualizedIssuance = invBuyBacksYearlyRewardRate + auctionYearlyRewardRate + yearlyRewardRate + dsaIssuance;
+        const jrDolaIssuance = jrDolaStakingEvolution.findLast(rd => date >= timestampToUTC(rd.timestamp))?.yearlyDbrEarnings || 0;
+        const totalAnnualizedIssuance = invBuyBacksYearlyRewardRate + auctionYearlyRewardRate + yearlyRewardRate + dsaIssuance + jrDolaIssuance;
         return {
             ...d,
             time: (new Date(date)),
@@ -153,7 +156,7 @@ export const DbrAll = ({
         const now = Date.now();
         const todayUTC = timestampToUTC(now);
         const todayIndex = combodata.findIndex(d => d.date === todayUTC);
-        const totalAnnualizedIssuance = invBuyBacksYearlyRate + auctionYearlyRate + yearlyRewardRate + dsaYearlyDbrEarnings;
+        const totalAnnualizedIssuance = invBuyBacksYearlyRate + auctionYearlyRate + yearlyRewardRate + dsaYearlyDbrEarnings + dbrEffectiveJrDolaBudget;
         const inventory = currentInventory || lastCombodata?.inventory;
         const todayInHisto = todayIndex !== -1;
         combodata.splice(todayInHisto ? todayIndex : combodata.length - 1, todayInHisto ? 1 : 0, {
@@ -178,7 +181,7 @@ export const DbrAll = ({
     }
 
     // const annualizedBurn = lastCombodata.debt;
-    const annualizedIssuance = invBuyBacksYearlyRate + yearlyRewardRate + dsaYearlyDbrEarnings + auctionYearlyRate;
+    const annualizedIssuance = invBuyBacksYearlyRate + yearlyRewardRate + dsaYearlyDbrEarnings + auctionYearlyRate + dbrEffectiveJrDolaBudget;
 
     const { chartData: burnChartData } = useEventsAsChartData(_burnEvents, useUsd ? 'accBurnUsd' : 'accBurn', useUsd ? 'amountUsd' : 'amount');
     
