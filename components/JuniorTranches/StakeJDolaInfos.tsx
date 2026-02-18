@@ -21,8 +21,8 @@ export const StakeJDolaInfos = ({
     sDolaExRate: number;
 }) => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { apy, jDolaSupply, jDolaTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, yearlyDbrEarnings, isLoading } = useStakedJDola(dbrPrice);
-    const [previousSupply, setPreviousSupply] = useState(jDolaSupply);    
+    const { apy, jrDolaSupply, jrDolaTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, yearlyDbrEarnings, isLoading } = useStakedJDola(dbrPrice);
+    const [previousSupply, setPreviousSupply] = useState(jrDolaSupply);    
     const [realTimeBalance, setRealTimeBalance] = useState(0);
 
     useInterval(() => {            
@@ -34,20 +34,20 @@ export const StakeJDolaInfos = ({
 
     // every ~12s recheck base balance
     useInterval(() => {
-        if(realTimeBalance > jDolaTotalAssets) return;
-        setRealTimeBalance(jDolaTotalAssets);        
+        if(realTimeBalance > jrDolaTotalAssets) return;
+        setRealTimeBalance(jrDolaTotalAssets);        
     }, MS_PER_BLOCK);
 
     useEffect(() => {
-        if(previousSupply === jDolaSupply) return;        
-        setRealTimeBalance(jDolaTotalAssets);
-        setPreviousSupply(jDolaSupply);
-    }, [jDolaSupply, previousSupply, jDolaTotalAssets]);    
+        if(previousSupply === jrDolaSupply) return;        
+        setRealTimeBalance(jrDolaTotalAssets);
+        setPreviousSupply(jrDolaSupply);
+    }, [jrDolaSupply, previousSupply, jrDolaTotalAssets]);    
 
     useEffect(() => {
-        if(realTimeBalance > jDolaTotalAssets) return;        
-        setRealTimeBalance(jDolaTotalAssets);
-    }, [realTimeBalance, jDolaTotalAssets]);
+        if(realTimeBalance > jrDolaTotalAssets) return;        
+        setRealTimeBalance(jrDolaTotalAssets);
+    }, [realTimeBalance, jrDolaTotalAssets]);
 
     return <InfoMessage
         showIcon={false}

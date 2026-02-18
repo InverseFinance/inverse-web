@@ -55,44 +55,44 @@ export const cancelWithdrawal = async (signer: JsonRpcSigner) => {
 
 export const formatJDolaStakingData = (
     dbrDolaPriceUsd: number,
-    jdolaStakingData: any[],
+    jrDolaStakingData: any[],
     fallbackData?: any,
     supplyDelta = 0,
 ) => {
-    const jDolaSupply = (jdolaStakingData ? getBnToNumber(jdolaStakingData[0]) : fallbackData?.jDolaSupply || 0);
-    const yearlyRewardBudget = jdolaStakingData ? getBnToNumber(jdolaStakingData[1]) : fallbackData?.yearlyRewardBudget || 0;
-    const maxYearlyRewardBudget = jdolaStakingData ? getBnToNumber(jdolaStakingData[2]) : fallbackData?.maxYearlyRewardBudget || 0;
-    const maxDolaDbrRatioBps = jdolaStakingData ? getBnToNumber(jdolaStakingData[3]) : fallbackData?.maxDolaDbrRatioBps || 0;
+    const jrDolaSupply = (jrDolaStakingData ? getBnToNumber(jrDolaStakingData[0]) : fallbackData?.jrDolaSupply || 0);
+    const yearlyRewardBudget = jrDolaStakingData ? getBnToNumber(jrDolaStakingData[1]) : fallbackData?.yearlyRewardBudget || 0;
+    const maxYearlyRewardBudget = jrDolaStakingData ? getBnToNumber(jrDolaStakingData[2]) : fallbackData?.maxYearlyRewardBudget || 0;
+    const maxDolaDbrRatioBps = jrDolaStakingData ? getBnToNumber(jrDolaStakingData[3]) : fallbackData?.maxDolaDbrRatioBps || 0;
     const maxRewardPerDolaMantissa = maxDolaDbrRatioBps * 1e14;
     
-    const weeklyRevenue = jdolaStakingData ? getBnToNumber(jdolaStakingData[4]) : fallbackData?.weeklyRevenue || 0;
-    const pastWeekRevenue = jdolaStakingData ? getBnToNumber(jdolaStakingData[5]) : fallbackData?.pastWeekRevenue || 0;
-    const jDolaTotalAssetsCurrent = (jdolaStakingData ? getBnToNumber(jdolaStakingData[6]) : fallbackData?.jDolaTotalAssets || 0);
-    const jDolaTotalAssets = jDolaTotalAssetsCurrent + supplyDelta;        
+    const weeklyRevenue = jrDolaStakingData ? getBnToNumber(jrDolaStakingData[4]) : fallbackData?.weeklyRevenue || 0;
+    const pastWeekRevenue = jrDolaStakingData ? getBnToNumber(jrDolaStakingData[5]) : fallbackData?.pastWeekRevenue || 0;
+    const jrDolaTotalAssetsCurrent = (jrDolaStakingData ? getBnToNumber(jrDolaStakingData[6]) : fallbackData?.jrDolaTotalAssets || 0);
+    const jrDolaTotalAssets = jrDolaTotalAssetsCurrent + supplyDelta;        
 
-    const dbrRatePerDola = jDolaTotalAssets > 0 ? Math.min(yearlyRewardBudget / jDolaTotalAssets, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
+    const dbrRatePerDola = jrDolaTotalAssets > 0 ? Math.min(yearlyRewardBudget / jrDolaTotalAssets, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
     const now = Date.now();
     const secondsPastEpoch = (now - getLastThursdayTimestamp()) / 1000;
     const realizedTimeInDays = secondsPastEpoch / ONE_DAY_SECS;
-    const nextTotalAssets = jDolaTotalAssets + weeklyRevenue;
-    const realized = ((weeklyRevenue / realizedTimeInDays) * 365) / jDolaTotalAssets;
-    const forecasted = (nextTotalAssets * dbrDolaPriceUsd * dbrRatePerDola) / jDolaTotalAssets;
+    const nextTotalAssets = jrDolaTotalAssets + weeklyRevenue;
+    const realized = ((weeklyRevenue / realizedTimeInDays) * 365) / jrDolaTotalAssets;
+    const forecasted = (nextTotalAssets * dbrDolaPriceUsd * dbrRatePerDola) / jrDolaTotalAssets;
     // we use two week revenu epoch for the projected apr
     const calcPeriodSeconds = 14 * ONE_DAY_SECS;
     const projectedApr = dbrDolaPriceUsd ?
         ((secondsPastEpoch / calcPeriodSeconds) * realized + ((calcPeriodSeconds - secondsPastEpoch) / calcPeriodSeconds) * forecasted) * 100 : 0;
-    const apr = jDolaTotalAssets > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / jDolaTotalAssets * 100 : 0;
-    const nextApr = jDolaTotalAssets > 0 ? (weeklyRevenue * WEEKS_PER_YEAR) / jDolaTotalAssets * 100 : 0;
-    const jDolaExRate = jDolaTotalAssetsCurrent && jDolaSupply ? jDolaTotalAssetsCurrent / jDolaSupply : 0;
+    const apr = jrDolaTotalAssets > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / jrDolaTotalAssets * 100 : 0;
+    const nextApr = jrDolaTotalAssets > 0 ? (weeklyRevenue * WEEKS_PER_YEAR) / jrDolaTotalAssets * 100 : 0;
+    const jrDolaExRate = jrDolaTotalAssetsCurrent && jrDolaSupply ? jrDolaTotalAssetsCurrent / jrDolaSupply : 0;
 
     return {
-        exitWindow: jdolaStakingData ? getBnToNumber(jdolaStakingData[7], 0) : 86400*2,
-        withdrawFeePerc: jdolaStakingData ? getBnToNumber(jdolaStakingData[8], 0)/100 : 0,
-        jDolaExRate,
-        jDolaSupply,
-        jDolaTotalAssets,
+        exitWindow: jrDolaStakingData ? getBnToNumber(jrDolaStakingData[7], 0) : 86400*2,
+        withdrawFeePerc: jrDolaStakingData ? getBnToNumber(jrDolaStakingData[8], 0)/100 : 0,
+        jrDolaExRate,
+        jrDolaSupply,
+        jrDolaTotalAssets,
         dbrRatePerDola,
-        yearlyDbrEarnings: dbrRatePerDola * jDolaTotalAssetsCurrent,
+        yearlyDbrEarnings: dbrRatePerDola * jrDolaTotalAssetsCurrent,
         yearlyRewardBudget,
         maxYearlyRewardBudget,
         maxRewardPerDolaMantissa,
@@ -109,8 +109,8 @@ export const formatJDolaStakingData = (
 }
 
 export const useStakedJDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
-    jDolaSupply: number;
-    jDolaTotalAssets: number;
+    jrDolaSupply: number;
+    jrDolaTotalAssets: number;
     yearlyRewardBudget: number;
     yearlyBudget: number;
     maxYearlyRewardBudget: number;
@@ -127,7 +127,7 @@ export const useStakedJDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
     nextApy: number;
     isLoading: boolean;
     hasError: boolean;
-    jDolaExRate: number;
+    jrDolaExRate: number;
     yearlyDbrEarnings: number;
     exitWindow: number;
     withdrawFeePerc: number;
@@ -135,7 +135,7 @@ export const useStakedJDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
     const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/junior/jdola-staking`);   
     const weekIndexUtc = getWeekIndexUtc();
 
-    const { data: jdolaStakingData, error } = useEtherSWR([
+    const { data: jrDolaStakingData, error } = useEtherSWR([
         [JDOLA_AUCTION_ADDRESS, 'totalSupply'],
         [JDOLA_AUCTION_ADDRESS, 'yearlyRewardBudget'],
         [JDOLA_AUCTION_ADDRESS, 'maxYearlyRewardBudget'],
@@ -148,9 +148,9 @@ export const useStakedJDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
     ]);
 
     return {
-        ...formatJDolaStakingData(dbrDolaPriceUsd, jdolaStakingData, apiData, supplyDelta),
+        ...formatJDolaStakingData(dbrDolaPriceUsd, jrDolaStakingData, apiData, supplyDelta),
         apy30d: apiData?.apy30d || 0,
-        isLoading: (!jdolaStakingData && !error) && (!apiData && !apiErr),
+        isLoading: (!jrDolaStakingData && !error) && (!apiData && !apiErr),
         hasError: !!error || !!apiErr,
     }
 }

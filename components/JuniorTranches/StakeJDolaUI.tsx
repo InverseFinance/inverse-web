@@ -61,7 +61,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     const { priceUsd: dbrPrice } = useDBRPrice();
 
     const { apy: sDolaApy, projectedApy: sDolaProjectedApy, sDolaExRate } = useStakedDola(dbrPrice);
-    const { apy, apy30d, projectedApy, isLoading, jDolaExRate, jDolaTotalAssets, jDolaSupply, weeklyRevenue, exitWindow, withdrawFeePerc, isLoading: isLoadingStakedDola } = useStakedJDola(dbrPrice, !inputAmount || isNaN(parseFloat(inputAmount)) ? 0 : isStake ? parseFloat(inputAmount) / (isDepositingViaDola ? (sDolaExRate||1) : 1) : -parseFloat(inputAmount) / (isDepositingViaDola ? (sDolaExRate||1) : 1), true);
+    const { apy, apy30d, projectedApy, isLoading, jrDolaExRate, jrDolaTotalAssets, jrDolaSupply, weeklyRevenue, exitWindow, withdrawFeePerc, isLoading: isLoadingStakedDola } = useStakedJDola(dbrPrice, !inputAmount || isNaN(parseFloat(inputAmount)) ? 0 : isStake ? parseFloat(inputAmount) / (isDepositingViaDola ? (sDolaExRate||1) : 1) : -parseFloat(inputAmount) / (isDepositingViaDola ? (sDolaExRate||1) : 1), true);
 
     const totalJrDolaApy = apy + sDolaApy;
     const totalProjectedApy = projectedApy + sDolaProjectedApy;
@@ -73,14 +73,14 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     const [baseBalance, setBaseBalance] = useState(0);
     const [realTimeBalance, setRealTimeBalance] = useState(0);
     // value in DOLA terms
-    const { withdrawDelay, withdrawDelayMax, withdrawTimestamp, withdrawTimestampMax, exitWindowStart, exitWindowEnd, pendingAmount, hasComingExit, isWithinExitWindow, canCancel } = useJuniorWithdrawDelay(jDolaSupply, parseFloat(inputAmount || '0') / (sDolaExRate || 1) / (jDolaExRate || 1), account, jrDolaBalanceBn);
+    const { withdrawDelay, withdrawDelayMax, withdrawTimestamp, withdrawTimestampMax, exitWindowStart, exitWindowEnd, pendingAmount, hasComingExit, isWithinExitWindow, canCancel } = useJuniorWithdrawDelay(jrDolaSupply, parseFloat(inputAmount || '0') / (sDolaExRate || 1) / (jrDolaExRate || 1), account, jrDolaBalanceBn);
 
     // staked balances in sDOLA & DOLA terms
-    const sdolaStakedInVault = jDolaExRate * jrDolaBalance;
+    const sdolaStakedInVault = jrDolaExRate * jrDolaBalance;
     const dolaStakedInVault = sdolaStakedInVault * sDolaExRate;
 
     // withdrawal pending amounts in sDOLA & DOLA terms
-    const pendingAmountInSDola = jDolaExRate * pendingAmount;
+    const pendingAmountInSDola = jrDolaExRate * pendingAmount;
     const pendingAmountInDola = pendingAmountInSDola * sDolaExRate;
 
     const nextThursdayTsString = useMemo(() => {
@@ -134,13 +134,13 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     }, [dolaStakedInVault, totalJrDolaApy]);
 
     const handleQueue = async () => {
-        if(!sDolaExRate || !jDolaExRate) return;
-        return juniorQueueWithdrawal(provider?.getSigner(), parseEther((parseFloat(inputAmount) / sDolaExRate / jDolaExRate).toFixed(6)), withdrawDelay.toString());
+        if(!sDolaExRate || !jrDolaExRate) return;
+        return juniorQueueWithdrawal(provider?.getSigner(), parseEther((parseFloat(inputAmount) / sDolaExRate / jrDolaExRate).toFixed(6)), withdrawDelay.toString());
     }
 
     const handleStake = () => {
         // only required if deposit via DOLA case, 0.1% slippage protection
-        const minJrDolaShares = getNumberToBn(getBnToNumber(parseEther(inputAmount)) / (sDolaExRate || 1) / (jDolaExRate || 1) * 0.999);
+        const minJrDolaShares = getNumberToBn(getBnToNumber(parseEther(inputAmount)) / (sDolaExRate || 1) / (jrDolaExRate || 1) * 0.999);
         return stakeJDola(provider?.getSigner(), parseEther(inputAmount), isDepositingViaDola, minJrDolaShares);
     }
 
@@ -205,7 +205,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                             </Stack> */}
                             <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                                 <Text>- Total staked by all users:</Text>
-                                <Text><b>{jDolaTotalAssets ? `${shortenNumber(jDolaTotalAssets * sDolaExRate, 2)} DOLA` : '-'}</b></Text>
+                                <Text><b>{jrDolaTotalAssets ? `${shortenNumber(jrDolaTotalAssets * sDolaExRate, 2)} DOLA` : '-'}</b></Text>
                             </Stack>
                             <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                                 <Text>The projected APY will become the current APY on {nextThursdayTsString}</Text>
@@ -292,8 +292,8 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                             //     ensoPools={[{ poolAddress: JDOLA_AUCTION_ADDRESS, chainId: 1 }]}
                                             //     introMessage={''}
                                             //     isSingleChoice={true}
-                                            //     targetAssetPrice={dolaPrice * jDolaExRate}
-                                            //     exRate={jDolaExRate}
+                                            //     targetAssetPrice={dolaPrice * jrDolaExRate}
+                                            //     exRate={jrDolaExRate}
                                             //     isInModal={false}
                                             //     keepAmountOnAssetChange={true}
                                             //     fromText={"Stake from"}
@@ -419,7 +419,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                 DOLA-jrDOLA exchange rate:
                                             </Text>
                                             <Text fontSize="16px" color="mainTextColorLight">
-                                                {jDolaExRate ? shortenNumber(1 / jDolaExRate, 6) : '-'}
+                                                {jrDolaExRate ? shortenNumber(1 / jrDolaExRate, 6) : '-'}
                                             </Text>
                                         </HStack> */}
                                     </VStack>
