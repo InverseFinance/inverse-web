@@ -23,6 +23,8 @@ export const useDbrAuction = (auctionType: 'classic' | 'sdola' | 'sinv' | 'jdola
     historicalRates: { timestamp: number, rate: number, block: number }[];
     isLoading: boolean;
     hasError: boolean;
+    dbrEffectiveJrDolaBudget: number;
+    jrDolaRateUpdates: { timestamp: number, rate: number, block: number }[];
 } => {
     const { account } = useWeb3React();
     const { data: apiData, error: apiError } = useCustomSWR(`/api/auctions/dbr`);
@@ -80,6 +82,8 @@ export const useDbrAuction = (auctionType: 'classic' | 'sdola' | 'sinv' | 'jdola
     const rateMultiplier = isSinvAuction ? ONE_DAY_SECS * 365 : 1;
 
     return {
+        dbrEffectiveJrDolaBudget: apiData?.dbrEffectiveJrDolaBudget || 0,
+        jrDolaRateUpdates: apiData?.jrDolaRateUpdates || [],
         historicalRates: apiData?.historicalRates || [],
         tokenReserve,
         dbrReserve,
