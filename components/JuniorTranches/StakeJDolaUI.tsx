@@ -1,4 +1,4 @@
-import { VStack, Text, HStack, Stack, Image, useInterval, useDisclosure, Link, Divider, RadioGroup, Radio } from "@chakra-ui/react"
+import { VStack, Text, HStack, Stack, Image, useInterval, useDisclosure, Link, Divider, RadioGroup, Radio, Box } from "@chakra-ui/react"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useEffect, useMemo, useState } from "react";
@@ -8,11 +8,11 @@ import Container from "../common/Container";
 import { NavButtons } from "@app/components/common/Button";
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 import { InfoMessage, Message, StatusMessage, SuccessMessage } from "@app/components/common/Messages";
-import { getNextThursdayTimestamp, preciseCommify } from "@app/util/misc";
+import { formatDurationHumanReadable, getNextThursdayTimestamp, preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { useDBRPrice } from "@app/hooks/useDBR";
-import { getBnToNumber, getMonthlyRate, getNumberToBn, shortenNumber } from "@app/util/markets";
+import { getBnToNumber, getMonthlyRate, getNumberToBn, shortenNumber, smartShortNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
 import { JDOLA_AUCTION_ADDRESS, JDOLA_AUCTION_HELPER_ADDRESS, JUNIOR_ESCROW_ADDRESS, ONE_DAY_MS, SDOLA_ADDRESS, SECONDS_PER_BLOCK } from "@app/config/constants";
@@ -42,6 +42,82 @@ const StatBasic = ({ value, name, message, onClick = undefined, isLoading = fals
 const STAKE_BAL_INC_INTERVAL = 100;
 const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 
+type TimelineMarker = {
+    time: number;
+    label: string;
+    isNow?: boolean;
+}
+
+const WithdrawTimeline = ({ markers, title = 'Withdrawal timeline' }: { markers: TimelineMarker[], title?: string }) => {
+    const validMarkers = (markers || []).filter(m => !!m.time && !isNaN(m.time));
+
+    if (!validMarkers.length) {
+        return null;
+    }
+
+    const times = validMarkers.map(m => m.time);
+    const minTime = Math.min(...times);
+    const maxTime = Math.max(...times);
+    const span = maxTime - minTime || 1;
+
+    const padding = 15;
+    const timelineHeight = 150;
+    const availableHeight = timelineHeight - (padding * 2);
+
+    return <VStack alignItems="flex-start" w='full' spacing="1" mt="2">
+        <Text fontSize="14px" color="secondaryTextColor">{title}</Text>
+        <Box position="relative" w="full" h={`${timelineHeight}px`} pl="4" py={`${padding}px`}>
+            <Box position="absolute" top={`${padding}px`} bottom={`${padding}px`} left="5px" w="2px" bg="secondaryTextColor" opacity={0.3} transform="translateX(-50%)" />
+            {
+                validMarkers.map(m => {
+                    const timePerc = ((m.time - minTime) / span);
+                    const topPx = padding + (timePerc * availableHeight);
+                    return <HStack
+                        key={m.label}
+                        position="absolute"
+                        top={`${topPx}px`}
+                        transform="translateY(-50%)"
+                        spacing="2"
+                        alignItems="center"
+                        left="0"
+                    >
+                        <Box
+                            w={m.isNow ? "10px" : "8px"}
+                            h={m.isNow ? "10px" : "8px"}
+                            borderRadius="full"
+                            bg={m.isNow ? "accentTextColor" : "mainTextColor"}
+                            border={m.isNow ? "2px solid" : undefined}
+                            borderColor={m.isNow ? "accentTextColor" : undefined}
+                            position="relative"
+                            zIndex={1}
+                            left="5px"
+                            transform="translateX(-50%)"
+                        />
+                        <Text
+                            fontSize="12px"
+                            textAlign="left"
+                            whiteSpace="pre-line"
+                            overflow="hidden"
+                            textOverflow="ellipsis"
+                            display="-webkit-box"
+                            style={{
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                                lineHeight: '1.2em',
+                                maxHeight: '2.4em'
+                            }}
+                            maxW="200px"
+                            ml="2"
+                        >
+                            {m.label}
+                        </Text>
+                    </HStack>
+                })
+            }
+        </Box>
+    </VStack>
+}
+
 export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => {
     const account = useAccount();
     const { provider, account: connectedAccount } = useWeb3React();
@@ -61,7 +137,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     const { priceUsd: dbrPrice } = useDBRPrice();
 
     const { apy: sDolaApy, projectedApy: sDolaProjectedApy, sDolaExRate } = useStakedDola(dbrPrice);
-    const { apy, apy30d, projectedApy, isLoading, jrDolaExRate, jrDolaTotalAssets, jrDolaSupply, weeklyRevenue, exitWindow, withdrawFeePerc, isLoading: isLoadingStakedDola } = useStakedJDola(dbrPrice, !inputAmount || isNaN(parseFloat(inputAmount)) ? 0 : isStake ? parseFloat(inputAmount) / (isDepositingViaDola ? (sDolaExRate||1) : 1) : -parseFloat(inputAmount) / (isDepositingViaDola ? (sDolaExRate||1) : 1), true);
+    const { apy, apy30d, projectedApy, isLoading, jrDolaExRate, jrDolaTotalAssets, jrDolaSupply, weeklyRevenue, exitWindow, withdrawFeePerc, isLoading: isLoadingStakedDola } = useStakedJDola(dbrPrice, !inputAmount || isNaN(parseFloat(inputAmount)) ? 0 : isStake ? parseFloat(inputAmount) / (isDepositingViaDola ? (sDolaExRate || 1) : 1) : -parseFloat(inputAmount) / (isDepositingViaDola ? (sDolaExRate || 1) : 1), true);
 
     const totalJrDolaApy = apy + sDolaApy;
     const totalProjectedApy = projectedApy + sDolaProjectedApy;
@@ -74,6 +150,48 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     const [realTimeBalance, setRealTimeBalance] = useState(0);
     // value in DOLA terms
     const { withdrawDelay, withdrawDelayMax, withdrawTimestamp, withdrawTimestampMax, exitWindowStart, exitWindowEnd, pendingAmount, hasComingExit, isWithinExitWindow, canCancel } = useJuniorWithdrawDelay(jrDolaSupply, parseFloat(inputAmount || '0') / (sDolaExRate || 1) / (jrDolaExRate || 1), account, jrDolaBalanceBn);
+
+    const queueEndTs = inputAmount ? withdrawTimestamp : withdrawTimestampMax;
+
+    let queueTimelineMarkers: TimelineMarker[] | null = null;
+    if (queueEndTs && exitWindow) {
+        const queueEnd = queueEndTs;
+        const exitEnd = queueEnd + exitWindow * 1000;
+        queueTimelineMarkers = [
+            {
+                time: nowWithInterval,
+                label: `Now\n${formatDateWithTime(nowWithInterval)}`,
+                isNow: true,
+            },
+            {
+                time: queueEnd,
+                label: `Queue ends & Exit window starts\n${formatDateWithTime(queueEnd)}`,
+            },
+            {
+                time: exitEnd,
+                label: `Exit window ends\n${formatDateWithTime(exitEnd)}`,
+            },
+        ];
+    }
+
+    let pendingTimelineMarkers: TimelineMarker[] | null = null;
+    if (hasComingExit && exitWindowStart && exitWindowEnd) {
+        pendingTimelineMarkers = [
+            {
+                time: exitWindowStart,
+                label: `Exit window starts\n${formatDateWithTime(exitWindowStart)}`,
+            },
+            {
+                time: exitWindowEnd,
+                label: `Exit window ends\n${formatDateWithTime(exitWindowEnd)}`,
+            },
+            {
+                time: nowWithInterval,
+                label: `Now\n${formatDateWithTime(nowWithInterval)}`,
+                isNow: true,
+            },
+        ];
+    }
 
     // staked balances in sDOLA & DOLA terms
     const sdolaStakedInVault = jrDolaExRate * jrDolaBalance;
@@ -101,7 +219,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
 
     useInterval(() => {
         const curr = (realTimeBalance || baseBalance);
-        const incPerInterval = ((curr * (totalJrDolaApy / 100)) * (STAKE_BAL_INC_INTERVAL / (ONE_DAY_MS * 365)));
+        const incPerInterval = ((curr * (apy / 100)) * (STAKE_BAL_INC_INTERVAL / (ONE_DAY_MS * 365)));
         const neo = curr + incPerInterval;
         setRealTimeBalance(neo);
     }, STAKE_BAL_INC_INTERVAL);
@@ -134,7 +252,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     }, [dolaStakedInVault, totalJrDolaApy]);
 
     const handleQueue = async () => {
-        if(!sDolaExRate || !jrDolaExRate) return;
+        if (!sDolaExRate || !jrDolaExRate) return;
         return juniorQueueWithdrawal(provider?.getSigner(), parseEther((parseFloat(inputAmount) / sDolaExRate / jrDolaExRate).toFixed(6)), withdrawDelay.toString());
     }
 
@@ -189,7 +307,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                     alertProps={{ w: 'full' }}
                     description={
                         <VStack alignItems="flex-start">
-                             <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                            <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                                 <Text>- sDOLA's APY for reference:</Text>
                                 <Text><b>{sDolaApy ? `${shortenNumber(sDolaApy, 2)}%` : '-'}</b></Text>
                             </Stack>
@@ -337,7 +455,9 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                             {
                                                 hasComingExit && <InfoMessage
                                                     alertProps={{ w: 'full' }}
-                                                    description="Note: you already have a pending withdrawal, queuing a new withdrawal will merge both with the new queue duration being the longest of the two."
+                                                    description={
+                                                        <Text><b>Note</b>: you already have a pending withdrawal, queuing a new withdrawal will merge both with the new queue duration being the longest of the two.</Text>
+                                                    }
                                                 />
                                             }
                                             <VStack alignItems="flex-start" spacing="0">
@@ -345,7 +465,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     - Queue duration for {withdrawTimestamp && inputAmount ? 'chosen amount' : 'max amount'} & the current supply:
                                                 </Text>
                                                 <Text fontWeight="bold">
-                                                    <b>{inputAmount ? fromNow(withdrawTimestamp, true) : withdrawTimestampMax ? fromNow(withdrawTimestampMax, true) : '-'}</b>
+                                                    <b>{inputAmount && !!withdrawTimestamp ? formatDurationHumanReadable((withdrawTimestamp - nowWithInterval)/1000) : withdrawTimestampMax ? formatDurationHumanReadable((withdrawTimestampMax - nowWithInterval)/1000) : '-'}</b>
                                                 </Text>
                                             </VStack>
                                             <VStack alignItems="flex-start" spacing="0">
@@ -353,40 +473,41 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     - Exit window after queue duration ends:
                                                 </Text>
                                                 <Text fontWeight="bold">
-                                                    <b>{exitWindow ? `${exitWindow / 86400} days` : '-'}</b>
+                                                    <b>{exitWindow ? `${smartShortNumber(exitWindow / 86400, 2)} days` : '-'}</b>
                                                 </Text>
                                                 <Text>- Withdraw fee: {withdrawFeePerc ? `${shortenNumber(withdrawFeePerc, 2)}%` : '-'}</Text>
                                                 {
-                                                    withdrawFeePerc > 0 && <Text>- Post-fee withdrawal in DOLA terms: {inputAmount && !!parseFloat(inputAmount) ? `${shortenNumber(parseFloat(inputAmount) - parseFloat(inputAmount)*withdrawFeePerc/100, 2)}` : '-'}</Text>
+                                                    withdrawFeePerc > 0 && <Text>- Post-fee withdrawal in DOLA terms: {inputAmount && !!parseFloat(inputAmount) ? `${shortenNumber(parseFloat(inputAmount) - parseFloat(inputAmount) * withdrawFeePerc / 100, 2)}` : '-'}</Text>
                                                 }
                                             </VStack>
+                                            {
+                                                queueTimelineMarkers && <WithdrawTimeline markers={queueTimelineMarkers} />
+                                            }
                                             <Divider />
                                             <Text fontSize="20px" fontWeight="bold">
                                                 2) Complete a withdrawal:
                                             </Text>
                                             {
-                                                hasComingExit ? isWithinExitWindow ? <Text>You have a withdrawal of <b>{shortenNumber(pendingAmountInSDola, 2)} sDOLA ({shortenNumber(pendingAmountInDola, 2)} DOLA)</b> to complete!</Text> : <Text>Withdrawal of {shortenNumber(pendingAmountInSDola, 2)} sDOLA ({shortenNumber(pendingAmountInDola, 2)} DOLA) in queue phase</Text> : <Text>You don't have any pending withdrawal</Text>
+                                                hasComingExit ? isWithinExitWindow ? <Text>You have a withdrawal of <b>{shortenNumber(pendingAmountInSDola, 2)} sDOLA ({shortenNumber(pendingAmountInDola, 2)} DOLA)</b> to complete!</Text> : <Text><b>{shortenNumber(pendingAmountInSDola, 2)} sDOLA ({shortenNumber(pendingAmountInDola, 2)} DOLA)</b> in queue phase</Text> : <Text>You don't have any pending withdrawal</Text>
                                             }
                                             {
-                                                hasComingExit && <StatusMessage
-                                                    status={isWithinExitWindow ? 'warning' : 'info'}
+                                                hasComingExit && isWithinExitWindow && <StatusMessage
+                                                    status={'warning'}
                                                     alertProps={{ w: 'full' }}
                                                     description={
-                                                        isWithinExitWindow ? <VStack alignItems="flex-start" spacing="0">
+                                                        <VStack alignItems="flex-start" spacing="0">
                                                             <Text>- You have until <b>{formatDateWithTime(exitWindowEnd)}</b> to complete the withdrawal.</Text>
                                                             <Text>- Time left: ~{fromNow(exitWindowEnd, true)}</Text>
                                                             <Text>- The withdrawal will be cancelled otherwise.</Text>
                                                             <RSubmitButton mt="2" onClick={handleComplete}>
                                                                 Complete Withdrawal
                                                             </RSubmitButton>
-                                                        </VStack> : <VStack alignItems="flex-start" spacing="0">
-                                                            <Text mb="1">The withdrawal exit window will be between:</Text>
-                                                            <Text>- {formatDateWithTime(exitWindowStart)}</Text>
-                                                            <Text>and</Text>
-                                                            <Text>- {formatDateWithTime(exitWindowEnd)}</Text>
                                                         </VStack>
                                                     }
                                                 />
+                                            }
+                                            {
+                                                hasComingExit && pendingTimelineMarkers && <WithdrawTimeline markers={pendingTimelineMarkers} />
                                             }
                                             {
                                                 hasComingExit && <>
