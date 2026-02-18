@@ -13,9 +13,7 @@ import { INV_BUY_BACK_AUCTION_HELPER, JDOLA_AUCTION_HELPER_ADDRESS, SINV_ADDRESS
 import { Contract } from 'ethers';
 import { getJrdolaContract } from '@app/util/junior';
 import { JsonRpcProvider } from '@ethersproject/providers';
-import { getMulticallOutput } from '@app/util/multicall';
 
-const DBR_AUCTION_BUYS_CACHE_KEY_V3 = 'dbr-auction-buys-v3.0.0'
 const DBR_AUCTION_BUYS_CACHE_KEY_V4 = 'dbr-auction-buys-v4.0.0'
 
 const getSdolaExRates = async (provider: JsonRpcProvider, blocks: number[]) => {
@@ -33,7 +31,7 @@ export default async function handler(req, res) {
     try {
         const cacheDuration = 300;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DBR_AUCTION_BUYS_CACHE_KEY_V3, true, cacheDuration);
+        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DBR_AUCTION_BUYS_CACHE_KEY_V4, true, cacheDuration);
         if (!!cachedData && isValid) {
             res.status(200).json(cachedData);
             return
@@ -96,7 +94,7 @@ export default async function handler(req, res) {
             ),
             jrDolaAuctionContract.queryFilter(
                 jrDolaAuctionContract.filters.Buy(),
-                // newStartingBlock ? newStartingBlock : 0x0,
+                newStartingBlock ? newStartingBlock : 0x0,
             ),
         ]);
 
@@ -188,7 +186,7 @@ export default async function handler(req, res) {
         console.error(err);
         // if an error occured, try to return last cached results
         try {
-            const cache = await getCacheFromRedis(DBR_AUCTION_BUYS_CACHE_KEY_V3, false, 0);
+            const cache = await getCacheFromRedis(DBR_AUCTION_BUYS_CACHE_KEY_V4, false, 0);
             if (cache) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).send(cache);

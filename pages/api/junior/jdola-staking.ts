@@ -8,7 +8,7 @@ import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 import { getWeekIndexUtc } from '@app/util/misc';
 import { getOnChainData } from '../dola/sdola-comparator';
 import { getBnToNumber } from '@app/util/markets';
-import { formatJDolaStakingData, getJdolaContract, getJuniorEscrowContract } from '@app/util/junior';
+import { formatJDolaStakingData, getJrdolaContract, getJuniorEscrowContract } from '@app/util/junior';
 import { JsonRpcProvider } from '@ethersproject/providers';
 
 export const jdolaStakingCacheKey = `jdola-staking-v1.0.1`;
@@ -26,9 +26,8 @@ export default async function handler(req, res) {
             return
         }
 
-        // const provider = getProvider(CHAIN_ID);
-        const provider = new JsonRpcProvider("https://virtual.mainnet.eu.rpc.tenderly.co/fb462934-df02-4a6b-911b-94d7ccfdd691");
-        const jDolaContract = getJdolaContract(provider);
+        const provider = getProvider(CHAIN_ID);
+        const jDolaContract = getJrdolaContract(provider);
         const escrowContract = getJuniorEscrowContract(provider);
 
         const weekIndexUtc = getWeekIndexUtc();
