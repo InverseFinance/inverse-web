@@ -149,12 +149,17 @@ export const DbrAuctionBuyer = ({
     const helperAddress = AUCTION_TYPES[selectedAuction].helper;
     const defaultRefAmount = isClassicDbrAuction || isJDolaDbrAuction ? defaultRefClassicAmount : defaultRefSdolaAmount;
 
+    const tokenAmount = isExactSdola ? sDolaAmount : isExactDola ? dolaAmount : invAmount;
+    const tokenBalance = isExactSdola ? sDolaBalance : isExactDola ? dolaBalance : invBalance;
+
+    const tokenAmountInCurveSwapInput = isExactSdola ? sDolaAmount ? (parseFloat(sDolaAmount) * (sDolaExRate||1)).toFixed(6) : '0' : isExactDola ? dolaAmount : invAmount;
+
     const srcIndex = isExactInv ? 2 : 0;
     const { price: dbrSwapPriceRef } = useTriCryptoSwap(parseFloat(defaultRefAmount), srcIndex, 1);
-    const { price: dbrSwapPrice, isLoading: isCurvePriceLoading } = useTriCryptoSwap(parseFloat(!dolaAmount || dolaAmount === '0' ? defaultRefAmount : dolaAmount), srcIndex, 1);
+    const { price: dbrSwapPrice, isLoading: isCurvePriceLoading } = useTriCryptoSwap(parseFloat(!tokenAmountInCurveSwapInput || tokenAmountInCurveSwapInput === '0' ? defaultRefAmount : tokenAmountInCurveSwapInput), srcIndex, 1);
 
-    const dbrSwapPriceInToken = dbrSwapPrice ? 1 / dbrSwapPrice : 0;
-    const dbrSwapPriceRefInToken = dbrSwapPriceRef ? 1 / dbrSwapPriceRef : 0;
+    const dbrSwapPriceInToken = dbrSwapPrice ? 1 / dbrSwapPrice / (isExactSdola && sDolaExRate ? sDolaExRate : 1) : 0;
+    const dbrSwapPriceRefInToken = dbrSwapPriceRef ? 1 / dbrSwapPriceRef / (isExactSdola && sDolaExRate ? sDolaExRate : 1) : 0;
 
     const jdolaAuctionPricingData = useDbrAuctionPricing({ auctionType: 'jdola', helperAddress: JDOLA_AUCTION_HELPER_ADDRESS, tokenAmount: sDolaAmount, dbrAmount, slippage, isExactToken: isSellMode, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
     const classicAuctionPricingData = useDbrAuctionPricing({ auctionType: 'classic', helperAddress: DBR_AUCTION_HELPER_ADDRESS, tokenAmount: dolaAmount, dbrAmount, slippage, isExactToken: isSellMode, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
@@ -180,8 +185,7 @@ export const DbrAuctionBuyer = ({
     const auctionPriceColor = !dbrSwapPriceInToken || !selectedAuctionData?.dbrAuctionPriceInToken ? undefined : selectedAuctionData?.dbrAuctionPriceInToken < dbrSwapPriceInToken ? 'success' : 'warning';
 
     const isInvalidSlippage = !slippage || parseFloat(slippage) <= 0 || parseFloat(slippage) >= 20;
-    const tokenAmount = isExactSdola ? sDolaAmount : isExactDola ? dolaAmount : invAmount;
-    const tokenBalance = isExactSdola ? sDolaBalance : isExactDola ? dolaBalance : invBalance;
+   
     const notEnoughToken = !!tokenAmount && (isSellMode ? tokenBalance < parseFloat(tokenAmount) : tokenBalance < maxTokenInNum);
     const isExactTokenBtnDisabled = isInvalidSlippage || !tokenAmount || parseFloat(tokenAmount) <= 0;
     const isExactDbrBtnDisabled = isInvalidSlippage || !dbrAmount || parseFloat(dbrAmount) <= 0 || (notEnoughToken);
