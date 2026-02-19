@@ -6,6 +6,7 @@ import { useAccount } from '@app/hooks/misc';
 import { JDolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
 import { useState } from 'react';
 import { StakeJDolaUI } from '@app/components/JuniorTranches/StakeJDolaUI';
+import { AuctionYieldSourceTable } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
 
 
 export const JdolaPage = () => {
@@ -57,6 +58,7 @@ export const JdolaPage = () => {
           <VStack spacing="10" alignItems={"center"} w={{ base: 'full' }}>
             {/* <SavingsOpportunities tokenAndBalances={tokenAndBalances} totalStables={_totalStables} /> */}
             <StakeJDolaUI isLoadingStables={false} useDolaAsMain={true} topStable={lastTopStable} />
+            <AuctionYieldSourceTable auctionType="jrDOLA" />
           </VStack>
         </Stack>
       </VStack>
