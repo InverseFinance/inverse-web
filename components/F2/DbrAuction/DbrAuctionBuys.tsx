@@ -134,13 +134,12 @@ const AuctionYieldSourceTableContent = ({
     const isSDolaCase = auctionType === 'sDOLA';
     const isJRDOLACase = auctionType === 'jrDOLA';
 
-    const buyEvents = dbrAuctionsData ? isJRDOLACase ? dbrAuctionsData['last100SdolaAuctionEvents'].concat(dbrAuctionsData['last100JrDolaAuctionEvents']) : dbrAuctionsData['last100SdolaAuctionEvents'] : [];
+    const buyEvents = dbrAuctionsData ? isJRDOLACase ? dbrAuctionsData['last100JrDolaAuctionEvents'] : dbrAuctionsData['last100SdolaAuctionEvents'] : [];
 
     const lastWeekEnd = getLastThursdayTimestamp();
     const lastWeekStart = lastWeekEnd - (ONE_DAY_MS * 7);
 
-
-    const toInclude = isJRDOLACase ? ['sDOLA', 'jrDOLA'] : ['sDOLA'];
+    const toInclude = isJRDOLACase ? ['jrDOLA'] : ['sDOLA'];
 
     const pastWeekEvents = useMemo(() => {
         return buyEvents.filter(e => toInclude.includes(e.auctionType)).filter(e => e.timestamp < lastWeekEnd && e.timestamp >= lastWeekStart);
@@ -152,7 +151,7 @@ const AuctionYieldSourceTableContent = ({
         defaultSortDir="desc"
         columns={sDOLAColumns}
         items={pastWeekEvents}
-        noDataMessage={`No DBR buys in the auction last week`}
+        noDataMessage={isLoadingBuys ? 'Loading...' : `No DBR buys in the auction last week`}
     />
 }
 
@@ -198,7 +197,10 @@ export const AuctionYieldSourceTable = ({ showTableDefault = false, auctionType 
         <VStack w='full' spacing="3" alignItems="flex-start">
             <RSubmitButton w='fit-content' onClick={() => setShowTable(!showTable)}>Toggle details</RSubmitButton>
             {
-                showTable && <AuctionYieldSourceTableContent auctionType={auctionType} />
+                showTable && <>
+                    <Text color="secondaryTextColor" fontSize="12px">Last 100 DBR buys</Text>
+                    <AuctionYieldSourceTableContent auctionType={auctionType} />
+                </>
             }
         </VStack>
     </Container>
