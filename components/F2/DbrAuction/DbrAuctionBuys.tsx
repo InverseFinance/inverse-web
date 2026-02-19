@@ -198,7 +198,7 @@ export const AuctionYieldSourceTable = ({ showTableDefault = false, auctionType 
             <RSubmitButton w='fit-content' onClick={() => setShowTable(!showTable)}>Toggle details</RSubmitButton>
             {
                 showTable && <>
-                    <Text color="secondaryTextColor" fontSize="12px">Last 100 DBR buys</Text>
+                    <Text color="secondaryTextColor" fontSize="12px">Last 100 DBR buys in the past week contributing to this week's APY:</Text>
                     <AuctionYieldSourceTableContent auctionType={auctionType} />
                 </>
             }
