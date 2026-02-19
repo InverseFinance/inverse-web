@@ -134,7 +134,7 @@ const AuctionYieldSourceTableContent = ({
     const isSDolaCase = auctionType === 'sDOLA';
     const isJRDOLACase = auctionType === 'jrDOLA';
 
-    const buyEvents = dbrAuctionsData ? isJRDOLACase ? dbrAuctionsData['sdolaAuctionEvents'].concat(dbrAuctionsData['jrDolaAuctionEvents']) : dbrAuctionsData['sdolaAuctionEvents'] : [];
+    const buyEvents = dbrAuctionsData ? isJRDOLACase ? dbrAuctionsData['last100SdolaAuctionEvents'].concat(dbrAuctionsData['last100JrDolaAuctionEvents']) : dbrAuctionsData['last100SdolaAuctionEvents'] : [];
 
     const lastWeekEnd = getLastThursdayTimestamp();
     const lastWeekStart = lastWeekEnd - (ONE_DAY_MS * 7);
