@@ -6,6 +6,7 @@ import { useAccount } from '@app/hooks/misc';
 import { JDolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
 import { useState } from 'react';
 import { StakeJDolaUI } from '@app/components/JuniorTranches/StakeJDolaUI';
+import { AuctionYieldSourceTable } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
 
 
 export const JdolaPage = () => {
@@ -35,8 +36,8 @@ export const JdolaPage = () => {
         <title>Inverse Finance - jrDOLA</title>
         <meta name="og:title" content="Inverse Finance - jrDOLA" />
         <meta name="og:description" content="jrDOLA" />
-        <meta name="description" content="jrDOLA is a decentralized yield-bearing stablecoin that leverages organic yield from the DOLA Savings Account" />
-        <meta name="keywords" content="Inverse Finance, jrDOLA, yield-bearing stablecoin, staked DOLA" />
+        <meta name="description" content="Junior DOLA - First-Loss Insurance for DOLA" />
+        <meta name="keywords" content="Inverse Finance, jrDOLA, first-loss insurance" />
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/jrDOLA-v3.jpeg" />
       </Head>
       <AppNav active="Stake" activeSubmenu="jrDOLA" hideAnnouncement={true} />
@@ -57,6 +58,7 @@ export const JdolaPage = () => {
           <VStack spacing="10" alignItems={"center"} w={{ base: 'full' }}>
             {/* <SavingsOpportunities tokenAndBalances={tokenAndBalances} totalStables={_totalStables} /> */}
             <StakeJDolaUI isLoadingStables={false} useDolaAsMain={true} topStable={lastTopStable} />
+            <AuctionYieldSourceTable auctionType="jrDOLA" />
           </VStack>
         </Stack>
       </VStack>

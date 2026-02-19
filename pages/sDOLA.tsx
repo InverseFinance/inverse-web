@@ -7,7 +7,7 @@ import { useAccount } from '@app/hooks/misc';
 import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
 import { DolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
 import { useDolaStakingActivity } from '@app/util/dola-staking';
-import { DbrAuctionBuysSDola } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
+import { AuctionYieldSourceTable } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
 import { SDolaInsuranceCover } from '@app/components/common/InsuranceCover';
 import { SavingsOpportunities, useSavingsOpportunities } from '@app/components/sDola/SavingsOpportunities';
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary';
@@ -74,7 +74,7 @@ export const SdolaPage = () => {
         {
           !!account && accountEvents?.length > 0 && <DolaStakingActivity events={accountEvents} title="My Staking activity" />
         }
-        <DbrAuctionBuysSDola />
+        <AuctionYieldSourceTable auctionType="sDOLA" />
       </VStack>
     </Layout>
   )

@@ -291,13 +291,13 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
             </VStack>
         } alertProps={{ w: 'full' }} />
         <Stack direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'center', lg: 'flex-start' }} justify="space-around" w='full' spacing="12">
-            <VStack w='full' maxW='450px' spacing='4' pt='10'>
-                <HStack justify="space-around" w='full'>
+            <VStack w='full' maxW='450px' spacing='4'>
+                {/* <HStack justify="space-around" w='full'>
                     <VStack>
                         <Image src="/assets/sDOLAx512.png" h="120px" w="120px" />
                         <Text fontSize="20px" fontWeight="bold">jrDOLA</Text>
                     </VStack>
-                </HStack>
+                </HStack> */}
                 <HStack justify="space-between" w='full'>
                     <StatBasic message="This week's APY is calculated with last week's DBR auction revenues plus sDOLA's apy and assuming a weekly auto-compounding" isLoading={isLoading} name="Current APY" value={totalJrDolaApy ? `${shortenNumber(totalJrDolaApy, 2)}%` : '-'} />
                     <StatBasic message={"The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current's week auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%"} isLoading={isLoading} name="Projected APY" value={totalProjectedApy ? `${shortenNumber(totalProjectedApy, 2)}%` : '-'} />

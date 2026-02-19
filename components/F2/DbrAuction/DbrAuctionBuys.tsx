@@ -13,6 +13,7 @@ import { timeSince } from "@app/util/time";
 import { useMemo, useState } from "react";
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 import { useDbrAuctionActivity } from "@app/util/dbr-auction";
+import { useStakedJDola } from "@app/util/junior";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -122,15 +123,28 @@ export const DbrAuctionBuys = ({ events, title, subtitle, lastUpdate }: { events
     </Container>
 }
 
-const DbrAuctionBuysSDolaContent = () => {
-    const { isLoading: isLoadingBuys, events: buyEvents, timestamp: buysTimestamp } = useDbrAuctionActivity();
+const AuctionYieldSourceTableContent = ({
+    auctionType = 'sDOLA',
+}: {
+    auctionType?: string;
+}) => {
+    const dbrAuctionsData = useDbrAuctionActivity();
+    const { isLoading: isLoadingBuys, timestamp: buysTimestamp } = dbrAuctionsData;
+
+    const isSDolaCase = auctionType === 'sDOLA';
+    const isJRDOLACase = auctionType === 'jrDOLA';
+
+    const buyEvents = dbrAuctionsData ? isJRDOLACase ? dbrAuctionsData['sdolaAuctionEvents'].concat(dbrAuctionsData['jrDolaAuctionEvents']) : dbrAuctionsData['sdolaAuctionEvents'] : [];
 
     const lastWeekEnd = getLastThursdayTimestamp();
     const lastWeekStart = lastWeekEnd - (ONE_DAY_MS * 7);
 
+
+    const toInclude = isJRDOLACase ? ['sDOLA', 'jrDOLA'] : ['sDOLA'];
+
     const pastWeekEvents = useMemo(() => {
-        return buyEvents.filter(e => e.auctionType === 'sDOLA').filter(e => e.timestamp < lastWeekEnd && e.timestamp >= lastWeekStart);
-    }, [buyEvents, lastWeekEnd, lastWeekStart]);
+        return buyEvents.filter(e => toInclude.includes(e.auctionType)).filter(e => e.timestamp < lastWeekEnd && e.timestamp >= lastWeekStart);
+    }, [toInclude, buyEvents, lastWeekEnd, lastWeekStart]);
 
     return <Table
         keyName="txHash"
@@ -138,25 +152,42 @@ const DbrAuctionBuysSDolaContent = () => {
         defaultSortDir="desc"
         columns={sDOLAColumns}
         items={pastWeekEvents}
-        noDataMessage="No DBR buys in the sDOLA auction last week"
+        noDataMessage={`No DBR buys in the auction last week`}
     />
 }
 
-export const DbrAuctionBuysSDola = ({ showTableDefault = false }: { showTableDefault?: boolean }) => {
+export const AuctionYieldSourceTable = ({ showTableDefault = false, auctionType = 'sDOLA' }: { showTableDefault?: boolean, auctionType?: string }) => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { apy, pastWeekRevenue } = useStakedDola(dbrPrice);
+    const { apy: sDolaApy, pastWeekRevenue: sDolaPastWeekRevenue } = useStakedDola(dbrPrice);
+    const { apy: jrDolaApy, pastWeekRevenue: jrDolaPastWeekRevenue } = useStakedJDola(dbrPrice);
     const [showTable, setShowTable] = useState(showTableDefault);
+
+    const isSDolaCase = auctionType === 'sDOLA';
+    const isJRDOLACase = auctionType === 'jrDOLA';
+
+    const apy = isSDolaCase ? sDolaApy : isJRDOLACase ? jrDolaApy + sDolaApy : 0;
+    const pastWeekRevenue = isSDolaCase ? sDolaPastWeekRevenue : isJRDOLACase ? jrDolaPastWeekRevenue : 0;
 
     return <Container
         label={`Where does the ${shortenNumber(apy, 2)}% APY come from?`}
-        description={`Easily verify below the on-chain source of the sDOLA real-yield`}
+        description={isJRDOLACase ? `${shortenNumber(jrDolaApy, 2)}% APY from jrDOLA and ${shortenNumber(sDolaApy, 2)}% APY from the sDOLA base` : `Easily verify below the on-chain source of the sDOLA real-yield`}
         noPadding
         m="0"
         p="0"
         right={
             <VStack spacing="0" alignItems="flex-end">
                 <Text>Last week's revenue to distribute this week:</Text>
-                <Text fontWeight="bold">{preciseCommify(pastWeekRevenue, 2)} DOLA</Text>
+                {
+                    isSDolaCase ? (
+                        <Text fontWeight="bold">
+                            {preciseCommify(sDolaPastWeekRevenue, 2)} DOLA
+                        </Text>
+                    ) : isJRDOLACase ? (
+                        <Text fontWeight="bold">
+                            {preciseCommify(jrDolaPastWeekRevenue, 2)} sDOLA
+                        </Text>
+                    ) : null
+                }
             </VStack>
         }
         headerProps={{
@@ -167,7 +198,7 @@ export const DbrAuctionBuysSDola = ({ showTableDefault = false }: { showTableDef
         <VStack w='full' spacing="3" alignItems="flex-start">
             <RSubmitButton w='fit-content' onClick={() => setShowTable(!showTable)}>Toggle details</RSubmitButton>
             {
-                showTable && <DbrAuctionBuysSDolaContent />
+                showTable && <AuctionYieldSourceTableContent auctionType={auctionType} />
             }
         </VStack>
     </Container>
