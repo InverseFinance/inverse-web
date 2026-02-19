@@ -23,32 +23,32 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     else if (chainId === NetworkIds.ftm && !specificAlchemyKey) {
         return new JsonRpcProvider('https://1rpc.io/ftm');
     }
-    else if (chainId === NetworkIds.optimism && !specificAlchemyKey) {
-        return new JsonRpcProvider('https://mainnet.optimism.io');
-    }
-    else if (chainId === NetworkIds.bsc && !specificAlchemyKey) {
-        return new JsonRpcProvider('https://bsc-dataseed3.binance.org');
-    }
-    else if (chainId === NetworkIds.arbitrum && !specificAlchemyKey) {
-        return new JsonRpcProvider('https://arb1.arbitrum.io/rpc');
-    }
-    else if (chainId === NetworkIds.polygon && !specificAlchemyKey) {
-        return new JsonRpcProvider('https://polygon-rpc.com');
-    }
-    else if (chainId === NetworkIds.avalanche && !specificAlchemyKey) {
-        // return new JsonRpcProvider('https://rpc.ankr.com/avalanche');
-        return new JsonRpcProvider('https://api.avax.network/ext/bc/C/rpc');
-        // return new JsonRpcProvider('https://avalanche.drpc.org');
-    }
-    else if (chainId === NetworkIds.base && !specificAlchemyKey) {
-        return new JsonRpcProvider('https://mainnet.base.org');
-    }
-    else if (chainId === NetworkIds.blast && !specificAlchemyKey) {
-        return new JsonRpcProvider('https://rpc.blast.io');
-    }
-    else if (chainId === NetworkIds.mode && !specificAlchemyKey) {
-        return new JsonRpcProvider('https://mainnet.mode.network');
-    }
+    // else if (chainId === NetworkIds.optimism && !specificAlchemyKey) {
+    //     return new JsonRpcProvider('https://mainnet.optimism.io');
+    // }
+    // else if (chainId === NetworkIds.bsc && !specificAlchemyKey) {
+    //     return new JsonRpcProvider('https://bsc-dataseed3.binance.org');
+    // }
+    // else if (chainId === NetworkIds.arbitrum && !specificAlchemyKey) {
+    //     return new JsonRpcProvider('https://arb1.arbitrum.io/rpc');
+    // }
+    // else if (chainId === NetworkIds.polygon && !specificAlchemyKey) {
+    //     return new JsonRpcProvider('https://polygon-rpc.com');
+    // }
+    // else if (chainId === NetworkIds.avalanche && !specificAlchemyKey) {
+    //     // return new JsonRpcProvider('https://rpc.ankr.com/avalanche');
+    //     return new JsonRpcProvider('https://api.avax.network/ext/bc/C/rpc');
+    //     // return new JsonRpcProvider('https://avalanche.drpc.org');
+    // }
+    // else if (chainId === NetworkIds.base && !specificAlchemyKey) {
+    //     return new JsonRpcProvider('https://mainnet.base.org');
+    // }
+    // else if (chainId === NetworkIds.blast && !specificAlchemyKey) {
+    //     return new JsonRpcProvider('https://rpc.blast.io');
+    // }
+    // else if (chainId === NetworkIds.mode && !specificAlchemyKey) {
+    //     return new JsonRpcProvider('https://mainnet.mode.network');
+    // }
     
     return new JsonRpcProvider(`${ALCHEMY_BASE_URLS[chainId as keyof typeof ALCHEMY_BASE_URLS]}/${(specificAlchemyKey || getRandomFromStringList(process.env.ALCHEMY_KEYS!))}`);
 }
