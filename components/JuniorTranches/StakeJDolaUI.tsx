@@ -379,9 +379,6 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                     tab === 'Infos' ? <StakeJDolaInfos sDolaExRate={sDolaExRate} /> : isStake ?
                                         (isLoadingStables && !isPreventLoader ? <SkeletonBlob /> :
                                             <>
-                                                {/* <Text fontSize="20px" fontWeight="bold">
-                                                    {depositTokenSymbol} amount to stake:
-                                                </Text> */}
                                                 <SimpleAmountForm
                                                     btnProps={{ needPoaFirst: true }}
                                                     defaultAmount={inputAmount}
@@ -409,28 +406,6 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     }
                                                 />
                                             </>
-                                            // <EnsoZap
-                                            //     defaultTokenIn={topStable?.token?.address}
-                                            //     defaultTokenOut={JDOLA_AUCTION_ADDRESS}
-                                            //     defaultTargetChainId={'1'}
-                                            //     ensoPools={[{ poolAddress: JDOLA_AUCTION_ADDRESS, chainId: 1 }]}
-                                            //     introMessage={''}
-                                            //     isSingleChoice={true}
-                                            //     targetAssetPrice={dolaPrice * jrDolaExRate}
-                                            //     exRate={jrDolaExRate}
-                                            //     isInModal={false}
-                                            //     keepAmountOnAssetChange={true}
-                                            //     fromText={"Stake from"}
-                                            //     fromTextProps={{
-                                            //         fontSize: '20px',
-                                            //         fontWeight: 'bold'
-                                            //     }}
-                                            //     onAmountChange={(v) => {
-                                            //         if(!!v){
-                                            //             setIsPreventLoader(true);
-                                            //         }
-                                            //     }}
-                                            // />
                                         )
                                         :
                                         <VStack w='full' alignItems="flex-start">
@@ -512,7 +487,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     description={
                                                         <VStack alignItems="flex-start" spacing="0">
                                                             <Text>- You have until <b>{formatDateWithTime(exitWindowEnd)}</b> to complete the withdrawal.</Text>
-                                                            <Text>- Time left: {formatDurationHumanReadable((exitWindowEnd - nowWithInterval) / 1000)}</Text>
+                                                            <Text>- Time left: <b>{formatDurationHumanReadable((exitWindowEnd - nowWithInterval) / 1000)}</b></Text>
                                                             <Text>- The withdrawal will be cancelled otherwise.</Text>
                                                             <RSubmitButton mt="2" onClick={handleComplete}>
                                                                 Complete Withdrawal
@@ -541,33 +516,6 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                             }
                                         </VStack>
                                 }
-                                {
-                                    tab !== 'Infos' && <VStack alignItems="flex-start">
-                                        {/* <HStack>
-                                            <Text fontSize="16px" color="mainTextColorLight2">
-                                                {isStake ? 'jrDOLA to receive' : 'jrDOLA to exchange'}:
-                                            </Text>
-                                            <Text fontSize="16px" color="mainTextColorLight2">
-                                                {sDOLAamount ? preciseCommify(sDOLAamount, 2) : '-'}
-                                            </Text>
-                                        </HStack> */}
-                                        {/* <HStack>
-                                            <Text fontSize="16px" color="mainTextColorLight">
-                                                DOLA-jrDOLA exchange rate:
-                                            </Text>
-                                            <Text fontSize="16px" color="mainTextColorLight">
-                                                {jrDolaExRate ? shortenNumber(1 / jrDolaExRate, 6) : '-'}
-                                            </Text>
-                                        </HStack> */}
-                                    </VStack>
-                                }
-                                {/* {
-                                    isStake && <Text textDecoration="underline" onClick={() => setUseDolaAsMainChoice(!useDolaAsMainChoice)} cursor="pointer" color="accentTextColor">
-                                        {
-                                            useDolaAsMainChoice ? 'Or stake from another token than DOLA via Zap-In' : 'Or use DOLA as direct entry point'
-                                        }
-                                    </Text>
-                                } */}
                             </>
                     }
                 </VStack>
