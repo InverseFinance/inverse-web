@@ -55,6 +55,12 @@ const { INV, XINV, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const maxChartWidth = 1350;
 
+const exTeamAddresses = [
+    '0xE58ED128325A33afD08e90187dB0640619819413', // PatB
+    '0x41225088326fE055Fbf40AD34d862bbd7bd0c9B4', // PatB GWG
+    '0xFDa9365E2CDf21d72cb0dc4F5FF46F29e4aC59CE', // PatB GWG
+]
+
 export const GovTransparency = () => {
     const { currentPayrolls, currentVesters, currentInvBalances, payrollEvolution, isLoading } = useCompensations();
     const { prices } = usePricesV2();
@@ -87,8 +93,9 @@ export const GovTransparency = () => {
 
     const rewardsPerMonth = invFrontierMarket?.rewardsPerMonth || 0;
 
+    // active only
     const teamPower = delegates.filter(d => hasPayrollOrVester(currentPayrolls, currentVesters, d))
-        .filter(d => !FounderAddresses.includes(d.address))
+        .filter(d => !FounderAddresses.includes(d.address) && !exTeamAddresses.includes(d.address))
         .reduce((prev, curr) => {
             return prev + curr.votingPower
         }, 0);
@@ -99,18 +106,24 @@ export const GovTransparency = () => {
             return prev + curr.votingPower
         }, 0);
 
+    const exTeamPower = delegates.filter(d => hasPayrollOrVester(currentPayrolls, currentVesters, d))
+        .filter(d => exTeamAddresses.includes(d.address))
+        .reduce((prev, curr) => {
+            return prev + curr.votingPower
+        }, 0);
+
     const nonTeamPower = delegates.filter(d => !hasPayrollOrVester(currentPayrolls, currentVesters, d))
         .filter(d => !FounderAddresses.includes(d.address))
         .reduce((prev, curr) => {
             return prev + curr.votingPower
-        }, 0);
+        }, 0) + exTeamPower;
 
     const totalPower = founderPower + nonTeamPower + teamPower;
     const totalVested = currentVesters.reduce((prev, curr) => prev + curr.amount / 12, 0);
 
     // excludes external delegation power
     const founderInherentPower = currentInvBalances.filter(d => FounderAddresses.includes(d.address)).reduce((prev, curr) => prev + curr.totalInvBalance, 0);
-    const teamInherentPower = currentInvBalances.filter(d => !FounderAddresses.includes(d.address)).reduce((prev, curr) => prev + curr.totalInvBalance, 0);
+    const teamInherentPower = currentInvBalances.filter(d => !FounderAddresses.includes(d.address) && !exTeamAddresses.includes(d.address)).reduce((prev, curr) => prev + curr.totalInvBalance, 0);
     const templeDao = delegates.filter(d => TempleDaoAddresses.includes(d.address)).reduce((prev, curr) => prev + curr.votingPower, 0);
     const notFromInherentTeamPower = totalPower - teamInherentPower - founderInherentPower;
     const delegatedExternally = founderPower + teamPower - teamInherentPower - founderInherentPower;
