@@ -24,6 +24,7 @@ export const useDbrAuction = (auctionType: 'classic' | 'sdola' | 'sinv' | 'jdola
     isLoading: boolean;
     hasError: boolean;
     dbrEffectiveJrDolaBudget: number;
+    jrDolaYearlyRewardBudget: number;
     jrDolaRateUpdates: { timestamp: number, rate: number, block: number }[];
 } => {
     const { account } = useWeb3React();
@@ -82,6 +83,7 @@ export const useDbrAuction = (auctionType: 'classic' | 'sdola' | 'sinv' | 'jdola
     const rateMultiplier = isSinvAuction ? ONE_DAY_SECS * 365 : 1;
 
     return {
+        jrDolaYearlyRewardBudget: apiData?.jrDolaYearlyRewardBudget || 0,
         dbrEffectiveJrDolaBudget: apiData?.dbrEffectiveJrDolaBudget || 0,
         jrDolaRateUpdates: apiData?.jrDolaRateUpdates || [],
         historicalRates: apiData?.historicalRates || [],
