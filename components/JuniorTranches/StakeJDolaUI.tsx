@@ -55,7 +55,7 @@ const WithdrawTimeline = ({ markers, title = 'Withdrawal timeline' }: { markers:
         return null;
     }
 
-    const times = validMarkers.map(m => m.time);
+    const times = validMarkers.sort((a, b) => a.time - b.time).map(m => m.time);
     const minTime = Math.min(...times);
     const maxTime = Math.max(...times);
     const span = maxTime - minTime || 1;
@@ -69,9 +69,13 @@ const WithdrawTimeline = ({ markers, title = 'Withdrawal timeline' }: { markers:
         <Box position="relative" w="full" h={`${timelineHeight}px`} pl="4" py={`${padding}px`}>
             <Box position="absolute" top={`${padding}px`} bottom={`${padding}px`} left="5px" w="2px" bg="secondaryTextColor" opacity={0.3} transform="translateX(-50%)" />
             {
-                validMarkers.map(m => {
+                validMarkers.map((m,i) => {
                     const timePerc = ((m.time - minTime) / span);
-                    const topPx = padding + (timePerc * availableHeight);
+                    const calc = padding + (timePerc * availableHeight);
+                    // const isInTheMiddle = i !== 0 && i !== validMarkers.length - 1;
+                    // const topPx = i === 1 ? Math.min(60, calc) : i === validMarkers.length - 2 ? Math.min(calc, timelineHeight - 40) : calc;
+                    const topPx = i === 1 ? Math.max(60, calc) : calc;
+                    // const topPx = calc
                     return <HStack
                         key={m.label}
                         position="absolute"
@@ -129,6 +133,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     const [isConnected, setIsConnected] = useState(true);
     const [isPreventLoader, setIsPreventLoader] = useState(false);
     const [nowWithInterval, setNowWithInterval] = useState(Date.now());
+    const [wantsNewWithdrawal, setWantsNewWithdrawal] = useState(false);
     const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
@@ -374,9 +379,6 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                     tab === 'Infos' ? <StakeJDolaInfos sDolaExRate={sDolaExRate} /> : isStake ?
                                         (isLoadingStables && !isPreventLoader ? <SkeletonBlob /> :
                                             <>
-                                                {/* <Text fontSize="20px" fontWeight="bold">
-                                                    {depositTokenSymbol} amount to stake:
-                                                </Text> */}
                                                 <SimpleAmountForm
                                                     btnProps={{ needPoaFirst: true }}
                                                     defaultAmount={inputAmount}
@@ -404,84 +406,72 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     }
                                                 />
                                             </>
-                                            // <EnsoZap
-                                            //     defaultTokenIn={topStable?.token?.address}
-                                            //     defaultTokenOut={JDOLA_AUCTION_ADDRESS}
-                                            //     defaultTargetChainId={'1'}
-                                            //     ensoPools={[{ poolAddress: JDOLA_AUCTION_ADDRESS, chainId: 1 }]}
-                                            //     introMessage={''}
-                                            //     isSingleChoice={true}
-                                            //     targetAssetPrice={dolaPrice * jrDolaExRate}
-                                            //     exRate={jrDolaExRate}
-                                            //     isInModal={false}
-                                            //     keepAmountOnAssetChange={true}
-                                            //     fromText={"Stake from"}
-                                            //     fromTextProps={{
-                                            //         fontSize: '20px',
-                                            //         fontWeight: 'bold'
-                                            //     }}
-                                            //     onAmountChange={(v) => {
-                                            //         if(!!v){
-                                            //             setIsPreventLoader(true);
-                                            //         }
-                                            //     }}
-                                            // />
                                         )
                                         :
                                         <VStack w='full' alignItems="flex-start">
                                             <Text fontSize="20px" fontWeight="bold">
                                                 1) Queue a withdrawal (in DOLA terms):
                                             </Text>
-                                            <SimpleAmountForm
-                                                btnProps={{ needPoaFirst: true }}
-                                                defaultAmount={inputAmount}
-                                                address={JDOLA_AUCTION_ADDRESS}
-                                                destination={JUNIOR_ESCROW_ADDRESS}
-                                                needApprove={true}
-                                                signer={provider?.getSigner()}
-                                                decimals={18}
-                                                onAction={() => handleQueue()}
-                                                onMaxAction={() => unstakeAll()}
-                                                maxActionLabel={`Initiate full withdrawal`}
-                                                actionLabel={`Initiate withdrawal`}
-                                                onAmountChange={(v) => setInputAmount(v)}
-                                                maxAmountFrom={[getNumberToBn(dolaStakedInVault, 18)]}
-                                                showMaxBtn={jrDolaBalance > 0}
-                                                showMax={true}
-                                                hideInputIfNoAllowance={false}
-                                                showBalance={false}
-                                                onSuccess={() => resetRealTime()}
-                                            />
                                             {
                                                 hasComingExit && <InfoMessage
                                                     alertProps={{ w: 'full' }}
                                                     description={
-                                                        <Text><b>Note</b>: you already have a pending withdrawal, queuing a new withdrawal will merge both with the new queue duration being the longest of the two.</Text>
+                                                        <VStack alignItems="flex-start" w='full'>
+                                                            <Text><b>Note</b>: you already have a pending withdrawal, queuing a new withdrawal will merge both with the new queue duration being the longest of the two.</Text>
+                                                            <RSubmitButton onClick={() => setWantsNewWithdrawal(!wantsNewWithdrawal)}>
+                                                                {wantsNewWithdrawal ? 'Hide' : 'Queue a new withdrawal'}
+                                                            </RSubmitButton>
+                                                        </VStack>
                                                     }
                                                 />
                                             }
-                                            <VStack alignItems="flex-start" spacing="0">
-                                                <Text>
-                                                    - Queue duration for {withdrawTimestamp && inputAmount ? 'chosen amount' : 'max amount'} & the current supply:
-                                                </Text>
-                                                <Text fontWeight="bold">
-                                                    <b>{inputAmount && !!withdrawTimestamp ? formatDurationHumanReadable((withdrawTimestamp - nowWithInterval)/1000) : withdrawTimestampMax ? formatDurationHumanReadable((withdrawTimestampMax - nowWithInterval)/1000) : '-'}</b>
-                                                </Text>
-                                            </VStack>
-                                            <VStack alignItems="flex-start" spacing="0">
-                                                <Text>
-                                                    - Exit window after queue duration ends:
-                                                </Text>
-                                                <Text fontWeight="bold">
-                                                    <b>{exitWindow ? `${smartShortNumber(exitWindow / 86400, 2)} days` : '-'}</b>
-                                                </Text>
-                                                <Text>- Withdraw fee: {withdrawFeePerc ? `${shortenNumber(withdrawFeePerc, 2)}%` : '-'}</Text>
-                                                {
-                                                    withdrawFeePerc > 0 && <Text>- Post-fee withdrawal in DOLA terms: {inputAmount && !!parseFloat(inputAmount) ? `${shortenNumber(parseFloat(inputAmount) - parseFloat(inputAmount) * withdrawFeePerc / 100, 2)}` : '-'}</Text>
-                                                }
-                                            </VStack>
                                             {
-                                                queueTimelineMarkers && <WithdrawTimeline markers={queueTimelineMarkers} />
+                                                !hasComingExit || (hasComingExit && wantsNewWithdrawal) && <>
+                                                    <SimpleAmountForm
+                                                        btnProps={{ needPoaFirst: true }}
+                                                        defaultAmount={inputAmount}
+                                                        address={JDOLA_AUCTION_ADDRESS}
+                                                        destination={JUNIOR_ESCROW_ADDRESS}
+                                                        needApprove={true}
+                                                        signer={provider?.getSigner()}
+                                                        decimals={18}
+                                                        onAction={() => handleQueue()}
+                                                        onMaxAction={() => unstakeAll()}
+                                                        maxActionLabel={`Initiate full withdrawal`}
+                                                        actionLabel={`Initiate withdrawal`}
+                                                        onAmountChange={(v) => setInputAmount(v)}
+                                                        maxAmountFrom={[getNumberToBn(dolaStakedInVault, 18)]}
+                                                        showMaxBtn={jrDolaBalance > 0}
+                                                        showMax={true}
+                                                        hideInputIfNoAllowance={false}
+                                                        showBalance={false}
+                                                        onSuccess={() => resetRealTime()}
+                                                    />
+
+                                                    <VStack alignItems="flex-start" spacing="0">
+                                                        <Text>
+                                                            - Queue duration for {withdrawTimestamp && inputAmount ? 'chosen amount' : 'max amount'} & the current supply:
+                                                        </Text>
+                                                        <Text fontWeight="bold">
+                                                            <b>{inputAmount && !!withdrawTimestamp ? formatDurationHumanReadable((withdrawTimestamp - nowWithInterval) / 1000) : withdrawTimestampMax ? formatDurationHumanReadable((withdrawTimestampMax - nowWithInterval) / 1000) : '-'}</b>
+                                                        </Text>
+                                                    </VStack>
+                                                    <VStack alignItems="flex-start" spacing="0">
+                                                        <Text>
+                                                            - Exit window after queue duration ends:
+                                                        </Text>
+                                                        <Text fontWeight="bold">
+                                                            <b>{exitWindow ? `${smartShortNumber(exitWindow / 86400, 2)} days` : '-'}</b>
+                                                        </Text>
+                                                        <Text>- Withdraw fee: {withdrawFeePerc ? `${shortenNumber(withdrawFeePerc, 2)}%` : '-'}</Text>
+                                                        {
+                                                            withdrawFeePerc > 0 && <Text>- Post-fee withdrawal in DOLA terms: {inputAmount && !!parseFloat(inputAmount) ? `${shortenNumber(parseFloat(inputAmount) - parseFloat(inputAmount) * withdrawFeePerc / 100, 2)}` : '-'}</Text>
+                                                        }
+                                                    </VStack>
+                                                    {
+                                                        queueTimelineMarkers && <WithdrawTimeline markers={queueTimelineMarkers} />
+                                                    }
+                                                </>
                                             }
                                             <Divider />
                                             <Text fontSize="20px" fontWeight="bold">
@@ -497,7 +487,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     description={
                                                         <VStack alignItems="flex-start" spacing="0">
                                                             <Text>- You have until <b>{formatDateWithTime(exitWindowEnd)}</b> to complete the withdrawal.</Text>
-                                                            <Text>- Time left: ~{fromNow(exitWindowEnd, true)}</Text>
+                                                            <Text>- Time left: <b>{formatDurationHumanReadable((exitWindowEnd - nowWithInterval) / 1000)}</b></Text>
                                                             <Text>- The withdrawal will be cancelled otherwise.</Text>
                                                             <RSubmitButton mt="2" onClick={handleComplete}>
                                                                 Complete Withdrawal
@@ -526,33 +516,6 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                             }
                                         </VStack>
                                 }
-                                {
-                                    tab !== 'Infos' && <VStack alignItems="flex-start">
-                                        {/* <HStack>
-                                            <Text fontSize="16px" color="mainTextColorLight2">
-                                                {isStake ? 'jrDOLA to receive' : 'jrDOLA to exchange'}:
-                                            </Text>
-                                            <Text fontSize="16px" color="mainTextColorLight2">
-                                                {sDOLAamount ? preciseCommify(sDOLAamount, 2) : '-'}
-                                            </Text>
-                                        </HStack> */}
-                                        {/* <HStack>
-                                            <Text fontSize="16px" color="mainTextColorLight">
-                                                DOLA-jrDOLA exchange rate:
-                                            </Text>
-                                            <Text fontSize="16px" color="mainTextColorLight">
-                                                {jrDolaExRate ? shortenNumber(1 / jrDolaExRate, 6) : '-'}
-                                            </Text>
-                                        </HStack> */}
-                                    </VStack>
-                                }
-                                {/* {
-                                    isStake && <Text textDecoration="underline" onClick={() => setUseDolaAsMainChoice(!useDolaAsMainChoice)} cursor="pointer" color="accentTextColor">
-                                        {
-                                            useDolaAsMainChoice ? 'Or stake from another token than DOLA via Zap-In' : 'Or use DOLA as direct entry point'
-                                        }
-                                    </Text>
-                                } */}
                             </>
                     }
                 </VStack>

@@ -62,7 +62,7 @@ export const StakeJDolaInfos = ({
                     </Text>
                     <Text>- It's not a stablecoin</Text>
                     <Text>- The yield comes from DBR auctions</Text>
-                    <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/jdola' isExternal target="_blank">
+                    <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dola/jrdola' isExternal target="_blank">
                         Learn more about jrDOLA <ExternalLinkIcon />
                     </Link>                    
                 </VStack>
@@ -94,10 +94,6 @@ export const StakeJDolaInfos = ({
                     <HStack w='full'>
                         <Text>- Max. DBR per sDOLA:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxRewardPerDolaMantissa, 2)} ({preciseCommify(maxRewardPerDolaMantissa * dbrPrice, 4, true)})</Text>}
-                    </HStack>
-                    <HStack w='full'>
-                        <Text>- Current effective DBR rate per year:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(yearlyDbrEarnings, 0)} ({preciseCommify(yearlyDbrEarnings * dbrPrice, 0, true)})</Text>}
                     </HStack>
                 </VStack>
                 <Text fontSize="14px" fontWeight="bold">Looking for the jrDOLA auction?</Text>
