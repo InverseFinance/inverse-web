@@ -22,6 +22,7 @@ import { F2Market } from '@app/types'
 import { useFirmTVL } from '@app/hooks/useTVL'
 import { timeSince } from '@app/util/time'
 import { DbrFloatingTrigger } from '@app/components/F2/DbrEasyBuyer.tsx/DbrEasyBuyer'
+import { JuniorMessage } from '@app/components/JuniorTranches/JuniorMessage'
 
 export const F2PAGE = ({
     isTwitterAlert = false,
@@ -148,6 +149,9 @@ export const F2PAGE = ({
             }
             <ErrorBoundary>
                 <VStack pt={{ base: 4, md: 8 }} w='full' maxW={{ base: '84rem', '2xl': '90rem' }}>
+                    <ErrorBoundary>
+                        <JuniorMessage />
+                    </ErrorBoundary>
                     {
                         !!globalMessage && (
                             <VStack w='full' px='6' pb='4'>
