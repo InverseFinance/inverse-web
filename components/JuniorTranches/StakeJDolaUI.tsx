@@ -426,7 +426,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                 />
                                             }
                                             {
-                                                !hasComingExit || (hasComingExit && wantsNewWithdrawal) && <>
+                                                ((!hasComingExit) || (hasComingExit && wantsNewWithdrawal)) && <>
                                                     <SimpleAmountForm
                                                         btnProps={{ needPoaFirst: true }}
                                                         defaultAmount={inputAmount}
