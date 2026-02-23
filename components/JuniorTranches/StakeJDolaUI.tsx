@@ -154,7 +154,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     const [baseBalance, setBaseBalance] = useState(0);
     const [realTimeBalance, setRealTimeBalance] = useState(0);
     // value in DOLA terms
-    const { withdrawDelay, withdrawDelayMax, withdrawTimestamp, withdrawTimestampMax, exitWindowStart, exitWindowEnd, pendingAmount, hasComingExit, isWithinExitWindow, canCancel } = useJuniorWithdrawDelay(jrDolaSupply, parseFloat(inputAmount || '0') / (sDolaExRate || 1) / (jrDolaExRate || 1), account, jrDolaBalanceBn);
+    const { withdrawDelay, withdrawDelayMax, withdrawTimestamp, withdrawTimestampMax, exitWindowStart, exitWindowEnd, pendingAmount, hasComingExit, isWithinExitWindow, hasExpiredWithdrawal, witdhrawDelayRenew, canCancel } = useJuniorWithdrawDelay(jrDolaSupply, parseFloat(inputAmount || '0') / (sDolaExRate || 1) / (jrDolaExRate || 1), account, jrDolaBalanceBn);
 
     const queueEndTs = inputAmount ? withdrawTimestamp : withdrawTimestampMax;
 
@@ -259,6 +259,11 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     const handleQueue = async () => {
         if (!sDolaExRate || !jrDolaExRate) return;
         return juniorQueueWithdrawal(provider?.getSigner(), parseEther((parseFloat(inputAmount) / sDolaExRate / jrDolaExRate).toFixed(6)), withdrawDelay.toString());
+    }
+    
+    const handleRenew = async () => {
+        if (!sDolaExRate || !jrDolaExRate) return;
+        return juniorQueueWithdrawal(provider?.getSigner(), '0', witdhrawDelayRenew.toString());
     }
 
     const handleStake = () => {
@@ -479,6 +484,19 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                             </Text>
                                             {
                                                 hasComingExit ? isWithinExitWindow ? <Text>You have a withdrawal of <b>{shortenNumber(pendingAmountInSDola, 2)} sDOLA ({shortenNumber(pendingAmountInDola, 2)} DOLA)</b> to complete!</Text> : <Text><b>{shortenNumber(pendingAmountInSDola, 2)} sDOLA ({shortenNumber(pendingAmountInDola, 2)} DOLA)</b> in queue phase</Text> : <Text>You don't have any pending withdrawal</Text>
+                                            }
+                                            {
+                                                hasExpiredWithdrawal && <InfoMessage
+                                                    alertProps={{ w: 'full' }}
+                                                    description={
+                                                        <VStack alignItems="flex-start" spacing="0">
+                                                            <Text>You have an expired withdrawal of <b>{shortenNumber(pendingAmountInSDola, 2)} sDOLA ({shortenNumber(pendingAmountInDola, 2)} DOLA)</b></Text>
+                                                            <RSubmitButton mt="2" onClick={handleRenew}>
+                                                                Renew the withdrawal
+                                                            </RSubmitButton>
+                                                        </VStack>
+                                                    }
+                                                />
                                             }
                                             {
                                                 hasComingExit && isWithinExitWindow && <StatusMessage
