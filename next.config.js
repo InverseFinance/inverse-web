@@ -7,6 +7,11 @@ const redirects = async () => {
       destination: '/firm/admin',
       permanent: false,
     },
+     {
+      source: '/buy-backs',
+      destination: '/dbr/auction/inv-buy-backs',
+      permanent: false,
+    },
     {
       source: '/transparency/overview',
       destination: '/transparency/treasury',
