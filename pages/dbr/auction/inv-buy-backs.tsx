@@ -2,7 +2,7 @@ import { Box, HStack, Image, Stack, Text, VStack, VStack as ChakraVStack, Simple
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
-import { useAccount } from '@app/hooks/misc';
+import { useAccount, useEventsAsChartData } from '@app/hooks/misc';
 import { InvBuyBackUI } from '@app/components/F2/DbrAuction/InvBuyBackUI';
 import { InfoMessage } from '@app/components/common/Messages';
 import { useCustomSWR } from '@app/hooks/useCustomSWR';
@@ -17,11 +17,56 @@ import { StringCard } from '@app/components/F2/UserDashboard';
 import { timeSince } from '@app/util/time';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { DbrAuctionBuysChart } from '@app/components/F2/DbrAuction/DbrAuctionBuysChart';
+import { timestampToUTC } from '@app/util/misc';
+
+const buyColumns: any[] = [
+  {
+    field: 'txHash',
+    label: 'Tx',
+    header: ({ ...props }: any) => <HStack justify="flex-start" minWidth="120px" fontSize="14px" fontWeight="extrabold" {...props} />,
+    value: ({ txHash }: any) => (
+      <HStack justify="flex-start" minWidth="120px" fontSize="14px">
+        <ScannerLink value={txHash} type="tx" />
+      </HStack>
+    ),
+  },
+  {
+    field: 'timestamp',
+    label: 'Date',
+    header: ({ ...props }: any) => <HStack justify="flex-start" minWidth="140px" fontSize="14px" fontWeight="extrabold" {...props} />,
+    value: ({ timestamp }: any) => (
+      <HStack minWidth="140px" fontSize="14px">
+        <Timestamp timestamp={timestamp} text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px' }} />
+      </HStack>
+    ),
+  },
+  {
+    field: 'invIn',
+    label: 'INV In',
+    header: ({ ...props }: any) => <HStack justify="center" minWidth="100px" fontSize="14px" fontWeight="extrabold" {...props} />,
+    value: ({ invIn }: any) => (
+      <HStack justify="center" minWidth="100px" fontSize="14px">
+        <Text fontWeight="bold">{shortenNumber(invIn, 4)}</Text>
+      </HStack>
+    ),
+  },
+  {
+    field: 'dbrOut',
+    label: 'DBR Out',
+    header: ({ ...props }: any) => <HStack justify="center" minWidth="100px" fontSize="14px" fontWeight="extrabold" {...props} />,
+    value: ({ dbrOut }: any) => (
+      <HStack justify="center" minWidth="100px" fontSize="14px">
+        <Text fontWeight="bold">{shortenNumber(dbrOut, 4)}</Text>
+      </HStack>
+    ),
+  },
+];
 
 export const InvBuyBacksPage = () => {
   const { priceUsd: dbrPriceUsd } = useDBRPrice();
   const { data, isLoading } = useCustomSWR('/api/auctions/inv-buy-backs');
   const { isLoading: isLoadingChart, invBuyBackAuctionEvents } = useDbrAuctionActivity();
+  
   const { markets, isLoading: isLoadingMarkets } = useDBRMarkets();
   const invMarket = markets?.find(m => m.isInv);
   const invPrice = invMarket?.price || 0;
@@ -41,6 +86,8 @@ export const InvBuyBacksPage = () => {
   const last24hBuys = last100Buys.filter((buy: any) => buy.timestamp >= oneDayAgo);
   const last24hInvIn = last24hBuys.reduce((sum: number, buy: any) => sum + (buy.invIn || 0), 0);
   const last24hInvInWorth = last24hInvIn * invPrice;
+  const todayUTC = timestampToUTC(now);
+  const invInTodayUTC =  last100Buys.filter(b => timestampToUTC(b.timestamp) >= todayUTC).reduce((sum: number, buy: any) => sum + (buy.invIn || 0), 0);
 
   // Calculate average hourly rate
   let avgHourlyRate = 0;
@@ -54,49 +101,6 @@ export const InvBuyBacksPage = () => {
   }
 
   const estimatedMonthlyBuyPressure = (dbrRatePerYear * dbrPriceUsd) / 12;
-
-  const buyColumns: any[] = [
-    {
-      field: 'txHash',
-      label: 'Tx',
-      header: ({ ...props }: any) => <HStack justify="flex-start" minWidth="120px" fontSize="14px" fontWeight="extrabold" {...props} />,
-      value: ({ txHash }: any) => (
-        <HStack justify="flex-start" minWidth="120px" fontSize="14px">
-          <ScannerLink value={txHash} type="tx" />
-        </HStack>
-      ),
-    },
-    {
-      field: 'timestamp',
-      label: 'Date',
-      header: ({ ...props }: any) => <HStack justify="flex-start" minWidth="140px" fontSize="14px" fontWeight="extrabold" {...props} />,
-      value: ({ timestamp }: any) => (
-        <HStack minWidth="140px" fontSize="14px">
-          <Timestamp timestamp={timestamp} text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px' }} />
-        </HStack>
-      ),
-    },
-    {
-      field: 'invIn',
-      label: 'INV In',
-      header: ({ ...props }: any) => <HStack justify="center" minWidth="100px" fontSize="14px" fontWeight="extrabold" {...props} />,
-      value: ({ invIn }: any) => (
-        <HStack justify="center" minWidth="100px" fontSize="14px">
-          <Text fontWeight="bold">{shortenNumber(invIn, 4)}</Text>
-        </HStack>
-      ),
-    },
-    {
-      field: 'dbrOut',
-      label: 'DBR Out',
-      header: ({ ...props }: any) => <HStack justify="center" minWidth="100px" fontSize="14px" fontWeight="extrabold" {...props} />,
-      value: ({ dbrOut }: any) => (
-        <HStack justify="center" minWidth="100px" fontSize="14px">
-          <Text fontWeight="bold">{shortenNumber(dbrOut, 4)}</Text>
-        </HStack>
-      ),
-    },
-  ];
 
   return (
     <Layout>
@@ -210,7 +214,7 @@ export const InvBuyBacksPage = () => {
           </VStack>
         </HStack>
 
-        <DbrAuctionBuysChart hidePriceCharts={true} useInvAmount={true} auctionType="invBuyBack" events={invBuyBackAuctionEvents} chartEvents={invBuyBackAuctionEvents} />
+        <DbrAuctionBuysChart autoAddToday={true} todayValue={invInTodayUTC} autoAddZeroYAtStart={false} hidePriceCharts={true} hideMonthly={true} useInvAmount={true} auctionType="invBuyBack" events={invBuyBackAuctionEvents} chartEvents={invBuyBackAuctionEvents} />
 
         <Container
           label="Last 100 INV buybacks"
