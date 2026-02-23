@@ -15,10 +15,13 @@ import { INV_BUY_BACK_AUCTION } from '@app/config/constants';
 import { useDBRPrice, useDBRMarkets } from '@app/hooks/useDBR';
 import { StringCard } from '@app/components/F2/UserDashboard';
 import { timeSince } from '@app/util/time';
+import { useDbrAuctionActivity } from '@app/util/dbr-auction';
+import { DbrAuctionBuysChart } from '@app/components/F2/DbrAuction/DbrAuctionBuysChart';
 
 export const InvBuyBacksPage = () => {
   const { priceUsd: dbrPriceUsd } = useDBRPrice();
   const { data, isLoading } = useCustomSWR('/api/auctions/inv-buy-backs');
+  const { isLoading: isLoadingChart, invBuyBackAuctionEvents } = useDbrAuctionActivity();
   const { markets, isLoading: isLoadingMarkets } = useDBRMarkets();
   const invMarket = markets?.find(m => m.isInv);
   const invPrice = invMarket?.price || 0;
@@ -206,6 +209,8 @@ export const InvBuyBacksPage = () => {
             </HStack>
           </VStack>
         </HStack>
+
+        <DbrAuctionBuysChart hidePriceCharts={true} useInvAmount={true} auctionType="invBuyBack" events={invBuyBackAuctionEvents} chartEvents={invBuyBackAuctionEvents} />
 
         <Container
           label="Last 100 INV buybacks"
