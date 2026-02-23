@@ -14,7 +14,7 @@ export const JuniorMessage = () => {
         return null
     }
 
-    return <VStack w='full' alignItems="center" mb="4" spacing="0">
+    return <VStack w='full' alignItems="center" mb="4" spacing="0" px="6">
         <Text fontSize="24px" fontWeight="bold">
             Introducing the Junior Tranche: First-Loss Insurance for DOLA
         </Text>
