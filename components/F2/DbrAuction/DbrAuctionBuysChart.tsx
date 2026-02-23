@@ -64,7 +64,7 @@ const surroundByZero = (chartDataAcc: { x: number, y: number }[]) => {
     return cloned;
 }
 
-export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useInvAmount = false, auctionType, historicalRates }) => {
+export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useInvAmount = false, auctionType, historicalRates, hidePriceCharts = false }) => {
     const [useUsd, setUseUsd] = useState(false);
     // const { chartData: chartDataAccIncludingInv } = useEventsAsChartData(events, '_acc_', isTotal || useUsd ? 'worthIn' : useInvAmount ? 'invIn' : 'dolaIn', true, true);
     const { chartData: chartDataAcc } = useEventsAsChartData(chartEvents, '_acc_', isTotal || useUsd ? 'worthIn' : 'amountIn', true, true);
@@ -73,24 +73,24 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
     const { chartData: budgetChartData } = useEventsAsChartData((historicalRates || []), 'rate', 'rate', true, true);
 
     const { chartData: chartDataArb } = useEventsAsChartData(chartEvents.filter(e => e.arbPercMax > 0), 'arbPercMax', 'arbPercMax', true, true);
-    
-    const virtualAuctionBuysEvents = events.filter(e => e.auctionType === 'Virtual');
-    const sdolaAuctionBuysEvents = events.filter(e => e.auctionType === 'sDOLA');
-    const invAuctionBuysEvents = events.filter(e => e.auctionType === 'sINV');
 
     const { themeStyles } = useAppTheme();
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
     const [isLargerThan2xl] = useMediaQuery(`(min-width: 96em)`);
 
-    const generalAuctionBuys = virtualAuctionBuysEvents
-        .reduce((prev, curr) => prev + curr.amountIn, 0);
+    // const virtualAuctionBuysEvents = events.filter(e => e.auctionType === 'Virtual');
+    // const sdolaAuctionBuysEvents = events.filter(e => e.auctionType === 'sDOLA');
+    // const invAuctionBuysEvents = events.filter(e => e.auctionType === 'sINV');
 
-    const sDolaAuctionBuys = sdolaAuctionBuysEvents
-        .reduce((prev, curr) => prev + curr.amountIn, 0);
+    // const generalAuctionBuys = virtualAuctionBuysEvents
+    //     .reduce((prev, curr) => prev + curr.amountIn, 0);
 
-    const invAuctionBuys = invAuctionBuysEvents
-        .reduce((prev, curr) => prev + (useInvAmount ? (curr.invIn || 0) : curr.worthIn), 0);
+    // const sDolaAuctionBuys = sdolaAuctionBuysEvents
+    //     .reduce((prev, curr) => prev + curr.amountIn, 0);
+
+    // const invAuctionBuys = invAuctionBuysEvents
+    //     .reduce((prev, curr) => prev + (useInvAmount ? (curr.invIn || 0) : curr.worthIn), 0);
 
     const uniqueWeeks = [...new Set(chartEvents.map(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp)))];
     uniqueWeeks.sort((a, b) => a > b ? 1 : -1);
@@ -117,11 +117,11 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
     const last8WeeksDbrPricesStats = dbrPricesStats.slice(dbrPricesStats.length - nbWeeksToShow, dbrPricesStats.length);
     const last8WeeksIncomeStats = dbrWeeklyIncomeStats.slice(dbrWeeklyIncomeStats.length - nbWeeksToShow, dbrWeeklyIncomeStats.length);
 
-    const pieChartData = [
-        { name: 'Virtual', value: generalAuctionBuys },
-        { name: 'sDOLA', value: sDolaAuctionBuys },
-        { name: 'sINV', value: invAuctionBuys },
-    ];
+    // const pieChartData = [
+    //     { name: 'Virtual', value: generalAuctionBuys },
+    //     { name: 'sDOLA', value: sDolaAuctionBuys },
+    //     { name: 'sINV', value: invAuctionBuys },
+    // ];
 
     useEffect(() => {
         setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 80)
@@ -162,19 +162,21 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
                 </VStack>
             </VStack>
         </Stack>
-        <BarChartRecharts
-            title={`Weekly average prices in the last ${nbWeeksToShow} weeks`}
-            combodata={last8WeeksDbrPricesStats}
-            precision={4}
-            yAxisPrecision={4}
-            yDomain={useInvAmount ? [0.001, 0.004] : [0.05, 0.25]}
-            chartWidth={autoChartWidth - 50}
-            yLabel="Avg. Auction Price"
-            yLabel2="Avg. Market Price"
-            useUsd={false}
-            showLabel={isLargerThan}
-            isDoubleBar={true}
-        />
+        {
+            !hidePriceCharts && <BarChartRecharts
+                title={`Weekly average prices in the last ${nbWeeksToShow} weeks`}
+                combodata={last8WeeksDbrPricesStats}
+                precision={4}
+                yAxisPrecision={4}
+                yDomain={useInvAmount ? [0.001, 0.004] : [0.05, 0.25]}
+                chartWidth={autoChartWidth - 50}
+                yLabel="Avg. Auction Price"
+                yLabel2="Avg. Market Price"
+                useUsd={false}
+                showLabel={isLargerThan}
+                isDoubleBar={true}
+            />
+        }
         <DefaultCharts
             showMonthlyBarChart={true}
             showAreaChart={false}
@@ -185,7 +187,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
             smoothLineByDefault={false}
             barProps={{ useRecharts: true, title: 'Monthly auction income' }}
         />
-        <VStack pt="10">
+        {!hidePriceCharts && <VStack pt="10">
             <DefaultCharts
                 showMonthlyBarChart={false}
                 maxChartWidth={autoChartWidth}
@@ -206,6 +208,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
                 }}
             />
         </VStack>
+        }
         {
             auctionType === 'virtual' && <DbrYearlyBudgetEvolution
                 autoChartWidth={autoChartWidth}
