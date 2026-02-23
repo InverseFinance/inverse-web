@@ -64,15 +64,15 @@ const surroundByZero = (chartDataAcc: { x: number, y: number }[]) => {
     return cloned;
 }
 
-export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useInvAmount = false, auctionType, historicalRates, hidePriceCharts = false }) => {
+export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useInvAmount = false, auctionType, historicalRates, hidePriceCharts = false, hideMonthly = false, autoAddToday = true, todayValue = undefined, autoAddZeroYAtStart = true }) => {
     const [useUsd, setUseUsd] = useState(false);
     // const { chartData: chartDataAccIncludingInv } = useEventsAsChartData(events, '_acc_', isTotal || useUsd ? 'worthIn' : useInvAmount ? 'invIn' : 'dolaIn', true, true);
-    const { chartData: chartDataAcc } = useEventsAsChartData(chartEvents, '_acc_', isTotal || useUsd ? 'worthIn' : 'amountIn', true, true);
+    const { chartData: chartDataAcc } = useEventsAsChartData(chartEvents, '_acc_', isTotal || useUsd ? 'worthIn' : 'amountIn', autoAddToday, autoAddZeroYAtStart, todayValue);
 
-    const { chartData: chartDataAccUsd } = useEventsAsChartData(chartEvents, '_acc_', 'worthIn', true, true);
-    const { chartData: budgetChartData } = useEventsAsChartData((historicalRates || []), 'rate', 'rate', true, true);
+    const { chartData: chartDataAccUsd } = useEventsAsChartData(chartEvents, '_acc_', 'worthIn', autoAddToday, autoAddZeroYAtStart, todayValue);
+    const { chartData: budgetChartData } = useEventsAsChartData((historicalRates || []), 'rate', 'rate', autoAddToday, autoAddZeroYAtStart, todayValue);
 
-    const { chartData: chartDataArb } = useEventsAsChartData(chartEvents.filter(e => e.arbPercMax > 0), 'arbPercMax', 'arbPercMax', true, true);
+    const { chartData: chartDataArb } = useEventsAsChartData(chartEvents.filter(e => e.arbPercMax > 0), 'arbPercMax', 'arbPercMax', autoAddToday, autoAddZeroYAtStart, todayValue);
 
     const { themeStyles } = useAppTheme();
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
@@ -177,16 +177,18 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
                 isDoubleBar={true}
             />
         }
-        <DefaultCharts
-            showMonthlyBarChart={true}
-            showAreaChart={false}
-            maxChartWidth={autoChartWidth}
-            chartWidth={autoChartWidth}
-            chartData={chartDataAccUsd}
-            isDollars={true}
-            smoothLineByDefault={false}
-            barProps={{ useRecharts: true, title: 'Monthly auction income' }}
-        />
+        {
+            !hideMonthly && <DefaultCharts
+                showMonthlyBarChart={true}
+                showAreaChart={false}
+                maxChartWidth={autoChartWidth}
+                chartWidth={autoChartWidth}
+                chartData={chartDataAccUsd}
+                isDollars={true}
+                smoothLineByDefault={false}
+                barProps={{ useRecharts: true, title: 'Monthly auction income' }}
+            />
+        }
         {!hidePriceCharts && <VStack pt="10">
             <DefaultCharts
                 showMonthlyBarChart={false}
