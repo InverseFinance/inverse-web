@@ -214,8 +214,17 @@ export const InvBuyBacksPage = () => {
           </VStack>
         </HStack>
 
-        <DbrAuctionBuysChart autoAddToday={true} todayValue={invInTodayUTC} autoAddZeroYAtStart={false} hidePriceCharts={true} hideMonthly={true} useInvAmount={true} auctionType="invBuyBack" events={invBuyBackAuctionEvents} chartEvents={invBuyBackAuctionEvents} />
-
+        <Container
+          label="INV buybacks historical evolution"
+          w="full"
+          contentProps={{ p: 0, pt: 3, overflowX: 'auto' }}
+          noPadding
+          p="0"
+          collapsable={true}
+        >
+          <DbrAuctionBuysChart autoAddToday={true} todayValue={invInTodayUTC} autoAddZeroYAtStart={false} hidePriceCharts={true} hideMonthly={true} useInvAmount={true} auctionType="invBuyBack" events={invBuyBackAuctionEvents} chartEvents={invBuyBackAuctionEvents} />
+        </Container>
+        
         <Container
           label="Last 100 INV buybacks"
           description={last100Buys.length > 0 ? `Last update: ${timeSince(data?.timestamp)}` : 'Loading...'}
