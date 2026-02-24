@@ -111,7 +111,7 @@ export const InvBuyBacksPage = () => {
         <meta name="description" content="INV buyback" />
         <meta name="keywords" content="Inverse Finance, DBR, INV buyback, INV" />
       </Head>
-      <AppNav active="Stake" activeSubmenu="INV buyback" />
+      <AppNav active="Transparency" activeSubmenu="INV buybacks" />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
         mt='6'
