@@ -61,7 +61,7 @@ export const fedsDataToPieChart = (fedOverviews: any[], colors) => {
     const name = f.type === 'AMM' ?
       `${f.name} ` + (f.subBalances.reduce((acc, curr) => acc ? acc + '-' + curr.symbol : curr.symbol, '') + ' LP')
       : f.name;
-    const balance = ['FiRM', 'Frontier', 'Gearbox'].includes(f.protocol) ? f.borrows : f.supply - (f.idleDolaBalance || 0);
+    const balance = ['FiRM', 'Frontier', 'Gearbox', 'PSM'].includes(f.protocol) ? f.borrows : f.supply - (f.idleDolaBalance || 0);
     const color = ['Frontier', 'Fuse'].includes(f.protocol) ? colors.error : f.protocol === 'FiRM' ? colors.success : colors.info;
     return {
       ...f,
