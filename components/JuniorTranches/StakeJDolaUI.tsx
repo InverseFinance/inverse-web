@@ -69,7 +69,7 @@ const WithdrawTimeline = ({ markers, title = 'Withdrawal timeline' }: { markers:
         <Box position="relative" w="full" h={`${timelineHeight}px`} pl="4" py={`${padding}px`}>
             <Box position="absolute" top={`${padding}px`} bottom={`${padding}px`} left="5px" w="2px" bg="secondaryTextColor" opacity={0.3} transform="translateX(-50%)" />
             {
-                validMarkers.map((m,i) => {
+                validMarkers.map((m, i) => {
                     const timePerc = ((m.time - minTime) / span);
                     const calc = padding + (timePerc * availableHeight);
                     // const isInTheMiddle = i !== 0 && i !== validMarkers.length - 1;
@@ -154,7 +154,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
     const [baseBalance, setBaseBalance] = useState(0);
     const [realTimeBalance, setRealTimeBalance] = useState(0);
     // value in DOLA terms
-    const { withdrawDelay, withdrawDelayMax, withdrawTimestamp, withdrawTimestampMax, exitWindowStart, exitWindowEnd, pendingAmount, hasComingExit, isWithinExitWindow, canCancel } = useJuniorWithdrawDelay(jrDolaSupply, parseFloat(inputAmount || '0') / (sDolaExRate || 1) / (jrDolaExRate || 1), account, jrDolaBalanceBn);
+    const { withdrawDelay, withdrawDelayMax, withdrawTimestamp, withdrawTimestampMax, exitWindowStart, exitWindowEnd, pendingAmount, hasComingExit, isWithinExitWindow, hasExpiredWithdrawal, witdhrawDelayRenew, canCancel } = useJuniorWithdrawDelay(jrDolaSupply, parseFloat(inputAmount || '0') / (sDolaExRate || 1) / (jrDolaExRate || 1), account, jrDolaBalanceBn);
 
     const queueEndTs = inputAmount ? withdrawTimestamp : withdrawTimestampMax;
 
@@ -261,6 +261,11 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
         return juniorQueueWithdrawal(provider?.getSigner(), parseEther((parseFloat(inputAmount) / sDolaExRate / jrDolaExRate).toFixed(6)), withdrawDelay.toString());
     }
 
+    const handleRenew = async () => {
+        if (!sDolaExRate || !jrDolaExRate) return;
+        return juniorQueueWithdrawal(provider?.getSigner(), '0', witdhrawDelayRenew.toString());
+    }
+
     const handleStake = () => {
         // only required if deposit via DOLA case, 0.1% slippage protection
         const minJrDolaShares = getNumberToBn(getBnToNumber(parseEther(inputAmount)) / (sDolaExRate || 1) / (jrDolaExRate || 1) * 0.999);
@@ -291,7 +296,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
             <VStack alignItems="flex-start">
                 <Text fontWeight="bold">Junior DOLA - First-Loss Insurance for DOLA</Text>
                 <Text>jrDOLA is a liquid yield-bearing token where stakers earn yield coming from DBR auctions on top of the yield coming from sDOLA, meaning the <b>yield is always equal or higher than sDOLA</b> but in case bad debt occurs in an allowed FiRM market the deposits in jrDOLA may be slashed proportionnally among depositors to repay the bad debt.</Text>
-                <Text><b>Important note</b>: to exit jrDOLA and get back sDOLA a staker must queue a withdrawal, wait for the dynamic withdrawal delay and then complete the withdrawal within an exit window, if the exit window expired before completing the withdrawal then a new withdrawal must be queued.</Text>
+                <Text><b>Important note</b>: to exit jrDOLA and get back sDOLA a staker must queue a withdrawal, wait for the dynamic withdrawal delay and then complete the withdrawal within an exit window, if the exit window expired before completing the withdrawal then a new withdrawal must be queued, otherwise depending on liquidity the instant alternative is to swap at market price.</Text>
                 <Link textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/jrdola" isExternal target="_blank">Learn more about jrDOLA and the risks <ExternalLinkIcon /> </Link>
             </VStack>
         } alertProps={{ w: 'full' }} />
@@ -481,6 +486,19 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                 hasComingExit ? isWithinExitWindow ? <Text>You have a withdrawal of <b>{shortenNumber(pendingAmountInSDola, 2)} sDOLA ({shortenNumber(pendingAmountInDola, 2)} DOLA)</b> to complete!</Text> : <Text><b>{shortenNumber(pendingAmountInSDola, 2)} sDOLA ({shortenNumber(pendingAmountInDola, 2)} DOLA)</b> in queue phase</Text> : <Text>You don't have any pending withdrawal</Text>
                                             }
                                             {
+                                                hasExpiredWithdrawal && <InfoMessage
+                                                    alertProps={{ w: 'full' }}
+                                                    description={
+                                                        <VStack alignItems="flex-start" spacing="0">
+                                                            <Text>You have an expired withdrawal of <b>{shortenNumber(pendingAmountInSDola, 2)} sDOLA ({shortenNumber(pendingAmountInDola, 2)} DOLA)</b></Text>
+                                                            <RSubmitButton mt="2" onClick={handleRenew}>
+                                                                Renew the withdrawal
+                                                            </RSubmitButton>
+                                                        </VStack>
+                                                    }
+                                                />
+                                            }
+                                            {
                                                 hasComingExit && isWithinExitWindow && <StatusMessage
                                                     status={'warning'}
                                                     alertProps={{ w: 'full' }}
@@ -514,6 +532,12 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     </VStack>
                                                 </>
                                             }
+                                            <Text fontSize="20px" fontWeight="bold">
+                                                Alternative:
+                                            </Text>
+                                            <Link href="https://swap.defillama.com/?chain=ethereum&from=0x633821B8e003344e5223509277F2084EA809A452&tab=swap&to=0x865377367054516e17014ccded1e7d814edc9ce4" isExternal target="_blank" textDecoration="underline">
+                                                Swap jrDOLA <ExternalLinkIcon />
+                                            </Link>
                                         </VStack>
                                 }
                             </>

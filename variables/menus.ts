@@ -70,10 +70,6 @@ export const MENUS = {
           label: 'Buy DBR (auction)',
           href: '/dbr/auction',        
         },
-        {
-          label: 'INV buyback',
-          href: '/dbr/auction/inv-buy-backs',        
-        },
       ],
     },
     {
@@ -117,6 +113,10 @@ export const MENUS = {
         {
           href: '/transparency/treasury',
           label: 'Treasury',
+        },
+        {
+          label: 'INV buybacks',
+          href: '/dbr/auction/inv-buy-backs',        
         },
         {
           href: '/transparency/veNfts',
