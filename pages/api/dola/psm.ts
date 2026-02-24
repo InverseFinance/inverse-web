@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const { cacheFirst } = req.query;
     
-    const cacheKey = 'psm-activity-v1.0.2';
+    const cacheKey = 'psm-activity-v1.0.3';
 
     try {            
         const { data: cachedData, isValid: isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
