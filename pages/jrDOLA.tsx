@@ -36,8 +36,8 @@ export const JdolaPage = () => {
         <title>Inverse Finance - jrDOLA</title>
         <meta name="og:title" content="Inverse Finance - jrDOLA" />
         <meta name="og:description" content="jrDOLA" />
-        <meta name="description" content="Junior DOLA - First-Loss Insurance for DOLA" />
-        <meta name="keywords" content="Inverse Finance, jrDOLA, first-loss insurance" />
+        <meta name="description" content="Junior DOLA - First-Loss Layer for DOLA" />
+        <meta name="keywords" content="Inverse Finance, jrDOLA, first-loss Layer" />
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/jrDOLA-v3.jpeg" />
       </Head>
       <AppNav active="Stake" activeSubmenu="jrDOLA" hideAnnouncement={true} />
