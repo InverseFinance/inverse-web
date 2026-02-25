@@ -3,7 +3,7 @@ import { getProvider } from '@app/util/providers';
 import { getAaveV3RateOf } from '@app/util/borrow-rates-comp';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { getBnToNumber, getDefiLlamaApy, getSavingsCrvUsdData, getSavingsdeUSDData, getSavingsUSDData, getSUSDEData, getYearnVaultApy } from '@app/util/markets';
+import { getBnToNumber, getDefiLlamaApy, getSavingsCrvUsdData, getSavingsdeUSDData, getSavingsUSDData, getSUSDEData, getYearnVaultApy, getYearnVaultKongApy } from '@app/util/markets';
 import { getDSRData } from '@app/util/markets';
 import { TOKEN_IMAGES } from '@app/variables/images';
 import { timestampToUTC } from '@app/util/misc';
@@ -274,11 +274,11 @@ export default async function handler(req, res) {
       {
         symbol: 'ysUSDS',
         project: 'Yearn',
-        link: 'https://yearn.fi/v3/1/0x0868076663Bbc6638ceDd27704cc8F0Fa53d5b81',
-        pool: '23895650-759b-4417-8268-981134826dfc',
-        address: '0x0868076663Bbc6638ceDd27704cc8F0Fa53d5b81',
+        link: 'https://yearn.fi/vaults/1/0x182863131F9a4630fF9E27830d945B1413e347E8',
+        pool: '7501ef09-87d1-405c-b2b2-f269b2727289',
+        address: '0x182863131F9a4630fF9E27830d945B1413e347E8',
         underlying: '0xdC035D45d973E3EC169d2276DDab16f1e407384F',
-        currentRateGetter: () => getYearnVaultApy('0x0868076663Bbc6638ceDd27704cc8F0Fa53d5b81'),
+        currentRateGetter: () => getYearnVaultKongApy('0x182863131F9a4630fF9E27830d945B1413e347E8'),
         image: TOKEN_IMAGES['sUSDS'],
       },
       {
@@ -332,6 +332,35 @@ export default async function handler(req, res) {
         underlying: '0x57aB1E0003F623289CD798B1824Be09a793e4Bec',
         currentRateGetter: () => getDefiLlamaApy("a1b05c10-6d01-4b64-9247-4e86ca82a291"),
         image: 'https://raw.githubusercontent.com/resupplyfi/resupply-brand-kit/refs/heads/main/Logos%20%26%20Token%20Icons/sreUSD%20-%20Logo%20Design/sreUSD%20-%20Token%20icon/sreusd-icon-green-bg-128.png',
+      },
+      {
+        symbol: 'yBOLD',
+        project: 'Yearn',
+        link: 'https://yearn.fi/vaults/1/0x9F4330700a36B29952869fac9b33f45EEdd8A3d8',
+        pool: '4c29f645-12db-461f-a1d7-16900d624271',
+        address: '0x9F4330700a36B29952869fac9b33f45EEdd8A3d8',
+        underlying: '0x6440f144b7e50D6a8439336510312d2F54beB01D',
+        currentRateGetter: () => getYearnVaultKongApy('0x9F4330700a36B29952869fac9b33f45EEdd8A3d8'),
+        image: `data:image/svg+xml,%3csvg%20width='148'%20height='148'%20viewBox='0%200%20148%20148'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20clip-path='url(%23clip0_56_219)'%3e%3cpath%20d='M74%20148C114.869%20148%20148%20114.869%20148%2074C148%2033.1309%20114.869%200%2074%200C33.1309%200%200%2033.1309%200%2074C0%20114.869%2033.1309%20148%2074%20148Z'%20fill='%230675F9'/%3e%3cpath%20d='M125.068%2078.7182C130.501%2095.0518%20121.655%20112.695%20105.333%20118.128C88.9995%20123.561%2071.3558%20114.715%2065.9233%2098.3931C60.4908%2082.0595%2069.3367%2064.4158%2085.6582%2058.9833C101.992%2053.5508%20119.636%2062.3966%20125.068%2078.7182ZM82.293%2023.6479L55.503%2023.2393L54.0006%20120.412L80.7906%20120.82L82.293%2023.6479ZM32.4028%2034.4528L13.9058%2053.3344L54.9982%2093.5975L55.3948%2058.2021L32.4028%2034.4528Z'%20fill='white'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='clip0_56_219'%3e%3crect%20width='148'%20height='148'%20fill='white'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e`,
+      },
+      {
+        symbol: 'sBOLD',
+        project: 'K3 Capital',
+        link: 'https://liquity.app/earn/sbold',
+        // pool: '',
+        address: '0x50Bd66D59911F5e086Ec87aE43C811e0D059DD11',
+        underlying: '0x6440f144b7e50D6a8439336510312d2F54beB01D',
+        currentRateGetter: async () => {
+          try {
+            const res = await fetch(`https://api.liquity.org/v2/ethereum.json`);
+            const data = await res.json();
+            return { apy: data.sBOLD.weekly_apr * 100 };
+          } catch (e) {
+            console.log(e)
+          }
+          return { apy: 0 };
+        },
+        image: `data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20width='24'%20height='24'%20fill='none'%3e%3ccircle%20cx='12'%20cy='12'%20r='12'%20fill='%23F5D93A'/%3e%3cpath%20fill='%231C1D4F'%20d='M14.07%208.269a5.866%205.866%200%201%201-2.67%2011.087V8.911a5.84%205.84%200%200%201%202.67-.642Zm-2.67.642a5.866%205.866%200%200%200%200%2010.445V20H6.065V4H11.4v4.911Z'/%3e%3c/svg%3e`,
       },
     ];
 

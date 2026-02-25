@@ -534,6 +534,19 @@ export const getYearnVaultApy = async (vaultId: string) => {
     }
 };
 
+export const getYearnVaultKongApy = async (vaultId: string) => {
+    try {
+        const response = await fetch(`https://kong.yearn.fi/api/rest/snapshot/1/${vaultId}`);
+        const data = await response.json();
+        return {
+            apy: (data?.performance?.oracle?.apy||0) * 100
+        };
+    } catch (e) {
+        console.log(`Failed to fetch APY for Yearn vault ${vaultId}:`, e);
+        return { apy: 0 };
+    }
+};
+
 const getYearnVaultApyViaKong = async (vaultId: string) => {
     try {
         const response = await fetch("https://kong.yearn.farm/api/gql?explorerURLState=N4IgJg9gxgrgtgUwHYBcQC4QEcYIE4CeABAGoCGMANigBQAkUAFmQJZICSY6R7qANETpkwYPAgDO47gGUUeNgHMAlEWAAdPGqREiANwrUaTVhy6DjbTgOGiJUwTbGSV6zdp1EyAB2KutHjyQEFA1-AKIAdwQEAGtKAgA5YND3ALgIVEZ4pJC3cKIFPAhJAEEvTTyPAF8UnRq3KpA+EH15MgAjSgkMED93NRALUwHuAEY+WqIBxzsRqZAABgAPACYAdgAhAFY1gGYATgQVleF9hd3d9qgNgDNR-ZWFrf3R47BRgDZLj-OAFn2ACIDFKNZpeYooG6UFgKRgoADyXnwZBQLAy0ig8i8aEwICqQA", {
