@@ -24,6 +24,7 @@ import { timeSince } from '@app/util/time'
 import { DbrFloatingTrigger } from '@app/components/F2/DbrEasyBuyer.tsx/DbrEasyBuyer'
 import { JuniorMessage } from '@app/components/JuniorTranches/JuniorMessage'
 
+// test
 export const F2PAGE = ({
     isTwitterAlert = false,
     marketsData,
