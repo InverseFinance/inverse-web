@@ -13,6 +13,11 @@ const redirects = async () => {
       permanent: false,
     },
     {
+      source: '/test',
+      destination: '/buybacks',
+      permanent: false,
+    },
+    {
       source: '/transparency/overview',
       destination: '/transparency/treasury',
       permanent: false,
