@@ -180,16 +180,17 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
         }
         {
             showWeeklyIncome && <BarChartRecharts
-                title={`Weekly income in the last ${nbWeeksToShow} weeks`}
+                title={`Weekly income & Avg. INV price in the last ${nbWeeksToShow} weeks`}
                 combodata={last8WeeksIncomeStats}
                 precision={2}
                 yAxisPrecision={2}
                 chartWidth={autoChartWidth - 50}
                 yLabel="Weekly Income"
                 yLabel2="Avg. INV price"
+                secondaryColor={'white'}
                 useUsd={true}
                 showLabel={isLargerThan}
-                isDoubleBar={true}
+                isBiaxial={true}
             />
         }
         {
