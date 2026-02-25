@@ -333,12 +333,13 @@ export default async function handler(req, res) {
         currentRateGetter: () => getDefiLlamaApy("a1b05c10-6d01-4b64-9247-4e86ca82a291"),
         image: 'https://raw.githubusercontent.com/resupplyfi/resupply-brand-kit/refs/heads/main/Logos%20%26%20Token%20Icons/sreUSD%20-%20Logo%20Design/sreUSD%20-%20Token%20icon/sreusd-icon-green-bg-128.png',
       },
+      // vault != staking contract
       {
         symbol: 'yBOLD',
         project: 'Yearn',
         link: 'https://yearn.fi/vaults/1/0x9F4330700a36B29952869fac9b33f45EEdd8A3d8',
         pool: '4c29f645-12db-461f-a1d7-16900d624271',
-        address: '0x9F4330700a36B29952869fac9b33f45EEdd8A3d8',
+        address: '0x23346B04a7f55b8760E5860AA5A77383D63491cD',// staking contract for calc
         underlying: '0x6440f144b7e50D6a8439336510312d2F54beB01D',
         currentRateGetter: () => getYearnVaultKongApy('0x9F4330700a36B29952869fac9b33f45EEdd8A3d8'),
         image: `data:image/svg+xml,%3csvg%20width='148'%20height='148'%20viewBox='0%200%20148%20148'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20clip-path='url(%23clip0_56_219)'%3e%3cpath%20d='M74%20148C114.869%20148%20148%20114.869%20148%2074C148%2033.1309%20114.869%200%2074%200C33.1309%200%200%2033.1309%200%2074C0%20114.869%2033.1309%20148%2074%20148Z'%20fill='%230675F9'/%3e%3cpath%20d='M125.068%2078.7182C130.501%2095.0518%20121.655%20112.695%20105.333%20118.128C88.9995%20123.561%2071.3558%20114.715%2065.9233%2098.3931C60.4908%2082.0595%2069.3367%2064.4158%2085.6582%2058.9833C101.992%2053.5508%20119.636%2062.3966%20125.068%2078.7182ZM82.293%2023.6479L55.503%2023.2393L54.0006%20120.412L80.7906%20120.82L82.293%2023.6479ZM32.4028%2034.4528L13.9058%2053.3344L54.9982%2093.5975L55.3948%2058.2021L32.4028%2034.4528Z'%20fill='white'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='clip0_56_219'%3e%3crect%20width='148'%20height='148'%20fill='white'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e`,
