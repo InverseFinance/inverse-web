@@ -8,7 +8,7 @@ const redirects = async () => {
       permanent: false,
     },
      {
-      source: '/buy-backs',
+      source: '/buybacks',
       destination: '/dbr/auction/inv-buy-backs',
       permanent: false,
     },
