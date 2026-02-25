@@ -1,7 +1,7 @@
 import { useAppTheme } from '@app/hooks/useAppTheme';
 import { VStack, Text } from '@chakra-ui/react'
 import { shortenNumber, smartShortNumber } from '@app/util/markets';
-import { Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart } from 'recharts';
+import { Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart, Line } from 'recharts';
 import { preciseCommify } from '@app/util/misc';
 
 const CustomizedLabel = ({ x, y, fill, value, color, useUsd, precision = 2, prefix = '' }) => {
@@ -37,6 +37,7 @@ export const BarChartRecharts = ({
     precision = 2,
     yAxisPrecision = 2,
     isDoubleBar = false,
+    isBiaxial = false,
     isStacked = false,
     stackFields,
     stackLabels,
@@ -66,6 +67,7 @@ export const BarChartRecharts = ({
     rightPadding?: number
     showLabel?: boolean
     isDoubleBar?: boolean
+    isBiaxial?: boolean
     precision?: number
     yAxisPrecision?: number
     stackLabels?: string[]
@@ -116,7 +118,10 @@ export const BarChartRecharts = ({
                     style={_axisStyle.tickLabels}
                     dataKey="x"
                 />
-                <YAxis domain={yDomain} style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : smartShortNumber(v, yAxisPrecision, useUsd)} />
+                <YAxis yAxisId="left" domain={yDomain} style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : smartShortNumber(v, yAxisPrecision, useUsd)} />
+                {
+                    isBiaxial && <YAxis orientation="right" yAxisId="right" domain={yDomain} style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : smartShortNumber(v, yAxisPrecision, useUsd)} />
+                }
                 {
                     showTooltips && <Tooltip
                         wrapperStyle={_axisStyle.tickLabels}
@@ -141,9 +146,10 @@ export const BarChartRecharts = ({
                                 return <CustomizedLabel {...props} prefix="Total: " useUsd={useUsd} color={color} precision={precision} />
                             } : undefined} stackId="a" maxBarSize={25} name={stackLabels?.[index] || stackField} dataKey={stackField} stroke={stackColors?.[index]} fillOpacity={1} fill={stackColors?.[index]} />
                         })
-                        : <Bar label={showLabel ? (props) => <CustomizedLabel {...props} useUsd={useUsd} color={color} precision={precision} /> : undefined} maxBarSize={25} name={yLabel} dataKey={'y'} stroke={color} fillOpacity={1} fill={color} />}
+                        : <Bar yAxisId="left" label={showLabel ? (props) => <CustomizedLabel {...props} useUsd={useUsd} color={color} precision={precision} /> : undefined} maxBarSize={25} name={yLabel} dataKey={'y'} stroke={color} fillOpacity={1} fill={color} />}
 
-                {isDoubleBar && <Bar label={showLabel ? (props) => <CustomizedLabel {...props} useUsd={useUsd} color={color2} precision={precision} /> : undefined} maxBarSize={25} name={yLabel2 || yLabel} dataKey={'y2'} stroke={color2} fillOpacity={1} fill={color2} />}
+                {isDoubleBar && <Bar yAxisId={'left'} label={showLabel ? (props) => <CustomizedLabel {...props} useUsd={useUsd} color={color2} precision={precision} /> : undefined} maxBarSize={25} name={yLabel2 || yLabel} dataKey={'y2'} stroke={color2} fillOpacity={1} fill={color2} />}
+                {isBiaxial && <Line yAxisId={'right'} type="monotone" label={showLabel ? (props) => <CustomizedLabel {...props} useUsd={useUsd} color={color2} precision={precision} /> : undefined} name={yLabel2 || yLabel} dataKey={'y2'} stroke={color2} fillOpacity={1} fill={color2} />}
             </ComposedChart>
         </VStack>
     );

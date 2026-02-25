@@ -64,7 +64,7 @@ const surroundByZero = (chartDataAcc: { x: number, y: number }[]) => {
     return cloned;
 }
 
-export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useInvAmount = false, auctionType, historicalRates, hidePriceCharts = false, hideMonthly = false, autoAddToday = true, todayValue = undefined, autoAddZeroYAtStart = true }) => {
+export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useInvAmount = false, auctionType, historicalRates, hidePriceCharts = false, hideMonthly = false, autoAddToday = true, todayValue = undefined, autoAddZeroYAtStart = true, showWeeklyIncome = false }) => {
     const [useUsd, setUseUsd] = useState(false);
     // const { chartData: chartDataAccIncludingInv } = useEventsAsChartData(events, '_acc_', isTotal || useUsd ? 'worthIn' : useInvAmount ? 'invIn' : 'dolaIn', true, true);
     const { chartData: chartDataAcc } = useEventsAsChartData(chartEvents, '_acc_', isTotal || useUsd ? 'worthIn' : 'amountIn', autoAddToday, autoAddZeroYAtStart, todayValue);
@@ -108,9 +108,10 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
 
     const dbrWeeklyIncomeStats = uniqueWeeks.map(week => {
         const weekEvents = chartEvents.filter(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp) === week);
-        const dolaIn = weekEvents.map(e => e.worthIn);
-        const total = dolaIn.reduce((prev, curr) => prev + curr, 0);
-        return { week, y: total, x: week }
+        const worthIn = weekEvents.reduce((prev, curr) => prev + curr.worthIn, 0);
+        const amountIn = weekEvents.reduce((prev, curr) => prev + curr.amountIn, 0);
+        const avgMarketPrice = amountIn ? worthIn / amountIn : 0;
+        return { week, y: worthIn, y2: avgMarketPrice, x: week }
     });
 
     const nbWeeksToShow = isLargerThan ? 8 : 6;
@@ -175,6 +176,21 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
                 useUsd={false}
                 showLabel={isLargerThan}
                 isDoubleBar={true}
+            />
+        }
+        {
+            showWeeklyIncome && <BarChartRecharts
+                title={`Weekly income & Avg. INV price in the last ${nbWeeksToShow} weeks`}
+                combodata={last8WeeksIncomeStats}
+                precision={2}
+                yAxisPrecision={2}
+                chartWidth={autoChartWidth - 50}
+                yLabel="Weekly Income"
+                yLabel2="Avg. INV price"
+                secondaryColor={'white'}
+                useUsd={true}
+                showLabel={isLargerThan}
+                isBiaxial={true}
             />
         }
         {
