@@ -222,7 +222,7 @@ export const InvBuyBacksPage = () => {
           p="0"
           collapsable={true}
         >
-          <DbrAuctionBuysChart autoAddToday={true} todayValue={invInTodayUTC} autoAddZeroYAtStart={false} hidePriceCharts={true} hideMonthly={true} useInvAmount={true} auctionType="invBuyBack" events={invBuyBackAuctionEvents} chartEvents={invBuyBackAuctionEvents} />
+          <DbrAuctionBuysChart showWeeklyIncome={true} autoAddToday={true} todayValue={invInTodayUTC} autoAddZeroYAtStart={false} hidePriceCharts={true} hideMonthly={true} useInvAmount={true} auctionType="invBuyBack" events={invBuyBackAuctionEvents} chartEvents={invBuyBackAuctionEvents} />
         </Container>
         
         <Container
