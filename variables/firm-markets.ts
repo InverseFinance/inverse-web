@@ -635,8 +635,8 @@ export const FIRM_MARKETS = [
         isAleWithoutSwap: true,
         convexRewardsAddress: '0xE694a5e9272ea7ed2DC25f0c6D21640fb8a83166',
         isInv: false,
-        points: 30,
-        pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/resolv.png',
+        // points: 30,
+        // pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/resolv.png',
     },
     {
         name: 'yv-USR-DOLA',
@@ -656,8 +656,8 @@ export const FIRM_MARKETS = [
         underlyingSymbol: 'USR-DOLA',
         isAleWithoutSwap: true,
         isInv: false,
-        points: 30,
-        pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/resolv.png',
+        // points: 30,
+        // pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/resolv.png',
     },
     {
         name: 'PT-sUSDe-29MAY25',
@@ -785,8 +785,8 @@ export const FIRM_MARKETS = [
         isAleWithoutSwap: true,
         convexRewardsAddress: '0x7F548ca54A86a326CE42772879338d429F14f048',
         isInv: false,
-        points: 20,
-        pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/resolv.png',
+        // points: 20,
+        // pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/resolv.png',
     },
     {
         name: 'yv-wstUSR-DOLA',
@@ -806,7 +806,7 @@ export const FIRM_MARKETS = [
         underlyingSymbol: 'wstUSR-DOLA',
         isAleWithoutSwap: true,
         isInv: false,
-        points: 20,
-        pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/resolv.png',
+        // points: 20,
+        // pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/resolv.png',
     },
 ];
