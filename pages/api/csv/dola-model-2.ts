@@ -15,6 +15,7 @@ import { getBnToNumber } from "@app/util/markets";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { getDbrPriceOnCurve } from "@app/util/f2";
 import { dbrReplenishmentsEvolutionCacheKey } from "../f2/dbr-replenishments-evolution";
+import { getJrdolaContract } from "@app/util/junior";
 
 const { DBR } = getNetworkConfigConstants();
 
@@ -22,8 +23,8 @@ const { DBR } = getNetworkConfigConstants();
 export default async (req, res) => {
     const { include } = req.query;
     const includeList = include ? include.split(',').filter(ad => isAddress(ad)) : [];
-    const cacheDuration = 900;
-    const cacheKey = `dola-modal-2-v1.0.95L${include ? includeList.join(',') : ''}`;
+    const cacheDuration = 300;
+    const cacheKey = `dola-modal-2-v1.0.96${include ? includeList.join(',') : ''}`;
 
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
@@ -34,6 +35,8 @@ export default async (req, res) => {
         DBR_ABI,
         provider,
     );
+
+    const jrDolaContract = getJrdolaContract(provider);
 
     const sevenDaysAgoTs = (Date.now() - 7 * ONE_DAY_MS);
     const sevenDaysAgoTsInSecs = (sevenDaysAgoTs / 1000).toFixed(0);
@@ -49,6 +52,7 @@ export default async (req, res) => {
             dbrTriPoolBalance2Bn,
             dbrPriceData,
             aaveRes,
+            jrDolaRateBn,
         ] = await Promise.all([
             fetcher60sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity?cacheFirst=true`),
             getCacheFromRedis(repaymentsCacheKeyV2, false),
@@ -75,7 +79,8 @@ export default async (req, res) => {
                 },
                 "body": "{\"operationName\":\"BorrowAPYHistory\",\"query\":\"query BorrowAPYHistory($request: BorrowAPYHistoryRequest!) {\\n  value: borrowAPYHistory(request: $request) {\\n    ...APYSample\\n  }\\n}\\nfragment APYSample on APYSample {\\n  __typename\\n  avgRate {\\n    ...PercentValue\\n  }\\n  date\\n}\\nfragment PercentValue on PercentValue {\\n  __typename\\n  raw\\n  decimals\\n  value\\n  formatted\\n}\",\"variables\":{\"request\":{\"chainId\":1,\"market\":\"0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2\",\"underlyingToken\":\"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\"window\":\"LAST_WEEK\"}}}",
                 "method": "POST"
-            })
+            }),
+            jrDolaContract.yearlyRewardBudget(),
             // fetcher30sectimeout(`https://aave-api-v2.aave.com/data/rates-history?reserveId=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb480x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e1&from=${sevenDaysAgoTsInSecs}&resolutionInHours=6`),
         ]);
 
@@ -100,7 +105,9 @@ export default async (req, res) => {
         const aaveData = await aaveRes.json();
         const aave7dAvgRate = aaveData.data.value.reduce((p, c) => p + parseFloat(c.avgRate.formatted), 0) / aaveData.data.value.length;
 
-        let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},DSA DOLA bal:,${dolaStakingData.dsaTotalSupply},DSA dbrYearlyEarnings:,${dolaStakingData.dsaYearlyDbrEarnings},DBR replenishments (30d):,${dbrReplenished30d},DBR balance in tripool:,${getBnToNumber(dbrTriPoolBalanceBn.add(dbrTriPoolBalance2Bn)).toFixed(0)},DBR circ supply:,${Number(dbrCirculatingSupply).toFixed(0)},DBR price (in dola):,${Number(dbrPrice).toFixed(4)},Aave USDC 7d avg borrow APR:,${Number(aave7dAvgRate).toFixed(2)}\n`;
+        const jrDolaRate = getBnToNumber(jrDolaRateBn);
+
+        let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},DSA DOLA bal:,${dolaStakingData.dsaTotalSupply},DSA dbrYearlyEarnings:,${dolaStakingData.dsaYearlyDbrEarnings},DBR replenishments (30d):,${dbrReplenished30d},DBR balance in tripool:,${getBnToNumber(dbrTriPoolBalanceBn.add(dbrTriPoolBalance2Bn)).toFixed(0)},DBR circ supply:,${Number(dbrCirculatingSupply).toFixed(0)},DBR price (in dola):,${Number(dbrPrice).toFixed(4)},Aave USDC 7d avg borrow APR:,${Number(aave7dAvgRate).toFixed(2)},jrDOLA yearly rewards:,${jrDolaRate}\n`;
         csvData += `Liquidity Cache:,~5min,Liquidity timestamp:,${liquidityData.timestamp},Bad debt timestamp:,${badDebtData.timestamp}, DSA timestamp:,${dolaStakingData.timestamp},\n`;
         csvData += `LP,Fed or Project,Fed Supply,RootLP DOLA balance,Pairing Depth ($ or amount),Fed PoL\n`;
         feds.forEach((lp) => {
