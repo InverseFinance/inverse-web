@@ -150,7 +150,7 @@ export const getCacheFromRedis = async (
 
         if (isValid && data) { return data }
     } catch (e) {
-        console.log(cacheKey);
+        console.log(String(cacheKey).replace(/\n|\r/g, ''));
         console.log(e);
     }
     return undefined;
@@ -217,7 +217,7 @@ export const getCacheFromRedisAsObj = async (
             };
         }
     } catch (e) {
-        console.log(cacheKey);
+        console.log(String(cacheKey).replace(/\n|\r/g, ''));
         console.log(e);
     }
     return { data: undefined, isValid: false };
