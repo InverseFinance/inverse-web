@@ -54,9 +54,9 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
 }
 
 export const getPaidProvider = (chainId: string | number) => {
-    if (chainId?.toString() === NetworkIds.mainnet || chainId?.toString() === NetworkIds.sepolia) {
-        return new InfuraProvider(Number(chainId), getRandomFromStringList(process.env.INFURA_KEYS!));
-    }
+    // if (chainId?.toString() === NetworkIds.mainnet || chainId?.toString() === NetworkIds.sepolia) {
+    //     return new InfuraProvider(Number(chainId), getRandomFromStringList(process.env.INFURA_KEYS!));
+    // }
     return getProvider(chainId);
 }
 
