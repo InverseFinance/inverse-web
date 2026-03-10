@@ -29,15 +29,17 @@ export const SDolaAnnouncement = () => {
   const { themeStyles } = useAppTheme();
   const { ANNOUNCEMENT_BAR_BORDER } = useAppThemeParams();
 
-  const { markets, isLoading: isDBRMarketsLoading } = useDBRMarkets();
-  const invMarket = markets?.find(m => m.isInv);
-  const invPrice = invMarket?.price || 0;
-  // const { data: apiData, error: apiErr } = useCustomSWR(`/api/dola-staking?v=2&cacheFirst=true&includeSpectra=true`);
-  const { data: invBuyBacksData } = useCacheFirstSWR('/api/auctions/inv-buy-backs');
+  // const { markets, isLoading: isDBRMarketsLoading } = useDBRMarkets();
+  // const invMarket = markets?.find(m => m.isInv);
+  // const invPrice = invMarket?.price || 0;
+  const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/junior/jdola-staking`);
+  // const { data: invBuyBacksData } = useCacheFirstSWR('/api/auctions/inv-buy-backs');
   // const spectraPool = apiData?.spectraPool;
-  // const sDolaApy = apiData?.apy;
+  const sDolaApy = apiData?.sDolaApy;
+  const jrDolaIntrinsicApy = apiData?.apy;
+  const jrDolaApy = apiData?.totalApy;
 
-  // const highestApy = sDolaApy;
+  const highestApy = sDolaApy;
   // const highestApy = useMemo(() => {
   //   return Math.max(sDolaApy, spectraPool?.apy || 0);
   // }, [sDolaApy, spectraPool]);
@@ -47,8 +49,8 @@ export const SDolaAnnouncement = () => {
   //   return highestApy === spectraPool?.apy;
   // }, [highestApy, spectraPool]);
 
-  const totalInvIn = invBuyBacksData?.totalInvIn || 0;
-  const totalInvInWorth = totalInvIn * invPrice; //invBuyBacksData?.totalInvInWorth || 0;
+  // const totalInvIn = invBuyBacksData?.totalInvIn || 0;
+  // const totalInvInWorth = totalInvIn * invPrice; //invBuyBacksData?.totalInvInWorth || 0;
 
   return (
     <Flex
@@ -67,23 +69,21 @@ export const SDolaAnnouncement = () => {
       cursor="pointer"
     >
       <Stack direction="column" spacing="0" alignItems="center">
-        {/* <Link
+        <Link
           color="mainTextColor"
-          href={isSpectraCase ? spectraPool.pool : '/sDOLA'}
-          target={isSpectraCase ? '_blank' : '_self'}
-          isExternal={isSpectraCase}
+          href={'/sDOLA'}
           _hover={{ color: 'lightAccentTextColor' }}
         >
           {
             highestApy > 0 ?
               <HStack textDecoration="underline" spacing="1">
-                <Text className="heading-font">Get <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>{shortenNumber(highestApy, 2)}%</b>{isSpectraCase ? ' Fixed ' : ' '}APY with sDOLA{isSpectraCase ? ' on Spectra' : ''}</Text>
+                <Text className="heading-font">Get <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>{shortenNumber(highestApy, 2)}%</b> APY with sDOLA</Text>
                 <Image borderRadius="full" src="/assets/sDOLAx128.png" h="20px" w="20px" />
               </HStack>
               : <SmallTextLoader />
           }
-        </Link> */}
-        <Link
+        </Link>
+        {/* <Link
           color="mainTextColor"
           href="/dbr/auction/inv-buy-backs"
           target="_self"
@@ -107,7 +107,7 @@ export const SDolaAnnouncement = () => {
                 <SmallTextLoader />
             }
           </VStack>
-        </Link>
+        </Link> */}
       </Stack>
     </Flex>
   )
