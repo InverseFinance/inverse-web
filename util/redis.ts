@@ -74,12 +74,12 @@ export const getRedisClient = (): WrappedNodeRedisClient => {
     return redisNewDBClient;
 }
 
-async function getKeysForPattern(pattern: string) {
+async function getKeysForPattern(pattern: string, srcClient = redisNewDBClient) {
     let cursor = '0';
     const keys = [];
 
     do {
-        const [nextCursor, foundKeys] = await redisNewDBClient.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+        const [nextCursor, foundKeys] = await srcClient.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
         cursor = nextCursor;
         keys.push(...foundKeys);
     } while (cursor !== '0');
@@ -117,6 +117,24 @@ async function getKeysForPattern(pattern: string) {
 //         }
 //     }
 // }
+
+export const pullToDevDatabase = async (pattern: string) => {
+    console.log('pulling to dev database')
+    const redisProdClient = createNodeRedisClient({
+        url: process.env.REDIS_PROD_URL,
+    });
+     const redisDevClient = createNodeRedisClient({
+        url: process.env.REDIS_DEV_URL,
+    });
+    let keys = await getKeysForPattern(pattern, redisProdClient);
+    console.log('keys', keys)
+    for (const key of keys) {
+        const newDbValue = await redisProdClient.get(key);
+        if (!!newDbValue) {
+            await redisDevClient.set(key, newDbValue);
+        }
+    }
+}
 
 // export const migrateOtherKeys = async () => {
 //     const nonPureKeysNoChunks = [
