@@ -72,6 +72,7 @@ export default async function handler(req, res) {
         }
 
         resultData.totalApy = sDolaApy + resultData.apy;
+        resultData.sDolaApy = sDolaApy;
         resultData.totalProjectedApy = sDolaProjectedApy + resultData.projectedApy;
         resultData.sDolaExRate = sDolaExRate;
         resultData.totalApy30d = sDolaApy30d + resultData.apy30d;
