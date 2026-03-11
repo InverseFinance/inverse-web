@@ -68,7 +68,7 @@ export const SDolaAnnouncement = () => {
       color={'mainTextColor'}
       cursor="pointer"
     >
-      <Stack direction="column" spacing="0" alignItems="center">
+      <Stack direction={{ base: 'column', lg: 'row' }} spacing={{ base: 0, lg: 8 }} alignItems="center">
         <Link
           color="mainTextColor"
           href={'/sDOLA'}
@@ -77,12 +77,28 @@ export const SDolaAnnouncement = () => {
           {
             highestApy > 0 ?
               <HStack textDecoration="underline" spacing="1">
-                <Text className="heading-font">Get <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>{shortenNumber(highestApy, 2)}%</b> APY with sDOLA</Text>
-                <Image borderRadius="full" src="/assets/sDOLAx128.png" h="20px" w="20px" />
+                <Text>Get <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>{shortenNumber(highestApy, 2)}%</b> APY with <b>sDOLA</b></Text>
+                {/* <Image borderRadius="full" src="/assets/sDOLAx128.png" h="20px" w="20px" /> */}
               </HStack>
               : <SmallTextLoader />
           }
         </Link>
+        {
+          jrDolaApy > sDolaApy && <Link
+            color="mainTextColor"
+            href={'/sDOLA'}
+            _hover={{ color: 'lightAccentTextColor' }}
+          >
+            {
+              highestApy > 0 ?
+                <HStack textDecoration="underline" spacing="1">
+                  <Text>Get <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>{shortenNumber(highestApy, 2)}%</b> APY with <b>jrDOLA</b></Text>
+                  {/* <Image borderRadius="full" src="/assets/jrDOLA.png" h="20px" w="20px" /> */}
+                </HStack>
+                : <SmallTextLoader />
+            }
+          </Link>
+        }
         {/* <Link
           color="mainTextColor"
           href="/dbr/auction/inv-buy-backs"
