@@ -67,6 +67,8 @@ export const TOKEN_IMAGES = {
     "FXUSD": "https://assets.coingecko.com/coins/images/36202/standard/fxUSD.jpg?1710833113",    
     "SDOLA": "https://assets.coingecko.com/coins/images/35495/standard/sDOLAlogoFINAL.png?1708922289",
     "sDOLA": "https://assets.coingecko.com/coins/images/35495/standard/sDOLAlogoFINAL.png?1708922289",
+    "JRDOLA": "/assets/jrDOLA.png",
+    "jrDOLA": "/assets/jrDOLA.png",
     "PYUSD": "https://assets.coingecko.com/coins/images/31212/standard/PYUSD_Logo_%282%29.png?1696530039",
     "MKUSD": "https://assets.coingecko.com/coins/images/31519/standard/mkUSD_200.png?1696530329",
     "WUSDR": "https://assets.coingecko.com/coins/images/28800/small/wUSDRlogo.png?1674283345",
