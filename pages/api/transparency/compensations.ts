@@ -130,7 +130,7 @@ export default async function handler(req, res) {
     const founderNewVesterAmount = 3333.33;
     const xinvExRate = getBnToNumber(xinvExRateBn);
 
-    const teamAddresses = [...new Set(vesterRecipients.concat(FounderAddresses).concat(currentPayrolls.map(p => p.recipient)))];
+    const teamAddresses = [...new Set(vesterRecipients.concat(FounderAddresses).concat(currentPayrolls.filter(c => c.amount > 0).map(p => p.recipient)))];
 
     const invBalances = await Promise.all(
       teamAddresses.map(v => {
