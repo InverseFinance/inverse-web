@@ -42,11 +42,15 @@ export default async function handler(req, res) {
       payrollContractLogs.queryFilter(payrollContractLogs.filters.SetRecipient()),
     ]);
 
+    const now = Date.now();
+
     const currentPayrolls = Object.values(payrollEvents.reduce((prev, curr) => {
+      const endTimeMs = getBnToNumber(curr.args[2], 0) * 1000;
+      const expired = now > endTimeMs;
       return {
         ...prev,
         [curr.args[0]]: getBnToNumber(curr.args[1]) > 0 ?
-          { recipient: curr.args[0], amount: getBnToNumber(curr.args[1]) } : undefined
+          { recipient: curr.args[0], amount: expired ? 0 : getBnToNumber(curr.args[1]), endTime: endTimeMs, lastAmount: getBnToNumber(curr.args[1]) } : undefined
       }
     }, {})).filter(v => !!v);
 
