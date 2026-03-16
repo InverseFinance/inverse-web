@@ -1,4 +1,4 @@
-import { HAS_REWARD_TOKEN, SINV_ADDRESS } from '@app/config/constants';
+import { HAS_REWARD_TOKEN, JDOLA_AUCTION_ADDRESS, SINV_ADDRESS } from '@app/config/constants';
 import { Token, TokenList } from '@app/types';
 import { isAddress } from 'ethers/lib/utils';
 import { PROTOCOLS_BY_IMG, PROTOCOL_IMAGES, TOKEN_IMAGES } from './images';
@@ -32,6 +32,7 @@ const chainTokenAddresses = {
     SINV: SINV_ADDRESS,
     DOLA: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
     SDOLA: '0xb45ad160634c528Cc3D2926d9807104FA3157305',
+    JRDOLA: JDOLA_AUCTION_ADDRESS,
     PYUSD: '0x6c3ea9036406852006290770BEdFcAbA0e23A0e8',
     DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
     USDC: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -177,6 +178,7 @@ const chainTokenAddresses = {
     yvUSDS: '0x0868076663Bbc6638ceDd27704cc8F0Fa53d5b81',
     DOLAfxSAVECLP: '0x2b854e225d7282854819327D0CA5b8D8AA8CAaED',
     fxSAVE: '0x7743e50F534a7f9F1791DdE7dCD89F7783Eefc39',
+    JRDOLASDOLALP: '0x33664fD97D15D1a5e730c2a278E91df8e60fFE78',
     // PAL: '0xAB846Fb6C81370327e784Ae7CbB6d6a6af6Ff4BF',
   },
   "250": {
@@ -399,6 +401,15 @@ const chainTokens = {
       address: chainTokenAddresses["1"].SDOLA,
       symbol: 'sDOLA',
       name: 'sDOLA',
+      isERC4626: true,
+    },
+     [chainTokenAddresses["1"].JRDOLA]: {
+      ...DOLA,
+      image: TOKEN_IMAGES.JRDOLA,
+      coingeckoId: 'junior-dola',
+      address: chainTokenAddresses["1"].JRDOLA,
+      symbol: 'jrDOLA',
+      name: 'jrDOLA',
       isERC4626: true,
     },
     [chainTokenAddresses["1"].SINV]: {
@@ -643,6 +654,21 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.CRV,
       link: 'https://curve.finance/#/ethereum/pools/factory-stable-ng-320/deposit',
+    },
+    [chainTokenAddresses["1"].JRDOLASDOLALP]: {
+      address: chainTokenAddresses["1"].JRDOLASDOLALP,
+      name: 'sDOLA-jrDOLA',
+      symbol: 'sDOLA-jrDOLA clp',
+      image: TOKEN_IMAGES.SDOLA,
+      decimals: 18,
+      isLP: true,
+      isCrvLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["1"].JRDOLA, chainTokenAddresses["1"].SDOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.CRV,
+      link: 'https://www.curve.finance/dex/ethereum/pools/0x33664fd97d15d1a5e730c2a278e91df8e60ffe78/deposit',
     },
     [chainTokenAddresses["1"].INVDOLAAURA]: {
       address: chainTokenAddresses["1"].INVDOLAAURA,

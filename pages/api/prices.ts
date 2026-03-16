@@ -12,6 +12,7 @@ import { getTokenData } from '@app/util/livecoinwatch'
 import { getChainlinkDolaUsdPrice, getDolaUsdPriceOnCurve } from '@app/util/f2'
 import { dolaStakingCacheKey } from './dola-staking'
 import { getBnToNumber } from '@app/util/markets'
+import { jdolaStakingCacheKey } from './junior/jdola-staking'
 
 export const pricesCacheKey = `prices-v1.0.91`;
 export const cgPricesCacheKey = `cg-prices-v1.0.0`;
@@ -102,14 +103,14 @@ export default async function handler(req, res) {
 
     const sUSDSContract = new Contract('0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD', SVAULT_ABI, provider);
 
-    const [dolaUsdCurveData, dolaStakingData, sUSDSExRateBn] = await Promise.all([
+    const [dolaUsdCurveData, jrDolaData, sUSDSExRateBn] = await Promise.all([
       getDolaUsdPriceOnCurve(getProvider(NetworkIds.mainnet)),
-      getCacheFromRedis(dolaStakingCacheKey, false),
+      getCacheFromRedis(jdolaStakingCacheKey, false),
       sUSDSContract.convertToAssets('1000000000000000000'),
     ]);
 
     const { price: chainlinkDolaUsdPrice } = dolaUsdCurveData;
-    const { sDolaExRate } = dolaStakingData;
+    const { sDolaExRate, jrDolaExRate } = jrDolaData;
     prices['dola-onchain-usd'] = chainlinkDolaUsdPrice;
     prices['dola-usd'] = chainlinkDolaUsdPrice;
 
@@ -141,6 +142,10 @@ export default async function handler(req, res) {
     prices['staked-dola'] = prices['dola-usd'] * sDolaExRate;
     prices['SDOLA'] = prices['staked-dola'];
     prices['sDOLA'] = prices['staked-dola'];
+    // jrDOLA
+    prices['junior-dola'] = prices['staked-dola'] * jrDolaExRate;
+    prices['JRDOLA'] = prices['junior-dola'];
+    prices['jrDOLA'] = prices['junior-dola'];
     prices['sUSDS'] = (prices['usds'] || 1) * getBnToNumber(sUSDSExRateBn);
 
     prices['_timestamp'] = Date.now();
