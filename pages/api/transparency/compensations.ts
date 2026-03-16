@@ -65,7 +65,9 @@ export default async function handler(req, res) {
         payrollCheckpoints[e.args[0]] = 0;
       }
 
-      payrollCheckpoints[e.args[0]] = getBnToNumber(e.args[1]);
+      const endTimeMs = getBnToNumber(e.args[2], 0) * 1000;
+      const expired = now > endTimeMs;
+      payrollCheckpoints[e.args[0]] = expired ? 0 : getBnToNumber(e.args[1]);
       
       const total = Object.values(payrollCheckpoints).reduce((prev, curr) => prev + curr, 0);
       return {
@@ -128,7 +130,7 @@ export default async function handler(req, res) {
     const founderNewVesterAmount = 3333.33;
     const xinvExRate = getBnToNumber(xinvExRateBn);
 
-    const teamAddresses = [...new Set(vesterRecipients.concat(FounderAddresses).concat(currentPayrolls.map(p => p.recipient)))];
+    const teamAddresses = [...new Set(vesterRecipients.concat(FounderAddresses).concat(currentPayrolls.filter(c => c.amount > 0).map(p => p.recipient)))];
 
     const invBalances = await Promise.all(
       teamAddresses.map(v => {
