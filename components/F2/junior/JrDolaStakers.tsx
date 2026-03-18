@@ -4,7 +4,7 @@ import Container from "@app/components/common/Container";
 import Link from "@app/components/common/Link";
 import { ViewIcon } from "@chakra-ui/icons";
 import ScannerLink from "@app/components/common/ScannerLink";
- 
+
 import Table from "@app/components/common/Table";
 import { timeSince } from "@app/util/time";
 import { useCacheFirstSWR } from "@app/hooks/useCustomSWR";
@@ -46,6 +46,38 @@ const columns = [
                 <CellText>{shortenNumber(balance, 2, false, true)}</CellText>
             </Cell>
         },
+    },
+    {
+        field: 'balanceInDola',
+        label: 'Bal (in DOLA)',
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
+        value: ({ balanceInDola }) => {
+            return <Cell minWidth="90px" justify="center" >
+                <CellText>{shortenNumber(balanceInDola, 2, false, true)}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'withdrawAmount',
+        label: 'Withdrawing',
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
+        value: ({ withdrawAmount }) => {
+            return <Cell minWidth="90px" justify="center" >
+                <CellText>{shortenNumber(withdrawAmount, 2, false, true)}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'withdrawStatus',
+        label: 'Withdraw status',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ withdrawStatus }) => {
+            return <Cell minWidth="100px" justify="center" >
+                <CellText>{withdrawStatus}</CellText>
+            </Cell>
+        },
+        showFilter: true,
+        filterWidth: '100px',
     },
 ];
 

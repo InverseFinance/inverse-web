@@ -3,6 +3,11 @@ import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from
 
 import { JDOLA_AUCTION_ADDRESS } from '@app/config/constants';
 import { getTokenHolders } from '@app/util/covalent';
+import { jdolaStakingCacheKey } from './jdola-staking';
+import { getGroupedMulticallOutputs } from '@app/util/multicall';
+import { getProvider } from '@app/util/providers';
+import { getJuniorEscrowContract } from '@app/util/junior';
+import { getBnToNumber } from '@app/util/markets';
 
 export default async function handler(req, res) {
   const cacheDuration = 120;
@@ -10,10 +15,10 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
   res.setHeader('Access-Control-Allow-Origin', `*`);
   res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
-  
+
   const { cacheFirst } = req.query;
 
-  const cacheKey = `jrdola-stakers-v1.0.0`;  
+  const cacheKey = `jrdola-stakers-v1.0.0`;
   try {
 
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
@@ -22,23 +27,64 @@ export default async function handler(req, res) {
       return
     }
 
-    let holdersData;
+    let holdersData, juniorData;
     try {
-      holdersData = await getTokenHolders(JDOLA_AUCTION_ADDRESS, 1000, 0, '1');
+      const results = await Promise.all([
+        getTokenHolders(JDOLA_AUCTION_ADDRESS, 1000, 0, '1'),
+        getCacheFromRedisAsObj(jdolaStakingCacheKey, false)
+      ])
+      holdersData = results[0];
+      juniorData = results[1]?.data;
     } catch (e) {
       console.error(e);
       // return res.status(500).json({ success: false, error: 'Error fetching holders' });
     }
 
+    const dolaExRate = juniorData.sDolaExRate * juniorData.jrDolaExRate;
+
+    const positions = holdersData?.data?.items.map(item => {
+      const balance = parseFloat(item.balance) / 1e18;
+      return {
+        account: item.address,
+        balance,
+        balanceInDola: balance * dolaExRate,
+        supplySharePerc: balance / juniorData.jrDolaSupply * 100,
+      }
+    }) || [];
+
+    const provider = getProvider(1);
+    const escrowContract = getJuniorEscrowContract(provider)
+
+    const [
+      withdrawAmounts,
+      exitWindows,
+    ] = await getGroupedMulticallOutputs([
+      positions.map((p) => ({ contract: escrowContract, functionName: 'withdrawAmounts', params: [p.account] })),
+      positions.map((p) => ({ contract: escrowContract, functionName: 'exitWindows', params: [p.account] })),
+    ], 1, undefined, provider, true);
+
+    const now = Date.now();
+
     const resultData = {
       errorOrNotSupported: !holdersData,
-      timestamp: +(new Date(holdersData?.data?.updated_at)),
-      positions: holdersData?.data?.items.map(item => {
+      timestamp: now,
+      positions: positions.map((p,i) => {
+        const [start, end] = exitWindows[i];
+        const startMs = start * 1000;
+        const endMs = end * 1000;
+        const isBefore = now < startMs;
+        const isExpired = now > endMs;
+        const isWithin = now <= endMs && now >= startMs;
         return {
-          account: item.address,
-          balance: parseFloat(item.balance) / 1e18,
+          isBefore,
+          isExpired,
+          isWithin,
+          withdrawStatus: isBefore ? 'queued' : isExpired ? 'expired' : 'active',
+          withdrawAmount: getBnToNumber(withdrawAmounts[i]),
+          withdrawAmountDola: getBnToNumber(withdrawAmounts[i]) * dolaExRate,
+          ...p,
         }
-      }) || [],
+      }),
     }
 
     await redisSetWithTimestamp(cacheKey, resultData, false);
