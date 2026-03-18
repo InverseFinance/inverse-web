@@ -385,15 +385,15 @@ export const MENUS = {
         },
         {
           label: 'DOLA',
-          href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola',
+          href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dola',
         },
         // {
         //   label: 'sINV',
-        //   href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sinv',
+        //   href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/sinv',
         // },
         {
           label: 'INV',
-          href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/inv',
+          href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/inv',
         },
         {
           label: 'FiRM',

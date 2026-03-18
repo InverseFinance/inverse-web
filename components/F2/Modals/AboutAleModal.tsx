@@ -23,7 +23,7 @@ export const AboutAleModal = ({
             </Text>
             <Text>The result is similar to a "spot leverage" or doing "looping"</Text>
             <Text>There is no fee charged for the service</Text>
-            <Link textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm#accelerated-leverage-engine" isExternal target="_blank">
+            <Link textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/firm#accelerated-leverage-engine" isExternal target="_blank">
                 Learn more about ALE <ExternalLinkIcon />
             </Link>
         </VStack>

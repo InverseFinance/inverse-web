@@ -41,7 +41,7 @@ export const BaseBridgeInformations = () => {
                             <Text display="inline">
                                 For more information on using bridges with DOLA please visit:
                             </Text>
-                            <Link ml="1" textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola" isExternal={true} target="_blank">
+                            <Link ml="1" textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dola" isExternal={true} target="_blank">
                                 DOLA docs
                             </Link>
                         </Box>

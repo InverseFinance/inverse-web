@@ -616,7 +616,7 @@ export const BadDebtPage = () => {
             noPadding
             label={`Annex: Bad Debt Converter and Repayer`}
             description={`Learn more about Debt Converter and Debt Repayer`}
-            href={'https://docs.inverse.finance/inverse-finance/inverse-finance/other/frontier'}
+            href={'https://docs.inverse.finance/inverse-finance/inverse-finance/legacy-products/frontier-anchor'}
             headerProps={{
               direction: { base: 'column', md: 'row' },
               align: { base: 'flex-start', md: 'flex-end' },

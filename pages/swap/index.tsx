@@ -69,7 +69,7 @@ export const Swap = () => {
                 <Text>
                   Our swap component is powered by Socket.tech which works as an aggregator.
                 </Text>
-                <Link isExternal target="_blank" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola" textDecoration="underline">
+                <Link isExternal target="_blank" href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dola" textDecoration="underline">
                   Learn more about bridges & risk in the bridge tab in our docs <ExternalLinkIcon />
                 </Link>
                 <Text fontSize="14px" fontWeight="bold">What is DOLA?</Text>
@@ -90,7 +90,7 @@ export const Swap = () => {
                 <Text>
                   DBR is the DOLA Borrowing Right token, <b>1 DBR allows to borrow 1 DOLA for one year</b>, it's also the reward token for INV stakers on FiRM. Buy it to borrow or speculate on interest rates!
                 </Text>
-                <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr' isExternal target="_blank">
+                <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dbr' isExternal target="_blank">
                   Learn more about DBR <ExternalLinkIcon />
                 </Link>
                 <Text fontSize="14px" fontWeight="bold">Token Synergy on FiRM</Text>

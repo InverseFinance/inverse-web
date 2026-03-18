@@ -198,7 +198,7 @@ export const GovTransparency = () => {
                     p="0"
                     label="DAO voting & INV"
                     description="INV holders and stakers govern the DAO - learn more"
-                    href={'https://docs.inverse.finance/inverse-finance/inverse-finance/introduction/governance'}
+                    href={'https://docs.inverse.finance/inverse-finance/inverse-finance/governance/governance-overview'}
                     contentProps={{ maxW: '94vw' }}
                 >
                     <VStack spacing="8" w="full" alignItems="flex-start" justify="space-between">
@@ -345,7 +345,7 @@ export const GovTransparency = () => {
                     p="0"
                     label="Multisigs"
                     description="Learn about the Working Groups"
-                    href={'https://docs.inverse.finance/inverse-finance/inverse-finance/introduction/organization#working-groups'}
+                    href={'https://docs.inverse.finance/inverse-finance/inverse-finance/about/organization#working-groups'}
                     contentProps={{ maxW: '94vw' }}
                 >
                     <MultisigsDiagram />

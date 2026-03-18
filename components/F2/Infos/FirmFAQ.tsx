@@ -63,7 +63,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 <FaqLink href="/transparency/dbr">
                     Transparency page
                 </FaqLink>
-                <FaqLink href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr">
+                <FaqLink href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dbr">
                     Docs: DBR
                 </FaqLink>
                 <iframe style={{ maxWidth: '500px', marginTop: "10px" }} width="100%" height="300px" src="https://www.youtube.com/embed/KcVz1l4VXrM" title="DBR explainer" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
@@ -84,7 +84,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 <FaqLink href="/transparency/bad-debts">
                     DOLA bad debt
                 </FaqLink>
-                <FaqLink href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola">
+                <FaqLink href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dola">
                     Docs: DOLA
                 </FaqLink>
                 <iframe style={{ maxWidth: '500px', marginTop: "10px" }} width="100%" height="300px" src="https://www.youtube.com/embed/OiOL0xaRdug" title="DOLA explainer" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
@@ -136,7 +136,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 <FaqText>
                     <b>Tip</b>: use the <b>FiRM DBR reminder</b> feature and add the <b>DBR depletion date</b> to your calendar to ensure that you do not forget to buy DBRs before that date.
                 </FaqText>
-                <FaqLink href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr">
+                <FaqLink href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dbr">
                     Docs: Recharging & Liquidations
                 </FaqLink>
             </FaqStack>
@@ -161,7 +161,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 <FaqLink href="/firm/INV">
                     Stake INV
                 </FaqLink>
-                <FaqLink href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr">
+                <FaqLink href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dbr">
                     Docs: Real Yield
                 </FaqLink>
             </FaqStack>

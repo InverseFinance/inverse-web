@@ -185,7 +185,7 @@ export const DbrAuctionIntroMsg = ({
                 <Text>
                     All the auctions offer different DBR pricing depending on usage and auction parameters. {smartShortNumber(dbrSaleHandlerRepayPercentage, 2)}% of the proceeds from the Virtual auction go to DOLA bad debt repayment while the proceeds from the sDOLA proceeds go to sDOLA stakers and the proceeds from the sINV auction go to INV stakers.
                 </Text>
-                <Link textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr#buying-dbr" target="_blank" isExternal>
+                <Link textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dbr#buying-dbr" target="_blank" isExternal>
                     Learn more <ExternalLinkIcon />
                 </Link>
                 <Text fontSize="14px" fontWeight="bold">What is DBR?</Text>
@@ -197,7 +197,7 @@ export const DbrAuctionIntroMsg = ({
                     <Text>- It's also the reward token for INV stakers on FiRM</Text>
                     <Text>- DBR can be bought to borrow or hedge against interest rates!</Text>
                 </VStack>
-                <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr' isExternal target="_blank">
+                <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dbr' isExternal target="_blank">
                     Learn more about DBR <ExternalLinkIcon />
                 </Link>
                 <Text fontSize="14px" fontWeight="bold">Looking for sDOLA or sINV?</Text>
