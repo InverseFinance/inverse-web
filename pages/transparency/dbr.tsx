@@ -116,7 +116,7 @@ export const DBRTransparency = () => {
                                     <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/345" isExternal target="_blank">
                                         See INV buybacks proposal.
                                     </Link>
-                                    <Link textDecoration="underline" color="secondaryTextColor" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr#dbr-issuance" isExternal target="_blank">
+                                    <Link textDecoration="underline" color="secondaryTextColor" href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dbr#dbr-supply-and-issuance" isExternal target="_blank">
                                         DBR issuance documentation
                                     </Link>
                                     <Text fontWeight="bold">
@@ -153,7 +153,7 @@ export const DBRTransparency = () => {
                             title="🗄️&nbsp;&nbsp;Docs & Media"
                             description={
                                 <VStack spacing="0" alignItems="flex-start">
-                                    <Link textDecoration="underline" color="secondaryTextColor" href="https://docs.inverse.finance/inverse-finance/dbr-dola-borrowing-rights" isExternal target="_blank">
+                                    <Link textDecoration="underline" color="secondaryTextColor" href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dbr" isExternal target="_blank">
                                         DBR documentation
                                     </Link>
                                     <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/whitepaper" isExternal target="_blank">

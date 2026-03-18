@@ -743,7 +743,7 @@ export const F2Markets = ({
                         }
                         &nbsp;Fixed Borrow APR, Unlimited Duration
                     </Text>
-                    <Link fontSize='14px' textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm" isExternal target="_blank">
+                    <Link fontSize='14px' textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/firm" isExternal target="_blank">
                         All markets are isolated - Learn more about FiRM <ExternalLinkIcon />
                     </Link>
                 </VStack>

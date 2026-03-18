@@ -114,7 +114,7 @@ export const DolaBridges = ({
         p="0"
         label="Biggest LPs by chain and their bridges"
         description="Learn more on Bridging DOLA across chains"
-        href={'https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola'}
+        href={'https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dola'}
     >
         <VStack spacing="4" w="100%">
             <Table

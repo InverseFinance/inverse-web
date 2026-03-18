@@ -155,14 +155,14 @@ export const DolaDiagram = () => {
                     textDecoration="underline"
                     isExternal
                     about="_blank"
-                    href={"https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola#dola-usd-peg-management"}>
+                    href={"https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dola/dola-peg-mechanism"}>
                     Learn more about peg management
                   </Link>
                   <Link
                     textDecoration="underline"
                     isExternal
                     about="_blank"
-                    href={"https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola#dola-usd-peg-management"}>
+                    href={"https://docs.inverse.finance/inverse-finance/inverse-finance/legacy-products/frontier-anchor#bad-debt-dashboard"}>
                     See bad debt repayments
                   </Link>
                 </Stack>

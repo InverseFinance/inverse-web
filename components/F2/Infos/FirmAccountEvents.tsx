@@ -48,13 +48,13 @@ const ErrDocLink = (props) => <Link
 />
 
 const ReplenishDocLink = () => <ErrDocLink
-    href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm?q=recharging#replenishments"
+    href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/firm?q=recharging#replenishments"
 >
     Learn more
 </ErrDocLink>
 
 const LiquidateDocLink = () => <ErrDocLink
-    href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm#liquidations"
+    href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/firm#liquidations"
 >
     Learn more
 </ErrDocLink>

@@ -314,7 +314,7 @@ export const OppysTable = ({
         contentProps={{ p: { base: '2', sm: '8' }, overflowX: 'scroll' }}
         label="All yield opportunities"
         description={`DeFi yield opportunities on ${yieldChains} `}
-        href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola#yield-opportunities"
+        href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dola#yield-opportunities"
         headerProps={{
             direction: { base: 'column', md: 'row' },
             align: { base: 'flex-start', md: 'flex-end' },

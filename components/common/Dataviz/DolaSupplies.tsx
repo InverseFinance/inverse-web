@@ -97,7 +97,7 @@ export const DolaSupplies = ({
                                     <Text>- Total Cross-Chain:</Text>
                                     <Text>{shortenNumber(totalSupply)}</Text>
                                 </Flex>
-                                <Link textDecoration="underline" isExternal target="_blank" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola">
+                                <Link textDecoration="underline" isExternal target="_blank" href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dola">
                                     Learn more about DOLA
                                 </Link>
                             </>

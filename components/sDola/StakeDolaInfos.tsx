@@ -59,7 +59,7 @@ export const StakeDolaInfos = () => {
                     <Link textDecoration="underline" href='https://twitter.com/InverseFinance/status/1755593147285905683' isExternal target="_blank">
                         Watch the launch video <ExternalLinkIcon />
                     </Link>
-                    <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sdola' isExternal target="_blank">
+                    <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/sdola' isExternal target="_blank">
                         Learn more about sDOLA <ExternalLinkIcon />
                     </Link>                    
                 </VStack>
