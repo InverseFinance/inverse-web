@@ -200,6 +200,14 @@ const mainConfig = {
             chainId: NetworkIds.mainnet,
             order: 0.9,
         },
+        {
+            address: '0x2B395E56a2B221c1fbf19633219f104210536892',
+            name: 'AWG on ARB',
+            shortName: 'AWG on ARB',
+            purpose: 'Handle analytics costs (The Graph etc)',
+            chainId: NetworkIds.arbitrum,
+            order: 0.9,
+        },
     ],
 };
 

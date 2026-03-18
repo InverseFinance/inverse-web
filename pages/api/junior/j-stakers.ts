@@ -70,16 +70,19 @@ export default async function handler(req, res) {
       timestamp: now,
       positions: positions.map((p,i) => {
         const [start, end] = exitWindows[i];
-        const startMs = start * 1000;
-        const endMs = end * 1000;
+        const startMs = getBnToNumber(start, 0) * 1000;
+        const endMs = getBnToNumber(end, 0) * 1000;
         const isBefore = now < startMs;
         const isExpired = now > endMs;
         const isWithin = now <= endMs && now >= startMs;
+        const withdrawStatus = endMs === 0 ? 'none' : isBefore ? 'queued' : isExpired ? 'expired' : 'active';
         return {
           isBefore,
           isExpired,
           isWithin,
-          withdrawStatus: isBefore ? 'queued' : isExpired ? 'expired' : 'active',
+          startMs: ['queued', 'active'].includes(withdrawStatus) ? startMs : 0,
+          endMs: ['queued', 'active'].includes(withdrawStatus) ? endMs : 0,
+          withdrawStatus,
           withdrawAmount: getBnToNumber(withdrawAmounts[i]),
           withdrawAmountDola: getBnToNumber(withdrawAmounts[i]) * dolaExRate,
           ...p,

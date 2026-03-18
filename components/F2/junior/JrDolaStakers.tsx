@@ -6,7 +6,7 @@ import { ViewIcon } from "@chakra-ui/icons";
 import ScannerLink from "@app/components/common/ScannerLink";
 
 import Table from "@app/components/common/Table";
-import { timeSince } from "@app/util/time";
+import { formatDateWithTime, timeSince } from "@app/util/time";
 import { useCacheFirstSWR } from "@app/hooks/useCustomSWR";
 
 const ColHeader = ({ ...props }) => {
@@ -40,20 +40,11 @@ const columns = [
     {
         field: 'balance',
         label: 'Balance',
-        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
-        value: ({ balance }) => {
-            return <Cell minWidth="90px" justify="center" >
-                <CellText>{shortenNumber(balance, 2, false, true)}</CellText>
-            </Cell>
-        },
-    },
-    {
-        field: 'balanceInDola',
-        label: 'Bal (in DOLA)',
-        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
-        value: ({ balanceInDola }) => {
-            return <Cell minWidth="90px" justify="center" >
-                <CellText>{shortenNumber(balanceInDola, 2, false, true)}</CellText>
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        value: ({ balance, balanceInDola }) => {
+            return <Cell direction="column" minWidth="150px" justify="center" alignItems="center" >
+                <CellText>{shortenNumber(balance, 2, false, true)} jrDOLA</CellText>
+                <CellText color="secondaryTextColor">({shortenNumber(balanceInDola, 2, false, true)} DOLA)</CellText>
             </Cell>
         },
     },
@@ -61,9 +52,14 @@ const columns = [
         field: 'withdrawAmount',
         label: 'Withdrawing',
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
-        value: ({ withdrawAmount }) => {
-            return <Cell minWidth="90px" justify="center" >
-                <CellText>{shortenNumber(withdrawAmount, 2, false, true)}</CellText>
+        value: ({ withdrawAmount, withdrawAmountDola }) => {
+            return <Cell direction="column" minWidth="90px" justify="center" alignItems="center" >
+                {
+                    withdrawAmount > 0 ? <>
+                        <CellText>{shortenNumber(withdrawAmount, 2, false, true)} jrDOLA</CellText>
+                        <CellText color="secondaryTextColor">({shortenNumber(withdrawAmountDola, 2, false, true)} DOLA)</CellText>
+                    </> : <CellText>-</CellText>
+                }
             </Cell>
         },
     },
@@ -78,6 +74,26 @@ const columns = [
         },
         showFilter: true,
         filterWidth: '100px',
+    },
+    {
+        field: 'startMs',
+        label: 'Exit start',
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        value: ({ startMs }) => {
+            return <Cell minWidth="150px" justify="center" >
+                <CellText>{startMs ? formatDateWithTime(startMs) : '-'}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'endMs',
+        label: 'Exit end',
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        value: ({ endMs }) => {
+            return <Cell minWidth="150px" justify="center" >
+                <CellText>{endMs ? formatDateWithTime(endMs) : '-'}</CellText>
+            </Cell>
+        },
     },
 ];
 
@@ -101,7 +117,7 @@ export const JrDolaStakersTable = () => {
             noDataMessage={isLoading ? 'Loading' : "No stakers"}
             columns={columns}
             items={data?.positions || []}
-            defaultSort={'account'}
+            defaultSort={'balance'}
             defaultSortDir="desc"
         />
     </Container>
