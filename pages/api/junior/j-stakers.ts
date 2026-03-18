@@ -22,10 +22,10 @@ export default async function handler(req, res) {
   try {
 
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
-    // if (isValid) {
-    //   res.status(200).json(cachedData);
-    //   return
-    // }
+    if (isValid) {
+      res.status(200).json(cachedData);
+      return
+    }
 
     let holdersData, juniorData;
     try {
