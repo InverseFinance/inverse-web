@@ -92,7 +92,7 @@ export const SDolaAnnouncement = () => {
             {
               highestApy > 0 ?
                 <HStack textDecoration="underline" spacing="1">
-                  <Text>Get <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>{shortenNumber(highestApy, 2)}%</b> APY with <b>jrDOLA</b></Text>
+                  <Text>Get <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>{shortenNumber(jrDolaApy, 2)}%</b> APY with <b>jrDOLA</b></Text>
                   {/* <Image borderRadius="full" src="/assets/jrDOLA.png" h="20px" w="20px" /> */}
                 </HStack>
                 : <SmallTextLoader />
