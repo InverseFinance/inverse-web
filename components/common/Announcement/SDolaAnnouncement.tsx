@@ -86,7 +86,7 @@ export const SDolaAnnouncement = () => {
         {
           jrDolaApy > sDolaApy && <Link
             color="mainTextColor"
-            href={'/sDOLA'}
+            href={'/jrDOLA'}
             _hover={{ color: 'lightAccentTextColor' }}
           >
             {
