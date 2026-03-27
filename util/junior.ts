@@ -15,6 +15,10 @@ import { useMemo } from "react";
 import { SWR } from "@app/types";
 import { fetcher } from "./web3";
 
+// 60 days
+const MAX_WITHWRAW_DELAY = 5184000;
+const WITHDRAW_SLIPPAGE_FACTOR = 1.01;
+
 export const getJrdolaContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(JDOLA_AUCTION_ADDRESS, JDOLA_AUCTION_ABI, signerOrProvider);
 }
@@ -43,7 +47,9 @@ export const unstakeJDola = async (signer: JsonRpcSigner, amount: BigNumber) => 
 
 export const juniorQueueWithdrawal = async (signer: JsonRpcSigner, amount: BigNumber, maxWithdrawDelay: BigNumber) => {
     const contract = new Contract(JUNIOR_ESCROW_ADDRESS, JUNIOR_ESCROW_ABI, signer);
-    return contract.queueWithdrawal(amount, maxWithdrawDelay);
+    const maxWithSlippage = Math.ceil(parseInt(maxWithdrawDelay.toString()) * WITHDRAW_SLIPPAGE_FACTOR);
+    const maxDelay = maxWithSlippage > MAX_WITHWRAW_DELAY ? MAX_WITHWRAW_DELAY : maxWithSlippage;
+    return contract.queueWithdrawal(amount, maxDelay);
 }
 
 export const juniorCompleteWithdraw = async (signer: JsonRpcSigner) => {
