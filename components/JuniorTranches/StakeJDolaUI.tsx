@@ -258,7 +258,9 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
 
     const handleQueue = async () => {
         if (!sDolaExRate || !jrDolaExRate) return;
-        return juniorQueueWithdrawal(provider?.getSigner(), parseEther((parseFloat(inputAmount) / sDolaExRate / jrDolaExRate).toFixed(6)), withdrawDelay.toString());
+        const amountCalc = parseEther((parseFloat(inputAmount) / sDolaExRate / jrDolaExRate).toFixed(18));
+        const amount = amountCalc.gt(jrDolaBalanceBn) ? jrDolaBalanceBn : amountCalc;
+        return juniorQueueWithdrawal(provider?.getSigner(), amount, withdrawDelay.toString());
     }
 
     const handleRenew = async () => {
