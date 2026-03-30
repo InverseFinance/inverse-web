@@ -98,7 +98,7 @@ const columns = [
 ];
 
 export const JrDolaStakersTable = () => {
-    const { data, isLoading } = useCacheFirstSWR(`/api/junior/j-stakers`)
+    const { data, isLoading } = useCacheFirstSWR(`/api/junior/j-stakers?`)
     const timestamp = data?.timestamp;
 
     return <Container
