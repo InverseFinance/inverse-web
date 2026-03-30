@@ -245,7 +245,7 @@ export const useDolaStakingActivity = (from?: string, type = 'dsa'): SWR & {
     timestamp: number,
 } => {
     // const liveEvents = useDolaStakingEvents();
-    const { data, error } = useLocalCacheOnly(`/api/dola-staking/activity?account=${from||''}`, fetcher);
+    const { data, error } = useCacheFirstSWR(`/api/dola-staking/activity?account=${from||''}`, fetcher);
 
     const events = data?.events || []
     //(liveEvents?.length > data?.events?.length ? liveEvents : data?.events || [])
