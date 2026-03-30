@@ -279,7 +279,7 @@ export default async function handler(req, res) {
         address: '0x182863131F9a4630fF9E27830d945B1413e347E8',
         underlying: '0xdC035D45d973E3EC169d2276DDab16f1e407384F',
         currentRateGetter: () => getYearnVaultKongApy('0x182863131F9a4630fF9E27830d945B1413e347E8'),
-        image: TOKEN_IMAGES['sUSDS'],
+        image: 'https://token-assets-one.vercel.app/api/tokens/1/0xdc035d45d973e3ec169d2276ddab16f1e407384f/logo-128.png',
       },
       {
         symbol: 'stUSD',
