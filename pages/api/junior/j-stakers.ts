@@ -6,7 +6,7 @@ import { getTokenHolders } from '@app/util/covalent';
 import { jdolaStakingCacheKey } from './jdola-staking';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { getProvider } from '@app/util/providers';
-import { getJuniorEscrowContract } from '@app/util/junior';
+import { getJuniorEscrowContract, getJrdolaContract } from '@app/util/junior';
 import { getBnToNumber } from '@app/util/markets';
 
 export default async function handler(req, res) {
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
   const { cacheFirst } = req.query;
 
-  const cacheKey = `jrdola-stakers-v1.0.0`;
+  const cacheKey = `jrdola-stakers-v1.0.1`;
   try {
 
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
@@ -42,25 +42,26 @@ export default async function handler(req, res) {
 
     const dolaExRate = juniorData.sDolaExRate * juniorData.jrDolaExRate;
 
-    const positions = holdersData?.data?.items.map(item => {
-      const balance = parseFloat(item.balance) / 1e18;
-      return {
-        account: item.address,
-        balance,
-        balanceInDola: balance * dolaExRate,
-        supplySharePerc: balance / juniorData.jrDolaSupply * 100,
-      }
-    }) || [];
+    const holders = holdersData?.data?.items;
 
     const provider = getProvider(1);
     const escrowContract = getJuniorEscrowContract(provider)
+    const jrDolaContract = getJrdolaContract(provider)
+
+    const currentHoldersAccount = holders.map(h => h.address.toLowerCase());
+    const queueEvents = await escrowContract.queryFilter(escrowContract.filters.Queue());
+    
+    const withdrawers = queueEvents.map(e => e.args[0]);
+    const totalAccounts = [...new Set(currentHoldersAccount.concat(withdrawers))];
 
     const [
       withdrawAmounts,
       exitWindows,
+      balances,
     ] = await getGroupedMulticallOutputs([
-      positions.map((p) => ({ contract: escrowContract, functionName: 'withdrawAmounts', params: [p.account] })),
-      positions.map((p) => ({ contract: escrowContract, functionName: 'exitWindows', params: [p.account] })),
+      totalAccounts.map((p) => ({ contract: escrowContract, functionName: 'withdrawAmounts', params: [p] })),
+      totalAccounts.map((p) => ({ contract: escrowContract, functionName: 'exitWindows', params: [p] })),
+      totalAccounts.map((p) => ({ contract: jrDolaContract, functionName: 'balanceOf', params: [p] })),
     ], 1, undefined, provider, true);
 
     const now = Date.now();
@@ -68,7 +69,9 @@ export default async function handler(req, res) {
     const resultData = {
       errorOrNotSupported: !holdersData,
       timestamp: now,
-      positions: positions.map((p,i) => {
+      positions: totalAccounts.map((p,i) => {
+        const balance = getBnToNumber(balances[i]);
+        const balanceInDola = balance * dolaExRate;
         const [start, end] = exitWindows[i];
         const startMs = getBnToNumber(start, 0) * 1000;
         const endMs = getBnToNumber(end, 0) * 1000;
@@ -77,6 +80,8 @@ export default async function handler(req, res) {
         const isWithin = now <= endMs && now >= startMs;
         const withdrawStatus = endMs === 0 ? 'none' : isBefore ? 'queued' : isExpired ? 'expired' : 'active';
         return {
+          balance,
+          balanceInDola,
           isBefore,
           isExpired,
           isWithin,
@@ -85,7 +90,7 @@ export default async function handler(req, res) {
           withdrawStatus,
           withdrawAmount: getBnToNumber(withdrawAmounts[i]),
           withdrawAmountDola: getBnToNumber(withdrawAmounts[i]) * dolaExRate,
-          ...p,
+          account: p,
         }
       }),
     }
