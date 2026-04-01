@@ -386,8 +386,8 @@ export default async function handler(req, res) {
             // post-archive
             if (!dolaBadDebtEvolution[i].badDebt) {
                 dolaBadDebtEvolution[i].badDebt = ev.frontierBorrowed;
-                // temp backtrack resolv incident
-                if (ev.block >= 24709660 && i !== (dolaBadDebtEvolution.length - 1)) {
+                // temp backtrack resolv incident 22nd March 2026
+                if (ev.timestamp >= 1774137600000 && ev.timestamp < 1775045331857 && i !== (dolaBadDebtEvolution.length - 1)) {
                     dolaBadDebtEvolution[i].badDebt += 340061;
                 }
             }
