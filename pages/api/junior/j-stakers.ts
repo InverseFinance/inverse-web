@@ -53,7 +53,7 @@ export default async function handler(req, res) {
     
     const withdrawers = queueEvents.map(e => e.args[0]);
     const totalAccounts = [...new Set(currentHoldersAccount.concat(withdrawers))]
-      .filter(a => a !== JUNIOR_ESCROW_ADDRESS);
+      .filter(a => a.toLowerCase() !== JUNIOR_ESCROW_ADDRESS.toLowerCase());
 
     const [
       withdrawAmounts,
