@@ -1,7 +1,7 @@
 import 'source-map-support'
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 
-import { JDOLA_AUCTION_ADDRESS } from '@app/config/constants';
+import { JDOLA_AUCTION_ADDRESS, JUNIOR_ESCROW_ADDRESS } from '@app/config/constants';
 import { getTokenHolders } from '@app/util/covalent';
 import { jdolaStakingCacheKey } from './jdola-staking';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
@@ -52,7 +52,8 @@ export default async function handler(req, res) {
     const queueEvents = await escrowContract.queryFilter(escrowContract.filters.Queue());
     
     const withdrawers = queueEvents.map(e => e.args[0]);
-    const totalAccounts = [...new Set(currentHoldersAccount.concat(withdrawers))];
+    const totalAccounts = [...new Set(currentHoldersAccount.concat(withdrawers))]
+      .filter(a => a !== JUNIOR_ESCROW_ADDRESS);
 
     const [
       withdrawAmounts,
