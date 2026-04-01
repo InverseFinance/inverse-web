@@ -35,10 +35,10 @@ export default async function handler(req, res) {
     try {
         res.setHeader('Cache-Control', `public, max-age=${60}`);
         const { data: cachedData, isValid } = await getCacheFromRedisAsObj(repaymentsCacheKeyV2, cacheFirst !== 'true', ONE_DAY_SECS);
-        // if (cachedData && isValid && !ignoreCache) {
-        //     res.status(200).json(cachedData);
-        //     return
-        // }
+        if (cachedData && isValid && !ignoreCache) {
+            res.status(200).json(cachedData);
+            return
+        }
 
         const archivedData = cachedData || REPAYMENTS_V5_ARCHIVE;
 
@@ -86,7 +86,10 @@ export default async function handler(req, res) {
 
         const currentBlock = await provider.getBlockNumber();
         const currentTotalDolaFrontierBorrows = getBnToNumber(await anDola.callStatic.totalBorrowsCurrent({ blockTag: currentBlock }));
-        const postArchiveV5Block = (archivedData.lastBlock || 22867534) + 1;
+        // temp
+        const postArchiveV5Block = archivedData.wbtcRepaidByDAO.find(t => t.txHash === '0x681f54fb219b7d5c92fc6348a0d1c76ad5aef320588c71e00c236feb2c069119') ? 
+            (archivedData.lastBlock || 22867534) + 1
+             : 24780409;
 
         const [
             debtConverterRepaymentsEvents,
@@ -192,13 +195,6 @@ export default async function handler(req, res) {
                     }
                 });
             });
-
-            return res.status(200).json({
-                postArchiveV5Block,
-                currentBlock,
-                wbtcRepayEvents,
-                wbtcRepaidByDAO,
-            })
         // archived
         // const dolaEulerRepaidByDAO = [
         //     {
