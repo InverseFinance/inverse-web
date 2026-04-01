@@ -86,7 +86,7 @@ export default async function handler(req, res) {
 
         const currentBlock = await provider.getBlockNumber();
         const currentTotalDolaFrontierBorrows = getBnToNumber(await anDola.callStatic.totalBorrowsCurrent({ blockTag: currentBlock }));
-        // temp
+        
         const postArchiveV5Block = (archivedData.lastBlock || 22867534) + 1;
 
         const [
