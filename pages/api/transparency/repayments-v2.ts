@@ -87,9 +87,7 @@ export default async function handler(req, res) {
         const currentBlock = await provider.getBlockNumber();
         const currentTotalDolaFrontierBorrows = getBnToNumber(await anDola.callStatic.totalBorrowsCurrent({ blockTag: currentBlock }));
         // temp
-        const postArchiveV5Block = archivedData.wbtcRepaidByDAO.find(t => t.txHash === '0x681f54fb219b7d5c92fc6348a0d1c76ad5aef320588c71e00c236feb2c069119') ? 
-            (archivedData.lastBlock || 22867534) + 1
-             : 24780409;
+        const postArchiveV5Block = (archivedData.lastBlock || 22867534) + 1;
 
         const [
             debtConverterRepaymentsEvents,
