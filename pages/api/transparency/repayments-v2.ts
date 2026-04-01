@@ -86,7 +86,7 @@ export default async function handler(req, res) {
 
         const currentBlock = await provider.getBlockNumber();
         const currentTotalDolaFrontierBorrows = getBnToNumber(await anDola.callStatic.totalBorrowsCurrent({ blockTag: currentBlock }));
-        
+
         const postArchiveV5Block = (archivedData.lastBlock || 22867534) + 1;
 
         const [
@@ -386,7 +386,12 @@ export default async function handler(req, res) {
             // post-archive
             if (!dolaBadDebtEvolution[i].badDebt) {
                 dolaBadDebtEvolution[i].badDebt = ev.frontierBorrowed;
+                // temp backtrack resolv incident
+                if (ev.block >= 24709660 && i !== (dolaBadDebtEvolution.length - 1)) {
+                    dolaBadDebtEvolution[i].badDebt += 340061;
+                }
             }
+
             // if (i > 0) {
             //     const last = dolaBadDebtEvolution[i - 1];
             //     // after 20nov 2023, we use borrowed delta
