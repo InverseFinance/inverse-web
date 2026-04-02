@@ -83,7 +83,7 @@ export const SDolaAnnouncement = () => {
               : <SmallTextLoader />
           }
         </Link>
-        {
+        {/* {
           jrDolaApy > sDolaApy && <Link
             color="mainTextColor"
             href={'/jrDOLA'}
@@ -98,7 +98,7 @@ export const SDolaAnnouncement = () => {
                 : <SmallTextLoader />
             }
           </Link>
-        }
+        } */}
         {/* <Link
           color="mainTextColor"
           href="/dbr/auction/inv-buy-backs"
