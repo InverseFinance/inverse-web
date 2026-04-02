@@ -7,7 +7,7 @@ import { parseEther } from "@ethersproject/units";
 import Container from "../common/Container";
 import { NavButtons } from "@app/components/common/Button";
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
-import { InfoMessage, Message, StatusMessage, SuccessMessage } from "@app/components/common/Messages";
+import { InfoMessage, Message, StatusMessage, SuccessMessage, WarningMessage } from "@app/components/common/Messages";
 import { formatDurationHumanReadable, getNextThursdayTimestamp, preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
@@ -386,7 +386,11 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                     tab === 'Infos' ? <StakeJDolaInfos sDolaExRate={sDolaExRate} /> : isStake ?
                                         (isLoadingStables && !isPreventLoader ? <SkeletonBlob /> :
                                             <>
-                                                <SimpleAmountForm
+                                            <WarningMessage
+                                                alertProps={{ w: 'full' }}
+                                                description="A new jrDOLA version is upcoming and deposits are disabled at the moment."
+                                            />
+                                                {/* <SimpleAmountForm
                                                     btnProps={{ needPoaFirst: true }}
                                                     defaultAmount={inputAmount}
                                                     address={depositTokenAddress}
@@ -403,7 +407,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     hideInputIfNoAllowance={false}
                                                     showBalance={true}
                                                     onSuccess={() => resetRealTime()}
-                                                />
+                                                /> */}
                                                 <InfoMessage
                                                     description={
                                                         <VStack alignItems="flex-start">

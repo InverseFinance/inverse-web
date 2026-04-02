@@ -149,9 +149,9 @@ export const F2PAGE = ({
             }
             <ErrorBoundary>
                 <VStack pt={{ base: 4, md: 8 }} w='full' maxW={{ base: '84rem', '2xl': '90rem' }}>
-                    <ErrorBoundary>
+                    {/* <ErrorBoundary>
                         <JuniorMessage />
-                    </ErrorBoundary>
+                    </ErrorBoundary> */}
                     {
                         !!globalMessage && (
                             <VStack w='full' px='6' pb='4'>
