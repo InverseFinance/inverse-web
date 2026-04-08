@@ -102,6 +102,16 @@ const columns = [
         },
     },
     {
+        field: 'tvl',
+        label: 'TVL',
+        header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
+        value: ({ tvl }) => {
+            return <Cell minWidth="70px" alignItems="center" justify="center" >
+                <CellText>~{shortenNumber(tvl, 2, true)}</CellText>
+            </Cell>
+        },
+    },
+    {
         field: 'apy',
         label: 'APY',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
@@ -118,16 +128,6 @@ const columns = [
         value: ({ avg30 }) => {
             return <Cell minWidth="70px" alignItems="center" justify="center" >
                 <CellText>{avg30 ? `~${shortenNumber(avg30, 0)}` : '-'}%</CellText>
-            </Cell>
-        },
-    },
-    {
-        field: 'avg60',
-        label: '60d avg',
-        header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
-        value: ({ avg60 }) => {
-            return <Cell minWidth="70px" alignItems="center" justify="center" >
-                <CellText>{avg60 ? `~${shortenNumber(avg60, 0)}` : '-'}%</CellText>
             </Cell>
         },
     },
