@@ -434,7 +434,8 @@ export default async function handler(req, res) {
           pool: metaData.pool || null,
           zapAddress: metaData.zapAddress,
           zapSymbol: metaData.zapSymbol,
-          decimals: metaData.decimals,
+          decimals: onChainData.decimals,
+          deprecated: metaData.deprecated,
         }
       }).sort((a, b) => {
         return a.apy < b.apy ? 1 : b.apy - a.apy;
