@@ -41,9 +41,12 @@ const CollateralToken = ({ collateral, isMobile = false, themeStyles, image }: {
     </HStack>
 }
 
-const RateListItem = ({ fields, apy, avg30, avg60, avg90, symbol, image, themeStyles, isMobile }) => {
+const RateListItem = ({ fields, tvl, apy, avg30, avg60, avg90, symbol, image, themeStyles, isMobile }) => {
     const comps = {
         'symbol': <CollateralToken isMobile={isMobile} collateral={symbol} image={image} themeStyles={themeStyles} />,
+        'tvl': <Text fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} color={themeStyles.colors.mainTextColor}>
+            {tvl ? shortenNumber(tvl, 2, true) : '-'}
+        </Text>,
         'apy': <Text fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} color={themeStyles.colors.mainTextColor}>
             {apy ? shortenNumber(apy, 2) + '%' : '-'}
         </Text>,
