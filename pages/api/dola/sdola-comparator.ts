@@ -143,6 +143,7 @@ export const getOnChainData = async (meta: any[]) => {
       apy90d,
       // apy180d,
       // apy365d,
+      decimals: getBnToNumber(decimals[index], 0),
       totalAssets: getBnToNumber(todayAssets[index], getBnToNumber(decimals[index], 0)),
       totalAssets30d: getBnToNumber(thirtyDaysAgoAssets[index], getBnToNumber(decimals[index], 0)),
       totalAssets90d: getBnToNumber(ninetyDayAssets[index], getBnToNumber(decimals[index], 0)),
@@ -433,6 +434,7 @@ export default async function handler(req, res) {
           pool: metaData.pool || null,
           zapAddress: metaData.zapAddress,
           zapSymbol: metaData.zapSymbol,
+          decimals: metaData.decimals,
         }
       }).sort((a, b) => {
         return a.apy < b.apy ? 1 : b.apy - a.apy;
