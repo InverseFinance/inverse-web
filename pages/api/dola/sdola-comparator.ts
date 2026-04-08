@@ -312,6 +312,7 @@ export default async function handler(req, res) {
         convertMethod: 'convertToUnderlyingToken',
         totalMethod: 'totalSupply',
         image: 'https://token-icons.llamao.fi/icons/tokens/1/0x1202f5c7b4b9e47a1a484e8b270be34dbbc75055?h=64&w=64',
+        deprecated: true,
       },
       {
         symbol: 'fxSAVE',
@@ -447,7 +448,7 @@ export default async function handler(req, res) {
       historicalRates: onChainData,
       pastRates,
       utcSnapshots,
-      rates: sortedRates,
+      rates: sortedRates.filter(r => !r.deprecated),
     };
 
     await redisSetWithTimestamp(cacheKey, result);
