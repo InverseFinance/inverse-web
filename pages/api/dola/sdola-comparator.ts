@@ -143,6 +143,7 @@ export const getOnChainData = async (meta: any[]) => {
       apy90d,
       // apy180d,
       // apy365d,
+      decimals: getBnToNumber(decimals[index], 0),
       totalAssets: getBnToNumber(todayAssets[index], getBnToNumber(decimals[index], 0)),
       totalAssets30d: getBnToNumber(thirtyDaysAgoAssets[index], getBnToNumber(decimals[index], 0)),
       totalAssets90d: getBnToNumber(ninetyDayAssets[index], getBnToNumber(decimals[index], 0)),
@@ -312,6 +313,7 @@ export default async function handler(req, res) {
         convertMethod: 'convertToUnderlyingToken',
         totalMethod: 'totalSupply',
         image: 'https://token-icons.llamao.fi/icons/tokens/1/0x1202f5c7b4b9e47a1a484e8b270be34dbbc75055?h=64&w=64',
+        deprecated: true,
       },
       {
         symbol: 'fxSAVE',
@@ -432,6 +434,8 @@ export default async function handler(req, res) {
           pool: metaData.pool || null,
           zapAddress: metaData.zapAddress,
           zapSymbol: metaData.zapSymbol,
+          decimals: onChainData.decimals,
+          deprecated: metaData.deprecated,
         }
       }).sort((a, b) => {
         return a.apy < b.apy ? 1 : b.apy - a.apy;
@@ -447,7 +451,7 @@ export default async function handler(req, res) {
       historicalRates: onChainData,
       pastRates,
       utcSnapshots,
-      rates: sortedRates,
+      rates: sortedRates.filter(r => !r.deprecated),
     };
 
     await redisSetWithTimestamp(cacheKey, result);
