@@ -41,9 +41,12 @@ const CollateralToken = ({ collateral, isMobile = false, themeStyles, image }: {
     </HStack>
 }
 
-const RateListItem = ({ fields, apy, avg30, avg60, avg90, symbol, image, themeStyles, isMobile }) => {
+const RateListItem = ({ fields, tvl, apy, avg30, avg60, avg90, symbol, image, themeStyles, isMobile }) => {
     const comps = {
         'symbol': <CollateralToken isMobile={isMobile} collateral={symbol} image={image} themeStyles={themeStyles} />,
+        'tvl': <Text fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} color={themeStyles.colors.mainTextColor}>
+            {tvl ? shortenNumber(tvl, 2, true) : '-'}
+        </Text>,
         'apy': <Text fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} color={themeStyles.colors.mainTextColor}>
             {apy ? shortenNumber(apy, 2) + '%' : '-'}
         </Text>,
@@ -102,6 +105,16 @@ const columns = [
         },
     },
     {
+        field: 'tvl',
+        label: 'TVL',
+        header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
+        value: ({ tvl }) => {
+            return <Cell minWidth="70px" alignItems="center" justify="center" >
+                <CellText>~{shortenNumber(tvl, 2, true)}</CellText>
+            </Cell>
+        },
+    },
+    {
         field: 'apy',
         label: 'APY',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
@@ -118,16 +131,6 @@ const columns = [
         value: ({ avg30 }) => {
             return <Cell minWidth="70px" alignItems="center" justify="center" >
                 <CellText>{avg30 ? `~${shortenNumber(avg30, 0)}` : '-'}%</CellText>
-            </Cell>
-        },
-    },
-    {
-        field: 'avg60',
-        label: '60d avg',
-        header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
-        value: ({ avg60 }) => {
-            return <Cell minWidth="70px" alignItems="center" justify="center" >
-                <CellText>{avg60 ? `~${shortenNumber(avg60, 0)}` : '-'}%</CellText>
             </Cell>
         },
     },
