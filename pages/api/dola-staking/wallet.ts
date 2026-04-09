@@ -9,6 +9,9 @@ import { getDolaUsdPriceOnCurve } from '@app/util/f2';
 export default async function handler(req, res) {
     const cacheDuration = 30;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+    res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
+    res.setHeader('Access-Control-Allow-Origin', `*`);
+    res.setHeader('Access-Control-Allow-Methods', `*`);
 
     const { address } = req.query;
     if (!address || !isAddress(address)) {
