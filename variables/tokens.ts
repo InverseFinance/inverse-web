@@ -967,6 +967,7 @@ const chainTokens = {
       decimals: 18,
       isStable: true,
       image: TOKEN_IMAGES.fxSAVE,
+      coingeckoId: 'fx-usd-saving',
     },
     [chainTokenAddresses["1"].INVDOLALIQUIS]: {
       address: chainTokenAddresses["1"].INVDOLALIQUIS,
@@ -1800,7 +1801,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].SUSDS,
       name: 'sUSDS',
       symbol: 'sUSDS',
-      // coingeckoId: '?',
+      coingeckoId: 'susds',
       image: TOKEN_IMAGES.sUSDS,
       decimals: 18,
       isStable: true,

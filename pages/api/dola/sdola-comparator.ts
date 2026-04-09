@@ -175,10 +175,10 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', `GET`);
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration);
 
-    // if (isValid) {
-    //   res.status(200).json(cachedData);
-    //   return
-    // }
+    if (isValid) {
+      res.status(200).json(cachedData);
+      return
+    }
 
     const provider = getProvider(NetworkIds.mainnet);
 
@@ -372,34 +372,36 @@ export default async function handler(req, res) {
       },
     ];
 
-    const cgIds = meta.map(t => {
-      if(t.underlyingCoingeckoId) return t.underlyingCoingeckoId
+    const cgObjects = meta.map(t => {
+      if(t.coingeckoId) return { type: 'vault', id: t.coingeckoId }
+      if(t.underlyingCoingeckoId) return { type: 'underlying', id: t.underlyingCoingeckoId }
+      const underlyingToken = getToken(TOKENS, t.underlying);
+      if(underlyingToken?.coingeckoId) return { type: 'underlying', id: underlyingToken.coingeckoId }
       const vaultToken = getToken(TOKENS, t.address);
-      if(vaultToken) return vaultToken.coingeckoId;
+      if(vaultToken?.coingeckoId) return { type: 'vault', id: vaultToken.coingeckoId }
       return '';
     })
 
-    const uniqueCgIds = [...new Set(cgIds)].filter(v => !!v);
-    console.log(uniqueCgIds)
+    const uniqueCgIds = [...new Set(cgObjects.map(cg => cg.id))].filter(v => !!v);
 
-    let geckoPrices: Prices["prices"] = {};
     const cgComparatorPricesCacheKey = 'comparator-vault-prices';
 
     const fetchPrices = async () => {
+      let prices: Prices["prices"] = {};
       try {
         const res = await fetch(`https://pro-api.coingecko.com/api/v3/simple/price?x_cg_pro_api_key=${process.env.CG_PRO}&vs_currencies=usd&ids=${uniqueCgIds.join(',')}`);
-        geckoPrices = await res.json();
-        console.log(geckoPrices)
-        const cgOk = !!geckoPrices?.['sdola']?.usd;
+        prices = await res.json();
+        const cgOk = !!prices?.['dola-usd']?.usd;
         if (cgOk) {
-          await redisSetWithTimestamp(cgComparatorPricesCacheKey, geckoPrices);
+          await redisSetWithTimestamp(cgComparatorPricesCacheKey, prices);
         } else {
-          geckoPrices = (await getCacheFromRedis(cgComparatorPricesCacheKey, false)) || {};
+          prices = (await getCacheFromRedis(cgComparatorPricesCacheKey, false)) || {};
         }
       } catch (e) {
         console.log('Error fetching gecko prices');
-        geckoPrices = (await getCacheFromRedis(cgComparatorPricesCacheKey, false)) || {};
+        prices = (await getCacheFromRedis(cgComparatorPricesCacheKey, false)) || {};
       }
+      return prices;
     }
 
     const [currentRates, defillamaData, dolaStakingData, prices] = await Promise.all(
@@ -412,6 +414,8 @@ export default async function handler(req, res) {
         fetchPrices(),
       ]
     );
+
+    prices['dola-usd'] = { usd: (dolaStakingData?.dolaPriceUsd || prices['dola-usd']?.usd) };
 
     const onChainData = await getOnChainData(meta);
 
@@ -429,7 +433,7 @@ export default async function handler(req, res) {
 
     const sortedRates = currentRates
       .map((rate, index) => {
-        const cgId = cgIds[index];
+        const cgData = cgObjects[index];
         const metaData = meta[index];
         const symbol = metaData.symbol;
         const pastRatesLen = pastRates.length;
@@ -444,7 +448,7 @@ export default async function handler(req, res) {
         const defillamaPoolData = defillamaData.find(p => p.pool === metaData.pool);
         const exchangeRate = onChainData[index].exchangeRate;
         return {
-          vaultPrice: metaData.isNotVault ? 1 : metaData.underlyingCoingeckoId ? prices[cgId]?.usd * exchangeRate : prices[cgId]?.usd || 0,
+          vaultPrice: cgData?.type === 'underlying' ? prices[cgData?.id]?.usd * (metaData.isNotVault ? 1 : exchangeRate) : prices[cgData?.id]?.usd || 0,
           address: metaData.address,
           isVault: !metaData.isNotVault,
           totalAssets: onChainData[index].totalAssets,
@@ -493,7 +497,7 @@ export default async function handler(req, res) {
       rates: sortedRates.filter(r => !r.deprecated),
     };
 
-    // await redisSetWithTimestamp(cacheKey, result);
+    await redisSetWithTimestamp(cacheKey, result);
 
     return res.status(200).json(result);
 
