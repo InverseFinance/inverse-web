@@ -19,6 +19,10 @@ export default async function handler(req, res) {
 
     const { method } = req;
 
+    if (method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
     const origin = req.headers['origin'] || req.headers['referer'];
 
     const { terms, lang, version } = req.body;
