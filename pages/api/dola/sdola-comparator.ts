@@ -2,7 +2,7 @@ import 'source-map-support'
 import { getProvider } from '@app/util/providers';
 import { getAaveV3RateOf } from '@app/util/borrow-rates-comp';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
-import { NetworkIds } from '@app/types';
+import { NetworkIds, Prices } from '@app/types';
 import { getBnToNumber, getDefiLlamaApy, getSavingsCrvUsdData, getSavingsdeUSDData, getSavingsUSDData, getSUSDEData, getYearnVaultApy, getYearnVaultKongApy } from '@app/util/markets';
 import { getDSRData } from '@app/util/markets';
 import { TOKEN_IMAGES } from '@app/variables/images';
@@ -14,6 +14,7 @@ import { DAILY_UTC_CACHE_KEY } from '../cron-daily-block-timestamp';
 import { ARCHIVED_UTC_DATES_BLOCKS } from '@app/fixtures/utc-dates-blocks';
 import { BLOCKS_PER_DAY, ONE_DAY_SECS } from '@app/config/constants';
 import { dolaStakingCacheKey } from '../dola-staking';
+import { getToken, TOKENS } from '@app/variables/tokens';
 
 // https://vision.perspective.fi/api/mainnet/graph-data/0xb45ad160634c528Cc3D2926d9807104FA3157305
 
@@ -55,7 +56,7 @@ export const getOnChainData = async (meta: any[]) => {
     // sevenDayAgoBlock, fourteenDayAgoBlock, 
     thirtyDaysAgoBlock,
     //  sixtyDaysAgoBlock,
-    ninetyDaysAgoBlock, 
+    ninetyDaysAgoBlock,
     // oneHundredEightyDaysAgoBlock, threeHundredSixtyDaysAgoBlock
   ];
 
@@ -64,7 +65,7 @@ export const getOnChainData = async (meta: any[]) => {
     // sevenDayRates, fourteenDayRates, 
     thirtyDayRates,
     // sixtyDayRates,
-     ninetyDayRates, 
+    ninetyDayRates,
     //  oneHundredEightyDayRates, threeHundredSixtyDayRates
   ] = await Promise.all(
     blocks.map(block => getMulticallOutput(
@@ -174,10 +175,10 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', `GET`);
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration);
 
-    if (isValid) {
-      res.status(200).json(cachedData);
-      return
-    }
+    // if (isValid) {
+    //   res.status(200).json(cachedData);
+    //   return
+    // }
 
     const provider = getProvider(NetworkIds.mainnet);
 
@@ -211,6 +212,7 @@ export default async function handler(req, res) {
         pool: '0b8fec3b-a715-4803-94ce-9fe3b7520b23',
         address: '0x83F20F44975D03b1b09e64809B757c47f942BEeA',
         underlying: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+        coingeckoId: 'savings-dai',
         currentRateGetter: () => getDSRData(),
       },
       {
@@ -344,6 +346,7 @@ export default async function handler(req, res) {
         pool: '4c29f645-12db-461f-a1d7-16900d624271',
         address: '0x23346B04a7f55b8760E5860AA5A77383D63491cD',// staking contract for calc
         underlying: '0x6440f144b7e50D6a8439336510312d2F54beB01D',
+        underlyingCoingeckoId: 'liquity-bold-2',
         currentRateGetter: () => getYearnVaultKongApy('0x9F4330700a36B29952869fac9b33f45EEdd8A3d8'),
         image: `data:image/svg+xml,%3csvg%20width='148'%20height='148'%20viewBox='0%200%20148%20148'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20clip-path='url(%23clip0_56_219)'%3e%3cpath%20d='M74%20148C114.869%20148%20148%20114.869%20148%2074C148%2033.1309%20114.869%200%2074%200C33.1309%200%200%2033.1309%200%2074C0%20114.869%2033.1309%20148%2074%20148Z'%20fill='%230675F9'/%3e%3cpath%20d='M125.068%2078.7182C130.501%2095.0518%20121.655%20112.695%20105.333%20118.128C88.9995%20123.561%2071.3558%20114.715%2065.9233%2098.3931C60.4908%2082.0595%2069.3367%2064.4158%2085.6582%2058.9833C101.992%2053.5508%20119.636%2062.3966%20125.068%2078.7182ZM82.293%2023.6479L55.503%2023.2393L54.0006%20120.412L80.7906%20120.82L82.293%2023.6479ZM32.4028%2034.4528L13.9058%2053.3344L54.9982%2093.5975L55.3948%2058.2021L32.4028%2034.4528Z'%20fill='white'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='clip0_56_219'%3e%3crect%20width='148'%20height='148'%20fill='white'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e`,
       },
@@ -354,6 +357,7 @@ export default async function handler(req, res) {
         // pool: '',
         address: '0x50Bd66D59911F5e086Ec87aE43C811e0D059DD11',
         underlying: '0x6440f144b7e50D6a8439336510312d2F54beB01D',
+        underlyingCoingeckoId: 'liquity-bold-2',
         currentRateGetter: async () => {
           try {
             const res = await fetch(`https://api.liquity.org/v2/ethereum.json`);
@@ -368,13 +372,44 @@ export default async function handler(req, res) {
       },
     ];
 
-    const [currentRates, defillamaData, dolaStakingData] = await Promise.all(
+    const cgIds = meta.map(t => {
+      if(t.underlyingCoingeckoId) return t.underlyingCoingeckoId
+      const vaultToken = getToken(TOKENS, t.address);
+      if(vaultToken) return vaultToken.coingeckoId;
+      return '';
+    })
+
+    const uniqueCgIds = [...new Set(cgIds)].filter(v => !!v);
+    console.log(uniqueCgIds)
+
+    let geckoPrices: Prices["prices"] = {};
+    const cgComparatorPricesCacheKey = 'comparator-vault-prices';
+
+    const fetchPrices = async () => {
+      try {
+        const res = await fetch(`https://pro-api.coingecko.com/api/v3/simple/price?x_cg_pro_api_key=${process.env.CG_PRO}&vs_currencies=usd&ids=${uniqueCgIds.join(',')}`);
+        geckoPrices = await res.json();
+        console.log(geckoPrices)
+        const cgOk = !!geckoPrices?.['sdola']?.usd;
+        if (cgOk) {
+          await redisSetWithTimestamp(cgComparatorPricesCacheKey, geckoPrices);
+        } else {
+          geckoPrices = (await getCacheFromRedis(cgComparatorPricesCacheKey, false)) || {};
+        }
+      } catch (e) {
+        console.log('Error fetching gecko prices');
+        geckoPrices = (await getCacheFromRedis(cgComparatorPricesCacheKey, false)) || {};
+      }
+    }
+
+    const [currentRates, defillamaData, dolaStakingData, prices] = await Promise.all(
       [
         Promise.all(
           meta.map(m => m.currentRateGetter())
         ),
         getDefillamaData(meta.filter(m => !!m.pool).map(m => m.pool)),
         getCacheFromRedis(dolaStakingCacheKey, false),
+        fetchPrices(),
       ]
     );
 
@@ -394,6 +429,7 @@ export default async function handler(req, res) {
 
     const sortedRates = currentRates
       .map((rate, index) => {
+        const cgId = cgIds[index];
         const metaData = meta[index];
         const symbol = metaData.symbol;
         const pastRatesLen = pastRates.length;
@@ -406,13 +442,15 @@ export default async function handler(req, res) {
         const last180 = pastRates.slice(pastRatesLen - 180, pastRatesLen).filter(pr => !!pr[symbol]);
         const last365 = pastRates.slice(pastRatesLen - 365, pastRatesLen).filter(pr => !!pr[symbol]);
         const defillamaPoolData = defillamaData.find(p => p.pool === metaData.pool);
+        const exchangeRate = onChainData[index].exchangeRate;
         return {
+          vaultPrice: metaData.isNotVault ? 1 : metaData.underlyingCoingeckoId ? prices[cgId]?.usd * exchangeRate : prices[cgId]?.usd || 0,
           address: metaData.address,
           isVault: !metaData.isNotVault,
           totalAssets: onChainData[index].totalAssets,
           totalAssets30d: onChainData[index].totalAssets30d,
           totalAssets90d: onChainData[index].totalAssets90d,
-          exchangeRate: onChainData[index].exchangeRate,
+          exchangeRate,
           tvl: metaData.symbol === 'sDOLA' && !!dolaStakingData?.tvlUsd ? dolaStakingData.tvlUsd : defillamaPoolData?.tvlUsd || onChainData[index].totalAssets || null,
           apy: (onChainData[index].calculatedApy || rate.supplyRate || rate.apy),
           thirdPartyApy: rate.supplyRate || rate.apy,
@@ -455,7 +493,7 @@ export default async function handler(req, res) {
       rates: sortedRates.filter(r => !r.deprecated),
     };
 
-    await redisSetWithTimestamp(cacheKey, result);
+    // await redisSetWithTimestamp(cacheKey, result);
 
     return res.status(200).json(result);
 
