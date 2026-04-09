@@ -234,7 +234,7 @@ export default async function handler(req, res) {
       {
         symbol: 'sDOLA',
         project: 'FiRM',
-        link: 'https://inverse.finance/sDOLA',
+        link: 'https://earn.inverse.finance',
         pool: 'bf0f95c9-bc46-467d-9762-1d80ff50cd74',
         address: '0xb45ad160634c528Cc3D2926d9807104FA3157305',
         underlying: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
@@ -289,6 +289,7 @@ export default async function handler(req, res) {
         pool: '01e33a85-8bb6-4f30-a11b-7b2a8166e6b7',
         address: '0x0022228a2cc5E7eF0274A7Baa600d44da5aB5776',
         underlying: '0x0000206329b97DB379d5E1Bf586BbDB969C63274',
+        deprecated: true,
         currentRateGetter: async () => {
           try {
             const res = await fetch(`https://exporter.angle.money/v2/savings`);
