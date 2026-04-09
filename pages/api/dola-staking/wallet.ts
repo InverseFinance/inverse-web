@@ -7,16 +7,17 @@ import { isAddress } from 'ethers/lib/utils';
 import { getDolaUsdPriceOnCurve } from '@app/util/f2';
 
 export default async function handler(req, res) {
+    const { address } = req.query;
+    if (!address || !isAddress(address)) {
+        return res.status(400).json({ error: true, message: 'missing or invalid address' })
+    }
+
     const cacheDuration = 30;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
     res.setHeader('Access-Control-Allow-Origin', `*`);
     res.setHeader('Access-Control-Allow-Methods', `*`);
 
-    const { address } = req.query;
-    if (!address || !isAddress(address)) {
-        return res.status(400).json({ error: true, message: 'missing or invalid address' })
-    }
     try {
         const provider = getProvider(CHAIN_ID);
         const sDolaContract = getSdolaContract(provider);
