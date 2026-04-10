@@ -191,6 +191,7 @@ export default async function handler(req, res) {
         address: '0x98C23E9d8f34FEFb1B7BD6a91B7FF122F4e16F5c',
         underlying: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
         zapSymbol: 'aEthUSDC',
+        zapDecimals: 6,
         isNotVault: true,
         currentRateGetter: () => getAaveV3RateOf(provider, 'USDC'),
       },
@@ -202,6 +203,7 @@ export default async function handler(req, res) {
         address: '0x23878914EFE38d27C4D67Ab83ed1b93A74D4086a',
         underlying: '0xdac17f958d2ee523a2206206994597c13d831ec7',
         zapSymbol: 'aEthUSDT',
+        zapDecimals: 6,
         isNotVault: true,
         currentRateGetter: () => getAaveV3RateOf(provider, 'USDT'),
       },
@@ -477,7 +479,8 @@ export default async function handler(req, res) {
           pool: metaData.pool || null,
           zapAddress: metaData.zapAddress,
           zapSymbol: metaData.zapSymbol,
-          decimals: onChainData.decimals,
+          decimals: onChainData[index].decimals,
+          zapDecimals: metaData.zapDecimals,
           deprecated: metaData.deprecated,
         }
       }).sort((a, b) => {
