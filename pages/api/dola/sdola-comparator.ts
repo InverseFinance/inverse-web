@@ -238,7 +238,7 @@ export default async function handler(req, res) {
       {
         symbol: 'sDOLA',
         project: 'FiRM',
-        link: 'https://earn.inverse.finance',
+        link: 'https://www.inverse.finance/sDOLA',
         pool: 'bf0f95c9-bc46-467d-9762-1d80ff50cd74',
         address: '0xb45ad160634c528Cc3D2926d9807104FA3157305',
         underlying: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
