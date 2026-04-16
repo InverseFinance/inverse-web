@@ -251,14 +251,14 @@ export default async function handler(req, res) {
             //     logIndex: 753,
             // },
             // Junior slash, TODO: refacto with events
-            {
-                txHash: "0xef9485755759c32d14b38de75e9eda6653ba716afda5a6a989658b99453b427c",
-                blocknumber: 24892311,
-                amount: 340061.893841391460830202,
-                timestamp: 1776341591000,
-                date: "2026-04-16",
-                logIndex: 262,
-            },
+            // {
+            //     txHash: "0xef9485755759c32d14b38de75e9eda6653ba716afda5a6a989658b99453b427c",
+            //     blocknumber: 24892311,
+            //     amount: 340061.893841391460830202,
+            //     timestamp: 1776341591000,
+            //     date: "2026-04-16",
+            //     logIndex: 262,
+            // },
         ];
 
         const totalDolaRepaidByDAO = archivedData
