@@ -14,6 +14,7 @@ import { usePrices } from '@app/hooks/usePrices'
 import { useEventsAsChartData } from '@app/hooks/misc'
 import { DefaultCharts } from '@app/components/Transparency/DefaultCharts'
 import { useState } from 'react'
+import { useAppTheme } from "@app/hooks/useAppTheme";
  
 import { shortenNumber, smartShortNumber } from '@app/util/markets'
 import ScannerLink from '@app/components/common/ScannerLink'
@@ -24,6 +25,7 @@ import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
 import { InfoMessage } from '@app/components/common/Messages'
 import Link from '@app/components/common/Link'
 import { timeSince } from '@app/util/time'
+import { PieCard } from '@app/components/F2/UserDashboard'
 
 const ColHeader = ({ ...props }) => {
   return <Flex justify="center" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -375,6 +377,7 @@ const formatToBarData = (data: any, item: any, index: number, key: string, isDol
 const totalRepaymentKeys = ['wbtcRepaidByDAO', 'ethRepaidByDAO', 'yfiRepaidByDAO', 'totalDolaRepaidByDAO', 'dolaForIOUsRepaidByDAO'];
 
 export const BadDebtPage = () => {
+  const { themeStyles } = useAppTheme();
   const { data, isLoading } = useRepayments();
   const [useUsd, setUseUsd] = useState(true);
   const [useHistorical, setUseHistorical] = useState(false);
@@ -516,6 +519,32 @@ export const BadDebtPage = () => {
                   barProps={{ eventName: 'Repayment' }}
                   areaProps={{ id: 'bad-debt-chart', showRangeBtns: true, defaultRange: '1Y', rangesToInclude: ['All', 'YTD', '1Y', '6M', '3M', '7D'], yLabel: 'DOLA bad debt', useRecharts: true, fillInByDayInterval: 1, simplifyData: false, showEvents: true, showEventsLabels: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
                 />
+                <Stack w='full' justify="space-between" direction={{ base:'column', lg: 'row' }}>
+                  <PieCard
+                    title="Repayments per protocol"
+                    isLoading={isLoading}
+                    data={data?.badDebts?.DOLA?.breakdown?.repaid || []}
+                    dataKey="amount"
+                    nameKey="label"
+                    precision={0}
+                    pieProps={{ isShortenNumbers: true }}
+                    cardTitleProps={{ w:'full', textAlign: 'center' }}
+                    fill={themeStyles.colors.mainTextColorLight} 
+                    activeFill={themeStyles.colors.mainTextColor}
+                  />
+                  <PieCard
+                    title="Remaining per protocol"
+                    isLoading={isLoading}
+                    data={data?.badDebts?.DOLA?.breakdown?.remaining || []}
+                    dataKey="amount"
+                    nameKey="label"
+                    precision={0}
+                    pieProps={{ isShortenNumbers: true }}
+                    cardTitleProps={{ w:'full', textAlign: 'center' }}
+                    fill={themeStyles.colors.mainTextColorLight} 
+                    activeFill={themeStyles.colors.mainTextColor}
+                  />
+                </Stack>
               </VStack>
             </Container>
             <Container
