@@ -24,6 +24,7 @@ import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
 import { InfoMessage } from '@app/components/common/Messages'
 import Link from '@app/components/common/Link'
 import { timeSince } from '@app/util/time'
+import { NumberAndPieCard } from '@app/components/F2/UserDashboard'
 
 const ColHeader = ({ ...props }) => {
   return <Flex justify="center" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -516,6 +517,24 @@ export const BadDebtPage = () => {
                   barProps={{ eventName: 'Repayment' }}
                   areaProps={{ id: 'bad-debt-chart', showRangeBtns: true, defaultRange: '1Y', rangesToInclude: ['All', 'YTD', '1Y', '6M', '3M', '7D'], yLabel: 'DOLA bad debt', useRecharts: true, fillInByDayInterval: 1, simplifyData: false, showEvents: true, showEventsLabels: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
                 />
+                <Stack direction={{ base:'column', lg: 'row' }}>
+                  <NumberAndPieCard
+                    title="Repayments per protocol"
+                    isLoading={isLoading}
+                    data={data?.DOLA?.badDebts?.breakdown?.repaid}
+                    dataKey="amount"
+                    nameKey="protocol"
+                    precision={0}
+                  />
+                  <NumberAndPieCard
+                    title="Remaining per protocol"
+                    isLoading={isLoading}
+                    data={data?.DOLA?.badDebts?.breakdown?.remaining}
+                    dataKey="amount"
+                    nameKey="protocol"
+                    precision={0}
+                  />
+                </Stack>
               </VStack>
             </Container>
             <Container
