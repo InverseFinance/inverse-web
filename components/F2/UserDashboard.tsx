@@ -213,7 +213,7 @@ export const StringCard = ({ imageSrc = '', footer = undefined, color = undefine
     </DashBoardCard>
 }
 
-const PieItem = ({ data, activeFill = lightTheme.colors.mainTextColor, fill = lightTheme.colors.mainTextColorLight, width = 600, height = 250, dataKey = 'value', nameKey = 'name', precision = 2, isUsd = false, pieProps }) => {
+const PieItem = ({ data, activeFill = lightTheme.colors.mainTextColor, fill = lightTheme.colors.mainTextColorLight, width = 600, height = 250, dataKey = 'value', nameKey = 'name', precision = 2, isUsd = false, ...pieProps }) => {
     return <PieChartRecharts
         isUsd={isUsd}
         precision={precision}
@@ -239,6 +239,14 @@ export const NumberAndPieCard = ({ isLoading, title, footer = undefined, noDataF
             !isLoading && !data?.length ? noDataFallback : <PieItem fill={fill} activeFill={activeFill} data={data} width={width} height={height} dataKey={dataKey} nameKey={nameKey} precision={precision} isUsd={isUsd} {...pieProps} />
         }
         <NumberItem containerProps={{ width: { md: 'fit-content' }, position: { base: 'static', md: 'absolute' }, top: '0', bottom: '0', right: '40px' }} footer={footer} isLoading={isLoading} value={value} label={label} precision={precision} isUsd={isUsd} />
+    </DashBoardCard>
+}
+
+export const PieCard = ({ isLoading, title, footer = undefined, noDataFallback = undefined, fill, activeFill, data, value, label, width = 350, height = 250, dataKey = 'value', nameKey = 'name', precision = 2, isUsd = false, pieProps, ...props }) => {
+    return <DashBoardCard cardTitle={title} minH="314px" direction={{ base: 'column', sm: 'row' }} alignItems="center" justify="space-around" px="16" {...props}>
+        {
+            !isLoading && !data?.length ? noDataFallback : <PieItem fill={fill} activeFill={activeFill} data={data} width={width} height={height} dataKey={dataKey} nameKey={nameKey} precision={precision} isUsd={isUsd} {...pieProps} />
+        }
     </DashBoardCard>
 }
 

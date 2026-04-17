@@ -25,7 +25,7 @@ import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
 import { InfoMessage } from '@app/components/common/Messages'
 import Link from '@app/components/common/Link'
 import { timeSince } from '@app/util/time'
-import { NumberAndPieCard } from '@app/components/F2/UserDashboard'
+import { PieCard } from '@app/components/F2/UserDashboard'
 
 const ColHeader = ({ ...props }) => {
   return <Flex justify="center" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -520,24 +520,24 @@ export const BadDebtPage = () => {
                   areaProps={{ id: 'bad-debt-chart', showRangeBtns: true, defaultRange: '1Y', rangesToInclude: ['All', 'YTD', '1Y', '6M', '3M', '7D'], yLabel: 'DOLA bad debt', useRecharts: true, fillInByDayInterval: 1, simplifyData: false, showEvents: true, showEventsLabels: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
                 />
                 <Stack w='full' justify="space-between" direction={{ base:'column', lg: 'row' }}>
-                  <NumberAndPieCard
+                  <PieCard
                     title="Repayments per protocol"
                     isLoading={isLoading}
                     data={data?.badDebts?.DOLA?.breakdown?.repaid || []}
                     dataKey="amount"
-                    nameKey="protocol"
+                    nameKey="label"
                     precision={0}
                     pieProps={{ isShortenNumbers: true }}
                     cardTitleProps={{ w:'full', textAlign: 'center' }}
                     fill={themeStyles.colors.mainTextColorLight} 
                     activeFill={themeStyles.colors.mainTextColor}
                   />
-                  <NumberAndPieCard
+                  <PieCard
                     title="Remaining per protocol"
                     isLoading={isLoading}
                     data={data?.badDebts?.DOLA?.breakdown?.remaining || []}
                     dataKey="amount"
-                    nameKey="protocol"
+                    nameKey="label"
                     precision={0}
                     pieProps={{ isShortenNumbers: true }}
                     cardTitleProps={{ w:'full', textAlign: 'center' }}

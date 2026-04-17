@@ -430,6 +430,7 @@ export default async function handler(req, res) {
         const allFuseRepayments = [archivedData.dolaB1RepaidByDAO, archivedData.dolaFuse6RepaidByDAO, archivedData.dolaBadgerRepaidByDAO].flat();
 
         const protocols = ['frontier', 'euler', 'fuse', 'firm'];
+        const protocolLabels = ['Frontier', 'Euler', 'Fuse', 'FiRM'];
 
         const dolaRepaymentsBreakdown = [
             newDolaFrontierRepaidByDAO,
@@ -440,14 +441,14 @@ export default async function handler(req, res) {
             const nb = reps.length;
             const amount = reps.reduce((prev, curr) => prev+curr.amount, 0);
             return {
-                protocol: protocols[i], nb, amount
+                protocol: protocols[i], label: protocolLabels[i], nb, amount
             }
         });
 
         badDebts.DOLA.breakdown = {
             remaining: [
-                { protocol: 'frontier', amount: badDebts.DOLA.frontierBadDebtBalance},
-                { protocol: 'firm', amount: badDebts.DOLA.nonFrontierBadDebtBalance},
+                { protocol: 'frontier', label: 'Frontier', amount: badDebts.DOLA.frontierBadDebtBalance},
+                { protocol: 'firm', label: 'FiRM', amount: badDebts.DOLA.nonFrontierBadDebtBalance},
             ],
             repaid: dolaRepaymentsBreakdown,
         };
