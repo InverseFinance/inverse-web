@@ -14,6 +14,7 @@ import { usePrices } from '@app/hooks/usePrices'
 import { useEventsAsChartData } from '@app/hooks/misc'
 import { DefaultCharts } from '@app/components/Transparency/DefaultCharts'
 import { useState } from 'react'
+import { useAppTheme } from "@app/hooks/useAppTheme";
  
 import { shortenNumber, smartShortNumber } from '@app/util/markets'
 import ScannerLink from '@app/components/common/ScannerLink'
@@ -376,6 +377,7 @@ const formatToBarData = (data: any, item: any, index: number, key: string, isDol
 const totalRepaymentKeys = ['wbtcRepaidByDAO', 'ethRepaidByDAO', 'yfiRepaidByDAO', 'totalDolaRepaidByDAO', 'dolaForIOUsRepaidByDAO'];
 
 export const BadDebtPage = () => {
+  const { themeStyles } = useAppTheme();
   const { data, isLoading } = useRepayments();
   const [useUsd, setUseUsd] = useState(true);
   const [useHistorical, setUseHistorical] = useState(false);
@@ -525,6 +527,10 @@ export const BadDebtPage = () => {
                     dataKey="amount"
                     nameKey="protocol"
                     precision={0}
+                    pieProps={{ isShortenNumbers: true }}
+                    cardTitleProps={{ w:'full', textAlign: 'center' }}
+                    fill={themeStyles.colors.mainTextColorLight} 
+                    activeFill={themeStyles.colors.mainTextColor}
                   />
                   <NumberAndPieCard
                     title="Remaining per protocol"
@@ -533,6 +539,10 @@ export const BadDebtPage = () => {
                     dataKey="amount"
                     nameKey="protocol"
                     precision={0}
+                    pieProps={{ isShortenNumbers: true }}
+                    cardTitleProps={{ w:'full', textAlign: 'center' }}
+                    fill={themeStyles.colors.mainTextColorLight} 
+                    activeFill={themeStyles.colors.mainTextColor}
                   />
                 </Stack>
               </VStack>
