@@ -521,7 +521,7 @@ export const BadDebtPage = () => {
                   <NumberAndPieCard
                     title="Repayments per protocol"
                     isLoading={isLoading}
-                    data={data?.DOLA?.badDebts?.breakdown?.repaid || []}
+                    data={data?.badDebts?.DOLA?.breakdown?.repaid || []}
                     dataKey="amount"
                     nameKey="protocol"
                     precision={0}
@@ -529,7 +529,7 @@ export const BadDebtPage = () => {
                   <NumberAndPieCard
                     title="Remaining per protocol"
                     isLoading={isLoading}
-                    data={data?.DOLA?.badDebts?.breakdown?.remaining || []}
+                    data={data?.badDebts?.DOLA?.breakdown?.remaining || []}
                     dataKey="amount"
                     nameKey="protocol"
                     precision={0}
