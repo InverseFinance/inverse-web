@@ -677,7 +677,7 @@ export const F2CombinedForm = ({
                     {
                         canShowLeverage && <VStack display={useLeverage ? 'inline-block' : 'none'}>
                             {
-                                isDeposit && dolaPrice < 0.995 && <WarningMessage
+                                isDeposit && dolaPrice < 0.995 && market.supplyApy > 0 && <WarningMessage
                                     alertProps={{ w: 'full' }}
                                     description={
                                         <VStack spacing="0" alignItems="flex-start">
