@@ -194,6 +194,7 @@ export default async function handler(req, res) {
         zapDecimals: 6,
         isNotVault: true,
         currentRateGetter: () => getAaveV3RateOf(provider, 'USDC'),
+        deprecated: true,
       },
       {
         symbol: 'USDT',
@@ -206,6 +207,7 @@ export default async function handler(req, res) {
         zapDecimals: 6,
         isNotVault: true,
         currentRateGetter: () => getAaveV3RateOf(provider, 'USDT'),
+        deprecated: true,
       },
       {
         symbol: 'sDAI',
