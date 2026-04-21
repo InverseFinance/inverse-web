@@ -402,7 +402,7 @@ export const BadDebtPage = () => {
       acc.push({ ...item });
     }
     return acc;
-  }, []);
+  }, []).filter(r => !!r.amount);
 
   const totalDirectRepaymentsForChart = totalRepaymentKeys.map(key => {
     return (data[key] || []).map((d, i) => formatToBarData(data, d, i, key, key.toLowerCase().includes('dola'), prices, useHistorical));
