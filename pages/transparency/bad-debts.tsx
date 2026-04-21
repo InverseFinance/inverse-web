@@ -389,7 +389,20 @@ export const BadDebtPage = () => {
 
   const totalDirectRepaymentsForTable = totalRepaymentKeys.map(key => {
     return (data[key] || []).map((d, i) => formatToBarData(data, d, i, key, key.toLowerCase().includes('dola'), prices, true));
-  }).flat();
+  }).flat().reduce((acc, item) => {
+    const groupKey = `${item.txHash}-${item.symbol}`;
+    const existing = acc.find(i => `${i.txHash}-${i.symbol}` === groupKey);
+    if (existing) {
+      existing.amount += item.amount;
+      existing.worth += item.worth;
+      Object.keys(item).forEach(k => {
+        if (k !== 'amount' && k !== 'worth') existing[k] = item[k];
+      });
+    } else {
+      acc.push({ ...item });
+    }
+    return acc;
+  }, []);
 
   const totalDirectRepaymentsForChart = totalRepaymentKeys.map(key => {
     return (data[key] || []).map((d, i) => formatToBarData(data, d, i, key, key.toLowerCase().includes('dola'), prices, useHistorical));
