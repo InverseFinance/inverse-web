@@ -179,7 +179,7 @@ const NumberItem = ({ containerProps, noDataFallback = '-', href = '', footer = 
             }
             {
                 !!value && !!href ?
-                    <Link fontSize="18px" fontWeight="bold" color={'mainTextColorLight'} textDecoration="underline" href={href}>{label}</Link>
+                    <Link fontSize="18px" fontWeight="bold" color={'mainTextColorLight'} textDecoration="underline" href={href} isExternal={href.startsWith('http')} target={href.startsWith('http') ? '_blank' : undefined}>{label}</Link>
                     : !!value && !href ? <Text fontSize="18px" fontWeight="bold" color={'mainTextColorLight'}>
                         {label}
                     </Text> : null

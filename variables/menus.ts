@@ -52,7 +52,7 @@ export const MENUS = {
       submenus: [
         {
           label: 'sDOLA',
-          href: '/https://earn.inverse.finance',
+          href: 'https://earn.inverse.finance',
         },
         {
           label: 'jrDOLA',
