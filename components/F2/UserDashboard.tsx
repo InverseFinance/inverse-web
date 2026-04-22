@@ -283,7 +283,7 @@ const SmallLinkBtn = ({ href = '', ...props }) => {
 const BorrowDola = <BigLinkBtn href="/firm">Borrow DOLA</BigLinkBtn>;
 const SupplyAssets = <BigLinkBtn href="/firm">Supply Assets</BigLinkBtn>;
 const StakeINV = <SmallLinkBtn href="/firm">Use INV as collateral</SmallLinkBtn>;
-const StakeDOLA = <SmallLinkBtn href="/sDOLA">Stake DOLA</SmallLinkBtn>;
+const StakeDOLA = <SmallLinkBtn  target="_blank" isExternal={true} href="https://earn.inverse.finance">Stake DOLA</SmallLinkBtn>;
 const StakeSINV = <SmallLinkBtn href="/sINV">Stake INV</SmallLinkBtn>;
 
 export const UserDashboard = ({
@@ -368,7 +368,7 @@ export const UserDashboard = ({
                         labelLeft={<>APY: <b>{shortenNumber(sDolaApy, 2)}%</b></>}
                         labelRight={<>proj. APY: <b>{shortenNumber(sDolaProjectedApy, 2)}%</b></>}
                     />
-                } href="/sDOLA" noDataFallback={StakeDOLA} isLoading={isLoading} value={dolaStakedInSDola} label="DOLA staked" precision={2} />
+                } href="https://earn.inverse.finance" noDataFallback={StakeDOLA} isLoading={isLoading} value={dolaStakedInSDola} label="DOLA staked" precision={2} />
             <NumberCard
                 imageSrc={TOKEN_IMAGES.SINV}
                 price={invPrice}
