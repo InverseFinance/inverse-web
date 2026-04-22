@@ -48,7 +48,7 @@ export const FirmBorrowsChart = ({
             return;
         }
         const suffix = useUsd ? 'Usd' : '';
-        const keys = ([actives[KEYS.BURN] ? 'debt'+suffix : '', actives[KEYS.TOTAL_USER_DBR_BALANCE] ? 'totalUserDbrBalance' : ''])
+        const keys = ([actives[KEYS.BURN] ? 'debt'+suffix : '', actives[KEYS.TOTAL_USER_DBR_BALANCE] ? 'totalUserDbrBalance'+suffix : ''])
             .filter(d => !!d);
         
         const dataMin = Math.min(..._data.map(d => Math.min(...keys.map(k => (d[k]||0)))));
