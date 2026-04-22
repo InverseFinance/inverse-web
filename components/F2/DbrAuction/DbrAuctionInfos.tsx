@@ -202,7 +202,7 @@ export const DbrAuctionIntroMsg = ({
                 </Link>
                 <Text fontSize="14px" fontWeight="bold">Looking for sDOLA or sINV?</Text>
                 <VStack alignItems="flex-start" spacing="0">
-                    <Link textDecoration="underline" href='/sDOLA'>
+                    <Link textDecoration="underline" href='https://earn.inverse.finance' target="_blank" isExternal={true}>
                         Go to the DOLA staking page
                     </Link>
                     <Link textDecoration="underline" href='/sINV'>

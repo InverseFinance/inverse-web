@@ -39,7 +39,7 @@ const LANDING_NAV_ITEMS = [
         </HStack>,
         title: 'sDOLA',
         text: "Inverse Finance's yield-bearing stablecoin",
-        href: '/sDOLA',
+        href: 'https://earn.inverse.finance',
       },
     ]
   },

@@ -340,7 +340,7 @@ export const Landing = ({
                 <GeistText as="h5" fontSize="md">
                   DOLA enables some of the most attractive yield opportunities in DeFi. Now, sDOLA takes it further—a yield-bearing stablecoin born from our FiRM lending market, delivering pure, uncut DeFi returns fueled by real activity, not centralized compromises.
                 </GeistText>
-                <Link href="/sDOLA" target="_blank" isExternal>
+                <Link href="https://earn.inverse.finance" target="_blank" isExternal>
                   <LandingNoisedBtn btnProps={{ maxH: '50px' }}>
                     Get Started <ArrowForwardIcon ml="2" />
                   </LandingNoisedBtn>

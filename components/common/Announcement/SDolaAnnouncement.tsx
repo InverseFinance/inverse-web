@@ -71,7 +71,9 @@ export const SDolaAnnouncement = () => {
       <Stack direction={{ base: 'column', lg: 'row' }} spacing={{ base: 0, lg: 8 }} alignItems="center">
         <Link
           color="mainTextColor"
-          href={'/sDOLA'}
+          href={'https://earn.inverse.finance'}
+          target="_blank"
+          isExternal={true}
           _hover={{ color: 'lightAccentTextColor' }}
         >
           {
