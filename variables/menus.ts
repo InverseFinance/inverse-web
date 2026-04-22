@@ -49,10 +49,12 @@ export const MENUS = {
     {
       label: 'Stake',
       href: 'https://earn.inverse.finance',
+      isExternal: true,
       submenus: [
         {
           label: 'sDOLA',
           href: 'https://earn.inverse.finance',
+          isExternal: true,
         },
         {
           label: 'jrDOLA',
@@ -382,6 +384,7 @@ export const MENUS = {
         {
           label: 'sDOLA',
           href: 'https://earn.inverse.finance',
+          isExternal: true,
         },
         {
           label: 'DOLA',
