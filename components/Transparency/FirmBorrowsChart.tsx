@@ -44,17 +44,17 @@ export const FirmBorrowsChart = ({
     });
 
     useEffect(() => {
-        if(!combodata?.length) {
+        if(!_data?.length) {
             return;
         }
         const suffix = useUsd ? 'Usd' : '';
-        const keys = ([actives[KEYS.BURN] ? 'debt'+suffix : '', 'inventory', 'totalUserDbrBalance'])
+        const keys = ([actives[KEYS.BURN] ? 'debt'+suffix : '', actives[KEYS.TOTAL_USER_DBR_BALANCE] ? 'totalUserDbrBalance'+suffix : ''])
             .filter(d => !!d);
         
-        const dataMin = Math.min(...combodata.map(d => Math.min(...keys.map(k => (d[k]||0)))));
-        const dataMax = Math.max(...combodata.map(d => Math.max(...keys.map(k => (d[k]||0)))));
+        const dataMin = Math.min(..._data.map(d => Math.min(...keys.map(k => (d[k]||0)))));
+        const dataMax = Math.max(..._data.map(d => Math.max(...keys.map(k => (d[k]||0)))));
         setLeftYDomain([dataMin, Math.ceil(dataMax*1.05)]);
-    }, [actives, combodata, useUsd]);
+    }, [actives, _data, useUsd]);
 
     const _axisStyle = axisStyle || {
         tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '14px', userSelect: 'none'  },
