@@ -31,6 +31,7 @@ export const TOKEN_IMAGES = {
     "DBR": IMAGES.DBR,
     "THREECRV": IMAGES["3CRV"],
     "SINV": IMAGES.SINV,
+    "invUSD": "https://app.monolith.market/invUSD.png",
     "fxSAVE": 'https://assets.coingecko.com/coins/images/67384/standard/fxsave.jpg?1752628124',
     "reUSD": "https://assets.coingecko.com/coins/images/54836/standard/reusd-icon-black-200px.png?1741970002",
     "YUSD": "https://assets.coingecko.com/coins/images/53607/standard/yUSD.png?1739862886",
