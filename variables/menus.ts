@@ -222,10 +222,10 @@ export const MENUS = {
           label: 'Request Collateral',
           href: '/firm/request-collateral',
         },
-        {
-          label: 'Blog',
-          href: '/blog',
-        },
+        // {
+        //   label: 'Blog',
+        //   href: '/blog',
+        // },
         {
           label: 'Audits',
           href: '/audits',
@@ -234,16 +234,16 @@ export const MENUS = {
           label: 'Yield Opportunities',
           href: '/yield-opportunities',
         },        
-        {
-          label: 'Native Base Bridge',
-          href: '/base',
-          needReload: true,
-        },
-        {
-          label: 'Native Blast Bridge',
-          href: '/blast',
-          needReload: true,
-        },
+        // {
+        //   label: 'Native Base Bridge',
+        //   href: '/base',
+        //   needReload: true,
+        // },
+        // {
+        //   label: 'Native Blast Bridge',
+        //   href: '/blast',
+        //   needReload: true,
+        // },
         {
           label: 'Analytics',
           href: 'https://inverse.watch/',
@@ -267,6 +267,11 @@ export const MENUS = {
         {
           label: 'Frontier - Debt Repayer',
           href: '/frontier/debt-repayer',
+        },
+        {
+          label: 'Discover Monolith',
+          href: 'https://monolith.market',
+          isExternal: true,
         },
       ],
     },
@@ -382,7 +387,7 @@ export const MENUS = {
       groupLabel: 'Products',
       items: [
         {
-          label: 'sDOLA',
+          label: 'sDOLA Earn',
           href: 'https://earn.inverse.finance',
           isExternal: true,
         },
@@ -394,16 +399,21 @@ export const MENUS = {
         //   label: 'sINV',
         //   href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/sinv',
         // },
-        {
-          label: 'INV',
-          href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/inv',
-        },
+        // {
+        //   label: 'INV',
+        //   href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/inv',
+        // },
         {
           label: 'FiRM',
           href: '/firm',
         },
         {
-          label: 'Stable Yields',
+          label: 'Monolith',
+          href: 'https://monolith.market',
+          isExternal: true,
+        },
+        {
+          label: 'Compare Stablecoin Yields',
           href: 'https://stableyields.info',
           isExternal: true,
         },
@@ -470,10 +480,10 @@ export const MENUS = {
     {
       groupLabel: 'Community',
       items: [
-        {
-          label: 'Blog',
-          href: '/blog',
-        },
+        // {
+        //   label: 'Blog',
+        //   href: '/blog',
+        // },
         {
           label: 'Bug Bounty',
           href: 'https://immunefi.com/bug-bounty/inversefinance/information',

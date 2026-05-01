@@ -174,6 +174,14 @@ export const ecosystemData = [
     },
     // Liquidity Partners
     {
+        image: 'https://app.monolith.market/square-logo.png',
+        label: 'Monolith',
+        category: 'LIQUIDITY',
+        categories: ['LIQUIDITY'],
+        href: "https://monolith.market",
+        description: "Monolith is a crypto-backed stablecoin factory, allowing DeFi teams to launch their own CDP stablecoin easiliy. Monolith stablecoins are built to last, starting with flexibility but destined to immutability.",
+    },
+    {
         image: 'https://assets.coingecko.com/coins/images/14113/standard/Alchemix.png?1696513834',
         label: 'Alchemix',
         category: 'LIQUIDITY',
@@ -327,6 +335,22 @@ export const ecosystemData = [
         description: "YieldFi is a fully on-chain asset management platform designed as a fund of funds for DeFi.",
     },
     // Yield Partners
+    {
+        image: 'https://www.stableyields.info/favicon.ico',
+        label: 'Stablecoin Yields',
+        category: 'YIELD',
+        categories: ['YIELD'],
+        href: "https://www.stableyields.info",
+        description: "Stablecoin Yields is a stable yield comparator amongst the top DeFi protocols, compare, earn and manage your positions easily.",
+    },
+     {
+        image: 'https://earn.inverse.finance/sDOLAx128.png',
+        label: 'sDOLA Earn',
+        category: 'YIELD',
+        categories: ['YIELD'],
+        href: "https://earn.inverse.finance",
+        description: "sDOLA Earn is the best place to earn stablecoin yield easily, an optimized experience for consistently higher than average decentralized organic yield.",
+    },
     {
         image: 'https://assets.coingecko.com/coins/images/12704/large/token.png?1601876182',
         label: 'Beefy',
