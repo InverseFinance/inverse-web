@@ -268,6 +268,11 @@ export const MENUS = {
           label: 'Frontier - Debt Repayer',
           href: '/frontier/debt-repayer',
         },
+        {
+          label: 'Discover Monolith',
+          href: 'https://monolith.market',
+          isExternal: true,
+        },
       ],
     },
     // {
@@ -394,16 +399,21 @@ export const MENUS = {
         //   label: 'sINV',
         //   href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/sinv',
         // },
-        {
-          label: 'INV',
-          href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/inv',
-        },
+        // {
+        //   label: 'INV',
+        //   href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/inv',
+        // },
         {
           label: 'FiRM',
           href: '/firm',
         },
         {
-          label: 'Stable Yields',
+          label: 'Monolith',
+          href: 'https://monolith.market',
+          isExternal: true,
+        },
+        {
+          label: 'Stablecoin Yields',
           href: 'https://stableyields.info',
           isExternal: true,
         },
