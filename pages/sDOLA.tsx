@@ -14,6 +14,7 @@ import { ErrorBoundary } from '@app/components/common/ErrorBoundary';
 import { SDolaComparator } from '@app/components/F2/SDolaComparator';
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect';
 import { useEffect, useState } from 'react';
+import { JsonLd } from '@app/components/common/JsonLd';
 
 export const SdolaPage = () => {
   const account = useAccount();
@@ -42,11 +43,24 @@ export const SdolaPage = () => {
       <Head>
         <title>Inverse Finance - sDOLA</title>
         <meta name="og:title" content="Inverse Finance - sDOLA" />
-        <meta name="og:description" content="sDOLA" />
+        <meta name="og:description" content="sDOLA is a decentralized yield-bearing stablecoin powered by organic yield from Inverse Finance's FiRM fixed-rate lending market revenue." />
         <meta name="description" content="sDOLA is a decentralized yield-bearing stablecoin that leverages organic yield from the DOLA Savings Account" />
         <meta name="keywords" content="Inverse Finance, sDOLA, yield-bearing stablecoin, staked DOLA" />
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/sDOLA-v3.jpeg" />
       </Head>
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "FinancialProduct",
+        "name": "sDOLA - Yield-Bearing Stablecoin",
+        "description": "sDOLA is a decentralized yield-bearing stablecoin powered by 100% organic yield from Inverse Finance's FiRM fixed-rate lending market. Hold sDOLA to earn real yield from protocol activity without centralized compromises.",
+        "provider": {
+          "@type": "Organization",
+          "name": "Inverse Finance",
+          "url": "https://www.inverse.finance"
+        },
+        "category": "Yield-Bearing Stablecoin",
+        "url": "https://www.inverse.finance/sDOLA"
+      }} />
       <AppNav active="Stake" activeSubmenu="sDOLA" hideAnnouncement={true} />
       <DolaStakingTabs />
       <VStack

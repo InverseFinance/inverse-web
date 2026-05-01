@@ -100,7 +100,7 @@ export const EcosystemPage = ({
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/ecosystem.png" />
         <meta name="og:title" content="Inverse Finance - Ecosystem" />
         <meta name="og:description" content="Explore our growing partner ecosystem" />
-        <link rel="canonical" href="https://www.inverse.finance" />
+        <link rel="canonical" href="https://www.inverse.finance/ecosystem" />
         <link rel="stylesheet" href="/landing.css" />
       </Head>
       <VStack spacing="0" className="landing-v3" w='full' alignItems="center">

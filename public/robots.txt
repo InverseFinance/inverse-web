@@ -57,3 +57,4 @@ User-agent: MistralAI-User
 Allow: /
 
 Sitemap: https://www.inverse.finance/sitemap.xml
+Llms-txt: https://www.inverse.finance/llms.txt

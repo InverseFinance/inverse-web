@@ -1,0 +1,46 @@
+# Inverse Finance
+
+> Inverse Finance is a decentralized autonomous organization (DAO) on Ethereum whose flagship product is FiRM, a fixed-rate borrowing protocol. Users borrow the DOLA stablecoin at predictable, locked interest rates using DOLA Borrowing Rights (DBR) tokens.
+
+## Key Products
+
+- [FiRM - Fixed Rate Market](https://www.inverse.finance/firm): Borrow DOLA stablecoins at fixed rates. Collateral is held in isolated Personal Collateral Escrows and is never loaned to others. Supports collateral types including wstETH, WBTC, WETH, CRV, CVX, and more. One-click leverage up to 10x.
+- [DOLA](https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dola): Debt-backed stablecoin pegged to USD. Borrowed through FiRM or available on DEXes.
+- [DBR - DOLA Borrowing Rights](https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dbr): ERC20 token representing tokenized interest. 1 DBR = right to borrow 1 DOLA for 1 year. This is how FiRM achieves fixed-rate borrowing.
+- [sDOLA](https://www.inverse.finance/sDOLA): Yield-bearing stablecoin powered by 100% organic yield from FiRM lending market revenue.
+- [sINV](https://www.inverse.finance/sINV): Auto-compounding staked INV token with yield-bearing properties, portable across chains.
+- [INV](https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/inv): Governance token for Inverse Finance DAO. Stakers earn real yield via DBR streaming.
+
+## How Fixed-Rate Borrowing Works
+
+Users deposit collateral (e.g., wstETH, WBTC) into FiRM and receive a Personal Collateral Escrow — an isolated, per-user smart contract that holds collateral. They purchase DBR tokens at market price, then borrow DOLA. Since the DBR price is known at purchase time, the borrowing rate is effectively fixed. 1 DBR is consumed per 1 DOLA borrowed per year.
+
+Key advantages over variable-rate protocols like Aave:
+- Interest rates are fixed, not variable
+- Collateral is never loaned to others
+- One-click leverage (hyperleverage) up to 10x
+- Continue earning partner staking points on deposited collateral
+- Borrow against LP tokens and yield-bearing assets
+
+## Safety Features
+
+FiRM has a DeFi Safety score of 87%. Key safety features include:
+- Personal Collateral Escrows (user-isolated collateral, never loaned out)
+- Pessimistic Price Oracles (protection against price manipulation)
+- Flash loan protection
+- Daily borrowing limits
+- Audited by Code4rena, Nomoi, yAudit, and PeckShield
+- Bug bounty program on Immunefi
+
+## Documentation
+
+- [Official Documentation](https://docs.inverse.finance): Complete protocol documentation
+- [Audits](https://www.inverse.finance/audits): All security audits and reports
+- [Transparency Dashboard](https://www.inverse.finance/transparency/keymetrics): Real-time protocol metrics
+- [Blog](https://www.inverse.finance/blog/en-US): Protocol updates and educational content
+
+## Optional
+
+- [Ecosystem Partners](https://www.inverse.finance/ecosystem): 600+ integrations including Curve, Convex, Balancer, Aerodrome, Yearn, and more
+- [Governance](https://www.inverse.finance/governance): On-chain DAO proposals and voting
+- [Compare Rates](https://www.inverse.finance/firm/compare-rates): Compare FiRM fixed rates vs variable-rate alternatives

@@ -14,6 +14,7 @@ import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import FooterV2 from '@app/components/common/Footer/FooterV2'
 import { useDBRPrice } from '@app/hooks/useDBR'
+import { JsonLd } from '@app/components/common/JsonLd'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -150,6 +151,20 @@ export const Landing = ({
         <link rel="canonical" href="https://www.inverse.finance" />
         <link rel="stylesheet" href="/landing.css" />
       </Head>
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "FinancialProduct",
+        "name": "FiRM - Fixed Rate Market",
+        "description": "FiRM is Inverse Finance's fixed-rate borrowing protocol. Deposit collateral like wstETH, WBTC, or CRV and borrow DOLA stablecoins at fixed interest rates. Rates are locked via DOLA Borrowing Rights (DBR) tokens. Collateral is held in isolated Personal Collateral Escrows and is never loaned out. Supports one-click leverage up to 10x.",
+        "provider": {
+          "@type": "Organization",
+          "name": "Inverse Finance",
+          "url": "https://www.inverse.finance"
+        },
+        "category": "DeFi Fixed-Rate Lending",
+        "url": "https://www.inverse.finance/firm",
+        "feesAndCommissionsSpecification": "Borrowing cost is determined by the DBR token price. 1 DBR = right to borrow 1 DOLA for 1 year."
+      }} />
       <VStack spacing="0" className="landing-v3" w='full' alignItems="center">
         <VStack h='100vh' w='full' alignItems="center" justifyContent="center">
           <VStack bgImage="/assets/landing/anim_bg.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" zIndex="-1" position="fixed" top="0" left="0" height="100vh" width="100%">
@@ -390,7 +405,7 @@ export const Landing = ({
                     Staked Collateral
                   </LandingHeading>
                   <GeistText as="h5" color="white">
-                    Fortified with rigorous audits and active bug bounty programs from Nomoi, yAudit, Code4rena, ImmuneFi, Peckshield, and others.
+                    Fortified with rigorous audits and active bug bounty programs from Nomoi, yAudit, Code4rena, ImmuneFi, Sherlock, Peckshield, and others.
                   </GeistText>
                 </VStack>
               </ResponsiveStack>
@@ -401,7 +416,7 @@ export const Landing = ({
                   <Image maxW="150px" src="/assets/v2/landing/code4arena.png" alt="code4arena" />
                 </VStack>
                 <VStack  w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
-                  <Image maxW="150px" src="/assets/partners/immunefi.svg" alt="immunefi" />
+                  <Image maxW="150px" src="/assets/partners/sherlock.png" alt="immunefi" />
                 </VStack>
                 <VStack  w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/defimoon.png?v2" alt="defimoon" />
