@@ -14,6 +14,7 @@ import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import FooterV2 from '@app/components/common/Footer/FooterV2'
 import { useDBRPrice } from '@app/hooks/useDBR'
+import { JsonLd } from '@app/components/common/JsonLd'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -150,6 +151,20 @@ export const Landing = ({
         <link rel="canonical" href="https://www.inverse.finance" />
         <link rel="stylesheet" href="/landing.css" />
       </Head>
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "FinancialProduct",
+        "name": "FiRM - Fixed Rate Market",
+        "description": "FiRM is Inverse Finance's fixed-rate borrowing protocol. Deposit collateral like wstETH, WBTC, or CRV and borrow DOLA stablecoins at fixed interest rates. Rates are locked via DOLA Borrowing Rights (DBR) tokens. Collateral is held in isolated Personal Collateral Escrows and is never loaned out. Supports one-click leverage up to 10x.",
+        "provider": {
+          "@type": "Organization",
+          "name": "Inverse Finance",
+          "url": "https://www.inverse.finance"
+        },
+        "category": "DeFi Fixed-Rate Lending",
+        "url": "https://www.inverse.finance/firm",
+        "feesAndCommissionsSpecification": "Borrowing cost is determined by the DBR token price. 1 DBR = right to borrow 1 DOLA for 1 year."
+      }} />
       <VStack spacing="0" className="landing-v3" w='full' alignItems="center">
         <VStack h='100vh' w='full' alignItems="center" justifyContent="center">
           <VStack bgImage="/assets/landing/anim_bg.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" zIndex="-1" position="fixed" top="0" left="0" height="100vh" width="100%">

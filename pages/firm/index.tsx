@@ -24,6 +24,7 @@ import { timeSince } from '@app/util/time'
 import { DbrFloatingTrigger } from '@app/components/F2/DbrEasyBuyer.tsx/DbrEasyBuyer'
 import { JuniorMessage } from '@app/components/JuniorTranches/JuniorMessage'
 import { MonolithInvUSDMessage } from '@app/components/Monolith/MonolithInvUSDMessage'
+import { JsonLd } from '@app/components/common/JsonLd'
 
 export const F2PAGE = ({
     isTwitterAlert = false,
@@ -106,6 +107,122 @@ export const F2PAGE = ({
                     </>
                 }
             </Head>
+            <JsonLd data={{
+                "@context": "https://schema.org",
+                "@type": "FinancialProduct",
+                "name": "FiRM - Fixed Rate Market",
+                "description": "FiRM is Inverse Finance's fixed-rate borrowing protocol where users deposit collateral and borrow DOLA stablecoins. Interest rates are fixed via DOLA Borrowing Rights (DBR) tokens — 1 DBR equals the right to borrow 1 DOLA for 1 year. Collateral is held in isolated Personal Collateral Escrows and is never loaned out.",
+                "provider": {
+                    "@type": "Organization",
+                    "name": "Inverse Finance",
+                    "url": "https://www.inverse.finance"
+                },
+                "category": "DeFi Fixed-Rate Lending",
+                "url": "https://www.inverse.finance/firm",
+                "feesAndCommissionsSpecification": "Borrowing cost is determined by the DBR token price. 1 DBR = right to borrow 1 DOLA for 1 year."
+            }} />
+            <JsonLd data={{
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": "What is FiRM?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "FiRM is a Fixed-Rate Market for borrowing DOLA using DBR tokens, focused on simplicity and safety. All markets are isolated and collaterals cannot be borrowed by others."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "How safe is FiRM and is it audited?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "FiRM has a high score of 87% on DeFi Safety and has several unique safety features. Personal Collateral Escrows ensure that deposits are isolated per collateral and per user. Other safety features include flash loan protection, daily borrowing limits, and Pessimistic Price Oracles. Audited by Code4rena and Nomoi."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "What is DBR?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "DBR stands for DOLA Borrowing Rights. It is an ERC20 token used as tokenized interest. One DBR gives the right to borrow one DOLA for one year (or 2 DOLA for 6 months, etc). DBR tokens are consumed at a constant rate according to your loan size. This system provides fixed-rate borrowing."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "What is DOLA?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "DOLA is a debt-backed stablecoin soft-pegged to the US Dollar. Unlike algorithmic stablecoins, DOLA's value is backed by retractable debt, ensuring minimal volatility and a value close to $1."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Is DBR an ERC20 token?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes but not a standard one: your DBR wallet balance will decrease over time when you have an open loan position."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "How can I get DBR tokens?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "There are multiple ways to get DBR: by buying it on DEXes, by staking INV and getting DBR rewards, by buying it from DBR auctions, or via the auto-buy DBR feature when borrowing."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Do I need to stake DBR?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "No, DBRs should stay in your wallet to pay the fee when you have a loan. Your DBR wallet balance will decrease only if you have a DOLA loan in FiRM."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Why does my DBR balance decrease?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "DBRs are spent over time when you have a loan. The rate depends on your amount of debt. If you don't have a loan the balance does not decrease."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "What happens if I run out of DBRs?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "In case of a DBR deficit and an active loan, your DBR balance can be force recharged by someone through a costly process called replenishment, which uses a premium price for DBR. This cost is added to your debt, which can result in liquidations if not taken care of."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Can I borrow DOLA with my INV tokens?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes, borrowing DOLA with INV is possible when there's liquidity in the INV market."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "How do INV stakers benefit from FiRM?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "When staking INV on FiRM you are protected against dilution and you earn real yield via DBR streaming. The real yield you get is directly linked to FiRM's success as the yearly rewards increase when borrowing demand increases."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Can I borrow for free?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "It's possible to borrow for free in DBR terms when you have enough INV staked, as the DBR rewards will be higher than the DBR burned for borrowing."
+                        }
+                    }
+                ]
+            }} />
             <AppNav active="Markets" activeSubmenu="FiRM" />
             {/* {
                 !colReqShown && <SlideModal closeOnOutsideClick={false} closeIconInside={true} isOpen={crIsOpen} onClose={handleColReqClose} contentProps={{ maxW: '500px', className: '', backgroundColor: 'navBarBackgroundColor' }}>

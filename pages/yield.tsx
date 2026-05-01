@@ -9,14 +9,10 @@ export const EarnPage = () => {
         <Layout>
             <Head>
                 <title>Inverse Finance - Yield Opportunities</title>
-                <meta name="og:title" content="" />
-                <meta name="og:description" content="" />
-                <meta name="description" content="" />
-                <meta name="keywords" content="" />
-                <meta name="twitter:image:alt" content="" />
-                <meta name="twitter:site" content="" />
-                <meta name="twitter:image:alt" content="" />
-                <meta property="twitter:card" content="" />
+                <meta name="og:title" content="Inverse Finance - Yield Opportunities" />
+                <meta name="og:description" content="Explore DeFi yield opportunities with DOLA and INV tokens on Inverse Finance. Earn real yield through fixed-rate lending, liquidity provision, and staking." />
+                <meta name="description" content="Explore DeFi yield opportunities with DOLA and INV tokens on Inverse Finance. Earn real yield through fixed-rate lending, liquidity provision, and staking." />
+                <meta name="keywords" content="Inverse Finance, yield, DeFi, DOLA, INV, staking, liquidity, fixed-rate, sDOLA" />
             </Head>
             <AppNav active="Earn" activeSubmenu="Yield Opportunities" />
             <Flex direction="column" w={{ base: 'full' }} pt='8' maxWidth="1100px">

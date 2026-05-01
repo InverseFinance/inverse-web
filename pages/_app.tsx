@@ -16,6 +16,7 @@ import { fetcher } from '@app/util/web3'
 import { Web3ReactProvider } from '@web3-react/core'
 import { AppProps } from 'next/app'
 import Head from 'next/head'
+import { JsonLd } from '@app/components/common/JsonLd'
 import { SWRConfig } from 'swr'
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/dist/client/router'
@@ -60,9 +61,10 @@ const App = ({ Component, pageProps }: AppProps) => {
           <meta name="description" content="Inverse Finance is the top DeFi Protocol for fixed-rate borrowing. Earn high yields with the DOLA stablecoin or leverage your yield-bearing liquidity positions with ease." />
           <meta name="keywords" content="Fixed-Rate, Decentralized Finance, DeFi, lending, borrowing, leverage, looping, DAO, stablecoins, Ethereum, wstEth, ETH, CRV, cvxCRV, INV, DOLA, WBTC, real yield, audited, safe, borrow, lend, rewards, transparency, FiRM, DBR, DOLA borrowing right, Fixed Rate, Fixed Rate Market" />
 
+          <meta property="og:type" content="website" />
           <meta name="og:title" content="Inverse Finance - Fixed-Rate DeFi borrowing" />
           <meta name="og:description" content="Inverse Finance is the top DeFi Protocol for Fixed-Rate borrowing. Earn high yields with the DOLA stablecoin or leverage your yield-bearing liquidity positions with ease." />
-          
+
           <meta name="twitter:site" content="@InverseFinance" />
           <meta name="twitter:image:alt" content="inverse finance" />
           <meta property="twitter:card" content="summary_large_image" />
@@ -93,6 +95,27 @@ const App = ({ Component, pageProps }: AppProps) => {
             }}
           />
         </Head>
+        <JsonLd data={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "Inverse Finance",
+          "url": "https://www.inverse.finance",
+          "logo": "https://www.inverse.finance/assets/inv-square-dark.jpeg",
+          "description": "Inverse Finance is a decentralized autonomous organization that develops FiRM, a fixed-rate lending protocol on Ethereum. Users borrow the DOLA stablecoin at predictable fixed rates using DOLA Borrowing Rights (DBR) tokens.",
+          "sameAs": [
+            "https://twitter.com/InverseFinance",
+            "https://discord.gg/YpYJC7R5nv",
+            "https://github.com/InverseFinance",
+            "https://docs.inverse.finance"
+          ]
+        }} />
+        <JsonLd data={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "Inverse Finance",
+          "url": "https://www.inverse.finance",
+          "description": "Fixed-rate DeFi borrowing protocol. Borrow DOLA stablecoins at predictable rates using FiRM and DBR tokens."
+        }} />
         <SWRConfig
           value={{
             fetcher,
