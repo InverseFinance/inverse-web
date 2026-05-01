@@ -436,7 +436,7 @@ export const ecosystemData = [
         description: "PeckShield: Leading blockchain security auditor for smart contracts and protocols.",
     },
     {
-        image: '/assets/partners/immunefi.svg',
+        image: '/assets/partners/sherlock.png',
         label: 'ImmuneFi',
         category: 'SECURITY',
         categories: ['SECURITY'],

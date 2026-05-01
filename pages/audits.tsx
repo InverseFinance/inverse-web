@@ -48,8 +48,8 @@ export const AboutFirm = () => {
                     label="FiRM bug bounty programs"
                 >
                     <VStack spacing="2" alignItems="flex-start">
-                        <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="https://immunefi.com/bounty/inversefinance/" isExternal target="_blank">
-                            By Immunefi, live since Nov 30th, 2023
+                        <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="https://audits.sherlock.xyz/bug-bounties/233/" isExternal target="_blank">
+                            By Sherlock, live since March 30th, 2026
                         </Link>
                     </VStack>
                 </Container>

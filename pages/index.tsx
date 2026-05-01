@@ -405,7 +405,7 @@ export const Landing = ({
                     Staked Collateral
                   </LandingHeading>
                   <GeistText as="h5" color="white">
-                    Fortified with rigorous audits and active bug bounty programs from Nomoi, yAudit, Code4rena, ImmuneFi, Peckshield, and others.
+                    Fortified with rigorous audits and active bug bounty programs from Nomoi, yAudit, Code4rena, ImmuneFi, Sherlock, Peckshield, and others.
                   </GeistText>
                 </VStack>
               </ResponsiveStack>
@@ -416,7 +416,7 @@ export const Landing = ({
                   <Image maxW="150px" src="/assets/v2/landing/code4arena.png" alt="code4arena" />
                 </VStack>
                 <VStack  w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
-                  <Image maxW="150px" src="/assets/partners/immunefi.svg" alt="immunefi" />
+                  <Image maxW="150px" src="/assets/partners/sherlock.png" alt="immunefi" />
                 </VStack>
                 <VStack  w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/defimoon.png?v2" alt="defimoon" />
