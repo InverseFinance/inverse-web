@@ -147,6 +147,8 @@ export default async function handler(req, res) {
     prices['JRDOLA'] = prices['junior-dola'];
     prices['jrDOLA'] = prices['junior-dola'];
     prices['sUSDS'] = (prices['usds'] || 1) * getBnToNumber(sUSDSExRateBn);
+    // temporary
+    prices['invUSD'] = 1;
 
     prices['_timestamp'] = Date.now();
 
