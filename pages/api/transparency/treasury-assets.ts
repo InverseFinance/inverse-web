@@ -35,7 +35,7 @@ const calcStables = (multisigs: Multisig[], treasury: Token[], anchorReserves: T
   }) || [];
 
   const twgStables = TWGmultisigs.map(m => {
-    return m.funds.filter(f => (f.token.isStable) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS', 'sinvUSD'].includes(f.token.symbol))).map(f => {
+    return m.funds.filter(f => (f.token.isStable) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS', 'sinvUSD', 'invUSD', 'apxUSD'].includes(f.token.symbol))).map(f => {
       return { ...f, label: `${f.token.symbol.replace(/ [a-z]*lp$/ig, '')} (${m.shortName})`, balance: f.balance, onlyUsdValue: true, usdPrice: (f.price || prices[f.token.symbol]?.usd || prices[f.token.coingeckoId]?.usd || 1) }
     });
   }).flat();
@@ -75,7 +75,7 @@ export default async function handler(req, res) {
   const isTakeSnapshot = req.method === 'POST' && req.headers.authorization === `Bearer ${process.env.API_SECRET_KEY}`;
 
   const { ANCHOR_TOKENS, UNDERLYING, TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `treasury-assets-cache-v1.0.0`;
+  const cacheKey = `treasury-assets-cache-v1.0.1`;
   const snapshotCacheKey = `treasury-assets-snapshots-v1.0.1`;
 
   try {
