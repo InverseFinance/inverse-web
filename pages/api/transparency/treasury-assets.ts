@@ -11,6 +11,7 @@ import { isAddress } from 'ethers/lib/utils';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { fetchZerionWithRetry } from '@app/util/zerion';
 import { timestampToUTC } from '@app/util/misc';
+import { liquidityCacheKey } from './liquidity';
 
 const formatBn = (bn: BigNumber, token: Token) => {
   return { token, balance: getBnToNumber(bn, token.decimals) }
@@ -35,7 +36,7 @@ const calcStables = (multisigs: Multisig[], treasury: Token[], anchorReserves: T
   }) || [];
 
   const twgStables = TWGmultisigs.map(m => {
-    return m.funds.filter(f => (f.token.isStable) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS', 'sinvUSD'].includes(f.token.symbol))).map(f => {
+    return m.funds.filter(f => (f.token.isStable) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS', 'sinvUSD', 'invUSD', 'apxUSD'].includes(f.token.symbol))).map(f => {
       return { ...f, label: `${f.token.symbol.replace(/ [a-z]*lp$/ig, '')} (${m.shortName})`, balance: f.balance, onlyUsdValue: true, usdPrice: (f.price || prices[f.token.symbol]?.usd || prices[f.token.coingeckoId]?.usd || 1) }
     });
   }).flat();
@@ -75,7 +76,7 @@ export default async function handler(req, res) {
   const isTakeSnapshot = req.method === 'POST' && req.headers.authorization === `Bearer ${process.env.API_SECRET_KEY}`;
 
   const { ANCHOR_TOKENS, UNDERLYING, TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `treasury-assets-cache-v1.0.0`;
+  const cacheKey = `treasury-assets-cache-v1.0.1`;
   const snapshotCacheKey = `treasury-assets-snapshots-v1.0.1`;
 
   try {
@@ -117,7 +118,7 @@ export default async function handler(req, res) {
       [NetworkIds.base]: Object.keys(CHAIN_TOKENS[NetworkIds.base]).filter(key => isAddress(key)),
     }
 
-    const [treasuryBalances, multisigsFunds] = await Promise.all(
+    const [treasuryBalances, multisigsFunds, liquidityCachedData] = await Promise.all(
       [
         fetchZerionWithRetry(TREASURY, mainnet.zerionId || mainnet.codename),
         Promise.all(
@@ -126,6 +127,7 @@ export default async function handler(req, res) {
             return fetchZerionWithRetry(multisig.address, net.zerionId || net.codename)
           })
         ),
+        getCacheFromRedis(liquidityCacheKey, false),
       ]
     );
 
@@ -152,7 +154,19 @@ export default async function handler(req, res) {
 
     const multisigData = multisigsToShow.map((m, i) => ({
       ...m,
-      funds: multisigsFunds[i].filter(d => d.balance || 0 > 0 || d.allowance || 0 > 0),
+      funds: multisigsFunds[i]
+        .map(m => {
+          // temporary: for invUSD use liquidity TVL data for now
+          if(!!liquidityCachedData && m.token.address === '0xe430e64081a3e7a39d24c5f507d9d4b492b2ed52') {
+            const invUsdLiquidityData = liquidityCachedData.liquidity.find(l => l.address.toLowerCase() === '0xe430e64081a3e7a39d24c5f507d9d4b492b2ed52' );
+            if(!invUsdLiquidityData) {
+              return m;
+            }
+            return { ...m, balance: invUsdLiquidityData.tvl }
+          }
+          return m
+        })
+        .filter(d => d.balance || 0 > 0 || d.allowance || 0 > 0),
     }));
 
     const resultData = {

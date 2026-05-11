@@ -34,6 +34,19 @@ export const fetchZerionWithRetry = async (
     };
     return formatZerionWalletResponse(response);
 }
+// handle mopho non-unique protocol-name combination for pools
+const getKeyName = (position, index, positions) => {
+    try {
+        // morpho case
+        if (position.attributes.protocol === 'Morpho Blue' && position.attributes.name === 'Morpho Lending') {
+            if (position.attributes.position_type === 'deposit') {
+                return `${position.attributes.protocol}-${position.attributes.fungible_info.symbol}/${positions[index + 1].attributes.fungible_info.symbol}`.replace('FRAX', 'frxUSD')
+            }
+            return `${position.attributes.protocol}-${positions[index - 1].attributes.fungible_info.symbol}/${position.attributes.fungible_info.symbol}`.replace('FRAX', 'frxUSD')
+        }
+    } catch (e) { }
+    return `${position.attributes.protocol}-${position.attributes.name}`;
+}
 
 export const formatZerionWalletResponse = async (response) => {
     if (response.status !== 200) {
@@ -49,36 +62,41 @@ export const formatZerionWalletResponse = async (response) => {
         ...new Set(
             cleanData
                 .filter((position) => position.attributes?.position_type !== 'wallet')
-                .map((position) => `${position.attributes.protocol}-${position.attributes.name}`)
+                .map((position, index) => getKeyName(position, index, cleanData))
         )
     ]
 
     const nonWalletPositions = uniqueNonWalletsKeys.map(key => {
-        const item = cleanData.find((position) => `${position.attributes.protocol}-${position.attributes.name}` === key);
+        const item = cleanData.find((position, index) => getKeyName(position, index, cleanData) === key);
         const totalValue = cleanData
-            .filter(r => `${r.attributes.protocol}-${r.attributes.name}` === key)
-                .reduce((prev, curr) => prev + (curr.attributes.position_type === 'loan' ? -curr.attributes.value : curr.attributes.value), 0);
+            .filter((r, index) => getKeyName(r, index, cleanData) === key)
+            .reduce((prev, curr) => prev + (curr.attributes.position_type === 'loan' ? -curr.attributes.value : curr.attributes.value), 0);
         const splitData = item.id.split('-');
         const isVeNft = item.attributes.position_type === 'locked' && SOLIDLY_PROTOCOLS.includes(item.attributes.protocol.toUpperCase());
         // let address = splitData[0];
+        const isMorphoCase = item.attributes.name === 'Morpho Lending';
         const chainCodeName = splitData[1].toLowerCase().replace('binance', 'binance-smart-chain');
         const chainTokens = CHAIN_TOKENS[NETWORKS.find(net => (net.zerionId || net.codename) === chainCodeName)?.id] || {};
         const veNftToken = getToken(chainTokens, `ve${item.attributes.fungible_info.symbol.replace('THE', 'THENA')}`);
         const exactToken = getToken(chainTokens, item.attributes.pool_address) || {};
-        const firstToken = getToken(chainTokens, item.attributes.pool_address || item.attributes.fungible_info.symbol) || {};
+        const firstToken = getToken(chainTokens, isMorphoCase ? key.split('-')[1].split('/')[0] : item.attributes.pool_address || item.attributes.fungible_info.symbol) || {};
         const symbolToken = getToken(chainTokens, item.attributes.fungible_info.symbol);
+
         const isStable = !!exactToken?.symbol ? exactToken.isStable :
-             !!firstToken?.isStable ||
-              (!!symbolToken?.isStable && symbolToken.symbol === 'DOLA' && !/(INV|DBR|ETH)/g.test(item.attributes.name) && Math.abs(1-item.attributes.price) <= 0.005);
+            !!firstToken?.isStable
+            || key.includes('sDOLA')
+            || (!!symbolToken?.isStable && symbolToken.symbol === 'DOLA' && !/(INV|DBR|ETH)/g.test(item.attributes.name) && Math.abs(1 - item.attributes.price) <= 0.005);
+
+            
         const token = isVeNft && veNftToken?.symbol ? veNftToken : {
             decimals: 18,
-            name: exactToken?.name || (item.attributes.name === 'Asset' ? item.attributes.fungible_info.name : item.attributes.name),
-            symbol: exactToken?.symbol || (item.attributes.name === 'Asset' ? item.attributes.fungible_info.symbol : item.attributes.name),
+            name: isMorphoCase ? key.split('-')[1] : exactToken?.name || (item.attributes.name === 'Asset' ? item.attributes.fungible_info.name : item.attributes.name),
+            symbol: isMorphoCase ? key.split('-')[1] : exactToken?.symbol || (item.attributes.name === 'Asset' ? item.attributes.fungible_info.symbol : item.attributes.name),
             image: firstToken?.image,
-            protocolImage: firstToken?.protocolImage || PROTOCOL_IMAGES[(PROTOCOL_ZERION_MAPPING[(item.attributes.protocol || '')]||'')],
+            protocolImage: firstToken?.protocolImage || PROTOCOL_IMAGES[(PROTOCOL_ZERION_MAPPING[(item.attributes.protocol || '')] || '')],
             isStable: isStable,
             isLP: exactToken?.isLP,
-            address: item.attributes.pool_address,
+            address: isMorphoCase ? null : item.attributes.pool_address,
             _price: item.attributes.price,
         };
         return {
@@ -88,11 +106,12 @@ export const formatZerionWalletResponse = async (response) => {
             allowance: 0,
             token,
             chainCodeName,
+            key,
         }
     })
 
     const walletPositions = cleanData
-        .filter(r => !uniqueNonWalletsKeys.includes(`${r.attributes.protocol}-${r.attributes.name}`))
+        .filter((r,index) => !uniqueNonWalletsKeys.includes(getKeyName(r, index, cleanData)))
         .map((position) => {
             const splitData = position.id.split('-');
             let address = splitData[0];
@@ -102,13 +121,14 @@ export const formatZerionWalletResponse = async (response) => {
             }
             const chainTokens = CHAIN_TOKENS[NETWORKS.find(net => (net.zerionId || net.codename) === chainCodeName)?.id] || {};
             const listedToken = getToken(chainTokens, address);
+            
             const token = listedToken?.symbol ? listedToken : {
                 address,
                 decimals: position.attributes.quantity?.decimals || 18,
                 name: position.attributes.name === 'Asset' ? position.attributes.fungible_info.name : position.attributes.name,
                 symbol: position.attributes.name === 'Asset' ? position.attributes.fungible_info.symbol : position.attributes.name,
                 image: position.attributes.fungible_info?.icon?.url,
-                protocolImage: PROTOCOL_IMAGES[(PROTOCOL_ZERION_MAPPING[(position.attributes.protocol || '')]||'')],
+                protocolImage: PROTOCOL_IMAGES[(PROTOCOL_ZERION_MAPPING[(position.attributes.protocol || '')] || '')],
             }
             return {
                 token,
@@ -120,6 +140,6 @@ export const formatZerionWalletResponse = async (response) => {
         });
     return uniqueBy(
         [...nonWalletPositions, ...walletPositions],
-        (a, b) => a.chainCodeName === b.chainCodeName && (a.token.address === b.token.address || (a.token.symbol === b.token.symbol && a.protocolImage === b.protocolImage)),
+        (a, b) => a.chainCodeName === b.chainCodeName && ((!!a.token.address && !!b.token.address && a.token.address === b.token.address) || (a.token.symbol === b.token.symbol && a.protocolImage === b.protocolImage)),
     );
 }

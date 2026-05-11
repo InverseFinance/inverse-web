@@ -242,5 +242,6 @@ export const PROTOCOL_ZERION_MAPPING = {
     "Balancer V2": "BAL",
     "Ramses": "RAMSES",
     "RAMSES": "RAMSES",
-    "Liquis": "LIQUIS",    
+    "Liquis": "LIQUIS",   
+    "Morpho Blue": "MORPHO", 
 }
