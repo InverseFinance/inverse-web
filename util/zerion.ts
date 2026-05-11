@@ -40,9 +40,9 @@ const getKeyName = (position, index, positions) => {
         // morpho case
         if (position.attributes.protocol === 'Morpho Blue' && position.attributes.name === 'Morpho Lending') {
             if (position.attributes.position_type === 'deposit') {
-                return `${position.attributes.protocol}-${position.attributes.fungible_info.symbol}/${positions[index + 1].attributes.fungible_info.symbol}`
+                return `${position.attributes.protocol}-${position.attributes.fungible_info.symbol}/${positions[index + 1].attributes.fungible_info.symbol}`.replace('FRAX', 'frxUSD')
             }
-            return `${position.attributes.protocol}-${positions[index - 1].attributes.fungible_info.symbol}/${position.attributes.fungible_info.symbol}`
+            return `${position.attributes.protocol}-${positions[index - 1].attributes.fungible_info.symbol}/${position.attributes.fungible_info.symbol}`.replace('FRAX', 'frxUSD')
         }
     } catch (e) { }
     return `${position.attributes.protocol}-${position.attributes.name}`;
@@ -74,11 +74,12 @@ export const formatZerionWalletResponse = async (response) => {
         const splitData = item.id.split('-');
         const isVeNft = item.attributes.position_type === 'locked' && SOLIDLY_PROTOCOLS.includes(item.attributes.protocol.toUpperCase());
         // let address = splitData[0];
+        const isMorphoCase = item.attributes.name === 'Morpho Lending';
         const chainCodeName = splitData[1].toLowerCase().replace('binance', 'binance-smart-chain');
         const chainTokens = CHAIN_TOKENS[NETWORKS.find(net => (net.zerionId || net.codename) === chainCodeName)?.id] || {};
         const veNftToken = getToken(chainTokens, `ve${item.attributes.fungible_info.symbol.replace('THE', 'THENA')}`);
         const exactToken = getToken(chainTokens, item.attributes.pool_address) || {};
-        const firstToken = getToken(chainTokens, item.attributes.pool_address || item.attributes.fungible_info.symbol) || {};
+        const firstToken = getToken(chainTokens, isMorphoCase ? key.split('-')[1].split('/')[0] : item.attributes.pool_address || item.attributes.fungible_info.symbol) || {};
         const symbolToken = getToken(chainTokens, item.attributes.fungible_info.symbol);
 
         const isStable = !!exactToken?.symbol ? exactToken.isStable :
@@ -86,7 +87,6 @@ export const formatZerionWalletResponse = async (response) => {
             || key.includes('sDOLA')
             || (!!symbolToken?.isStable && symbolToken.symbol === 'DOLA' && !/(INV|DBR|ETH)/g.test(item.attributes.name) && Math.abs(1 - item.attributes.price) <= 0.005);
 
-        const isMorphoCase = item.attributes.name === 'Morpho Lending';
             
         const token = isVeNft && veNftToken?.symbol ? veNftToken : {
             decimals: 18,
