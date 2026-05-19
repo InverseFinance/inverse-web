@@ -18,12 +18,12 @@ export default async function handler(req, res) {
         }
 
         const [snapshotsData] = await Promise.all([
-            getCacheFromRedis(treasuryAssetsSnapshotsCacheKey, false, 0, true),
+            getCacheFromRedis(treasuryAssetsSnapshotsCacheKey, false),
         ]);
 
         const resultData = {
             timestamp: Date.now(),
-            evolution: snapshotsData.dailyValues,
+            evolution: snapshotsData?.dailyValues || [],
         }
         await redisSetWithTimestamp(cacheKey, resultData, true);
 
