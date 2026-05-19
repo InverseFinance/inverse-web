@@ -25,14 +25,14 @@ export default async function handler(req, res) {
             timestamp: Date.now(),
             evolution: snapshotsData?.dailyValues || [],
         }
-        await redisSetWithTimestamp(cacheKey, resultData, true);
+        await redisSetWithTimestamp(cacheKey, resultData);
 
         res.status(200).json(resultData)
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
         try {
-            const cache = await getCacheFromRedis(cacheKey, false, cacheDuration, true);
+            const cache = await getCacheFromRedis(cacheKey, false, cacheDuration);
             if (cache) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).json(cache);

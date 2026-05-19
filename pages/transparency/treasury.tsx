@@ -97,13 +97,9 @@ export const Overview = () => {
   const runwayInYears = Math.max(0, totalCurrentPayrolls ? (totalCurrentStableReserves - currentLiabilities) / totalCurrentPayrolls : 0);
   const runwayInMonths = runwayInYears * 12;
 
-  // const stableAndRunwayEvolution = stableReservesEvolution.map(d => {
-  //   return { ...d, runway: totalCurrentPayrolls ? d.y / totalCurrentPayrolls * 12 : 0 };
-  // });
-
-  // if (totalCurrentStableReserves) {
-  //   stableAndRunwayEvolution.push({ x: now, timestamp: now, y: totalCurrentStableReserves, runway: runwayInMonths, totalReserves: totalCurrentStableReserves, utcDate: timestampToUTC(now) });
-  // }
+  if (totalCurrentStableReserves) {
+    runwayEvolution.splice(runwayEvolution.length-1, 1, { x: now, timestamp: now, y: runwayInMonths, runway: runwayInMonths, stableReserves: totalCurrentStableReserves, utcDate: timestampToUTC(now) });
+  }
 
   useEffect(() => {
     setAutoChartWidth(isLargerThan ? maxChartWidth : (window.innerWidth))
@@ -199,32 +195,38 @@ export const Overview = () => {
                 <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={stableReserves} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
             </SimpleGrid>
-            <DefaultCharts
-              chartData={runwayEvolution}
-              maxChartWidth={maxChartWidth}
-              chartWidth={autoChartWidth}
-              isDollars={true}
-              showMonthlyBarChart={false}
-              showAreaChart={true}
-              smoothLineByDefault={true}
-              areaProps={{
-                title: `Runway & Stable Reserves Evolution`,
-                id: 'runway-evolution',
-                showRangeBtns: true,
-                yLabel: 'Runway',
-                useRecharts: true,
-                allowZoom: true,
-                allowEscapeViewBox: false,
-                showSecondary: true,
-                secondaryRef: 'stableReserves',
-                secondaryLabel: 'Stable Reserves',
-                secondaryAsUsd: true,
-                secondaryPrecision: 0,
-                interpolation: 'stepAfter',
-                secondaryType: 'stepAfter',
-                fillInByDayInterval: true,
-              }}
-            />
+            {/* <VStack mt="8" w='full'>
+              <DashBoardCard 
+                {...dashboardCardProps} w='full' p="0" pt="14">
+                <DefaultCharts
+                  chartData={runwayEvolution}
+                  maxChartWidth={maxChartWidth}
+                  chartWidth={autoChartWidth}
+                  isDollars={false}
+                  showMonthlyBarChart={false}
+                  showAreaChart={true}
+                  smoothLineByDefault={true}
+                  areaProps={{
+                    title: `Runway & Stable Reserves Evolution`,
+                    id: 'runway-evolution',
+                    showRangeBtns: true,
+                    yLabel: 'Runway (months)',
+                    useRecharts: true,
+                    allowZoom: true,
+                    allowEscapeViewBox: false,
+                    showSecondary: true,
+                    secondaryRef: 'stableReserves',
+                    secondaryLabel: 'Stable Reserves',
+                    secondaryAsUsd: true,
+                    secondaryPrecision: 0,
+                    interpolation: 'basis',
+                    secondaryType: 'basis',
+                    primaryPrecision: 2,
+                    fillInByDayInterval: true,
+                  }}
+                />
+              </DashBoardCard>
+            </VStack> */}
             <SimpleGrid columns={{ base: 1, xl: 2 }} spacingX="50px" spacingY="40px">
               <DashBoardCard cardTitle="Multisigs's Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={totalMultisigs} prices={prices} type='balance' useRecharts={true} />
