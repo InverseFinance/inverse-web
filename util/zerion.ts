@@ -1,5 +1,5 @@
 import { NETWORKS } from "@app/config/networks";
-import { PROTOCOL_IMAGES, PROTOCOL_ZERION_MAPPING } from "@app/variables/images";
+import { PROTOCOL_IMAGES, PROTOCOL_ZERION_MAPPING, TOKEN_IMAGES } from "@app/variables/images";
 import { CHAIN_TOKENS, getToken } from "@app/variables/tokens";
 import { isAddress } from "ethers/lib/utils";
 import { uniqueBy } from "./misc";
@@ -97,6 +97,12 @@ export const formatZerionWalletResponse = async (response) => {
             address: isMorphoCase ? null : item.attributes.pool_address,
             _price: item.attributes.price,
         };
+        if(!token.image){
+            if(token.name.toLowerCase().includes('sdola')) token.image = TOKEN_IMAGES.SDOLA;
+            else if(token.name.toLowerCase().includes('dola')) token.image = TOKEN_IMAGES.DOLA;
+            else if(token.name.toLowerCase().includes('invusd')) token.image = TOKEN_IMAGES.invUSD;
+            else if(token.name.toLowerCase().includes('usdc')) token.image = TOKEN_IMAGES.USDC;
+        }
         // for uniswap pools for example
         const nftId = token.symbol.match(/#(\d+)/)?.[1];
         return {
@@ -131,6 +137,7 @@ export const formatZerionWalletResponse = async (response) => {
                 image: position.attributes.fungible_info?.icon?.url,
                 protocolImage: PROTOCOL_IMAGES[(PROTOCOL_ZERION_MAPPING[(position.attributes.protocol || '')] || '')],
             }
+            
             return {
                 token,
                 balance: position.attributes?.quantity?.float || 0,
