@@ -5,7 +5,7 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { usePricesV2 } from '@app/hooks/usePrices'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
-import { useCompensations, useTreasuryAssets } from '@app/hooks/useDAO'
+import { useCompensations, useRunwayHisto, useTreasuryAssets } from '@app/hooks/useDAO'
 import { getFundsTotalUsd } from '@app/components/Transparency/Funds'
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
 import { DashBoardCard } from '@app/components/F2/UserDashboard'
@@ -48,9 +48,10 @@ export const Overview = () => {
   const { themeName } = useAppTheme();
   const { prices, isLoading: isLoadingPrices } = usePricesV2(true)
   const { treasury, anchorReserves, multisigs, isLoading: isLoadingTreasuryAssets } = useTreasuryAssets();
+  const { evolution: runwayEvolution, isLoading: isRunwayHistoLoading } = useRunwayHisto();
   // const { liquidity, isLoading: isLoadingLiquidity } = useLiquidityPools();
   // const { stableReservesEvolution, isLoading: isLoadingStableReserves } = useStableReserves();
-  const { currentPayrolls } = useCompensations();
+  const { currentPayrolls, currentLiabilities } = useCompensations();
   const [excludeOwnTokens, setExcludeOwnTokens] = useState(false);
   const [excludeOwnTokens2, setExcludeOwnTokens2] = useState(false);
   const [now, setNow] = useState(Date.now());
@@ -84,7 +85,7 @@ export const Overview = () => {
     });
 
   const stableReserves = [
-    ...treasuryStables, 
+    ...treasuryStables,
     ...twgStables,
     ...dolaFrontierReserves,
     // , ...twgStableLps
@@ -93,16 +94,12 @@ export const Overview = () => {
 
   // runway
   const totalCurrentPayrolls = currentPayrolls.reduce((prev, curr) => prev + curr.amount, 0);
-  const runwayInYears = totalCurrentPayrolls ? totalCurrentStableReserves / totalCurrentPayrolls : 0;
+  const runwayInYears = Math.max(0, totalCurrentPayrolls ? (totalCurrentStableReserves - currentLiabilities) / totalCurrentPayrolls : 0);
   const runwayInMonths = runwayInYears * 12;
 
-  // const stableAndRunwayEvolution = stableReservesEvolution.map(d => {
-  //   return { ...d, runway: totalCurrentPayrolls ? d.y / totalCurrentPayrolls * 12 : 0 };
-  // });
-
-  // if (totalCurrentStableReserves) {
-  //   stableAndRunwayEvolution.push({ x: now, timestamp: now, y: totalCurrentStableReserves, runway: runwayInMonths, totalReserves: totalCurrentStableReserves, utcDate: timestampToUTC(now) });
-  // }
+  if (totalCurrentStableReserves) {
+    runwayEvolution.splice(runwayEvolution.length-1, 1, { x: now, timestamp: now, y: runwayInMonths, runway: runwayInMonths, stableReserves: totalCurrentStableReserves, utcDate: timestampToUTC(now) });
+  }
 
   useEffect(() => {
     setAutoChartWidth(isLargerThan ? maxChartWidth : (window.innerWidth))
@@ -197,6 +194,40 @@ export const Overview = () => {
                 </VStack>
                 <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={stableReserves} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
+            </SimpleGrid>
+            {/* <VStack mt="8" w='full'>
+              <DashBoardCard 
+                {...dashboardCardProps} w='full' p="0" pt="14">
+                <DefaultCharts
+                  chartData={runwayEvolution}
+                  maxChartWidth={maxChartWidth}
+                  chartWidth={autoChartWidth}
+                  isDollars={false}
+                  showMonthlyBarChart={false}
+                  showAreaChart={true}
+                  smoothLineByDefault={true}
+                  areaProps={{
+                    title: `Runway & Stable Reserves Evolution`,
+                    id: 'runway-evolution',
+                    showRangeBtns: true,
+                    yLabel: 'Runway (months)',
+                    useRecharts: true,
+                    allowZoom: true,
+                    allowEscapeViewBox: false,
+                    showSecondary: true,
+                    secondaryRef: 'stableReserves',
+                    secondaryLabel: 'Stable Reserves',
+                    secondaryAsUsd: true,
+                    secondaryPrecision: 0,
+                    interpolation: 'basis',
+                    secondaryType: 'basis',
+                    primaryPrecision: 2,
+                    fillInByDayInterval: true,
+                  }}
+                />
+              </DashBoardCard>
+            </VStack> */}
+            <SimpleGrid columns={{ base: 1, xl: 2 }} spacingX="50px" spacingY="40px">
               <DashBoardCard cardTitle="Multisigs's Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={totalMultisigs} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>

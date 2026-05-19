@@ -63,6 +63,16 @@ export const useTreasuryAssets = (): SWR & { treasury: any[], anchorReserves: an
   }
 }
 
+export const useRunwayHisto = (): SWR & { evolution: { runway: number, timestamp: number, utcDate: string, stableReserves: number, payrolls: number, unclaimedPayrolls: number | null, preRunway: number }[] } => {
+  const { data, error } = useCacheFirstSWR(`/api/transparency/runway-histo?v=2`, fetcher)
+
+  return {
+    evolution: (data?.evolution || []).map(d => ({...d, y: d.runway, x: d.timestamp})),
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 export const useLiquidityPools = (): SWR & { liquidity: any[], timestamp: number } => {
   const { data, error } = useCacheFirstSWR(`/api/transparency/liquidity?v=1`)
 
@@ -102,6 +112,7 @@ export const useLiquidityPoolsAggregatedHistory = (excludeCurrent = false, chain
 export const useCompensations = (): SWR & {
   currentPayrolls: Payroll[]
   currentVesters: Vester[]
+  currentLiabilities: number
   currentInvBalances: { address: string, totalInvBalance: number }[]
   payrollEvolution: { timestamp: number, utcDate: string, total: number, nbRecipients: number, x: number, y: number }[]
 } => {
@@ -113,6 +124,7 @@ export const useCompensations = (): SWR & {
   return {
     isLoading: !error && !data,
     isError: error,
+    currentLiabilities: data?.currentLiabilities || 0,
     currentPayrolls: data?.currentPayrolls || [],
     currentVesters: data?.currentVesters || [],
     currentInvBalances: data?.currentInvBalances || [],

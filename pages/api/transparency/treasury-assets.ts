@@ -80,10 +80,11 @@ const takeSnapshot = async (data, snapshotKey, provider, paidProvider) => {
 
     // add runway/payroll data if not there before in cache
     snaps.dailyValues.forEach(d => {
-      const totalPayrollsAtDate = payrollTotalEvolutionByDay.find(pd => d.utcDate >= pd.utcDate);
+      const totalPayrollsAtDate = payrollTotalEvolutionByDay.findLast(pd => d.utcDate >= pd.utcDate);
       if (!!totalPayrollsAtDate) {
+        if (!d.payrolls) d.payrolls = totalPayrollsAtDate.total;
         if (!d.unclaimedPayrolls) d.unclaimedPayrolls = null;
-        if (!d.preRunway) d.preRunway = d.stableReserves ? d.stableReserves / totalPayrollsAtDate.total : 0;
+        if (!d.preRunway) d.preRunway = totalPayrollsAtDate.total ? 12 * (d.stableReserves||0) / totalPayrollsAtDate.total : 0;
         if (!d.runway) d.runway = d.preRunway;
       }
     })
@@ -101,14 +102,15 @@ const takeSnapshot = async (data, snapshotKey, provider, paidProvider) => {
   return snaps;
 }
 
+export const treasuryAssetsSnapshotsCacheKey = `treasury-assets-snapshots-v1.0.1`;
+
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
   const isTakeSnapshot = req.method === 'POST' && req.headers.authorization === `Bearer ${process.env.API_SECRET_KEY}`;
 
   const { ANCHOR_TOKENS, UNDERLYING, TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
   const cacheKey = `treasury-assets-cache-v1.0.1`;
-  const snapshotCacheKey = `treasury-assets-snapshots-v1.0.1`;
-
+  
   try {
     const cacheDuration = 120;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
@@ -119,7 +121,7 @@ export default async function handler(req, res) {
 
     if (validCache) {
       if (isTakeSnapshot) {
-        await takeSnapshot(validCache, snapshotCacheKey, provider, paidProvider);
+        await takeSnapshot(validCache, treasuryAssetsSnapshotsCacheKey, provider, paidProvider);
       }
       res.status(200).json(validCache);
       return
@@ -214,7 +216,7 @@ export default async function handler(req, res) {
     await redisSetWithTimestamp(cacheKey, resultData);
 
     if (isTakeSnapshot) {
-      await takeSnapshot(resultData, snapshotCacheKey, provider, paidProvider);
+      await takeSnapshot(resultData, treasuryAssetsSnapshotsCacheKey, provider, paidProvider);
     }
 
     res.status(200).json(resultData)
