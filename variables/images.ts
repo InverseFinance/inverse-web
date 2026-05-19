@@ -244,4 +244,8 @@ export const PROTOCOL_ZERION_MAPPING = {
     "RAMSES": "RAMSES",
     "Liquis": "LIQUIS",   
     "Morpho Blue": "MORPHO", 
+    "Uniswap V4": "UNI", 
+    "Uniswap V3": "UNI", 
+    "Uniswap V2": "UNI", 
+    "Uniswap V1": "UNI", 
 }
