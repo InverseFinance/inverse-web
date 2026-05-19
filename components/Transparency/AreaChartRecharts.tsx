@@ -79,6 +79,7 @@ export const AreaChartRecharts = ({
     secondaryColor,
     secondaryAsUsd = true,
     secondaryPrecision = 4,
+    primaryPrecision,
     secondaryOpacity = 1,
     secondaryAsLeftAxis = false,
     yDomainAsInteger = false,
@@ -127,6 +128,7 @@ export const AreaChartRecharts = ({
     secondaryAsUsd?: boolean
     secondaryAsLeftAxis?: boolean
     secondaryPrecision?: number
+    primaryPrecision?: number
     secondaryOpacity?: number
     pricePrecision?: number
     yDomainAsInteger?: boolean
@@ -234,7 +236,7 @@ export const AreaChartRecharts = ({
                         formatter={(value, name) => {
                             const isPrice = /price/i.test(name);
                             const isSecondary = name === secondaryLabel;
-                            return !value ? 'none' : !isPrice && isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? shortenNumber(value, pricePrecision, true) : preciseCommify(value, value < 1 ? 4 : 0, isSecondary ? secondaryAsUsd : useUsd)
+                            return !value ? 'none' : !isPrice && isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? shortenNumber(value, pricePrecision, true) : preciseCommify(value, !isSecondary && primaryPrecision ? primaryPrecision : value < 1 ? 4 : 0, isSecondary ? secondaryAsUsd : useUsd)
                         }}
                     />
                 }
