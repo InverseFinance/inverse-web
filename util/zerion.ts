@@ -147,7 +147,7 @@ export const formatZerionWalletResponse = async (response) => {
             && (
                 (!!a.token.address && !!b.token.address && a.token.address.toLowerCase() === b.token.address.toLowerCase() && a.nftId === b.nftId)
                 ||
-                (a.token.symbol.toLowerCase() === b.token.symbol.toLowerCase() && !!a.protocolImage && !!b.protocolImage && a.protocolImage === b.protocolImage)
+                (a.token.symbol === b.token.symbol && a.protocolImage === b.protocolImage)
             ),
     );
 }
