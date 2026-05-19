@@ -84,10 +84,8 @@ export const formatZerionWalletResponse = async (response) => {
 
         const isStable = !!exactToken?.symbol ? exactToken.isStable :
             !!firstToken?.isStable
-            || key.includes('sDOLA')
+            || key.includes('DOLA') || key.includes('invUSD')
             || (!!symbolToken?.isStable && symbolToken.symbol === 'DOLA' && !/(INV|DBR|ETH)/g.test(item.attributes.name) && Math.abs(1 - item.attributes.price) <= 0.005);
-
-            
         const token = isVeNft && veNftToken?.symbol ? veNftToken : {
             decimals: 18,
             name: isMorphoCase ? key.split('-')[1] : exactToken?.name || (item.attributes.name === 'Asset' ? item.attributes.fungible_info.name : item.attributes.name),
@@ -99,6 +97,8 @@ export const formatZerionWalletResponse = async (response) => {
             address: isMorphoCase ? null : item.attributes.pool_address,
             _price: item.attributes.price,
         };
+        // for uniswap pools for example
+        const nftId = token.symbol.match(/#(\d+)/)?.[1];
         return {
             balance: totalValue,
             price: 1,
@@ -107,11 +107,12 @@ export const formatZerionWalletResponse = async (response) => {
             token,
             chainCodeName,
             key,
+            nftId,
         }
     })
 
     const walletPositions = cleanData
-        .filter((r,index) => !uniqueNonWalletsKeys.includes(getKeyName(r, index, cleanData)))
+        .filter((r, index) => !uniqueNonWalletsKeys.includes(getKeyName(r, index, cleanData)))
         .map((position) => {
             const splitData = position.id.split('-');
             let address = splitData[0];
@@ -121,7 +122,7 @@ export const formatZerionWalletResponse = async (response) => {
             }
             const chainTokens = CHAIN_TOKENS[NETWORKS.find(net => (net.zerionId || net.codename) === chainCodeName)?.id] || {};
             const listedToken = getToken(chainTokens, address);
-            
+
             const token = listedToken?.symbol ? listedToken : {
                 address,
                 decimals: position.attributes.quantity?.decimals || 18,
@@ -138,8 +139,15 @@ export const formatZerionWalletResponse = async (response) => {
                 chainCodeName,
             };
         });
+
     return uniqueBy(
         [...nonWalletPositions, ...walletPositions],
-        (a, b) => a.chainCodeName === b.chainCodeName && ((!!a.token.address && !!b.token.address && a.token.address === b.token.address) || (a.token.symbol === b.token.symbol && a.protocolImage === b.protocolImage)),
+        // Note: uniswap v4 lps have the same "pool" address (the NFT address), need to check nftId too
+        (a, b) => a.chainCodeName === b.chainCodeName
+            && (
+                (!!a.token.address && !!b.token.address && a.token.address.toLowerCase() === b.token.address.toLowerCase() && a.nftId === b.nftId)
+                ||
+                (a.token.symbol.toLowerCase() === b.token.symbol.toLowerCase() && !!a.protocolImage && !!b.protocolImage && a.protocolImage === b.protocolImage)
+            ),
     );
 }
