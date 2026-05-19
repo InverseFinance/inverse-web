@@ -39,6 +39,9 @@
       "pages/api/transparency/repayments-v2.ts": {
         "maxDuration": 60
       },
+       "pages/api/transparency/treasury-assets.ts": {
+        "maxDuration": 60
+      },
       "pages/api/f2/ale-proxy.ts": {
         "maxDuration": 60
       }

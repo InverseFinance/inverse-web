@@ -2,7 +2,7 @@ import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
 import { CTOKEN_ABI } from '@app/config/abis'
 import { getNetwork, getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { Multisig, NetworkIds, Token } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
@@ -12,6 +12,7 @@ import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { fetchZerionWithRetry } from '@app/util/zerion';
 import { timestampToUTC } from '@app/util/misc';
 import { liquidityCacheKey } from './liquidity';
+import { getPayrollData } from './compensations';
 
 const formatBn = (bn: BigNumber, token: Token) => {
   return { token, balance: getBnToNumber(bn, token.decimals) }
@@ -55,20 +56,49 @@ const calcStables = (multisigs: Multisig[], treasury: Token[], anchorReserves: T
 
 }
 
-const takeSnapshot = async (data, snapshotKey) => {
-  const prices = await fetch('https://www.inverse.finance/api/prices?cacheFirst=true').then(res => res.json());
+const takeSnapshot = async (data, snapshotKey, provider, paidProvider) => {
+  const [prices, payrollData] = await Promise.all([
+    fetch('https://www.inverse.finance/api/prices?cacheFirst=true').then(res => res.json()),
+    getPayrollData(provider, paidProvider),
+  ]);
+
   const formattedPrices = Object.entries(prices).reduce((prev, [key, val]) => ({ ...prev, [key]: { usd: val } }), {});
   const stableReserves = calcStables(data.multisigs, data.treasury, data.anchorReserves, formattedPrices);
   const snaps = (await getCacheFromRedis(snapshotKey, false)) || { dailyValues: [] };
   const utcDate = timestampToUTC(Date.now());
+
+  const { currentPayrolls, currentLiabilities, payrollTotalEvolutionByDay } = payrollData;
+
   if (!snaps.dailyValues.find(s => s.utcDate === utcDate)) {
+    const totalCurrentPayrolls = currentPayrolls.reduce((prev, curr) => prev + curr.amount, 0);
+    const preRunwayInYears = totalCurrentPayrolls ? stableReserves / totalCurrentPayrolls : 0;
+    const preRunwayInMonths = preRunwayInYears * 12;
+
+    const reservesMinusPendingClaims = Math.max(0, stableReserves - currentLiabilities);
+    const runwayInYears = totalCurrentPayrolls ? reservesMinusPendingClaims / totalCurrentPayrolls : 0;
+    const runwayInMonths = runwayInYears * 12;
+
+    // add runway/payroll data if not there before in cache
+    snaps.dailyValues.forEach(d => {
+      const totalPayrollsAtDate = payrollTotalEvolutionByDay.find(pd => d.utcDate >= pd.utcDate);
+      if (!!totalPayrollsAtDate) {
+        if (!d.unclaimedPayrolls) d.unclaimedPayrolls = null;
+        if (!d.preRunway) d.preRunway = d.stableReserves ? d.stableReserves / totalPayrollsAtDate.total : 0;
+        if (!d.runway) d.runway = d.preRunway;
+      }
+    })
+
     snaps.dailyValues.push({
       timestamp: Date.now(),
       utcDate: timestampToUTC(Date.now()),
       stableReserves,
+      unclaimedPayrolls: currentLiabilities,
+      preRunway: preRunwayInMonths,
+      runway: runwayInMonths,
     });
   }
   await redisSetWithTimestamp(snapshotKey, snaps);
+  return snaps;
 }
 
 export default async function handler(req, res) {
@@ -83,15 +113,17 @@ export default async function handler(req, res) {
     const cacheDuration = 120;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
+
+    const provider = getProvider(NetworkIds.mainnet);
+    const paidProvider = getPaidProvider(1);
+
     if (validCache) {
       if (isTakeSnapshot) {
-        await takeSnapshot(validCache, snapshotCacheKey);
+        await takeSnapshot(validCache, snapshotCacheKey, provider, paidProvider);
       }
       res.status(200).json(validCache);
       return
     }
-
-    const provider = getProvider(NetworkIds.mainnet);
 
     const mainnet = getNetwork(NetworkIds.mainnet);
     const multisigsToShow = MULTISIGS;
@@ -157,9 +189,9 @@ export default async function handler(req, res) {
       funds: multisigsFunds[i]
         .map(m => {
           // temporary: for invUSD use liquidity TVL data for now
-          if(!!liquidityCachedData && m.token.address === '0xe430e64081a3e7a39d24c5f507d9d4b492b2ed52') {
-            const invUsdLiquidityData = liquidityCachedData.liquidity.find(l => l.address.toLowerCase() === '0xe430e64081a3e7a39d24c5f507d9d4b492b2ed52' );
-            if(!invUsdLiquidityData) {
+          if (!!liquidityCachedData && m.token.address === '0xe430e64081a3e7a39d24c5f507d9d4b492b2ed52') {
+            const invUsdLiquidityData = liquidityCachedData.liquidity.find(l => l.address.toLowerCase() === '0xe430e64081a3e7a39d24c5f507d9d4b492b2ed52');
+            if (!invUsdLiquidityData) {
               return m;
             }
             return { ...m, balance: invUsdLiquidityData.tvl }
@@ -182,7 +214,7 @@ export default async function handler(req, res) {
     await redisSetWithTimestamp(cacheKey, resultData);
 
     if (isTakeSnapshot) {
-      await takeSnapshot(resultData, snapshotCacheKey);
+      await takeSnapshot(resultData, snapshotCacheKey, provider, paidProvider);
     }
 
     res.status(200).json(resultData)
