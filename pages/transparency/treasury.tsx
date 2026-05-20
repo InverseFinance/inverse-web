@@ -19,6 +19,7 @@ import { DefaultCharts } from '@app/components/Transparency/DefaultCharts'
 import { timestampToUTC } from '@app/util/misc'
 import { shortenNumber } from '@app/util/markets'
 import { InfoMessage } from '@app/components/common/Messages'
+import { lightTheme } from '@app/variables/theme'
 
 const OWN_TOKENS = ['DBR', 'INV'];
 
@@ -224,6 +225,13 @@ export const Overview = () => {
                     secondaryType: 'basis',
                     primaryPrecision: 2,
                     fillInByDayInterval: false,
+                    showEventsLabels: true,
+                    showEvents: true,
+                    events: [
+                      // Dec 8th restructuring
+                      { x: 1765241383512, eventPointLabel: 'Payroll restructuring', eventColor: lightTheme.colors.info },
+                      // { x: 1772931877382, eventPointLabel: '1 off-boarding', eventColor: lightTheme.colors.info },
+                    ]
                   }}
                 />
                 <InfoMessage description="Data combined from aggregated verified monthly Financials and automated daily snapshots" alertProps={{ w: 'full' }} />
