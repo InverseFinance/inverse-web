@@ -18,6 +18,7 @@ import { useAppTheme } from '@app/hooks/useAppTheme'
 import { DefaultCharts } from '@app/components/Transparency/DefaultCharts'
 import { timestampToUTC } from '@app/util/misc'
 import { shortenNumber } from '@app/util/markets'
+import { InfoMessage } from '@app/components/common/Messages'
 
 const OWN_TOKENS = ['DBR', 'INV'];
 
@@ -207,10 +208,10 @@ export const Overview = () => {
                   showAreaChart={true}
                   smoothLineByDefault={true}
                   areaProps={{
-                    title: `Runway & Stable Reserves Evolution`,
+                    title: `Stable Runway & Stable Reserves Evolution`,
                     id: 'runway-evolution',
                     showRangeBtns: true,
-                    yLabel: 'Runway (months)',
+                    yLabel: 'Stables Runway (months)',
                     useRecharts: true,
                     allowZoom: true,
                     allowEscapeViewBox: false,
@@ -225,6 +226,7 @@ export const Overview = () => {
                     fillInByDayInterval: false,
                   }}
                 />
+                <InfoMessage description="Data combined from aggregated verified monthly Financials and automated daily snapshots" alertProps={{ w: 'full' }} />
               </DashBoardCard>
             </VStack>
             <SimpleGrid columns={{ base: 1, xl: 2 }} spacingX="50px" spacingY="40px">
