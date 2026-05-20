@@ -196,7 +196,7 @@ export const Overview = () => {
                 <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={stableReserves} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
             </SimpleGrid>
-            <VStack mt="8" w='full'>
+            {/* <VStack mt="8" w='full'>
               <DashBoardCard 
                 {...dashboardCardProps} w='full' p="0" pt="14">
                 <DefaultCharts
@@ -235,7 +235,7 @@ export const Overview = () => {
                 />
                 <InfoMessage description="Data combined from aggregated verified monthly Financials and automated daily snapshots" alertProps={{ w: 'full' }} />
               </DashBoardCard>
-            </VStack>
+            </VStack> */}
             <SimpleGrid columns={{ base: 1, xl: 2 }} spacingX="50px" spacingY="40px">
               <DashBoardCard cardTitle="Multisigs's Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={totalMultisigs} prices={prices} type='balance' useRecharts={true} />
