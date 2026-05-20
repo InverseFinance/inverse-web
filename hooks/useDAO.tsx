@@ -64,7 +64,7 @@ export const useTreasuryAssets = (): SWR & { treasury: any[], anchorReserves: an
 }
 
 export const useRunwayHisto = (): SWR & { evolution: { runway: number, timestamp: number, utcDate: string, stableReserves: number, payrolls: number, unclaimedPayrolls: number | null, preRunway: number }[] } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/runway-histo?v=1.0.0`, fetcher)
+  const { data, error } = useCacheFirstSWR(`/api/transparency/runway-histo?v=1.0.1`, fetcher)
 
   return {
     evolution: (data?.evolution || []).map(d => ({...d, y: d.runway, x: d.timestamp})),
