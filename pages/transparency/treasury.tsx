@@ -222,7 +222,7 @@ export const Overview = () => {
                     interpolation: 'basis',
                     secondaryType: 'basis',
                     primaryPrecision: 2,
-                    fillInByDayInterval: true,
+                    fillInByDayInterval: false,
                   }}
                 />
               </DashBoardCard>
