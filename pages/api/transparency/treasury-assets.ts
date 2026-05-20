@@ -96,6 +96,7 @@ const takeSnapshot = async (data, snapshotKey, provider, paidProvider) => {
       unclaimedPayrolls: currentLiabilities,
       preRunway: preRunwayInMonths,
       runway: runwayInMonths,
+      payrolls: totalCurrentPayrolls,
     });
   }
   await redisSetWithTimestamp(snapshotKey, snaps);

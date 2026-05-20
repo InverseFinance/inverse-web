@@ -18,6 +18,7 @@ import { useAppTheme } from '@app/hooks/useAppTheme'
 import { DefaultCharts } from '@app/components/Transparency/DefaultCharts'
 import { timestampToUTC } from '@app/util/misc'
 import { shortenNumber } from '@app/util/markets'
+import { InfoMessage } from '@app/components/common/Messages'
 
 const OWN_TOKENS = ['DBR', 'INV'];
 
@@ -45,7 +46,7 @@ const above100UsdFilter = (item) => item.balance * (item.price || item.usdPrice)
 const maxChartWidth = 1350;
 
 export const Overview = () => {
-  const { themeName } = useAppTheme();
+  const { themeName, themeStyles } = useAppTheme();
   const { prices, isLoading: isLoadingPrices } = usePricesV2(true)
   const { treasury, anchorReserves, multisigs, isLoading: isLoadingTreasuryAssets } = useTreasuryAssets();
   const { evolution: runwayEvolution, isLoading: isRunwayHistoLoading } = useRunwayHisto();
@@ -207,10 +208,10 @@ export const Overview = () => {
                   showAreaChart={true}
                   smoothLineByDefault={true}
                   areaProps={{
-                    title: `Runway & Stable Reserves Evolution`,
+                    title: `Stable Runway & Stable Reserves Evolution`,
                     id: 'runway-evolution',
                     showRangeBtns: true,
-                    yLabel: 'Runway (months)',
+                    yLabel: 'Stables Runway (months)',
                     useRecharts: true,
                     allowZoom: true,
                     allowEscapeViewBox: false,
@@ -222,9 +223,17 @@ export const Overview = () => {
                     interpolation: 'basis',
                     secondaryType: 'basis',
                     primaryPrecision: 2,
-                    fillInByDayInterval: true,
+                    fillInByDayInterval: false,
+                    showEventsLabels: true,
+                    showEvents: true,
+                    events: [
+                      // Dec 8th restructuring
+                      { x: 1765241383512, eventPointLabel: 'Team & Payroll reduction', eventColor: themeStyles.colors.mainTextColor },
+                      // { x: 1772931877382, eventPointLabel: '1 off-boarding', eventColor: themeStyles.colors.mainTextColor },
+                    ]
                   }}
                 />
+                <InfoMessage description="Data combined from aggregated verified monthly Financials and automated daily snapshots" alertProps={{ w: 'full' }} />
               </DashBoardCard>
             </VStack> */}
             <SimpleGrid columns={{ base: 1, xl: 2 }} spacingX="50px" spacingY="40px">
