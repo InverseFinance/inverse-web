@@ -479,7 +479,7 @@ export default async function handler(req, res) {
           totalAssets30d: onChainData[index].totalAssets30d,
           totalAssets90d: onChainData[index].totalAssets90d,
           exchangeRate,
-          tvl: metaData.symbol === 'sDOLA' && !!dolaStakingData?.tvlUsd ? dolaStakingData.tvlUsd : defillamaPoolData?.tvlUsd || onChainData[index].totalAssets || null,
+          tvl: metaData.symbol === 'sDOLA' && !!dolaStakingData?.tvlUsd ? dolaStakingData.tvlUsd : metaData.symbol === 'yvUSD' ? onChainData[index].totalAssets - defillamaPoolData?.tvlUsd : defillamaPoolData?.tvlUsd || onChainData[index].totalAssets || null,
           apy: (onChainData[index].calculatedApy || rate.supplyRate || rate.apy),
           thirdPartyApy: rate.supplyRate || rate.apy,
           apy1h: onChainData[index].apy1h,
