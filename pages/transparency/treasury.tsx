@@ -103,7 +103,7 @@ export const Overview = () => {
   }
 
   useEffect(() => {
-    setAutoChartWidth(isLargerThan ? maxChartWidth : (window.innerWidth))
+    setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
   }, [isLargerThan]);
 
   const totalMultisigs = multisigs?.map(m => {
@@ -174,7 +174,7 @@ export const Overview = () => {
                 {...dashboardCardProps} w='full' p="0" pt="14">
                 <DefaultCharts
                   chartData={runwayEvolution}
-                  maxChartWidth={maxChartWidth}
+                  maxChartWidth={autoChartWidth}
                   chartWidth={autoChartWidth}
                   isDollars={false}
                   showMonthlyBarChart={false}
