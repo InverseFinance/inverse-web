@@ -103,7 +103,7 @@ export const Overview = () => {
   }
 
   useEffect(() => {
-    setAutoChartWidth(isLargerThan ? maxChartWidth : (window.innerWidth))
+    setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
   }, [isLargerThan]);
 
   const totalMultisigs = multisigs?.map(m => {
@@ -155,33 +155,6 @@ export const Overview = () => {
               {...dashboardCardProps} w='full' p="0">
               <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance?treasury=true&tvl=false&events=false&groupBy=daily&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
             </DashBoardCard>
-            {/* <VStack w='full' alignItems="center" py="10">
-              <DashBoardCard cardTitle="Stable Reserves & Runway" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w='full'>
-                <DefaultCharts
-                  chartData={stableAndRunwayEvolution}
-                  maxChartWidth={maxChartWidth}
-                  chartWidth={autoChartWidth}
-                  isDollars={true}
-                  showMonthlyBarChart={false}
-                  showAreaChart={true}
-                  smoothLineByDefault={true}
-                  areaProps={{
-                    title: `Currently: ${shortenNumber(totalCurrentStableReserves, 2, true)} and ${runwayInMonths.toFixed(2)} months`,
-                    id: 'stable-reserves',
-                    showRangeBtns: false,
-                    yLabel: 'Stable Reserves',
-                    useRecharts: true,
-                    allowZoom: true,
-                    allowEscapeViewBox: false,
-                    showSecondary: true,
-                    secondaryRef: 'runway',
-                    secondaryLabel: 'Runway in months',
-                    secondaryAsUsd: false,
-                    secondaryPrecision: 2,
-                  }}
-                />
-              </DashBoardCard>
-            </VStack> */}
             <SimpleGrid columns={{ base: 1, xl: 2 }} spacingX="50px" spacingY="40px">
               <DashBoardCard cardTitle="Total Treasury Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <ExcludeOwnTokens label="Exclude Treasury INV & DBR" setter={setExcludeOwnTokens} value={excludeOwnTokens} id='exclude-1' />
@@ -196,12 +169,12 @@ export const Overview = () => {
                 <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={stableReserves} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
             </SimpleGrid>
-            {/* <VStack mt="8" w='full'>
+            <VStack mt="8" w='full'>
               <DashBoardCard 
                 {...dashboardCardProps} w='full' p="0" pt="14">
                 <DefaultCharts
                   chartData={runwayEvolution}
-                  maxChartWidth={maxChartWidth}
+                  maxChartWidth={autoChartWidth}
                   chartWidth={autoChartWidth}
                   isDollars={false}
                   showMonthlyBarChart={false}
@@ -235,7 +208,7 @@ export const Overview = () => {
                 />
                 <InfoMessage description="Data combined from aggregated verified monthly Financials and automated daily snapshots" alertProps={{ w: 'full' }} />
               </DashBoardCard>
-            </VStack> */}
+            </VStack>
             <SimpleGrid columns={{ base: 1, xl: 2 }} spacingX="50px" spacingY="40px">
               <DashBoardCard cardTitle="Multisigs's Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={totalMultisigs} prices={prices} type='balance' useRecharts={true} />
