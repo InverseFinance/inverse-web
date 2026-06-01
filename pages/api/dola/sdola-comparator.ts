@@ -279,7 +279,7 @@ export default async function handler(req, res) {
       //   link: 'https://defi.mountainprotocol.com/wrap',
       // },
       {
-        symbol: 'ysUSDS',
+        symbol: 'yvUSDS-1',
         project: 'Yearn',
         link: 'https://yearn.fi/vaults/1/0x182863131F9a4630fF9E27830d945B1413e347E8',
         pool: '7501ef09-87d1-405c-b2b2-f269b2727289',
@@ -373,6 +373,26 @@ export default async function handler(req, res) {
           return { apy: 0 };
         },
         image: `data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20width='24'%20height='24'%20fill='none'%3e%3ccircle%20cx='12'%20cy='12'%20r='12'%20fill='%23F5D93A'/%3e%3cpath%20fill='%231C1D4F'%20d='M14.07%208.269a5.866%205.866%200%201%201-2.67%2011.087V8.911a5.84%205.84%200%200%201%202.67-.642Zm-2.67.642a5.866%205.866%200%200%200%200%2010.445V20H6.065V4H11.4v4.911Z'/%3e%3c/svg%3e`,
+      },
+      {
+        symbol: 'yvUSDT-1',
+        project: 'Yearn',
+        link: 'https://yearn.fi/vaults/1/0x310B7Ea7475A0B449Cfd73bE81522F1B88eFAFaa',
+        pool: 'daf810d4-b190-4d9a-a5c6-f784d6272a77',
+        address: '0x310B7Ea7475A0B449Cfd73bE81522F1B88eFAFaa',
+        underlying: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+        currentRateGetter: () => getYearnVaultKongApy('0x310B7Ea7475A0B449Cfd73bE81522F1B88eFAFaa'),
+        image: 'https://token-assets-one.vercel.app/api/tokens/1/0xdac17f958d2ee523a2206206994597c13d831ec7/logo-128.png',
+      },
+      {
+        symbol: 'yvUSD',
+        project: 'Yearn',
+        link: 'https://yearn.fi/vaults/1/0x696d02Db93291651ED510704c9b286841d506987',
+        pool: '13995c55-4d83-4784-b6a8-3dac45e05675',
+        address: '0x696d02Db93291651ED510704c9b286841d506987',
+        underlying: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        currentRateGetter: () => getYearnVaultKongApy('0x696d02Db93291651ED510704c9b286841d506987'),
+        image: 'https://yearn.fi/yvusd-128.png',
       },
     ];
 
