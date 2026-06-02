@@ -14,7 +14,7 @@ import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { InfoMessage } from '@app/components/common/Messages';
 
 export const DbrAuctionStatsPage = () => {
-  const { dbrSaleHandlerRepayPercentage, isLoading, events, dolaEvents, accDolaIn, accDbrOut, accInvIn, accWorthIn, accInvWorthIn, accWorthOut, last100, timestamp } = useDbrAuctionActivity();  
+  const { dbrSaleHandlerRepayPercentage, isLoading, events, dolaEvents, accDolaIn, accTotalDolaIn, accTotalDolaWorthIn, accDbrOut, accInvIn, accWorthIn, accInvWorthIn, accWorthOut, last100, timestamp } = useDbrAuctionActivity();  
   return (
     <Layout>
       <Head>
@@ -48,7 +48,7 @@ export const DbrAuctionStatsPage = () => {
                 <Text textAlign={{ base: 'left', md: 'center' }} fontWeight="bold">Total DOLA income</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
-                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accDolaIn, 2)} ({shortenNumber(accWorthIn, 2, true)})</Text>
+                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accTotalDolaIn, 2)} ({shortenNumber(accTotalDolaWorthIn, 2, true)})</Text>
                 }
               </VStack>
               <VStack spacing="0" alignItems={{ base: 'left', md: 'center' }}>
