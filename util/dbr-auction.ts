@@ -253,6 +253,7 @@ export const getFormattedAuctionBuys = (events: any[]) => {
     const jrDolaAuctionEvents = events.filter(e => !!e['jrDOLA']).map(e => ({...e, ...e['jrDOLA']}));
 
     const accDolaIn = dolaEvents.reduce((prev, curr) => prev + curr.amountIn || 0, 0);
+    const accDolaWorthIn = dolaEvents.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
     const accInvInSinvWorthIn = sinvAuctionEvents.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
     const accInvBuyBackWorthIn = invBuyBackAuctionEvents.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
     const accWorthIn = events.reduce((prev, curr) => prev + curr.all.worthIn || 0, 0);
@@ -295,8 +296,11 @@ export const getFormattedAuctionBuys = (events: any[]) => {
         invBuyBackAuctionEvents,
         jrDolaAuctionEvents,
         aggregated: {
-            // when converting sDOLA proceed to DOLA proceed
+            // === when converting sDOLA proceed to DOLA proceed
             accTotalDolaIn: accDolaIn + accDolaInJrDola,
+            accTotalDolaWorthIn: accDolaWorthIn + accDolaInJrDola,
+            // ===
+            accDolaWorthIn,
             accDolaIn,
             accDbrOut,
             accDolaInVirtual,
