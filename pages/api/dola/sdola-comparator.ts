@@ -409,6 +409,18 @@ export default async function handler(req, res) {
         currentRateGetter: () => getYearnVaultKongApy('0x696d02Db93291651ED510704c9b286841d506987'),
         image: 'https://yearn.fi/yvusd-128.png',
       },
+      {
+        symbol: 'sGHO',
+        project: 'Aave',
+        link: 'https://app.aave.com/sgho/',
+        pool: '19d024ed-9c70-4323-9a81-fe873ea5f0e0',
+        address: '0xE1753F2e00940cC31213dd92013cF019DFE4ca1d',
+        underlying: '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f',
+        underlyingSymbol: 'GHO',
+        currentRateGetter: () => getDefiLlamaApy("19d024ed-9c70-4323-9a81-fe873ea5f0e0"),
+        image: 'https://app.aave.com/icons/tokens/sgho.svg',
+        underlyingCoingeckoId: 'gho',
+      },
     ];
 
     const cgObjects = meta.map(t => {
