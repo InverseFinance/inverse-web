@@ -216,6 +216,7 @@ export default async function handler(req, res) {
         pool: '0b8fec3b-a715-4803-94ce-9fe3b7520b23',
         address: '0x83F20F44975D03b1b09e64809B757c47f942BEeA',
         underlying: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+        underlyingSymbol: 'DAI',
         coingeckoId: 'savings-dai',
         currentRateGetter: () => getDSRData(),
       },
@@ -226,6 +227,7 @@ export default async function handler(req, res) {
         pool: '42523cca-14b0-44f6-95fb-4781069520a5',
         address: '0xcf62F905562626CfcDD2261162a51fd02Fc9c5b6',
         underlying: '0xCAcd6fd266aF91b8AeD52aCCc382b4e165586E29',
+        underlyingSymbol: 'frxUSD',
         currentRateGetter: () => getDefiLlamaApy("42523cca-14b0-44f6-95fb-4781069520a5"),
       },
       {
@@ -235,6 +237,7 @@ export default async function handler(req, res) {
         pool: '66985a81-9c51-46ca-9977-42b4fe7bc6df',
         address: '0x9D39A5DE30e57443BfF2A8307A4256c8797A3497',
         underlying: '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3',
+        underlyingSymbol: 'USDe',
         currentRateGetter: () => getSUSDEData(provider, true),
       },
       {
@@ -244,6 +247,7 @@ export default async function handler(req, res) {
         pool: 'bf0f95c9-bc46-467d-9762-1d80ff50cd74',
         address: '0xb45ad160634c528Cc3D2926d9807104FA3157305',
         underlying: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
+        underlyingSymbol: 'DOLA',
         currentRateGetter: () => fetch('https://www.inverse.finance/api/dola-staking').then(res => res.json()),
       },
       {
@@ -253,6 +257,7 @@ export default async function handler(req, res) {
         pool: '5fd328af-4203-471b-bd16-1705c726d926',
         address: '0x0655977FEb2f289A4aB78af67BAB0d17aAb84367',
         underlying: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
+        underlyingSymbol: 'crvUSD',
         image: TOKEN_IMAGES['scrvUSD'],
         currentRateGetter: () => getSavingsCrvUsdData(),
       },
@@ -263,6 +268,7 @@ export default async function handler(req, res) {
         pool: 'd8c4eff5-c8a9-46fc-a888-057c4c668e72',
         address: '0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD',
         underlying: '0xdC035D45d973E3EC169d2276DDab16f1e407384F',
+        underlyingSymbol: 'USDS',
         currentRateGetter: () => getSavingsUSDData(),
       },
       // {
@@ -285,6 +291,7 @@ export default async function handler(req, res) {
         pool: '7501ef09-87d1-405c-b2b2-f269b2727289',
         address: '0x182863131F9a4630fF9E27830d945B1413e347E8',
         underlying: '0xdC035D45d973E3EC169d2276DDab16f1e407384F',
+        underlyingSymbol: 'USDS',
         currentRateGetter: () => getYearnVaultKongApy('0x182863131F9a4630fF9E27830d945B1413e347E8'),
         image: 'https://token-assets-one.vercel.app/api/tokens/1/0xdc035d45d973e3ec169d2276ddab16f1e407384f/logo-128.png',
       },
@@ -295,6 +302,7 @@ export default async function handler(req, res) {
         pool: '01e33a85-8bb6-4f30-a11b-7b2a8166e6b7',
         address: '0x0022228a2cc5E7eF0274A7Baa600d44da5aB5776',
         underlying: '0x0000206329b97DB379d5E1Bf586BbDB969C63274',
+        underlyingSymbol: 'USDC',
         deprecated: true,
         currentRateGetter: async () => {
           try {
@@ -314,6 +322,7 @@ export default async function handler(req, res) {
         pool: '0aedb3f6-9298-49de-8bb0-2f611a4df784',
         address: '0x6c8984bc7DBBeDAf4F6b2FD766f16eBB7d10AAb4',
         underlying: '0x66a1E37c9b0eAddca17d3662D6c05F4DECf3e110',
+        underlyingSymbol: 'USR',
         zapAddress: '0x1202F5C7b4B9E47a1A484E8B270be34dbbC75055',
         zapSymbol: 'wstUSR',
         currentRateGetter: () => getDefiLlamaApy("0aedb3f6-9298-49de-8bb0-2f611a4df784"),
@@ -329,6 +338,7 @@ export default async function handler(req, res) {
         pool: 'ee0b7069-f8f3-4aa2-a415-728f13e6cc3d',
         address: '0x7743e50F534a7f9F1791DdE7dCD89F7783Eefc39',
         underlying: '0x65C9A641afCEB9C0E6034e558A319488FA0FA3be',
+        underlyingSymbol: 'fxUSD',
         currentRateGetter: () => getDefiLlamaApy("ee0b7069-f8f3-4aa2-a415-728f13e6cc3d"),
         image: 'https://raw.githubusercontent.com/AladdinDAO/aladdin-assets/refs/heads/main/images/branding/fxSave.png',
       },
@@ -339,6 +349,7 @@ export default async function handler(req, res) {
         pool: 'a1b05c10-6d01-4b64-9247-4e86ca82a291',
         address: '0x557AB1e003951A73c12D16F0fEA8490E39C33C35',
         underlying: '0x57aB1E0003F623289CD798B1824Be09a793e4Bec',
+        underlyingSymbol: 'reUSD',
         currentRateGetter: () => getDefiLlamaApy("a1b05c10-6d01-4b64-9247-4e86ca82a291"),
         image: 'https://raw.githubusercontent.com/resupplyfi/resupply-brand-kit/refs/heads/main/Logos%20%26%20Token%20Icons/sreUSD%20-%20Logo%20Design/sreUSD%20-%20Token%20icon/sreusd-icon-green-bg-128.png',
       },
@@ -350,6 +361,7 @@ export default async function handler(req, res) {
         pool: '4c29f645-12db-461f-a1d7-16900d624271',
         address: '0x23346B04a7f55b8760E5860AA5A77383D63491cD',// staking contract for calc
         underlying: '0x6440f144b7e50D6a8439336510312d2F54beB01D',
+        underlyingSymbol: 'BOLD',
         underlyingCoingeckoId: 'liquity-bold-2',
         currentRateGetter: () => getYearnVaultKongApy('0x9F4330700a36B29952869fac9b33f45EEdd8A3d8'),
         image: `data:image/svg+xml,%3csvg%20width='148'%20height='148'%20viewBox='0%200%20148%20148'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20clip-path='url(%23clip0_56_219)'%3e%3cpath%20d='M74%20148C114.869%20148%20148%20114.869%20148%2074C148%2033.1309%20114.869%200%2074%200C33.1309%200%200%2033.1309%200%2074C0%20114.869%2033.1309%20148%2074%20148Z'%20fill='%230675F9'/%3e%3cpath%20d='M125.068%2078.7182C130.501%2095.0518%20121.655%20112.695%20105.333%20118.128C88.9995%20123.561%2071.3558%20114.715%2065.9233%2098.3931C60.4908%2082.0595%2069.3367%2064.4158%2085.6582%2058.9833C101.992%2053.5508%20119.636%2062.3966%20125.068%2078.7182ZM82.293%2023.6479L55.503%2023.2393L54.0006%20120.412L80.7906%20120.82L82.293%2023.6479ZM32.4028%2034.4528L13.9058%2053.3344L54.9982%2093.5975L55.3948%2058.2021L32.4028%2034.4528Z'%20fill='white'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='clip0_56_219'%3e%3crect%20width='148'%20height='148'%20fill='white'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e`,
@@ -361,6 +373,7 @@ export default async function handler(req, res) {
         // pool: '',
         address: '0x50Bd66D59911F5e086Ec87aE43C811e0D059DD11',
         underlying: '0x6440f144b7e50D6a8439336510312d2F54beB01D',
+        underlyingSymbol: 'BOLD',
         underlyingCoingeckoId: 'liquity-bold-2',
         currentRateGetter: async () => {
           try {
@@ -381,6 +394,7 @@ export default async function handler(req, res) {
         pool: 'daf810d4-b190-4d9a-a5c6-f784d6272a77',
         address: '0x310B7Ea7475A0B449Cfd73bE81522F1B88eFAFaa',
         underlying: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+        underlyingSymbol: 'USDT',
         currentRateGetter: () => getYearnVaultKongApy('0x310B7Ea7475A0B449Cfd73bE81522F1B88eFAFaa'),
         image: 'https://token-assets-one.vercel.app/api/tokens/1/0xdac17f958d2ee523a2206206994597c13d831ec7/logo-128.png',
       },
@@ -391,8 +405,21 @@ export default async function handler(req, res) {
         pool: '13995c55-4d83-4784-b6a8-3dac45e05675',
         address: '0x696d02Db93291651ED510704c9b286841d506987',
         underlying: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        underlyingSymbol: 'USDC',
         currentRateGetter: () => getYearnVaultKongApy('0x696d02Db93291651ED510704c9b286841d506987'),
         image: 'https://yearn.fi/yvusd-128.png',
+      },
+      {
+        symbol: 'sGHO',
+        project: 'Aave',
+        link: 'https://app.aave.com/sgho/',
+        pool: '19d024ed-9c70-4323-9a81-fe873ea5f0e0',
+        address: '0xE1753F2e00940cC31213dd92013cF019DFE4ca1d',
+        underlying: '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f',
+        underlyingSymbol: 'GHO',
+        currentRateGetter: () => getDefiLlamaApy("19d024ed-9c70-4323-9a81-fe873ea5f0e0"),
+        image: 'https://app.aave.com/icons/tokens/sgho.svg',
+        underlyingCoingeckoId: 'gho',
       },
     ];
 
@@ -504,6 +531,8 @@ export default async function handler(req, res) {
           decimals: onChainData[index].decimals,
           zapDecimals: metaData.zapDecimals,
           deprecated: metaData.deprecated,
+          underlying: metaData.underlying,
+          underlyingSymbol: metaData.underlyingSymbol,
         }
       }).sort((a, b) => {
         return a.apy < b.apy ? 1 : b.apy - a.apy;
