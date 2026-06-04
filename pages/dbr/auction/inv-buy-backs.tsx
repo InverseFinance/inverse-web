@@ -18,6 +18,7 @@ import { timeSince } from '@app/util/time';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { DbrAuctionBuysChart } from '@app/components/F2/DbrAuction/DbrAuctionBuysChart';
 import { timestampToUTC } from '@app/util/misc';
+import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
 
 const buyColumns: any[] = [
   {
@@ -112,8 +113,10 @@ export const InvBuyBacksPage = () => {
         <meta name="keywords" content="Inverse Finance, DBR, INV buyback, INV" />
       </Head>
       <AppNav active="Transparency" activeSubmenu="INV buybacks" />
+      <TransparencyTabs active="buybacks" />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
+        maxW="full"
         mt='6'
         spacing="10"
         px={{ base: '4', lg: '0' }}
@@ -154,7 +157,7 @@ export const InvBuyBacksPage = () => {
               An automated program starting Feb 16th 2026 that buys back INV from the market using DBR auction flows, removing INV from circulation and sending it back to the Inverse Finance treasury, this creates buying pressure on INV and selling pressure on DBR.
             </Text>
             <HStack spacing={6} pt={2} flexWrap="wrap" rowGap={4} w='full'>
-              <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={{ base: 2, md: 4 }} w='full'>
+              <SimpleGrid columns={{ base: 1, sm: 2, xl: 4 }} spacing={{ base: 2, md: 4 }} w='full'>
                 <StringCard
                   valueProps={{ fontSize: '18px' }} labelProps={{ fontSize: '13px' }}
                   value={isLoading ? '-' : `${shortenNumber(last24hInvIn, 2)} INV (~${smartShortNumber(last24hInvInWorth, 2, true)})`}
@@ -222,7 +225,7 @@ export const InvBuyBacksPage = () => {
           p="0"
           collapsable={true}
         >
-          <DbrAuctionBuysChart showWeeklyIncome={true} autoAddToday={true} todayValue={invInTodayUTC} autoAddZeroYAtStart={false} hidePriceCharts={true} hideMonthly={true} useInvAmount={true} auctionType="invBuyBack" events={invBuyBackAuctionEvents} chartEvents={invBuyBackAuctionEvents} />
+          <DbrAuctionBuysChart rightPadding={0} wrapperProps={{ alignItems: 'center', w: 'full' }} showWeeklyIncome={true} autoAddToday={true} todayValue={invInTodayUTC} autoAddZeroYAtStart={false} hidePriceCharts={true} hideMonthly={true} useInvAmount={true} auctionType="invBuyBack" events={invBuyBackAuctionEvents} chartEvents={invBuyBackAuctionEvents} />
         </Container>
         
         <Container
