@@ -39,10 +39,11 @@ export default async function handler(req, res) {
     const provider = getProvider(NetworkIds.mainnet);
     const contract = new Contract(DBR, DBR_ABI, provider);
 
-    const [totalSupply, triDbrBalanceBn, triDbrBalance2Bn, _pendingDbrBurn, ...excludedBalances] = await Promise.all([
+    const [totalSupply, triDbrBalanceBn, triDbrBalance2Bn, uniswapV4PoolManagerBalanceBn, _pendingDbrBurn, ...excludedBalances] = await Promise.all([
       contract.totalSupply(),
       contract.balanceOf('0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a'),
       contract.balanceOf('0x66da369fC5dBBa0774Da70546Bd20F2B242Cd34d'),
+      contract.balanceOf('0x000000000004444c5dc75cB358380D2e3dE08A90'),
       getPendingDbrBurn(),
       ...excluded.map(excludedAd => contract.balanceOf(excludedAd)),
     ]);
@@ -68,7 +69,7 @@ export default async function handler(req, res) {
         const ifv = inverseViewer(provider);
         const marketListData = await ifv.firm.getMarketListData(F2_MARKETS.map(m => m.hasNowInvalidFeed ? '0x0000000000000000000000000000000000000000' : m.address));
         const totalDebt = marketListData.reduce((prev, curr) => prev + curr.totalDebt, 0);
-        const inventory = totalDebt ? (circulatingSupply - getBnToNumber(triDbrBalanceBn.add(triDbrBalance2Bn))) / totalDebt * 365 : 0;
+        const inventory = totalDebt ? (circulatingSupply - getBnToNumber(triDbrBalanceBn.add(triDbrBalance2Bn.add(uniswapV4PoolManagerBalanceBn)))) / totalDebt * 365 : 0;
         cachedCircEvoData.evolution.push({
           utcDate,
           totalSupply: getBnToNumber(totalSupply),

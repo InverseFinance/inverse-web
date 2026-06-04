@@ -24,7 +24,7 @@ export default async (req, res) => {
     const { include } = req.query;
     const includeList = include ? include.split(',').filter(ad => isAddress(ad)) : [];
     const cacheDuration = 300;
-    const cacheKey = `dola-modal-2-v1.0.96${include ? includeList.join(',') : ''}`;
+    const cacheKey = `dola-modal-2-v1.0.97${include ? includeList.join(',') : ''}`;
 
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
@@ -50,6 +50,7 @@ export default async (req, res) => {
             dbrCirculatingSupply,
             dbrTriPoolBalanceBn,
             dbrTriPoolBalance2Bn,
+            uniswapV4PoolManagerBalanceBn,
             dbrPriceData,
             aaveRes,
             jrDolaRateBn,
@@ -61,6 +62,7 @@ export default async (req, res) => {
             getCacheFromRedis(dbrCircSupplyCacheKey, false),
             dbrContract.balanceOf('0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a'),
             dbrContract.balanceOf('0x66da369fC5dBBa0774Da70546Bd20F2B242Cd34d'),
+            dbrContract.balanceOf('0x000000000004444c5dc75cB358380D2e3dE08A90'),
             getDbrPriceOnCurve(provider),
             fetch("https://api.v3.aave.com/graphql", {
                 "headers": {
@@ -107,7 +109,7 @@ export default async (req, res) => {
 
         const jrDolaRate = getBnToNumber(jrDolaRateBn);
 
-        let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},DSA DOLA bal:,${dolaStakingData.dsaTotalSupply},DSA dbrYearlyEarnings:,${dolaStakingData.dsaYearlyDbrEarnings},DBR replenishments (30d):,${dbrReplenished30d},DBR balance in tripool:,${getBnToNumber(dbrTriPoolBalanceBn.add(dbrTriPoolBalance2Bn)).toFixed(0)},DBR circ supply:,${Number(dbrCirculatingSupply).toFixed(0)},DBR price (in dola):,${Number(dbrPrice).toFixed(4)},Aave USDC 7d avg borrow APR:,${Number(aave7dAvgRate).toFixed(2)},jrDOLA yearly rewards:,${jrDolaRate}\n`;
+        let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},DSA DOLA bal:,${dolaStakingData.dsaTotalSupply},DSA dbrYearlyEarnings:,${dolaStakingData.dsaYearlyDbrEarnings},DBR replenishments (30d):,${dbrReplenished30d},DBR balance in LPs:,${getBnToNumber(dbrTriPoolBalanceBn.add(dbrTriPoolBalance2Bn.add(uniswapV4PoolManagerBalanceBn))).toFixed(0)},DBR circ supply:,${Number(dbrCirculatingSupply).toFixed(0)},DBR price (in dola):,${Number(dbrPrice).toFixed(4)},Aave USDC 7d avg borrow APR:,${Number(aave7dAvgRate).toFixed(2)},jrDOLA yearly rewards:,${jrDolaRate}\n`;
         csvData += `Liquidity Cache:,~5min,Liquidity timestamp:,${liquidityData.timestamp},Bad debt timestamp:,${badDebtData.timestamp}, DSA timestamp:,${dolaStakingData.timestamp},\n`;
         csvData += `LP,Fed or Project,Fed Supply,RootLP DOLA balance,Pairing Depth ($ or amount),Fed PoL\n`;
         feds.forEach((lp) => {

@@ -44,7 +44,7 @@ export default async function handler(req, res) {
 
     dbrUsers = [...new Set(dbrUsers)];
 
-    const [signedBalanceBn, debtsBn, triDbrLpBalancesBn, triDbrLpBalances2Bn] = await getGroupedMulticallOutputs(
+    const [signedBalanceBn, debtsBn, triDbrLpBalancesBn, triDbrLpBalances2Bn, uniswapV4PoolManagerBalanceBn] = await getGroupedMulticallOutputs(
       [
         dbrUsers.map(u => {
           return { contract: dbrContract, functionName: 'signedBalanceOf', params: [u] }
@@ -69,13 +69,22 @@ export default async function handler(req, res) {
             params: ['0x66da369fC5dBBa0774Da70546Bd20F2B242Cd34d'],
             fallbackValue: BigNumber.from('0'),
           }
-        ]
+        ],
+        // uniswap v4 pool manager
+        [
+          {
+            contract: dbrContract,
+            functionName: 'balanceOf',
+            params: ['0x000000000004444c5dc75cB358380D2e3dE08A90'],
+            fallbackValue: BigNumber.from('0'),
+          }
+        ],
       ]
     );
 
     const circSupply =  parseFloat((await getCacheFromRedis(dbrCircSupplyCacheKey, false)) || '0');
 
-    const triDbrBalance = getBnToNumber(triDbrLpBalancesBn[0].add(triDbrLpBalances2Bn[0]));
+    const lpsDbrBalance = getBnToNumber(triDbrLpBalancesBn[0].add(triDbrLpBalances2Bn[0].add(uniswapV4PoolManagerBalanceBn[0])));
 
     const activeDbrHolders = signedBalanceBn.map((bn, i) => {
       const signedBalance = getBnToNumber(bn);
@@ -92,7 +101,7 @@ export default async function handler(req, res) {
 
     const totalDebt = activeDbrHolders.reduce((acc, i) => acc + i.debt, 0);
     // all users not just firm
-    const totalUsersBalance = circSupply - triDbrBalance;
+    const totalUsersBalance = circSupply - lpsDbrBalance;
 
     const resultData = {
       timestamp: Date.now(),
