@@ -2,7 +2,7 @@ import { useAppTheme } from '@app/hooks/useAppTheme';
 import { Tabs, TabList, Tab, VStack, Text, HStack, Image } from '@chakra-ui/react'
 import Link from '../common/Link';
 
-type TabsType = 'overview' | 'keymetrics' | 'treasury' | 'veNfts' | 'liquidity' | 'inv' | 'dola' | 'dbr' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'shortfalls' | 'bad-debts';
+type TabsType = 'overview' | 'keymetrics' | 'buybacks' | 'treasury' | 'veNfts' | 'liquidity' | 'inv' | 'dola' | 'dbr' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'shortfalls' | 'bad-debts';
 
 const TABS = [
     { page: 'keymetrics', label: 'Key Metrics' },
@@ -19,6 +19,7 @@ const TABS = [
     // { page: 'firm-users', label: 'FiRM users' },
     // { page: 'liquidations', label: 'Liquidations' },
     { page: 'bad-debts', label: 'Bad debts' },
+    { page: 'buybacks', label: 'Buybacks' },
     { page: 'frontier-overview', label: 'Frontier & Other' },
 ];
 
