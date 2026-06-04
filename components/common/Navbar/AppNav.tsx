@@ -508,6 +508,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { isOpen: isReferToOpen, onOpen: onReferToOpen, onClose: onReferToClose } = useDisclosure()
   const [onTosOk, setOnTosOk] = useState(() => () => { });
   const [tosApproved, setTosApproved] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const { value: gnosisSafeToastAlreadyShowed, setter: setGnosisSafeToastAlreadyShowed } = useStorage('gnosis-safe-toast');
   const { value: isRefPop, setter: setIsRefPop } = useStorage('referral-pop-v1');
   const [inited, setInited] = useState(false);
@@ -670,6 +671,12 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
       setBadgeChainId(chainIdInWallet);
 
+      setIsTouchDevice(
+        'ontouchstart' in window ||
+        navigator.maxTouchPoints > 0 ||
+        navigator.msMaxTouchPoints > 0
+      );
+
       if (window?.ethereum) {
         setTimeout(() => {
           const before = Number(window?.ethereum?.chainId)
@@ -753,20 +760,27 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
             {NAV_ITEMS.map(({ label, href, submenus }, i) => (
               <Box
                 key={i}
-                href={href}
+                href={submenus?.length > 0 && isTouchDevice ? undefined : href}
                 fontWeight="medium"
                 position="relative"
               >
                 <Popover trigger="hover">
                   <PopoverTrigger>
                     <Box>
-                      <Link
-                        fontSize={isLargerThan || isBlog ? '16px' : '15px'}
-                        color={active === label ? 'mainTextColor' : 'secondaryTextColor'}
-                        _hover={{ color: 'mainTextColor' }}
-                        href={href}>
-                        {label}
-                      </Link>
+                      {
+                        submenus?.length > 0 && isTouchDevice ?
+                          <Text fontSize={isLargerThan || isBlog ? '16px' : '15px'}
+                            color={active === label ? 'mainTextColor' : 'secondaryTextColor'}
+                            _hover={{ color: 'mainTextColor' }}>
+                            {label}
+                          </Text> : <Link
+                            fontSize={isLargerThan || isBlog ? '16px' : '15px'}
+                            color={active === label ? 'mainTextColor' : 'secondaryTextColor'}
+                            _hover={{ color: 'mainTextColor' }}
+                            href={href}>
+                            {label}
+                          </Link>
+                      }
                       {
                         href === '/governance' && nbNotif > 0 &&
                         <NotifBadge>
