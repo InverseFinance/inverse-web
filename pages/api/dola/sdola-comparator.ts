@@ -228,6 +228,7 @@ export default async function handler(req, res) {
         address: '0xcf62F905562626CfcDD2261162a51fd02Fc9c5b6',
         underlying: '0xCAcd6fd266aF91b8AeD52aCCc382b4e165586E29',
         underlyingSymbol: 'frxUSD',
+        largeImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/images/assets/0xcf62f905562626cfcdd2261162a51fd02fc9c5b6.png',
         currentRateGetter: () => getDefiLlamaApy("42523cca-14b0-44f6-95fb-4781069520a5"),
       },
       {
@@ -238,6 +239,7 @@ export default async function handler(req, res) {
         address: '0x9D39A5DE30e57443BfF2A8307A4256c8797A3497',
         underlying: '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3',
         underlyingSymbol: 'USDe',
+        largeImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/images/assets/0x9d39a5de30e57443bff2a8307a4256c8797a3497.png',
         currentRateGetter: () => getSUSDEData(provider, true),
       },
       {
@@ -248,6 +250,7 @@ export default async function handler(req, res) {
         address: '0xb45ad160634c528Cc3D2926d9807104FA3157305',
         underlying: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
         underlyingSymbol: 'DOLA',
+        largeImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/images/assets/0xb45ad160634c528cc3d2926d9807104fa3157305.png',
         currentRateGetter: () => fetch('https://www.inverse.finance/api/dola-staking').then(res => res.json()),
       },
       {
@@ -259,6 +262,7 @@ export default async function handler(req, res) {
         underlying: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
         underlyingSymbol: 'crvUSD',
         image: TOKEN_IMAGES['scrvUSD'],
+        largeImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/images/assets/0x0655977feb2f289a4ab78af67bab0d17aab84367.png?',
         currentRateGetter: () => getSavingsCrvUsdData(),
       },
       {
@@ -364,7 +368,7 @@ export default async function handler(req, res) {
         underlyingSymbol: 'BOLD',
         underlyingCoingeckoId: 'liquity-bold-2',
         currentRateGetter: () => getYearnVaultKongApy('0x9F4330700a36B29952869fac9b33f45EEdd8A3d8'),
-        image: `data:image/svg+xml,%3csvg%20width='148'%20height='148'%20viewBox='0%200%20148%20148'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20clip-path='url(%23clip0_56_219)'%3e%3cpath%20d='M74%20148C114.869%20148%20148%20114.869%20148%2074C148%2033.1309%20114.869%200%2074%200C33.1309%200%200%2033.1309%200%2074C0%20114.869%2033.1309%20148%2074%20148Z'%20fill='%230675F9'/%3e%3cpath%20d='M125.068%2078.7182C130.501%2095.0518%20121.655%20112.695%20105.333%20118.128C88.9995%20123.561%2071.3558%20114.715%2065.9233%2098.3931C60.4908%2082.0595%2069.3367%2064.4158%2085.6582%2058.9833C101.992%2053.5508%20119.636%2062.3966%20125.068%2078.7182ZM82.293%2023.6479L55.503%2023.2393L54.0006%20120.412L80.7906%20120.82L82.293%2023.6479ZM32.4028%2034.4528L13.9058%2053.3344L54.9982%2093.5975L55.3948%2058.2021L32.4028%2034.4528Z'%20fill='white'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='clip0_56_219'%3e%3crect%20width='148'%20height='148'%20fill='white'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e`,
+        image: 'https://www.inverse.finance/assets/projects/ybold.png',
       },
       {
         symbol: 'sBOLD',
@@ -385,7 +389,7 @@ export default async function handler(req, res) {
           }
           return { apy: 0 };
         },
-        image: `data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20width='24'%20height='24'%20fill='none'%3e%3ccircle%20cx='12'%20cy='12'%20r='12'%20fill='%23F5D93A'/%3e%3cpath%20fill='%231C1D4F'%20d='M14.07%208.269a5.866%205.866%200%201%201-2.67%2011.087V8.911a5.84%205.84%200%200%201%202.67-.642Zm-2.67.642a5.866%205.866%200%200%200%200%2010.445V20H6.065V4H11.4v4.911Z'/%3e%3c/svg%3e`,
+        image: 'https://www.inverse.finance/assets/projects/sbold.png',
       },
       {
         symbol: 'yvUSDT-1',
@@ -419,6 +423,7 @@ export default async function handler(req, res) {
         underlyingSymbol: 'GHO',
         currentRateGetter: () => getDefiLlamaApy("19d024ed-9c70-4323-9a81-fe873ea5f0e0"),
         image: 'https://app.aave.com/icons/tokens/sgho.svg',
+        largeImage: 'https://www.inverse.finance/assets/projects/sgho.png',
         underlyingCoingeckoId: 'gho',
       },
     ];
