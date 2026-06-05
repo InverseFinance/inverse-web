@@ -122,10 +122,15 @@ export const useFoundation = () => {
     const { timestamps } = useBlocksTimestamps(pullBlockNumbers);
 
     // Step 9: Build token info
+    // Calendar quarter start: Jan 1, Apr 1, Jul 1, Oct 1
+    const calendarQuarterStartMs = useMemo(() => {
+        const now = new Date();
+        const quarterMonth = Math.floor(now.getMonth() / 3) * 3; // 0, 3, 6, or 9
+        return new Date(now.getFullYear(), quarterMonth, 1).getTime();
+    }, []);
+
     const tokens = useMemo(() => {
         if (!contractData || uniqueTokens.length === 0) return [];
-        const nowMs = Date.now();
-        const quarterStartMs = nowMs - QUARTER_DURATION * 1000;
 
         return uniqueTokens.map((tokenAddr, i) => {
             const bucketData = contractData[2 + i * 2]; // tokenBuckets result
@@ -154,9 +159,10 @@ export const useFoundation = () => {
             const totalPulled = tokenPulls.reduce(
                 (sum: number, e: Event) => sum + getBnToNumber(e.args!.amount, decimals), 0
             );
-            const quarterPulled = tokenPulls.reduce((sum: number, e: Event, idx: number) => {
+            // Quarter pulled = pulls with timestamp >= current calendar quarter start
+            const quarterPulled = tokenPulls.reduce((sum: number, e: Event) => {
                 const ts = timestamps[pullEvents!.indexOf(e)] || 0;
-                return ts >= quarterStartMs ? sum + getBnToNumber(e.args!.amount, decimals) : sum;
+                return ts >= calendarQuarterStartMs ? sum + getBnToNumber(e.args!.amount, decimals) : sum;
             }, 0);
 
             return {
@@ -175,7 +181,7 @@ export const useFoundation = () => {
                 quarterPulled,
             };
         });
-    }, [contractData, uniqueTokens, tokenMetaData, govBalanceData, unknownTokenAddrs, pullEvents, timestamps]);
+    }, [contractData, uniqueTokens, tokenMetaData, govBalanceData, unknownTokenAddrs, pullEvents, timestamps, calendarQuarterStartMs]);
 
     // Step 10: Build delegates info
     const delegates = useMemo(() => {
