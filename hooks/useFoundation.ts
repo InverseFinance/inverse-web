@@ -9,6 +9,7 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets';
 import { useAccount } from '@app/hooks/misc';
+import { useCustomSWR } from '@app/hooks/useCustomSWR';
 
 const { TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -24,6 +25,9 @@ const formatInterval = (seconds: number): string => {
 
 export const useFoundation = () => {
     const account = useAccount();
+
+    // API fallback data for users without wallet / faster initial load
+    const { data: apiData } = useCustomSWR(`/api/transparency/foundation`);
 
     // Step 1: Fetch all events
     const { groupedEvents, isLoading: isLoadingEvents } = useMultiContractEvents([
@@ -257,13 +261,16 @@ export const useFoundation = () => {
             .map(d => d.token);
     }, [isDelegate, account, activeDelegateKeys]);
 
+    // Use on-chain data when available, otherwise fall back to API data
+    const hasOnChainData = tokens.length > 0 || delegates.length > 0;
+
     return {
-        gov,
-        beneficiary,
-        tokens,
-        delegates,
-        pullHistory,
-        isLoading: isLoadingEvents || (!contractData && uniqueTokens.length > 0),
+        gov: gov || apiData?.gov,
+        beneficiary: beneficiary || apiData?.beneficiary,
+        tokens: hasOnChainData ? tokens : (apiData?.tokens || []),
+        delegates: hasOnChainData ? delegates : (apiData?.delegates || []),
+        pullHistory: pullHistory.length > 0 ? pullHistory : (apiData?.pullHistory || []),
+        isLoading: isLoadingEvents || (!contractData && uniqueTokens.length > 0 && !apiData),
         isBeneficiary,
         isDelegate,
         isAuthed: isBeneficiary || isDelegate,
