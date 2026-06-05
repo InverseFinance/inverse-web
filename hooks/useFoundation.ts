@@ -114,9 +114,19 @@ export const useFoundation = () => {
         govBalanceCalls.length > 0 ? { args: govBalanceCalls, abi: ERC20_ABI } : []
     );
 
-    // Step 8: Build token info
+    // Step 8: Process pull history events with timestamps
+    const pullBlockNumbers = useMemo(() => {
+        return pullEvents?.map((e: Event) => e.blockNumber) || [];
+    }, [pullEvents]);
+
+    const { timestamps } = useBlocksTimestamps(pullBlockNumbers);
+
+    // Step 9: Build token info
     const tokens = useMemo(() => {
         if (!contractData || uniqueTokens.length === 0) return [];
+        const nowMs = Date.now();
+        const quarterStartMs = nowMs - QUARTER_DURATION * 1000;
+
         return uniqueTokens.map((tokenAddr, i) => {
             const bucketData = contractData[2 + i * 2]; // tokenBuckets result
             const available = contractData[2 + i * 2 + 1]; // getTokenAvailable result
@@ -137,6 +147,18 @@ export const useFoundation = () => {
             const govBalance = govBalanceData ? getBnToNumber(govBalanceData[i * 2], decimals) : 0;
             const govAllowance = govBalanceData ? getBnToNumber(govBalanceData[i * 2 + 1], decimals) : 0;
 
+            // Compute pulled amounts from events
+            const tokenPulls = pullEvents?.filter(
+                (e: Event) => e.args!.token.toLowerCase() === tokenAddr.toLowerCase()
+            ) || [];
+            const totalPulled = tokenPulls.reduce(
+                (sum: number, e: Event) => sum + getBnToNumber(e.args!.amount, decimals), 0
+            );
+            const quarterPulled = tokenPulls.reduce((sum: number, e: Event, idx: number) => {
+                const ts = timestamps[pullEvents!.indexOf(e)] || 0;
+                return ts >= quarterStartMs ? sum + getBnToNumber(e.args!.amount, decimals) : sum;
+            }, 0);
+
             return {
                 address: tokenAddr,
                 symbol,
@@ -149,11 +171,13 @@ export const useFoundation = () => {
                 lastUpdated: bucketData ? Number(bucketData.lastUpdated) : 0,
                 govBalance,
                 govAllowance,
+                totalPulled,
+                quarterPulled,
             };
         });
-    }, [contractData, uniqueTokens, tokenMetaData, govBalanceData, unknownTokenAddrs]);
+    }, [contractData, uniqueTokens, tokenMetaData, govBalanceData, unknownTokenAddrs, pullEvents, timestamps]);
 
-    // Step 9: Build delegates info
+    // Step 10: Build delegates info
     const delegates = useMemo(() => {
         if (!contractData || activeDelegateKeys.length === 0) return [];
         const delegateStartIdx = 2 + uniqueTokens.length * 2;
@@ -187,12 +211,7 @@ export const useFoundation = () => {
         });
     }, [contractData, activeDelegateKeys, uniqueTokens, delegateEvents]);
 
-    // Step 10: Process pull history events with timestamps
-    const pullBlockNumbers = useMemo(() => {
-        return pullEvents?.map((e: Event) => e.blockNumber) || [];
-    }, [pullEvents]);
-
-    const { timestamps } = useBlocksTimestamps(pullBlockNumbers);
+    
 
     const pullHistory = useMemo(() => {
         if (!pullEvents?.length) return [];

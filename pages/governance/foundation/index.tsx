@@ -428,6 +428,14 @@ export const InverseFoundationPage = () => {
                         <Text>{token.intervalFormatted}</Text>
                       </Flex>
                       <Flex w="full" justify="space-between" fontSize="13px">
+                        <Text color="secondaryTextColor">Pulled this Quarter:</Text>
+                        <Text fontWeight="bold">{shortenNumber(token.quarterPulled, 2)}</Text>
+                      </Flex>
+                      <Flex w="full" justify="space-between" fontSize="13px">
+                        <Text color="secondaryTextColor">Total Pulled (all time):</Text>
+                        <Text>{shortenNumber(token.totalPulled, 2)}</Text>
+                      </Flex>
+                      <Flex w="full" justify="space-between" fontSize="13px">
                         <Text color="secondaryTextColor">Gov Balance:</Text>
                         <Text>{shortenNumber(token.govBalance, 2)}</Text>
                       </Flex>
