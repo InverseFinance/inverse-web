@@ -528,6 +528,7 @@ export default async function handler(req, res) {
           avg365: onChainData[index].apy365d || (last365.length >= 365 ? last365.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last365.length : 0),
           symbol,
           image: metaData.image || TOKEN_IMAGES[symbol] || `https://token-icons.llamao.fi/icons/tokens/1/${metaData.address.toLowerCase()}?h=64&w=64`,
+          largeImage: metaData.largeImage,
           project: metaData.project,
           link: metaData.link,
           pool: metaData.pool || null,
