@@ -270,7 +270,7 @@ export const useFoundation = () => {
         tokens: hasOnChainData ? tokens : (apiData?.tokens || []),
         delegates: hasOnChainData ? delegates : (apiData?.delegates || []),
         pullHistory: pullHistory.length > 0 ? pullHistory : (apiData?.pullHistory || []),
-        isLoading: isLoadingEvents || (!contractData && uniqueTokens.length > 0 && !apiData),
+        isLoading: !hasOnChainData && !apiData,
         isBeneficiary,
         isDelegate,
         isAuthed: isBeneficiary || isDelegate,

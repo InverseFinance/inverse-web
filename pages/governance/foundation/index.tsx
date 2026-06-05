@@ -20,6 +20,7 @@ import { INVERSE_FOUNDATION_FUNDER } from '@app/config/constants';
 import { getScanner } from '@app/util/web3';
 import { NetworkIds } from '@app/types';
 import { TOKEN_IMAGES } from '@app/variables/images';
+import { SkeletonBlob, SkeletonList } from '@app/components/common/Skeleton';
 
 const pullColumns = [
   {
@@ -396,7 +397,7 @@ export const InverseFoundationPage = () => {
           contentProps={{ p: { base: '4', sm: '8' } }}
         >
           {isLoading ? (
-            <Text>Loading...</Text>
+            <SkeletonBlob />
           ) : tokens.length === 0 ? (
             <Text color="secondaryTextColor">No token budgets configured yet</Text>
           ) : (
@@ -488,7 +489,9 @@ export const InverseFoundationPage = () => {
             ) : undefined
           }
         >
-          {delegates.length === 0 ? (
+          {isLoading ? (
+            <SkeletonList />
+          ) : delegates.length === 0 ? (
             <Text color="secondaryTextColor" p="4">No delegates configured</Text>
           ) : (
             <Table
@@ -510,8 +513,10 @@ export const InverseFoundationPage = () => {
           contentBgColor="gradient3"
           contentProps={{ p: { base: '2', sm: '4' } }}
         >
-          {pullHistory.length === 0 ? (
-            <Text color="secondaryTextColor" p="4">{isLoading ? 'Loading...' : 'No fund pulls yet'}</Text>
+          {isLoading ? (
+            <SkeletonList />
+          ) : pullHistory.length === 0 ? (
+            <Text color="secondaryTextColor" p="4">No fund pulls yet</Text>
           ) : (
             <Table
               keyName="txHash"
