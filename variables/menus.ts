@@ -102,6 +102,10 @@ export const MENUS = {
           label: 'Your Profile',
           href: '/governance/delegates/$account',
         },
+        {
+          label: 'Foundation',
+          href: '/governance/foundation',
+        },
       ]
     },
     {
