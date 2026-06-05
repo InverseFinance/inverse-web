@@ -201,11 +201,13 @@ export const useFoundation = () => {
             const knownToken = TOKENS[tokenAddr];
             const decimals = knownToken?.decimals || 18;
             const symbol = knownToken?.symbol || '???';
+            const image = knownToken?.image || '';
 
             return {
                 caller: e.args!.caller as string,
                 token: tokenAddr,
                 tokenSymbol: symbol,
+                tokenImage: image,
                 to: e.args!.to as string,
                 amount: getBnToNumber(e.args!.amount, decimals),
                 reason: e.args!.reason as string,

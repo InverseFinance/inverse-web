@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Flex, HStack, Text, VStack, Input, Select, SimpleGrid, Box, Textarea } from '@chakra-ui/react'
+import { Flex, HStack, Text, VStack, Input, Select, SimpleGrid, Box, Textarea, Popover, PopoverTrigger, PopoverContent, PopoverBody, Image } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
@@ -19,6 +19,7 @@ import { isAddress } from '@ethersproject/address';
 import { INVERSE_FOUNDATION_FUNDER } from '@app/config/constants';
 import { getScanner } from '@app/util/web3';
 import { NetworkIds } from '@app/types';
+import { TOKEN_IMAGES } from '@app/variables/images';
 
 const pullColumns = [
   {
@@ -44,9 +45,9 @@ const pullColumns = [
   {
     field: 'caller',
     label: 'Initiated By',
-    header: ({ ...props }: any) => <HStack justify="flex-start" minWidth="120px" fontSize="14px" fontWeight="extrabold" {...props} />,
+    header: ({ ...props }: any) => <HStack justify="flex-start" minWidth="100px" fontSize="14px" fontWeight="extrabold" {...props} />,
     value: ({ caller }: any) => (
-      <HStack justify="flex-start" minWidth="120px" fontSize="14px">
+      <HStack justify="flex-start" minWidth="100px" fontSize="14px">
         <ScannerLink value={caller} />
       </HStack>
     ),
@@ -55,8 +56,9 @@ const pullColumns = [
     field: 'tokenSymbol',
     label: 'Token',
     header: ({ ...props }: any) => <HStack justify="center" minWidth="80px" fontSize="14px" fontWeight="extrabold" {...props} />,
-    value: ({ tokenSymbol }: any) => (
+    value: ({ tokenSymbol, tokenImage }: any) => (
       <HStack justify="center" minWidth="80px" fontSize="14px">
+        {tokenImage && <Image src={tokenImage} w={5} h={5} alt={tokenSymbol} />}
         <Text fontWeight="bold">{tokenSymbol}</Text>
       </HStack>
     ),
@@ -74,9 +76,9 @@ const pullColumns = [
   {
     field: 'to',
     label: 'Recipient',
-    header: ({ ...props }: any) => <HStack justify="flex-start" minWidth="120px" fontSize="14px" fontWeight="extrabold" {...props} />,
+    header: ({ ...props }: any) => <HStack justify="flex-start" minWidth="100px" fontSize="14px" fontWeight="extrabold" {...props} />,
     value: ({ to }: any) => (
-      <HStack justify="flex-start" minWidth="120px" fontSize="14px">
+      <HStack justify="flex-start" minWidth="100px" fontSize="14px">
         <ScannerLink value={to} />
       </HStack>
     ),
@@ -86,8 +88,17 @@ const pullColumns = [
     label: 'Reason',
     header: ({ ...props }: any) => <HStack justify="flex-start" minWidth="150px" fontSize="14px" fontWeight="extrabold" {...props} />,
     value: ({ reason }: any) => (
-      <HStack justify="flex-start" minWidth="150px" fontSize="14px">
-        <Text noOfLines={2} title={reason}>{reason || '-'}</Text>
+      <HStack justify="flex-start" minWidth="150px" maxWidth="150px" fontSize="14px">
+        {reason ? (
+          <Popover trigger="hover" placement="top">
+            <PopoverTrigger>
+              <Text noOfLines={1} cursor="pointer" textOverflow="ellipsis" overflow="hidden" whiteSpace="nowrap" maxW="250px">{reason}</Text>
+            </PopoverTrigger>
+            <PopoverContent bg="modalContentBg" borderColor="primary.850" maxW="400px">
+              <PopoverBody fontSize="13px" whiteSpace="pre-wrap">{reason}</PopoverBody>
+            </PopoverContent>
+          </Popover>
+        ) : <Text>-</Text>}
       </HStack>
     ),
   },
@@ -109,8 +120,9 @@ const getDelegateColumns = (isBeneficiary: boolean, provider: any) => {
       field: 'tokenSymbol',
       label: 'Token',
       header: ({ ...props }: any) => <HStack justify="center" minWidth="80px" fontSize="14px" fontWeight="extrabold" {...props} />,
-      value: ({ tokenSymbol }: any) => (
+      value: ({ tokenSymbol, tokenImage }: any) => (
         <HStack justify="center" minWidth="80px" fontSize="14px">
+          {tokenImage && <Image src={tokenImage} w={5} h={5} alt={tokenSymbol} />}
           <Text fontWeight="bold">{tokenSymbol}</Text>
         </HStack>
       ),
@@ -121,7 +133,7 @@ const getDelegateColumns = (isBeneficiary: boolean, provider: any) => {
       header: ({ ...props }: any) => <HStack justify="center" minWidth="100px" fontSize="14px" fontWeight="extrabold" {...props} />,
       value: ({ limit, tokenSymbol }: any) => (
         <HStack justify="center" minWidth="100px" fontSize="14px">
-          <Text fontWeight="bold">{shortenNumber(limit, 2)} {tokenSymbol}</Text>
+          <Text fontWeight="bold">{shortenNumber(limit, 2)}</Text>
         </HStack>
       ),
     },
@@ -371,11 +383,14 @@ export const InverseFoundationPage = () => {
       </Head>
       <AppNav active="Governance" activeSubmenu="Foundation" hideAnnouncement={true} />
       <Flex justify="center" direction="column" w={{ base: 'full' }} maxW="1200px" mx="auto">
-
+        <VStack spacing="0" px={{ base: '4', sm: '6' }} pt="8" alignItems="flex-start">
+          <Text fontWeight="bold" fontSize="24px" as="h1">Inverse Finance Foundation</Text>
+          <Text fontSize="14px" as="h1" color="secondaryTextColor">The foundation can only get allocations by Governance vote and each allowance has quarterly limits</Text>
+        </VStack>
         {/* Section 1: Quarterly Token Allowances */}
         <Container
-          label="Foundation's Quarterly Token Allowances"
-          description="See Contract"
+          label="Quarterly Token Allowances"
+          description="See the FoundationFunder Contract"
           href={`${getScanner(NetworkIds.mainnet)}/address/${INVERSE_FOUNDATION_FUNDER}`}
           contentBgColor="gradient3"
           contentProps={{ p: { base: '4', sm: '8' } }}
@@ -396,7 +411,10 @@ export const InverseFoundationPage = () => {
                     borderColor="primary.850"
                   >
                     <VStack spacing="2" alignItems="flex-start">
-                      <Text fontWeight="extrabold" fontSize="16px">{token.symbol}</Text>
+                      <HStack>
+                        {(token.image || TOKEN_IMAGES[token.symbol]) && <Image src={token.image || TOKEN_IMAGES[token.symbol]} w={6} h={6} alt={token.symbol} />}
+                        <Text fontWeight="extrabold" fontSize="16px">{token.symbol}</Text>
+                      </HStack>
                       <Flex w="full" justify="space-between" fontSize="13px">
                         <Text color="secondaryTextColor">Quarterly Limit:</Text>
                         <Text fontWeight="bold">{shortenNumber(token.quarterlyLimit, 2)}</Text>
@@ -444,7 +462,8 @@ export const InverseFoundationPage = () => {
 
         {/* Section 2: Delegates */}
         <Container
-          label="Delegates"
+          label="Authorized Delegates"
+          description="The Foundation can authorize some delegates to pull funds within its own allowance in a limited way"
           contentBgColor="gradient3"
           contentProps={{ p: { base: '2', sm: '4' } }}
           right={
@@ -479,6 +498,7 @@ export const InverseFoundationPage = () => {
         {/* Section 3: Fund Pull History */}
         <Container
           label="Fund Pull History"
+          description="The history of all fund pulls and their reasons"
           contentBgColor="gradient3"
           contentProps={{ p: { base: '2', sm: '4' } }}
         >
