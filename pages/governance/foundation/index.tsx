@@ -174,7 +174,7 @@ const getDelegateColumns = (isBeneficiary: boolean, provider: any) => {
   return columns;
 };
 
-const PullFundsForm = ({ tokens, isBeneficiary, isDelegate, userDelegateTokens, provider }: any) => {
+const PullFundsForm = ({ tokens, delegates, account, isBeneficiary, isDelegate, userDelegateTokens, provider }: any) => {
   const [selectedToken, setSelectedToken] = useState('');
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState('');
@@ -182,6 +182,12 @@ const PullFundsForm = ({ tokens, isBeneficiary, isDelegate, userDelegateTokens, 
 
   const availableTokens = isBeneficiary ? tokens : tokens.filter((t: any) => userDelegateTokens.includes(t.address));
   const selectedTokenInfo = tokens.find((t: any) => t.address === selectedToken);
+
+  // For delegates, show their delegate-specific available amount
+  const delegateInfo = isDelegate && !isBeneficiary && account && selectedToken
+    ? delegates.find((d: any) => d.delegate.toLowerCase() === account.toLowerCase() && d.token.toLowerCase() === selectedToken.toLowerCase())
+    : null;
+  const displayAvailable = delegateInfo ? delegateInfo.available : selectedTokenInfo?.available;
 
   const canSubmit = selectedToken && parseFloat(amount) > 0 && isAddress(recipient) && reason.trim().length > 0;
 
@@ -211,9 +217,17 @@ const PullFundsForm = ({ tokens, isBeneficiary, isDelegate, userDelegateTokens, 
           ))}
         </Select>
       </VStack>
-      {selectedTokenInfo && (
-        <Text fontSize="12px" color="secondaryTextColor">
-          Available: {shortenNumber(selectedTokenInfo.available, 2)} {selectedTokenInfo.symbol}
+      {selectedTokenInfo && displayAvailable !== undefined && (
+        <Text
+          fontSize="12px"
+          color="secondaryTextColor"
+          cursor="pointer"
+          textDecoration="underline"
+          _hover={{ color: 'mainTextColor' }}
+          onClick={() => setAmount(displayAvailable.toString())}
+          title="Click to fill amount"
+        >
+          Available: {shortenNumber(displayAvailable, 2)} {selectedTokenInfo.symbol}
         </Text>
       )}
       <VStack spacing="1" w="full" alignItems="flex-start">
@@ -501,6 +515,8 @@ export const InverseFoundationPage = () => {
               />
               <PullFundsForm
                 tokens={tokens}
+                delegates={delegates}
+                account={account}
                 isBeneficiary={isBeneficiary}
                 isDelegate={isDelegate}
                 userDelegateTokens={userDelegateTokens}
