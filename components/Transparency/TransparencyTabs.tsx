@@ -2,11 +2,12 @@ import { useAppTheme } from '@app/hooks/useAppTheme';
 import { Tabs, TabList, Tab, VStack, Text, HStack, Image } from '@chakra-ui/react'
 import Link from '../common/Link';
 
-type TabsType = 'overview' | 'keymetrics' | 'buybacks' | 'treasury' | 'veNfts' | 'liquidity' | 'inv' | 'dola' | 'dbr' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'shortfalls' | 'bad-debts';
+type TabsType = 'overview' |'foundation' | 'keymetrics' | 'buybacks' | 'treasury' | 'veNfts' | 'liquidity' | 'inv' | 'dola' | 'dbr' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'shortfalls' | 'bad-debts';
 
 const TABS = [
     { page: 'keymetrics', label: 'Key Metrics' },
     { page: 'treasury', label: 'Treasury' },
+    { page: 'foundation', label: 'Foundation' },
     { page: 'veNfts', label: 'veNfts' },
     { page: 'liquidity', label: 'Liquidity' },
     { page: 'dao', label: 'INV & DAO' },
@@ -20,7 +21,7 @@ const TABS = [
     // { page: 'liquidations', label: 'Liquidations' },
     { page: 'bad-debts', label: 'Bad debts' },
     { page: 'buybacks', label: 'Buybacks' },
-    { page: 'frontier-overview', label: 'Frontier & Other' },
+    // { page: 'frontier-overview', label: 'Frontier & Other' },
 ];
 
 const TABS_OTHER = [
