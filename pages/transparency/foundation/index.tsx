@@ -21,6 +21,7 @@ import { getScanner } from '@app/util/web3';
 import { NetworkIds } from '@app/types';
 import { TOKEN_IMAGES } from '@app/variables/images';
 import { SkeletonBlob, SkeletonList } from '@app/components/common/Skeleton';
+import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
 
 const pullColumns = [
   {
@@ -382,7 +383,8 @@ export const InverseFoundationPage = () => {
         <meta name="og:title" content="Inverse Finance - Foundation" />
         <meta name="og:description" content="Foundation Funder - Quarterly Token Budget Management" />
       </Head>
-      <AppNav active="Governance" activeSubmenu="Foundation" hideAnnouncement={true} />
+      <AppNav active="Transparency" activeSubmenu="Foundation" hideAnnouncement={true} />
+      <TransparencyTabs active="foundation" />
       <Flex justify="center" direction="column" w={{ base: 'full' }} maxW="1200px" mx="auto">
         <VStack spacing="0" px={{ base: '4', sm: '6' }} pt="8" alignItems="flex-start">
           <Text fontWeight="bold" fontSize="24px" as="h1">Inverse Finance Foundation</Text>
