@@ -85,7 +85,8 @@ export const formatZerionWalletResponse = async (response) => {
         const isStable = !!exactToken?.symbol ? exactToken.isStable :
             !!firstToken?.isStable
             || key.includes('sDOLA') || key.includes('invUSD')
-            || (!!symbolToken?.isStable && symbolToken.symbol === 'DOLA' && !/(INV|DBR|ETH)/g.test(item.attributes.name) && Math.abs(1 - item.attributes.price) <= 0.005);
+            || (!!symbolToken?.isStable && symbolToken.symbol === 'DOLA' && !/(INV|DBR|ETH)/g.test(item.attributes.name) && Math.abs(1 - item.attributes.price) <= 0.005)
+            || ((key.includes('DOLA') || key.includes('USDC')) && Math.abs(1 - item.attributes.price) <= 0.01)
         const token = isVeNft && veNftToken?.symbol ? veNftToken : {
             decimals: 18,
             name: isMorphoCase ? key.split('-')[1] : exactToken?.name || (item.attributes.name === 'Asset' ? item.attributes.fungible_info.name : item.attributes.name),
