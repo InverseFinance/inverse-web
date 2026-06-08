@@ -117,6 +117,10 @@ export const MENUS = {
           label: 'Treasury',
         },
         {
+          label: 'Foundation',
+          href: '/transparency/foundation',
+        },
+        {
           label: 'INV buybacks',
           href: '/dbr/auction/inv-buy-backs',        
         },
@@ -156,10 +160,10 @@ export const MENUS = {
           href: '/transparency/bad-debts',
           label: 'Bad Debts',
         },
-        {
-          href: '/transparency/frontier/overview',
-          label: 'Frontier & Other',
-        },
+        // {
+        //   href: '/transparency/frontier/overview',
+        //   label: 'Frontier & Other',
+        // },
       ],
     }, 
     // {
