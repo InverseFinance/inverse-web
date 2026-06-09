@@ -201,6 +201,7 @@ export const FirmLiquidationForm = ({
                         needPoaFirst: false
                     }}
                 />
+                <InfoMessage alertProps={{ w:'full' }} description="Note: repay on-behalf is not a liquidation, but a simple repay without anything in return, for example to repay debt of another account you own." />
             </VStack>
         }
     </VStack>
