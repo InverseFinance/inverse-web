@@ -9,7 +9,7 @@ const PROXYS = {
   '1inch': {
     // V6
     exchangeProxy: '0x111111125421cA6dc452d289314280a0f8842A65',
-    apiBaseUrl: 'https://api.1inch.dev/swap/v6.0/1',
+    apiBaseUrl: 'https://api.1inch.dev/swap/v6.1/1',
   },
   odos: {
     exchangeProxy: '0xCf5540fFFCdC3d510B18bFcA6d2b9987b0772559',
