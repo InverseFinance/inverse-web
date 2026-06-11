@@ -65,7 +65,7 @@ const fetchOdosWithRetry = async (
 
   if (response?.status !== 200 && currentRetry < maxRetries) {
     await new Promise((r) => setTimeout(() => r(true), 1050));
-    return await fetchOdosWithRetry(url, maxRetries, currentRetry + 1);
+    return await fetchOdosWithRetry(url, body, maxRetries, currentRetry + 1);
   };
   return response;
 }
