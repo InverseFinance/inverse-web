@@ -13,7 +13,9 @@ const PROXYS = {
   },
   odos: {
     exchangeProxy: '0xCf5540fFFCdC3d510B18bFcA6d2b9987b0772559',
-    apiBaseUrl: 'https://api.odos.xyz/sor',
+    // v3, not allowed by contract yet
+    // exchangeProxy: '0x0D05a7D3448512B78fa8A9e46c4872C88C4a0D05',
+    apiBaseUrl: 'https://enterprise-api.odos.xyz/sor',
   },
 }
 
@@ -32,7 +34,7 @@ const fetch1inchWithRetry = async (
       },
     });
   } catch (e) {
-
+    
   }
 
   if (response?.status !== 200 && currentRetry < maxRetries) {
@@ -56,11 +58,12 @@ const fetchOdosWithRetry = async (
       headers: {
         'Content-Type': 'application/json',
         'accept': 'application/json',
+        'x-api-key': process.env.ODOS_API_KEY
       },
       body: JSON.stringify(body),
     });
   } catch (e) {
-
+    
   }
 
   if (response?.status !== 200 && currentRetry < maxRetries) {
@@ -94,7 +97,6 @@ export default async function handler(req, res) {
   }
 
   const oneInchSubPath = method;
-  // const odosSubPath = method === 'swap' ? 'assemble' : 'quote/v2';
 
   try {
     if (isPendleCase) {
@@ -144,7 +146,7 @@ export default async function handler(req, res) {
         "disableRFQs": true,
         "compact": true,
       };
-
+      
       const [
         oneInchResponse,
         // oneInchAllowanceResponse,
@@ -185,6 +187,7 @@ export default async function handler(req, res) {
       } else {
         txInfo = oneInchResponseData?.tx;
       }
+
       if (method === 'swap' && !txInfo?.data) {
         return res.status(500).json({ error: true, msg: 'Failed to fecth swap data, please try again' });
       }
