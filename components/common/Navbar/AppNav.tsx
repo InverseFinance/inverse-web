@@ -662,6 +662,11 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   useEffect(() => {
     // we can know the injected provider's network and show the badge even if the user is not connected to our app
     const init = async () => {
+      setIsTouchDevice(
+        'ontouchstart' in window ||
+        navigator.maxTouchPoints > 0 ||
+        navigator.msMaxTouchPoints > 0
+      );
       setInited(true);
       const isReady = await ethereumReady(10000);
       if (!isReady) { return }
@@ -670,12 +675,6 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
       if (!chainIdInWallet) { return }
 
       setBadgeChainId(chainIdInWallet);
-
-      setIsTouchDevice(
-        'ontouchstart' in window ||
-        navigator.maxTouchPoints > 0 ||
-        navigator.msMaxTouchPoints > 0
-      );
 
       if (window?.ethereum) {
         setTimeout(() => {
@@ -760,7 +759,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
             {NAV_ITEMS.map(({ label, href, submenus }, i) => (
               <Box
                 key={i}
-                href={submenus?.length > 0 && isTouchDevice ? undefined : href}
+                href={!inited || (submenus?.length > 0 && isTouchDevice) ? undefined : href}
                 fontWeight="medium"
                 position="relative"
               >
@@ -768,7 +767,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                   <PopoverTrigger>
                     <Box>
                       {
-                        submenus?.length > 0 && isTouchDevice ?
+                        !href || !inited || (submenus?.length > 0 && isTouchDevice) ?
                           <Text fontSize={isLargerThan || isBlog ? '16px' : '15px'}
                             color={active === label ? 'mainTextColor' : 'secondaryTextColor'}
                             _hover={{ color: 'mainTextColor' }}>

@@ -48,6 +48,7 @@ export const MENUS = {
     },
     {
       label: 'Stake',
+      href: undefined,
       submenus: [
         {
           label: 'sDOLA',
