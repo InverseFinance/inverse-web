@@ -71,8 +71,6 @@ export const CollateralRequestForm = () => {
 
     const submit = async () => {
         let _symbol, _decimals;
-        const sym = _symbol||symbol;
-        const sig = await (provider?.getSigner()).signMessage(`${REQ_COL_SIGN_MSG}${sym}\nSubmitted by ${account?.toLowerCase()}`);
         if (isAddress(value) && !symbol) {
             try {
                 const contract = new Contract(value, ERC20_ABI, provider?.getSigner());
@@ -87,6 +85,8 @@ export const CollateralRequestForm = () => {
                 return;
             }
         }
+        const sym = _symbol||symbol;
+        const sig = await (provider?.getSigner()).signMessage(`${REQ_COL_SIGN_MSG}${sym}\nSubmitted by ${account?.toLowerCase()}`);
         return requestNewFirmCollateral(value, sym, description, wouldUse, account, _decimals||decimals, sig, showSuccess, onFail);
     }
 
