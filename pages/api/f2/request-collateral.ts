@@ -1,11 +1,12 @@
 import { ERC20_ABI } from "@app/config/abis";
+import { REQ_COL_SIGN_MSG } from "@app/config/constants";
 import { NetworkIds } from "@app/types";
 import { getBnToNumber } from "@app/util/markets";
 import { getMulticallOutput } from "@app/util/multicall";
 import { getProvider } from "@app/util/providers";
 import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
 import { Contract } from "ethers";
-import { isAddress } from "ethers/lib/utils";
+import { isAddress, verifyMessage } from "ethers/lib/utils";
 
 const cacheKey = 'collateral-requests-v1.0.2';
 
@@ -14,7 +15,7 @@ export default async function handler(req, res) {
         method,
     } = req
 
-    const { value, account, symbol, description, decimals } = req.body;
+    const { value, account, symbol, description, decimals, sig } = req.body;
     res.setHeader('Cache-Control', `public, max-age=5`);
 
     switch (method) {
@@ -36,9 +37,14 @@ export default async function handler(req, res) {
             res.json({ ...data, requests: arr });
             break
         case 'POST':
-            if (!account || /[^0-9a-z\-]/i.test(symbol) || /[<>/\\{}]/i.test(description) || /(<script|alert\()/i.test(description) || /(\s|^)test(\s|$)/i.test(description) || (!!decimals && isNaN(decimals)) || !isAddress(account) || (!!value && !isAddress(value)) || (!value && !symbol) || description?.length > 500 || value?.length > 50 || symbol?.length > 50) {
+            if (!sig || !account || /[^0-9a-z\-]/i.test(symbol) || /[<>/\\{}]/i.test(description) || /(<script|alert\()/i.test(description) || /(\s|^)test(\s|$)/i.test(description) || (!!decimals && isNaN(decimals)) || !isAddress(account) || (!!value && !isAddress(value)) || (!value && !symbol) || description?.length > 500 || value?.length > 50 || symbol?.length > 50) {
                 res.status(400).json({ status: 'error', message: 'Invalid values' })
                 return
+            }
+            const sigAddress = verifyMessage(`${REQ_COL_SIGN_MSG}${symbol}\nSubmitted by ${account.toLowerCase()}`, sig).toLowerCase();
+            if(!sigAddress || sigAddress.toLowerCase() !== account.toLowerCase()) {
+                res.status(400).json({ status: 'error', message: 'Invalid account' })
+                return;
             }
             const now = Date.now();
             const yesterday = now - 24 * 60 * 60 * 1000;

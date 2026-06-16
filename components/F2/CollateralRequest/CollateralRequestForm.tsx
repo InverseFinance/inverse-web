@@ -5,6 +5,7 @@ import { Autocomplete } from "@app/components/common/Input/Autocomplete"
 import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
 import { UNISWAP_TOKENS } from "@app/components/ThirdParties/uniswaptokens"
 import { ERC20_ABI } from "@app/config/abis";
+import { REQ_COL_SIGN_MSG } from "@app/config/constants";
 import { shortenAddress } from "@app/util";
 import { requestNewFirmCollateral } from "@app/util/analytics";
 import { getNetworkConfigConstants } from "@app/util/networks";
@@ -70,6 +71,8 @@ export const CollateralRequestForm = () => {
 
     const submit = async () => {
         let _symbol, _decimals;
+        const sym = _symbol||symbol;
+        const sig = await (provider?.getSigner()).signMessage(`${REQ_COL_SIGN_MSG}${sym}\nSubmitted by ${account?.toLowerCase()}`);
         if (isAddress(value) && !symbol) {
             try {
                 const contract = new Contract(value, ERC20_ABI, provider?.getSigner());
@@ -84,7 +87,7 @@ export const CollateralRequestForm = () => {
                 return;
             }
         }
-        return requestNewFirmCollateral(value, _symbol||symbol, description, wouldUse, account, _decimals||decimals, showSuccess, onFail);
+        return requestNewFirmCollateral(value, sym, description, wouldUse, account, _decimals||decimals, sig, showSuccess, onFail);
     }
 
     return <Container noPadding p="0" label="Request a new Collateral on FiRM">

@@ -36,6 +36,7 @@ export const SIGN_MSG = `Inverse Finance Signature
 ✅ This action does not cost anything
 `
 export const FED_POLICY_SIGN_MSG = "Inverse Finance Fed Policy Update Signature"
+export const REQ_COL_SIGN_MSG = "I would like to suggest a new collateral on FiRM: "
 
 export const BURN_ADDRESS = '0x0000000000000000000000000000000000000000'
 
