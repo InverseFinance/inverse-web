@@ -42,14 +42,14 @@ export const answerPoll = async (pollCode: string, answerValue: string, onSucces
     if (onSuccess && result.status === 'success') { onSuccess() }
 }
 
-export const requestNewFirmCollateral = async (value: string, symbol: string, description: string, wouldUse: boolean, account: string, decimals, onSuccess?: () => void, onFail?: () => void) => {
+export const requestNewFirmCollateral = async (value: string, symbol: string, description: string, wouldUse: boolean, account: string, decimals, sig: string, onSuccess?: () => void, onFail?: () => void) => {
     const rawResponse = await fetch(`/api/f2/request-collateral`, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ value, symbol, description, account, wouldUse, decimals }),
+        body: JSON.stringify({ value, symbol, description, account, wouldUse, decimals, sig }),
     });
     const result = await rawResponse.json();
     if (onSuccess && result.status === 'success') { onSuccess() }
