@@ -14,7 +14,7 @@ export default async function handler(req, res) {
         method,
     } = req
 
-    const { value, account, symbol, description, wouldUse, decimals } = req.body;
+    const { value, account, symbol, description, decimals } = req.body;
     res.setHeader('Cache-Control', `public, max-age=5`);
 
     switch (method) {
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
             res.json({ ...data, requests: arr });
             break
         case 'POST':
-            if (!account || /[^0-9a-z]/i.test(symbol) || /[<>/\\{}]/i.test(description) || /(<script|alert\()/i.test(description) || /^test$/i.test(description) || (!!decimals && isNaN(decimals)) || (!['true', 'false'].includes(wouldUse.toString())) || !isAddress(account) || (!!value && !isAddress(value)) || typeof wouldUse !== 'boolean' || (!value && !symbol) || description?.length > 500 || value?.length > 250 || symbol?.length > 250) {
+            if (!account || /[^0-9a-z\-]/i.test(symbol) || /[<>/\\{}]/i.test(description) || /(<script|alert\()/i.test(description) || /(\s|^)test(\s|$)/i.test(description) || (!!decimals && isNaN(decimals)) || !isAddress(account) || (!!value && !isAddress(value)) || (!value && !symbol) || description?.length > 500 || value?.length > 50 || symbol?.length > 50) {
                 res.status(400).json({ status: 'error', message: 'Invalid values' })
                 return
             }
@@ -58,7 +58,7 @@ export default async function handler(req, res) {
                 return
             }
 
-            requests.push({ key, timestamp: now, account, value, symbol, description, wouldUse, decimals });
+            requests.push({ key, timestamp: now, account, value, symbol, description, decimals });
             
             await redisSetWithTimestamp(cacheKey, { timestamp: now, requests });
             res.json({ status: 'success' });
