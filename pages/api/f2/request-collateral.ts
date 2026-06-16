@@ -17,6 +17,9 @@ export default async function handler(req, res) {
 
     const { value, account, symbol, description, decimals, sig } = req.body;
     res.setHeader('Cache-Control', `public, max-age=5`);
+    res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
+    res.setHeader('Access-Control-Allow-Origin', `*`);
+    res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
 
     switch (method) {
         case 'GET':
