@@ -36,7 +36,7 @@ export default async function handler(req, res) {
                 }),
                 data?.requests.map(r => {
                     const contract = new Contract(TOKENS_VIEWER, ["function getAccountTotalInv(address) external view returns (uint256)"], provider)
-                    return { contract, functionName: 'balanceOf', params: [r.account], forceFallback: !r.value || !r.account || !r.decimals, fallbackValue: BigNumber.from('0') }
+                    return { contract, functionName: 'getAccountTotalInv', params: [r.account], forceFallback: !r.value || !r.account || !r.decimals, fallbackValue: BigNumber.from('0') }
                 }),
             )
             const arr = [...data?.requests];
