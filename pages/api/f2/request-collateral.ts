@@ -29,7 +29,7 @@ export default async function handler(req, res) {
         case 'GET':
             const data = await getCacheFromRedis(cacheKey, false) || { requests: [] };
             const provider = getProvider(NetworkIds.mainnet);
-            const [balances, invBalances] = await getGroupedMulticallOutputs(
+            const [balances, invBalances, invVotes] = await getGroupedMulticallOutputs(
                 [
                     data?.requests.map(r => {
                         const contract = new Contract(r.value, ERC20_ABI, provider)
@@ -38,6 +38,10 @@ export default async function handler(req, res) {
                     data?.requests.map(r => {
                         const contract = new Contract(TOKENS_VIEWER, ["function getAccountTotalInv(address) external view returns (uint256)"], provider)
                         return { contract, functionName: 'getAccountTotalInv', params: [r.account], forceFallback: !r.value || !r.account || !r.decimals, fallbackValue: BigNumber.from('0') }
+                    }),
+                    data?.requests.map(r => {
+                        const contract = new Contract(TOKENS_VIEWER, ["function getAccountTotalVotes(address) external view returns (uint256)"], provider)
+                        return { contract, functionName: 'getAccountTotalVotes', params: [r.account], forceFallback: !r.value || !r.account || !r.decimals, fallbackValue: BigNumber.from('0') }
                     }),
                 ],
             )
@@ -48,6 +52,10 @@ export default async function handler(req, res) {
             });
             invBalances.forEach((b, i) => {
                 arr[i].invBalance = getBnToNumber(b);
+            });
+            invBalances.forEach((b, i) => {
+                arr[i].invVotes = getBnToNumber(b);
+                arr[i].invScore = Math.max(arr[i].invVotes, arr[i].invBalance);
             });
 
             res.json({ ...data, requests: arr });
