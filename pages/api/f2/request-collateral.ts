@@ -1,11 +1,11 @@
 import { ERC20_ABI } from "@app/config/abis";
-import { REQ_COL_SIGN_MSG } from "@app/config/constants";
+import { REQ_COL_SIGN_MSG, TOKENS_VIEWER } from "@app/config/constants";
 import { NetworkIds } from "@app/types";
 import { getBnToNumber } from "@app/util/markets";
 import { getMulticallOutput } from "@app/util/multicall";
 import { getProvider } from "@app/util/providers";
 import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
-import { Contract } from "ethers";
+import { BigNumber, Contract } from "ethers";
 import { isAddress, verifyMessage } from "ethers/lib/utils";
 
 const cacheKey = 'collateral-requests-v1.0.2';
@@ -29,16 +29,23 @@ export default async function handler(req, res) {
         case 'GET':
             const data = await getCacheFromRedis(cacheKey, false) || { requests: [] };
             const provider = getProvider(NetworkIds.mainnet);
-            const balances = await getMulticallOutput(
+            const [balances, invBalances] = await getMulticallOutput(
                 data?.requests.map(r => {
                     const contract = new Contract(r.value, ERC20_ABI, provider)
                     return { contract, functionName: 'balanceOf', params: [r.account], forceFallback: !r.value || !r.account || !r.decimals, fallbackValue: 'n/a' }
-                })
+                }),
+                data?.requests.map(r => {
+                    const contract = new Contract(TOKENS_VIEWER, ["function getAccountTotalInv(address) external view returns (uint256)"], provider)
+                    return { contract, functionName: 'balanceOf', params: [r.account], forceFallback: !r.value || !r.account || !r.decimals, fallbackValue: BigNumber.from('0') }
+                }),
             )
             const arr = [...data?.requests];
 
             balances.forEach((b,i) => {
                 arr[i].balance = b !== 'n/a' ? getBnToNumber(b, arr[i].decimals) : b;
+            });
+            invBalances.forEach((b,i) => {
+                arr[i].invBalance = getBnToNumber(b);
             });
 
             res.json({ ...data, requests: arr });
