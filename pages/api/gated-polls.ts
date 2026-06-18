@@ -47,7 +47,7 @@ const getFormattedData = async (pollsData, contract, account) => {
     return formatted.map(f => {
         const votesWithCurrentScore = pollsData[f.pollCode]?.votes.map(v => {
             return { ...v, invScore: invScores[v.account] }
-        });
+        }) || [];
         const myVote = votesWithCurrentScore.find(v => v.account === account);
         return {
             ...f,
