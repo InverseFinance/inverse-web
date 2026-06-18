@@ -49,11 +49,19 @@ const getFormattedData = async (pollsData, contract, account) => {
             return { ...v, invScore: invScores[v.account] }
         }) || [];
         const myVote = votesWithCurrentScore.find(v => v.account === account);
+        const totalInvScore = votesWithCurrentScore.reduce((prev, curr) => prev+curr.invScore, 0);
         return {
             ...f,
             myVote: myVote?.answer,
             myScore: myVote?.invScore,
+            totalInvScore,
             votes: votesWithCurrentScore,
+            answers: f.answers.map(a => {
+                return {
+                    ...a,
+                    totalInvScore: votesWithCurrentScore.filter(v => v.answer === a.value).reduce((prev, curr) => prev+curr.invScore, 0)
+                }
+            })
         }
     })
 }
@@ -114,11 +122,12 @@ export default async function handler(req, res) {
     }
 
     const dbData = await getCacheFromRedis(pollsCacheKey, false) || {};
+    const acc = account.toLowerCase();
 
     switch (method) {
         case 'POST':
             res.json(
-                await getFormattedData(dbData, contract)
+                await getFormattedData(dbData, contract, acc)
             );
             break
         case 'PUT':
@@ -131,7 +140,7 @@ export default async function handler(req, res) {
                 dbData[poll] = pollAnswerValues
                     .reduce((acc, possibleAnswer) => ({ ...acc, [possibleAnswer]: 0 }), { abstain: 0 });
             }
-            const acc = account.toLowerCase();
+            
             const prevVote = dbData[poll][acc];
             if (!!prevVote) {
                 dbData[poll][prevVote] = dbData[poll][answer] - 1;
