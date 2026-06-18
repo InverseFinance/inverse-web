@@ -102,7 +102,7 @@ export default async function handler(req, res) {
             });
 
             formatted.map(f => {
-                const votesWithCurrentScore = pollsData[pollCode].votes.map(v => {
+                const votesWithCurrentScore = pollsData[f.pollCode]?.votes.map(v => {
                     return { ...v, invScore: invScores[v.account] }
                 });
                 return {
