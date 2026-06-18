@@ -11,7 +11,7 @@ const pollCodes = Object.keys(GATED_POLLS);
 
 export const pollsCacheKey = 'gated-polls';
 
-const getFormattedData = async (pollsData, contract) => {
+const getFormattedData = async (pollsData, contract, account) => {
     let distinctVoters = [];
     const formatted = pollCodes.map(pollCode => {
         const pollsVotes = pollsData[pollCode] || {};
@@ -41,15 +41,18 @@ const getFormattedData = async (pollsData, contract) => {
     const invScores = {};
 
     distinctVoters.forEach((v, i) => {
-        invScores[v] = Math.max(invBalances[i], invVotes[i]);
+        invScores[v] = Math.max(getBnToNumber(invBalances[i]), getBnToNumber(invVotes[i]));
     });
 
     return formatted.map(f => {
         const votesWithCurrentScore = pollsData[f.pollCode]?.votes.map(v => {
             return { ...v, invScore: invScores[v.account] }
         });
+        const myVote = votesWithCurrentScore.find(v => v.account === account);
         return {
             ...f,
+            myVote: myVote?.answer,
+            myScore: myVote?.invScore,
             votes: votesWithCurrentScore,
         }
     })
