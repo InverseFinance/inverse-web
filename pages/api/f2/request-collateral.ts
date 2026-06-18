@@ -53,7 +53,7 @@ export default async function handler(req, res) {
             invBalances.forEach((b, i) => {
                 arr[i].invBalance = getBnToNumber(b);
             });
-            invBalances.forEach((b, i) => {
+            invVotes.forEach((b, i) => {
                 arr[i].invVotes = getBnToNumber(b);
                 arr[i].invScore = Math.max(arr[i].invVotes, arr[i].invBalance);
             });

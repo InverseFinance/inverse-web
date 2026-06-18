@@ -44,6 +44,7 @@ export const POLLS = {
 export const GATED_POLLS = {
     'new-designs': {
         active: true,
+        theme: 'design',
         question: 'Which design do you prefer?',
         answers: [
             {
@@ -82,6 +83,7 @@ export const GATED_POLLS = {
     },
     'new-designs-b': {
         active: true,
+        theme: 'design',
         question: 'Which design do you not like at all?',
         answers: [
             {
@@ -120,6 +122,7 @@ export const GATED_POLLS = {
     },
     'anime-girl': {
         active: true,
+        theme: 'brand',
         question: 'Should we have an anime-girl avatar Mascot on the website and/or as an X ai social media account?',
         answers: [
             {
@@ -137,6 +140,21 @@ export const GATED_POLLS = {
             {
                 value: 'no',
                 label: "No I don't think it's a good idea",
+            },
+        ],
+    },
+    'public-polls': {
+        active: true,
+        theme: 'website',
+        question: 'Website: Should we have non-tokengated polls as well?',
+        answers: [
+            {
+                value: 'yes',
+                label: "Yes, let's also have public polls",
+            },
+            {
+                value: 'no',
+                label: "No, polls should remain for tokenholders only",
             },
         ],
     },
