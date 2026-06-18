@@ -1,5 +1,6 @@
 import { TOKENS_VIEWER } from "@app/config/constants";
 import { getBnToNumber } from "@app/util/markets";
+import { getGroupedMulticallOutputs, getMulticallOutput } from "@app/util/multicall";
 import { getProvider } from "@app/util/providers";
 import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
 import { GATED_POLLS } from "@app/variables/poll-data";
@@ -28,35 +29,45 @@ export default async function handler(req, res) {
 
     const pollAnswerValues = GATED_POLLS[poll]?.answers?.map(({ value }) => value) || [];
 
-    if(!account || !isAddress(account)) {
+    if (!account || !isAddress(account)) {
         res.status(400).json({ status: 'error', message: 'Invalid account' })
         return;
     }
 
     const sigAddress = verifyMessage(`Verifying that I own ${account.toLowerCase()}`, sig).toLowerCase();
-    
-    if(!sigAddress || sigAddress.toLowerCase() !== account.toLowerCase()) {
+
+    if (!sigAddress || sigAddress.toLowerCase() !== account.toLowerCase()) {
         res.status(400).json({ status: 'error', message: 'Invalid account' })
         return;
     }
 
-    let accountTotalInvBal = 0;
+    let accountInvScore = 0;
+
     try {
-        const contract = new Contract(TOKENS_VIEWER, ["function getAccountTotalInv(address) external view returns (uint256)"], getProvider(1))
-        const accountTotalInvBalBn = await contract.getAccountTotalInv(account);
-        accountTotalInvBal = getBnToNumber(accountTotalInvBalBn);
-    } catch(e) {
+        const contract = new Contract(TOKENS_VIEWER, ["function getAccountTotalInv(address) external view returns (uint256)", "function getAccountTotalVotes(address) external view returns (uint256)"], getProvider(1))
+        const [invBalance, invVotes] = await getMulticallOutput(
+            [
+                {
+                    contract, functionName: 'getAccountTotalInv', params: [account] 
+                },
+                {
+                    contract, functionName: 'getAccountTotalVotes', params: [account]
+                },
+            ],
+        );
+        accountInvScore = Math.max(getBnToNumber(invBalance), getBnToNumber(invVotes));
+    } catch (e) {
 
     }
 
-    if(accountTotalInvBal < 10) {
-        res.status(403).json({ status: 'error', message: 'Not enough INV' });
+    if (accountInvScore < 10) {
+        res.status(403).json({ status: 'error', message: 'You need at least 10 INV in balance or voting power.' });
         return;
     }
 
     switch (method) {
         case 'POST':
-            const pollsData = await getCacheFromRedis(pollsCacheKey, false) || {};            
+            const pollsData = await getCacheFromRedis(pollsCacheKey, false) || {};
             const formatted = pollCodes.map(pollCode => {
                 const pollsVotes = pollsData[pollCode] || {};
                 return {
