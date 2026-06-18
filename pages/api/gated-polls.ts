@@ -11,6 +11,50 @@ const pollCodes = Object.keys(GATED_POLLS);
 
 export const pollsCacheKey = 'gated-polls';
 
+const getFormattedData = async (pollsData, contract) => {
+    let distinctVoters = [];
+    const formatted = pollCodes.map(pollCode => {
+        const pollsVotes = pollsData[pollCode] || {};
+        distinctVoters = distinctVoters.concat((pollsVotes.votes || []).map(pv => pv.account));
+        return {
+            pollCode,
+            active: GATED_POLLS[pollCode].active,
+            question: GATED_POLLS[pollCode].question,
+            answers: GATED_POLLS[pollCode].answers.map(({ value, label }) => {
+                return { value, label, nbVotes: pollsVotes[value] || 0 }
+            }).concat({ value: 'abstain', label: 'Abstain', nbVotes: pollsVotes['abstain'] || 0 }),
+        }
+    });
+    distinctVoters = [...new Set(distinctVoters)];
+
+    const [invBalances, invVotes] = await getGroupedMulticallOutputs(
+        [
+            distinctVoters.map(v => ({
+                contract, functionName: 'getAccountTotalInv', params: [v]
+            })),
+            distinctVoters.map(v => ({
+                contract, functionName: 'getAccountTotalVotes', params: [v]
+            })),
+        ],
+    );
+
+    const invScores = {};
+
+    distinctVoters.forEach((v, i) => {
+        invScores[v] = Math.max(invBalances[i], invVotes[i]);
+    });
+
+    return formatted.map(f => {
+        const votesWithCurrentScore = pollsData[f.pollCode]?.votes.map(v => {
+            return { ...v, invScore: invScores[v.account] }
+        });
+        return {
+            ...f,
+            votes: votesWithCurrentScore,
+        }
+    })
+}
+
 export default async function handler(req, res) {
     const {
         method,
@@ -49,7 +93,7 @@ export default async function handler(req, res) {
         const [invBalance, invVotes] = await getMulticallOutput(
             [
                 {
-                    contract, functionName: 'getAccountTotalInv', params: [account] 
+                    contract, functionName: 'getAccountTotalInv', params: [account]
                 },
                 {
                     contract, functionName: 'getAccountTotalVotes', params: [account]
@@ -66,76 +110,37 @@ export default async function handler(req, res) {
         return;
     }
 
+    const dbData = await getCacheFromRedis(pollsCacheKey, false) || {};
+
     switch (method) {
         case 'POST':
-            const pollsData = await getCacheFromRedis(pollsCacheKey, false) || {};
-            let distinctVoters = [];
-            const formatted = pollCodes.map(pollCode => {
-                const pollsVotes = pollsData[pollCode] || {};
-                distinctVoters = distinctVoters.concat((pollsVotes.votes || []).map(pv => pv.account));
-                return {
-                    pollCode,
-                    active: GATED_POLLS[pollCode].active,
-                    question: GATED_POLLS[pollCode].question,
-                    answers: GATED_POLLS[pollCode].answers.map(({ value, label }) => {
-                        return { value, label, votes: pollsVotes[value] || 0 }
-                    }).concat({ value: 'abstain', label: 'Abstain', votes: pollsVotes['abstain'] || 0 }),
-                }
-            });
-            distinctVoters = [...new Set(distinctVoters)];
-
-             const [invBalances, invVotes] = await getGroupedMulticallOutputs(
-                [
-                    distinctVoters.map(v => ({
-                        contract, functionName: 'getAccountTotalInv', params: [v] 
-                    })),
-                    distinctVoters.map(v => ({
-                        contract, functionName: 'getAccountTotalVotes', params: [v] 
-                    })),
-                ],
+            res.json(
+                await getFormattedData(dbData, contract)
             );
-
-            const invScores = {};
-
-            distinctVoters.forEach((v,i) => {
-                invScores[v] = Math.max(invBalances[i], invVotes[i]);
-            });
-
-            formatted.map(f => {
-                const votesWithCurrentScore = pollsData[f.pollCode]?.votes.map(v => {
-                    return { ...v, invScore: invScores[v.account] }
-                });
-                return {
-                    ...f,
-                    votes: votesWithCurrentScore,
-                }
-            })
-            
-            res.json(formatted);
             break
         case 'PUT':
             if (!GATED_POLLS[poll]?.active || !pollCodes.includes(poll) || (!pollAnswerValues.includes(answer) && answer !== 'abstain')) {
                 res.status(400).json({ status: 'error', message: 'Invalid parameters' })
                 return
             }
-            const polls = await getCacheFromRedis(pollsCacheKey, false) || {};
-            if (!polls[poll]) {
-                polls[poll] = pollAnswerValues
+            
+            if (!dbData[poll]) {
+                dbData[poll] = pollAnswerValues
                     .reduce((acc, possibleAnswer) => ({ ...acc, [possibleAnswer]: 0 }), { abstain: 0 });
             }
             const acc = account.toLowerCase();
-            const prevVote = polls[poll][acc];
-            if(!!prevVote) {
-                polls[poll][prevVote] = polls[poll][answer] - 1;
+            const prevVote = dbData[poll][acc];
+            if (!!prevVote) {
+                dbData[poll][prevVote] = dbData[poll][answer] - 1;
             }
-            polls[poll][acc] = answer;
-            if(!polls[poll].votes) {
-                polls[poll].votes = [{ account: acc, answer }];
+            dbData[poll][acc] = answer;
+            if (!dbData[poll].votes) {
+                dbData[poll].votes = [{ account: acc, answer }];
             } else {
-                polls[poll].votes.push({ account: acc, answer });
+                dbData[poll].votes.push({ account: acc, answer });
             }
-            polls[poll][answer] = (polls[poll][answer] || 0) + 1;
-            await redisSetWithTimestamp(pollsCacheKey, polls);
+            dbData[poll][answer] = (dbData[poll][answer] || 0) + 1;
+            await redisSetWithTimestamp(pollsCacheKey, dbData);
             res.json({ status: 'success' });
             break
         default:
