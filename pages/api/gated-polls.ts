@@ -131,6 +131,7 @@ export default async function handler(req, res) {
             );
             break
         case 'PUT':
+            const time = Date.now();
             if (!GATED_POLLS[poll]?.active || !pollCodes.includes(poll) || (!pollAnswerValues.includes(answer) && answer !== 'abstain')) {
                 res.status(400).json({ status: 'error', message: 'Invalid parameters' })
                 return
@@ -143,15 +144,16 @@ export default async function handler(req, res) {
             
             const prevVote = dbData[poll][acc];
             if (!!prevVote) {
-                dbData[poll][prevVote] = dbData[poll][answer] - 1;
+                dbData[poll][prevVote] = dbData[poll][prevVote] - 1;
             }
             dbData[poll][acc] = answer;
             if (!dbData[poll].votes) {
-                dbData[poll].votes = [{ account: acc, answer }];
+                dbData[poll].votes = [{ account: acc, answer, time }];
             } else {
-                dbData[poll].votes.push({ account: acc, answer });
+                dbData[poll].votes = dbData[poll].votes.filter(v => v.account !== acc).concat([{ account: acc, answer, time }]);
             }
             dbData[poll][answer] = (dbData[poll][answer] || 0) + 1;
+            dbData[poll].lastUpdate = time;
             await redisSetWithTimestamp(pollsCacheKey, dbData);
             res.json({ status: 'success' });
             break
