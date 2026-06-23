@@ -119,6 +119,9 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                         </HStack>
                                     </HStack>
                                     {
+                                        f2market.isInv && <MonolithInvUSDMessage cf={f2market.collateralFactor * 100} />
+                                    }
+                                    {
                                         f2market.isPhasingOut && <InfoMessage
                                             alertProps={{ w: 'full' }}
                                             title="This market is being phased out or is in limited access:"
@@ -201,11 +204,8 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                     }
                                                 />
                                             } */}
-                                            {
-                                                f2market.isInv && <MonolithInvUSDMessage cf={f2market.collateralFactor*100} />
-                                            }
-                                            {/* <ErrorBoundary description="Error in the form component, please try reloading">
-                                                {
+                                            <ErrorBoundary description="Error in the form component, please try reloading">
+                                                {/* {
                                                     f2market.isInv && <Container
                                                         noPadding
                                                         p="0"
@@ -231,12 +231,12 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                             }
                                                         />
                                                     </Container>
-                                                }
+                                                } */}
                                                 {
                                                     (f2market.hasClaimableRewards) && <FirmRewardWrapper market={f2market} />
                                                 }
                                                 <F2CombinedForm />
-                                            </ErrorBoundary> */}
+                                            </ErrorBoundary>
                                             {
                                                 (f2market.isGovTokenCollateral) && <FirmGovToken />
                                             }
