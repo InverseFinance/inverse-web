@@ -7,7 +7,9 @@ import { FIRM_VIEWER } from "@app/config/constants";
 import { getBnToNumber } from "@app/util/markets";
 import { InfoMessage } from "../common/Messages";
 
-export const MonolithInvUSDMessage = () => {
+export const MonolithInvUSDMessage = ({
+    cf = 30
+}) => {
     const account = useAccount();
     const { data: invMarketBalBn } = useEtherSWR([
         FIRM_VIEWER, 'getPositionBalance', '0xb516247596Ca36bf32876199FBdCaD6B3322330B', account,
@@ -23,15 +25,15 @@ export const MonolithInvUSDMessage = () => {
                         description={
                             <Stack direction={{ base: 'column', lg: 'row-reverse' }} alignItems="center" spacing="5">
                                 <Image borderRadius="20px" maxWidth="100%" src="/assets/migrate-inv-to-monolith.png" width="300px" />
-                                <VStack spacing="0" alignItems="center">
-                                    <Text fontSize={{ base: '12px', md: '14px' }} fontWeight="bold" textAlign="left">
+                                <VStack w='full' spacing="0" alignItems="center" justifyItems="flex-start" justifyContent="flex-start">
+                                    <Text w='full' fontSize={{ base: '12px', md: '14px' }} fontWeight="bold" textAlign="left">
                                         Please exit your position in the INV market and migrate it to Monolith.
                                     </Text>
-                                    <Text fontSize={{ base: '12px', md: '14px' }} textAlign="left">
-                                        The INV market is being paused and will be phased out progressively.
+                                    <Text w='full' fontSize={{ base: '12px', md: '14px' }} textAlign="left">
+                                        The INV will be phased out progressively.
                                     </Text>
-                                    <Text fontSize={{ base: '12px', md: '14px' }} textAlign="left">
-                                        CF on Monolith is 65% while CF on FiRM is 35% (and reducing soon).
+                                    <Text w='full' fontSize={{ base: '12px', md: '14px' }} textAlign="left">
+                                        CF on Monolith is 65% while CF on FiRM is {cf}% (and reducing soon).
                                     </Text>
                                 </VStack>
                             </Stack>
