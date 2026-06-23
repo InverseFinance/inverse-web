@@ -30,7 +30,7 @@ export const MonolithInvUSDMessage = ({
                                         Please exit your position in the INV market and migrate it to Monolith.
                                     </Text>
                                     <Text w='full' fontSize={{ base: '12px', md: '14px' }} textAlign="left">
-                                        The INV will be phased out progressively.
+                                        The INV market on FiRM will be phased out progressively.
                                     </Text>
                                     <Text w='full' fontSize={{ base: '12px', md: '14px' }} textAlign="left">
                                         CF on Monolith is 65% while CF on FiRM is {cf}% (and reducing soon).
