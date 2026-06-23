@@ -31,6 +31,7 @@ import { FirmInsuranceCover } from '@app/components/common/InsuranceCover'
 import { OLD_BORROW_CONTROLLER } from '@app/config/constants'
 import { DbrFloatingTrigger } from '@app/components/F2/DbrEasyBuyer.tsx/DbrEasyBuyer'
 import { MarketPriceChartWrapper } from '@app/components/F2/MarketPriceChartContainer'
+import { MonolithInvUSDMessage } from '@app/components/Monolith/MonolithInvUSDMessage'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -181,7 +182,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                     }
                                                 />
                                             }
-                                            {
+                                            {/* {
                                                 f2market.isInv && <InfoMessage
                                                     alertProps={{ w: 'full' }}
                                                     description={
@@ -199,8 +200,11 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                         </VStack>
                                                     }
                                                 />
+                                            } */}
+                                            {
+                                                f2market.isInv && <MonolithInvUSDMessage cf={f2market.collateralFactor*100} />
                                             }
-                                            <ErrorBoundary description="Error in the form component, please try reloading">
+                                            {/* <ErrorBoundary description="Error in the form component, please try reloading">
                                                 {
                                                     f2market.isInv && <Container
                                                         noPadding
@@ -232,7 +236,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                     (f2market.hasClaimableRewards) && <FirmRewardWrapper market={f2market} />
                                                 }
                                                 <F2CombinedForm />
-                                            </ErrorBoundary>
+                                            </ErrorBoundary> */}
                                             {
                                                 (f2market.isGovTokenCollateral) && <FirmGovToken />
                                             }
