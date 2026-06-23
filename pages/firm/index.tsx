@@ -268,7 +268,7 @@ export const F2PAGE = ({
             <ErrorBoundary>
                 <VStack pt={{ base: 4, md: 8 }} w='full' maxW={{ base: '84rem', '2xl': '90rem' }}>
                     <ErrorBoundary>
-                        <MonolithInvUSDMessage />
+                        <MonolithInvUSDMessage cf={(marketsData?.markets?.find(m => m.isInv)?.collateralFactor||10)*100} />
                     </ErrorBoundary>
                     {
                         !!globalMessage && (
