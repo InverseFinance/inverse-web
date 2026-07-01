@@ -386,10 +386,10 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                     tab === 'Infos' ? <StakeJDolaInfos sDolaExRate={sDolaExRate} /> : isStake ?
                                         (isLoadingStables && !isPreventLoader ? <SkeletonBlob /> :
                                             <>
-                                            <WarningMessage
+                                            {/* <WarningMessage
                                                 alertProps={{ w: 'full' }}
                                                 description="A new jrDOLA version is upcoming and deposits are disabled at the moment."
-                                            />
+                                            /> */}
                                                 {/* <SimpleAmountForm
                                                     btnProps={{ needPoaFirst: true }}
                                                     defaultAmount={inputAmount}

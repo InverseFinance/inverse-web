@@ -8,7 +8,7 @@ export default async function handler(req, res) {
         res.status(400).json({ msg: 'invalid request' });
         return;
     }
-    const cacheKey = `jrdola-staking-history-aggregated-${isExlcudeCurrent ? '-exclude-current' : ''}v1.0.2`
+    const cacheKey = `jrdola-staking-history-aggregated-${isExlcudeCurrent ? '-exclude-current' : ''}v2.0.0`
 
     try {
         const cacheDuration = 60;
