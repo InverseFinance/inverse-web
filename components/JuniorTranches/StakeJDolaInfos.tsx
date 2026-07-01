@@ -96,10 +96,10 @@ export const StakeJDolaInfos = ({
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxRewardPerDolaMantissa, 2)} ({preciseCommify(maxRewardPerDolaMantissa * dbrPrice, 4, true)})</Text>}
                     </HStack>
                 </VStack>
-                <Text fontSize="14px" fontWeight="bold">Looking for the jrDOLA auction?</Text>
+                {/* <Text fontSize="14px" fontWeight="bold">Looking for the jrDOLA auction?</Text>
                 <Link textDecoration="underline" href='/dbr/auction'>
                     Go to auctions
-                </Link>
+                </Link> */}
             </Stack>
         }
     />
