@@ -390,7 +390,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                 alertProps={{ w: 'full' }}
                                                 description="A new jrDOLA version is upcoming and deposits are disabled at the moment."
                                             /> */}
-                                                {/* <SimpleAmountForm
+                                                <SimpleAmountForm
                                                     btnProps={{ needPoaFirst: true }}
                                                     defaultAmount={inputAmount}
                                                     address={depositTokenAddress}
@@ -407,7 +407,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     hideInputIfNoAllowance={false}
                                                     showBalance={true}
                                                     onSuccess={() => resetRealTime()}
-                                                /> */}
+                                                />
                                                 <InfoMessage
                                                     description={
                                                         <VStack alignItems="flex-start">
