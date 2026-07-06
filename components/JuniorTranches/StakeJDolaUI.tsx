@@ -110,7 +110,7 @@ const WithdrawTimeline = ({ markers, title = 'Withdrawal timeline' }: { markers:
                                 lineHeight: '1.2em',
                                 maxHeight: '2.4em'
                             }}
-                            maxW="200px"
+                            maxW="400px"
                             ml="2"
                         >
                             {m.label}
