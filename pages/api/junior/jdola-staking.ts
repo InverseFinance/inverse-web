@@ -12,7 +12,7 @@ import { formatJDolaStakingData, getJrdolaContract, getJuniorEscrowContract } fr
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { dolaStakingCacheKey } from '../dola-staking';
 
-export const jdolaStakingCacheKey = `jdola-staking-v1.0.2`;
+export const jdolaStakingCacheKey = `jdola-staking-v2.0.0`;
 
 export default async function handler(req, res) {
     const { cacheFirst, ignoreCache, includeSpectra } = req.query;

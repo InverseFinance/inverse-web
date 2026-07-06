@@ -110,7 +110,7 @@ const WithdrawTimeline = ({ markers, title = 'Withdrawal timeline' }: { markers:
                                 lineHeight: '1.2em',
                                 maxHeight: '2.4em'
                             }}
-                            maxW="200px"
+                            maxW="400px"
                             ml="2"
                         >
                             {m.label}
@@ -386,11 +386,11 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                     tab === 'Infos' ? <StakeJDolaInfos sDolaExRate={sDolaExRate} /> : isStake ?
                                         (isLoadingStables && !isPreventLoader ? <SkeletonBlob /> :
                                             <>
-                                            <WarningMessage
+                                            {/* <WarningMessage
                                                 alertProps={{ w: 'full' }}
                                                 description="A new jrDOLA version is upcoming and deposits are disabled at the moment."
-                                            />
-                                                {/* <SimpleAmountForm
+                                            /> */}
+                                                <SimpleAmountForm
                                                     btnProps={{ needPoaFirst: true }}
                                                     defaultAmount={inputAmount}
                                                     address={depositTokenAddress}
@@ -407,7 +407,7 @@ export const StakeJDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => 
                                                     hideInputIfNoAllowance={false}
                                                     showBalance={true}
                                                     onSuccess={() => resetRealTime()}
-                                                /> */}
+                                                />
                                                 <InfoMessage
                                                     description={
                                                         <VStack alignItems="flex-start">

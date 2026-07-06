@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
   const { cacheFirst } = req.query;
 
-  const cacheKey = `jrdola-stakers-v1.0.1`;
+  const cacheKey = `jrdola-stakers-v2.0.0`;
   try {
 
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
