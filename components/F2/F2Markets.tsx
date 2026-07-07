@@ -151,7 +151,7 @@ export const MARKET_INFOS = {
     },
 }
 
-const getMarketInfos = ({ marketName, underlying }: { marketName: string, underlying: F2Market['underlying'] }) => {
+const getMarketInfos = ({ marketName, underlying, isStakedaoStrategy }: { marketName: string, underlying: F2Market['underlying'], isStakedaoStrategy?: boolean }) => {
     const marketInfos = MARKET_INFOS[marketName];
     if (marketInfos) {
         return marketInfos;
@@ -165,7 +165,7 @@ const getMarketInfos = ({ marketName, underlying }: { marketName: string, underl
         description: underlying.isLP ?
             (underlying.isYearnV2LP ?
                 `The Yearn Vault for the Curve ${marketName} LP, the yearn vault auto-compounds the rewards of the ${marketName} LP increasing the vault token price`
-                : `The LP token for the ${marketName} pool on Curve, when deposited on FiRM the LP token will be then deposited into Convex to earn claimable CVX+CRV rewards`)
+                : `The LP token for the ${marketName} pool on Curve, when deposited on FiRM the LP token will be then deposited into ${isStakedaoStrategy ? 'Stakedao' : 'Convex'} to earn claimable rewards`)
             : isPT ? `The Principal Token for the Pendle ${marketName} that is a fixed yield asset thanks to Pendle's split of yield-bearing assets into Principal and Yield tokens` : "",
         getLink: underlying.link || (isPT ? `https://app.pendle.finance/trade/markets/${ptMarkets[underlying.address]}/swap?view=pt&chain=ethereum&page=1` : ""),
     };
@@ -183,8 +183,8 @@ const CellText = ({ ...props }) => {
     return <Text fontSize="14px" {...props} />
 }
 
-export const MarketInfos = ({ name, underlying, nameAndIcon, ...props }) => {
-    const marketInfos = getMarketInfos({ marketName: name, underlying });
+export const MarketInfos = ({ name, underlying, nameAndIcon, isStakedaoStrategy, ...props }) => {
+    const marketInfos = getMarketInfos({ marketName: name, underlying, isStakedaoStrategy });
     if (!marketInfos) {
         return null;
     }
@@ -217,7 +217,7 @@ export const MarketNameAndIcon = ({ marketIcon, icon, underlying, name, lpSize =
     </Stack>
 }
 
-const MarketCell = ({ icon, marketIcon, underlying, badgeInfo, badgeProps, name, _isMobileCase }) => {
+const MarketCell = ({ icon, marketIcon, underlying, badgeInfo, badgeProps, isStakedaoStrategy, name, _isMobileCase }) => {
     const nameAndIcon = <MarketNameAndIcon name={name} icon={icon} marketIcon={marketIcon} underlying={underlying} />
     return <Cell minWidth="180px" position="relative">
         <Popover closeOnBlur={true} trigger="hover" isLazy placement="right-end" strategy={_isMobileCase ? 'fixed' : 'absolute'}>
@@ -241,7 +241,7 @@ const MarketCell = ({ icon, marketIcon, underlying, badgeInfo, badgeProps, name,
             </PopoverTrigger>
             <PopoverContent transform="translateX(300px)" bgColor="containerContentBackground" zIndex="99" border="1px solid #ccc" _focus={{ outline: 'none' }} maxW={_isMobileCase ? '100vw' : '98vw'} w='600px'>
                 <PopoverBody onClick={(e) => e.stopPropagation()}>
-                    <MarketInfos nameAndIcon={nameAndIcon} name={name} underlying={underlying} />
+                    <MarketInfos nameAndIcon={nameAndIcon} isStakedaoStrategy={isStakedaoStrategy} name={name} underlying={underlying} />
                 </PopoverBody>
             </PopoverContent>
         </Popover>
