@@ -814,7 +814,7 @@ export const FIRM_MARKETS = [
         // pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/resolv.png',
     },
     {
-        name: 'scrvUSD-sDOLA',
+        name: 'scrvUSD-sDOLA-sd',
         collateral: '0x76A962BA6770068bCF454D34dDE17175611e6637',
         address: '0xC45E9c231ab5D9Bd3F1131E7901B100D8D236C4d',
         nonProxySwapType: 'nonProxySwapNG-sDOLA',
