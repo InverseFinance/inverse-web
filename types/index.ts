@@ -790,6 +790,7 @@ export type F2Market = {
   expiry?: string
   isNewMarket: boolean
   hasNowInvalidFeed?: boolean
+  isStakedaoStrategy?: boolean
 }
 
 export type FirmAction = {
