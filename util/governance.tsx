@@ -103,17 +103,19 @@ export const clearStoredDelegationsCollected = (): void => {
 
 export const getCallData = (action: ProposalFormActionFields) => {
     const abiCoder = new AbiCoder();
+    const encodedTypes = action.args.map((arg, argIndex) => {
+        return arg.type === "tuple" ? ParamType.fromObject(action.fragment.inputs[argIndex]!) : arg.type;
+    });
+    const encodedValues = action.args.map(arg => {
+        if (arg.type === "bool" || arg.type === "tuple" || arg.type.endsWith("[]")) {
+            return JSON.parse(arg.value);
+        } else {
+            return arg.value;
+        }
+    });
     return abiCoder.encode(
-        action.args.map((arg, argIndex) => {
-            return arg.type === "tuple" ? ParamType.fromObject(action.fragment.inputs[argIndex]!) : arg.type;
-        }),
-        action.args.map(arg => {
-            if (arg.type === "bool" || arg.type === "tuple" || arg.type.endsWith("[]")) {
-                return JSON.parse(arg.value);
-            } else {
-                return arg.value;
-            }
-        })
+        encodedTypes,
+        encodedValues
     );
 }
 
@@ -160,7 +162,7 @@ export const getFunctionsFromProposalActions = (actions: ProposalFormActionField
     return actions.map(getFunctionFromProposalAction);
 }
 
-export const getFunctionFromProposalAction = (action: ProposalFormActionFields): ProposalFunction => {    
+export const getFunctionFromProposalAction = (action: ProposalFormActionFields): ProposalFunction => {
     return {
         target: action.contractAddress,
         callData: getCallData(action),
@@ -323,11 +325,11 @@ export const deleteDraft = async (publicDraftId: number, signer: JsonRpcSigner, 
 }
 
 export const linkDraft = async (publicDraftId: number, proposalId: string, signer: JsonRpcSigner, onSuccess?: () => void) => {
-    showToast({ status: 'loading', id: 'linkDraft', title: 'Link Proof of Reviews to Proposal', description: 'Sign to proceed' , duration: null });
+    showToast({ status: 'loading', id: 'linkDraft', title: 'Link Proof of Reviews to Proposal', description: 'Sign to proceed', duration: null });
     return new Promise(async (resolve) => {
         try {
             const sig = await signer.signMessage(SIGN_MSG);
-            showToast({ status: 'loading', id: 'linkDraft', title: 'Link Proof of Reviews to Proposal', description: 'Linking...' , duration: null });
+            showToast({ status: 'loading', id: 'linkDraft', title: 'Link Proof of Reviews to Proposal', description: 'Linking...', duration: null });
             const triggerProposalsResult = await triggerProposalUpdate(signer, sig);
 
             const rawResponse = await fetch(`/api/drafts/${publicDraftId}`, {
@@ -350,7 +352,7 @@ export const linkDraft = async (publicDraftId: number, proposalId: string, signe
                 duration: 6000,
             });
 
-            if(triggerProposalsResult.success && !result.skipRedirect){
+            if (triggerProposalsResult.success && !result.skipRedirect) {
                 window.location.href = `/governance/proposals/${CURRENT_ERA}/${proposalId}`;
             }
             resolve(result);
@@ -460,7 +462,7 @@ export const simulateOnChainActions = async (
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
-            },            
+            },
             body: JSON.stringify(form)
         });
         const result = await rawResponse.json();
@@ -560,11 +562,11 @@ export const triggerProposalUpdate = async (
 
 // No need for api, does not often change. not necessarily exact block numbers
 export const getHistoricalGovParams = (block: number) => {
-    if(block > 19069443) {
+    if (block > 19069443) {
         return { quorum: 15500, threshold: 1900 };
-    } else if(block > 15666400) {
+    } else if (block > 15666400) {
         return { quorum: 9500, threshold: 1900 };
-    } else if(block > 14834695) {
+    } else if (block > 14834695) {
         return { quorum: 7000, threshold: 1400 };
     }
     return { quorum: 4000, threshold: 1000 };
