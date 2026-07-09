@@ -829,7 +829,8 @@ export const FIRM_MARKETS = [
         startingBlock: 25451954,
         aleTransformerType: 'marketAddressAndAmount',
         isAleWithoutSwap: true,
-        convexRewardsAddress: '0x731868E273CDD4fC2dDC91c7E9553986355B5C3a',
+        rewardVault: '0x017EC76D2f32D018CbB0f9Ae507d5E5F9BdCeE3c',
+        rewardAccountant: '0x93b4B9bd266fFA8AF68e39EDFa8cFe2A62011Ce0',
         isInv: false,
     },
 ];
