@@ -129,7 +129,7 @@ export const ProposalFormAction = ({
     try {
         previewFunc = getFunctionFromProposalAction(action)
     } catch (e) {
-
+        console.log(e)
     }
 
     return (

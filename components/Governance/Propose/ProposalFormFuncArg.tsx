@@ -21,7 +21,7 @@ export const ProposalFormFuncArg = ({
 }) => {
     const [value, setValue] = useState(defaultValue || '');
 
-    const inputType = type.includes('int') ? 'number' : 'string';
+    const inputType = type.includes('int') && !type.endsWith('[]') ? 'number' : 'string';
     const min = type.includes('uint') ? '0' : undefined;
     const label = name || `Argument #${index + 1}`;
 
