@@ -814,7 +814,7 @@ export const FIRM_MARKETS = [
         // pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/resolv.png',
     },
     {
-        name: 'scrvUSD-sDOLA-sd',
+        name: 'scrvUSD-sDOLA',
         collateral: '0x76A962BA6770068bCF454D34dDE17175611e6637',
         address: '0xC45E9c231ab5D9Bd3F1131E7901B100D8D236C4d',
         nonProxySwapType: 'nonProxySwapNG-sDOLA',
@@ -826,7 +826,7 @@ export const FIRM_MARKETS = [
         isStakedaoStrategy: true,
         rewardTypeLabel: 'Claimable APR',
         badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },            
-        startingBlock: 25451954,
+        startingBlock: 25511428,
         aleTransformerType: 'marketAddressAndAmount',
         isAleWithoutSwap: true,
         rewardVault: '0x017EC76D2f32D018CbB0f9Ae507d5E5F9BdCeE3c',

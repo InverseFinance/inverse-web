@@ -2,13 +2,14 @@
  * Extra features specific to certain markets such as claiming rewards
  */
 
-import { CONVEX_REWARD_POOL, CRV_USD_DOLA_R_ABI, DBR_REWARDS_HELPER_ABI, ERC20_ABI, F2_ESCROW_ABI, ST_CVX_CRV_ABI } from "@app/config/abis"
+import { CONVEX_REWARD_POOL, CRV_USD_DOLA_R_ABI, DBR_REWARDS_HELPER_ABI, ERC20_ABI, F2_ESCROW_ABI, ST_CVX_CRV_ABI, STAKEDAO_REWARDS_ABI } from "@app/config/abis"
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers"
 import { getBnToNumber } from "./markets";
 import { getNetworkConfigConstants } from "./networks";
 import { BURN_ADDRESS } from "@app/config/constants";
 import { callWithHigherGL, getCrvToCvxReward } from "./contracts";
+import { F2Market } from "@app/types";
 
 const { F2_DBR_REWARDS_HELPER } = getNetworkConfigConstants();
 
@@ -40,6 +41,33 @@ export const getConvexLpRewards = async (escrow: string, rewardContract: string,
         extraRewards,
         cvxReward: crvToCvxReward,
     }
+}
+
+// CRV rewards
+export const getStakedaoRewards = async (rewardsAddress: string, vault: string, account: string, signer: JsonRpcSigner) => {
+    const contract = new Contract(rewardsAddress, STAKEDAO_REWARDS_ABI, signer);
+    const [accountData, vaultsData, SCALING_FACTOR] = await Promise.all([
+        contract.accounts(vault, account),
+        contract.vaults(vault),
+        contract.SCALING_FACTOR(),
+    ]);
+    
+    const [balance, accountIntegral, pendingRewards] = accountData;
+    const [vaultIntegral] = vaultsData;
+    let claimableAmount = pendingRewards;
+    if (vaultIntegral.gt(accountIntegral)) {
+        claimableAmount = claimableAmount.add(
+            vaultIntegral.sub(accountIntegral).mul(balance).div(SCALING_FACTOR)
+        );
+    }
+    return { earned: claimableAmount, cvxReward: 0 };
+}
+
+// claiming from stakedao
+export const claimStakedao = async (escrow: string, signer: JsonRpcSigner) => {
+    const contract = new Contract(escrow, ["function claim(address[] calldata tokens) public"], signer);
+    // CRV, CVX
+    return contract.claim(['0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B']);
 }
 
 export const getExtraCvxRewards = async (rewardContractAddress: string, escrow: string, signer: JsonRpcSigner) => {
