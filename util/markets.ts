@@ -861,7 +861,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'wstUSR-DOLA': wstUSRDOLAConvexData?.apy || 0,
         'yv-wstUSR-DOLA': yvwstUSRDOLAData?.apy || 0,
         // stakedao
-        'scrvUSD-sDOLA-sd': scrvUSDsDOLAStakedaoData?.apy || 0,
+        'scrvUSD-sDOLA': scrvUSDsDOLAStakedaoData?.apy || 0,
     };
 }
 
