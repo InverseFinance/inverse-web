@@ -1,6 +1,6 @@
 import { F2Market } from "@app/types"
 import { useContext, useEffect } from "react";
-import { useConvexLpRewards, useCvxCrvRewards, useCvxFxsRewards, useCvxRewards, useEscrowBalance, useEscrowRewards, useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
+import { useConvexLpRewards, useCvxCrvRewards, useCvxFxsRewards, useCvxRewards, useEscrowBalance, useEscrowRewards, useINVEscrowRewards, useStakedaoLpRewards, useStakedInFirm } from "@app/hooks/useFirm";
 import { F2MarketContext } from "../F2Contex";
 import { BURN_ADDRESS } from "@app/config/constants";
 import { zapperRefresh } from "@app/util/f2";
@@ -62,6 +62,13 @@ export const FirmRewardWrapper = ({
         return <FirmConvexLpRewardWrapperContent
             {...commonProps}
             rewardContract={market.convexRewardsAddress}
+        />
+    }
+    else if (!!market.isStakedaoStrategy) {
+        return <FirmStakedaoLpRewardWrapperContent
+            {...commonProps}
+            rewardAccountant={market.rewardAccountant}
+            rewardVault={market.rewardVault}
         />
     }
 
@@ -188,6 +195,49 @@ export const FirmConvexLpRewardWrapperContent = ({
     hideIfNoRewards?: boolean
 }) => {
     const { rewardsInfos, isLoading } = useConvexLpRewards(escrow, rewardContract);
+    useEffect(() => {
+        if (!onLoad || !rewardsInfos?.tokens?.length || isLoading) { return }
+        const totalUsd = rewardsInfos.tokens.filter(t => t.metaType === 'claimable')
+            .reduce((prev, curr) => prev + curr.balanceUSD, 0);
+        onLoad(totalUsd);
+    }, [rewardsInfos, onLoad])
+
+    return <FirmRewards
+        hideIfNoRewards={hideIfNoRewards}
+        market={market}
+        escrow={escrow}
+        rewardsInfos={rewardsInfos}
+        label={label}
+        showMarketBtn={showMarketBtn}
+        extraAtBottom={extraAtBottom}
+        isLoading={isLoading}
+        showMonthlyRewards={false}
+    />
+}
+
+
+export const FirmStakedaoLpRewardWrapperContent = ({
+    market,
+    label,
+    showMarketBtn = false,
+    extraAtBottom = false,
+    escrow,
+    rewardVault,
+    rewardAccountant,
+    onLoad,
+    hideIfNoRewards,
+}: {
+    market: F2Market
+    label?: string
+    escrow?: string
+    rewardContract?: string
+    vaultContract?: string
+    showMarketBtn?: boolean
+    extraAtBottom?: boolean
+    onLoad?: (v: number) => void
+    hideIfNoRewards?: boolean
+}) => {
+    const { rewardsInfos, isLoading } = useStakedaoLpRewards(escrow, rewardAccountant, rewardVault);
     useEffect(() => {
         if (!onLoad || !rewardsInfos?.tokens?.length || isLoading) { return }
         const totalUsd = rewardsInfos.tokens.filter(t => t.metaType === 'claimable')
@@ -376,7 +426,7 @@ export const FirmRewards = ({
     const { escrow: escrowFromContext } = useContext(F2MarketContext);
     const _escrow = escrow?.replace(BURN_ADDRESS, '') || escrowFromContext?.replace(BURN_ADDRESS, '');
 
-    const claimables = rewardsInfos?.tokens.filter(t => t.metaType === 'claimable' && (t.balanceUSD > 0.01 || (!t.price && t.balance > 0)));
+    const claimables = rewardsInfos?.tokens.filter(t => t.metaType === 'claimable' && (t.balanceUSD > 0.1 || (!t.price && t.balance > 0)));
     claimables?.sort((a, b) => b.balanceUSD - a.balanceUSD)
     const totalRewardsUSD = claimables?.reduce((prev, curr) => prev + curr.balanceUSD, 0);
 

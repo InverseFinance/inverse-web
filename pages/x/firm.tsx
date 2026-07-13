@@ -11,7 +11,7 @@ export async function getServerSideProps(context) {
         dbrData,
         dolaPriceData,
     ] = await Promise.all([
-        fetch(`${SERVER_BASE_URL}/api/f2/fixed-markets?cacheFirst=true`).then(res => res.json()),
+        fetch(`${SERVER_BASE_URL}/api/f2/fixed-markets?v=1.1&cacheFirst=true`).then(res => res.json()),
         fetch(`${SERVER_BASE_URL}/api/f2/tvl?cacheFirst=true`).then(res => res.json()),
         fetch(`${SERVER_BASE_URL}/api/dola/circulating-supply?cacheFirst=true`).then(res => res.text()),
         fetch(`${SERVER_BASE_URL}/api/dbr?cacheFirst=true`).then(res => res.json()),

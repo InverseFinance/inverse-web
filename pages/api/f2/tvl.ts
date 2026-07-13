@@ -38,7 +38,7 @@ export default async function handler(req, res) {
         // fetch('https://inverse.finance/api/f2/fixed-markets');
 
         // const { data: marketsCache } = await getCacheFromRedisAsObj(F2_MARKETS_CACHE_KEY, false);
-        const marketsCache = await fetch('https://inverse.finance/api/f2/fixed-markets?cacheFirst=true').then(res => res.json());
+        const marketsCache = await fetch('https://inverse.finance/api/f2/fixed-markets?v=1.1&cacheFirst=true').then(res => res.json());
 
         if (!marketsCache) {
             res.status(200).json(cachedTvl || { firmTotalTvl: 0, firmTvls: [] });

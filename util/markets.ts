@@ -766,6 +766,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         // wstUSR
         getDefiLlamaApy('d6667b26-1e1f-44bd-92a2-9ed56003ef36'),
         getYearnVaultApy('0x8A5f20dA6B393fE25aCF1522C828166D22eF8321'),
+        getDefiLlamaApy('54c9a039-42a2-4756-896a-50b81b239ba9'),
     ]);
 
     let [
@@ -805,6 +806,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         ptUSDe27NOV25Data,
         wstUSRDOLAConvexData,
         yvwstUSRDOLAData,
+        scrvUSDsDOLAStakedaoData,
     ] = externalYieldResults.map(r => {
         return r.status === 'fulfilled' ? r.value : {};
     });
@@ -844,7 +846,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'yv-sUSDS-DOLA': yvSUSDSDolaData?.apy || 0,
         'scrvUSD-DOLA': scrvUsdDolaConvexData?.apy || 0,
         'yv-scrvUSD-DOLA': yvscrvUsdDolaData?.apy || 0,
-        'scrvUSD-sDOLA': scrvUsdSDolaConvexData?.apy || 0,
+        'scrvUSD-sDOLA-convex': scrvUsdSDolaConvexData?.apy || 0,
         'yv-scrvUSD-sDOLA': yvscrvUsdSDolaData?.apy || 0,
         'deUSD-DOLA': deUSDDOLAConvexData?.apy || 0,
         'yv-deUSD-DOLA': yvdeUSDDOLAData?.apy || 0,
@@ -858,6 +860,8 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'PT-USDe-27NOV25': ptUSDe27NOV25Data?.apy || 0,
         'wstUSR-DOLA': wstUSRDOLAConvexData?.apy || 0,
         'yv-wstUSR-DOLA': yvwstUSRDOLAData?.apy || 0,
+        // stakedao
+        'scrvUSD-sDOLA-sd': scrvUSDsDOLAStakedaoData?.apy || 0,
     };
 }
 

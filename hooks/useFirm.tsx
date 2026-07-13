@@ -15,7 +15,7 @@ import { useAccount } from "./misc";
 import { useBlocksTimestamps } from "./useBlockTimestamp";
 import { TOKENS, getToken } from "@app/variables/tokens";
 import { useDOLAPrice, usePrices } from "./usePrices";
-import { getConvexLpRewards, getCvxCrvRewards, getCvxRewards } from "@app/util/firm-extra";
+import { getConvexLpRewards, getCvxCrvRewards, getCvxRewards, getStakedaoRewards } from "@app/util/firm-extra";
 import { useWeb3React } from "@web3-react/core";
 import useSWR from "swr";
 import { FEATURE_FLAGS, isInvPrimeMember } from "@app/config/features";
@@ -619,6 +619,39 @@ export const useCvxCrvRewards = (escrow: string) => {
       address: r.token,
     }
   });
+
+  return {
+    rewardsInfos: {
+      tokens: rewards || [],
+      timestamp: Date.now(),
+    },
+    isLoading: !rewardsData && !error,
+    isError: error,
+  }
+}
+
+export const useStakedaoLpRewards = (escrow: string, rewardContract: string, vaultContract: string) => {
+  const { prices } = usePrices();
+
+  const { provider } = useWeb3React();
+  const tsMinute = (new Date()).toISOString().substring(0, 16);
+  const { data: rewardsData, error } = useSWR(`stakedao-lp-rewards-${escrow}-${tsMinute}`, async () => {
+    return !escrow || escrow === BURN_ADDRESS ? Promise.resolve(undefined) : await getStakedaoRewards(rewardContract, vaultContract, escrow, provider?.getSigner());
+  });
+
+  const crv = getToken(TOKENS, 'CRV')!;
+  const crvBalance = rewardsData ? getBnToNumber(rewardsData?.earned, crv.decimals) : 0;
+  const crvPrice = prices && prices[crv.coingeckoId!] ? prices[crv.coingeckoId!].usd : 0;
+
+  const rewards = [
+    {
+      metaType: 'claimable',
+      balanceUSD: crvBalance * crvPrice,
+      price: crvPrice,
+      balance: crvBalance,
+      address: crv.address,
+    },
+  ];
 
   return {
     rewardsInfos: {

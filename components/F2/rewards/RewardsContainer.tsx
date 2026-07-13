@@ -1,6 +1,6 @@
 import Container from "@app/components/common/Container";
 import { ZapperTokens } from "./ZapperTokens"
-import { claim } from "@app/util/firm-extra";
+import { claim, claimStakedao } from "@app/util/firm-extra";
 import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
 import { F2Market } from "@app/types";
 import Link from "@app/components/common/Link";
@@ -46,6 +46,9 @@ export const RewardsContainer = ({
 
     const handleClaim = async () => {
         if (!account) return;
+        if(market.isStakedaoStrategy) {
+            return claimStakedao(escrow, provider?.getSigner());
+        }
         return claim(escrow, provider?.getSigner(), market.claimMethod, extraRewards);
     }
 
@@ -74,7 +77,7 @@ export const RewardsContainer = ({
                 hasJustClaimed || claimedNotLongAgo ?
                     <SuccessMessage alertProps={{ fontSize: '18px', fontWeight: 'bold', w: { base: 'full', sm: 'auto' } }} iconProps={{ height: 50, width: 50 }} description="Rewards claimed!" />
                     :
-                    (totalRewardsUSD > 0.1 || !!claimables?.find(c => !c.price && c.balance > 0)) ?
+                    (totalRewardsUSD > 0.001 || !!claimables?.find(c => !c.price && c.balance > 0)) ?
                         <VStack alignItems="flex-start" w='full'>
                             <ZapperTokens
                                 showMarketBtn={showMarketBtn}
