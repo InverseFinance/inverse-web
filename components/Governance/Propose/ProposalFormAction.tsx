@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import ScannerLink from '@app/components/common/ScannerLink';
 import { ProposalFormFuncArg } from './ProposalFormFuncArg';
 import { AddressAutocomplete } from '@app/components/common/Input/AddressAutocomplete';
-import { getFunctionFromProposalAction, getArgs } from '@app/util/governance';
+import { getFunctionFromProposalAction, getArgs, getCallData } from '@app/util/governance';
 import { ProposalActionPreview } from '../ProposalActionPreview';
 import { WarningMessage } from '@app/components/common/Messages';
 import { Modal } from '@app/components/common/Modal';
@@ -136,9 +136,15 @@ export const ProposalFormAction = ({
 
     const handleRawOpen = () => {
         setRawSignature(func || '');
-        setRawCallData('');
         setRawValue(value || '');
         setRawError('');
+        let prefillCallData = '';
+        try {
+            if (action.fragment && action.args?.length) {
+                prefillCallData = getCallData(action);
+            }
+        } catch (e) { }
+        setRawCallData(prefillCallData);
         onRawOpen();
     }
 
@@ -162,6 +168,7 @@ export const ProposalFormAction = ({
                 : fragment.inputs.map(v => ({ type: v.type, value: '', name: v.name }));
             onRawApply({ func: fragment.format('sighash'), fragment, args: parsedArgs, value: rawValue });
             onRawClose();
+            setHideBody(true);
         } catch (e: any) {
             setRawError(e.message || 'Invalid signature or call data');
         }
