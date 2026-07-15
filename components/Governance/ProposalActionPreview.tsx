@@ -1,6 +1,7 @@
 import { ProposalFunction } from '@app/types'
 import { AbiCoder, commify, FunctionFragment, isAddress, parseUnits, formatEther } from 'ethers/lib/utils';
-import { Stack, Flex, Text, StackProps } from '@chakra-ui/react';
+import { Stack, Flex, Text, StackProps, useDisclosure, FormControl, FormLabel, Input, Textarea } from '@chakra-ui/react';
+import { Modal } from '@app/components/common/Modal';
 import Link from '@app/components/common/Link'
 import { namedAddress, shortenAddress } from '@app/util';
 import { REWARD_TOKEN, TOKENS, UNDERLYING } from '@app/variables/tokens';
@@ -637,6 +638,8 @@ export const ProposalActionPreview = (({
     value,
     ...props
 }: ProposalFunction & { num?: number } & StackProps) => {
+    const { isOpen: isRawOpen, onOpen: onRawOpen, onClose: onRawClose } = useDisclosure();
+
     const callDatas = new AbiCoder()
         .decode(FunctionFragment.from(signature).inputs, callData)
         .toString()
@@ -688,11 +691,39 @@ export const ProposalActionPreview = (({
         <Stack w="full" spacing={1} {...props} textAlign="left">
             {
                 num ?
-                    <Flex fontSize="xs" fontWeight="bold" textTransform="uppercase" color="secondaryTextColor">
+                    <Flex fontSize="xs" fontWeight="bold" textTransform="uppercase" color="secondaryTextColor" alignItems="center" gap="2">
                         {`Action ${num}`}
+                        <Text
+                            cursor="pointer"
+                            color="purple.300"
+                            fontWeight="bold"
+                            onClick={onRawOpen}
+                            _hover={{ color: 'purple.200' }}
+                            userSelect="none"
+                        >
+                            RAW
+                        </Text>
                     </Flex>
                     : null
             }
+            <Modal isOpen={isRawOpen} onClose={onRawClose} header={`Action ${num} - Raw Data`}>
+                <Stack p="4" spacing="4">
+                    <FormControl>
+                        <FormLabel fontSize="sm">Function Signature</FormLabel>
+                        <Input fontSize="12" isReadOnly value={signature} />
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel fontSize="sm">Raw Call Data</FormLabel>
+                        <Textarea fontSize="12" isReadOnly value={callData} rows={4} fontFamily="mono" />
+                    </FormControl>
+                    {!!value && value !== '0' && (
+                        <FormControl>
+                            <FormLabel fontSize="sm">Value (WEI)</FormLabel>
+                            <Input fontSize="12" isReadOnly value={value} />
+                        </FormControl>
+                    )}
+                </Stack>
+            </Modal>
             <Flex w="full" overflowX="auto" direction="column" bgColor="primary.850" borderRadius={8} p={3}>
                 {
                     isHumanRedeableCaseHandled

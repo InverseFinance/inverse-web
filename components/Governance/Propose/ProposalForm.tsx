@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Flex, FormControl, FormLabel, Stack, Text, Box, useDisclosure, VStack } from '@chakra-ui/react';
 import { Textarea } from '@app/components/common/Input';
 import { formatUnits, FunctionFragment } from 'ethers/lib/utils';
-import { GovEra, Proposal, ProposalFormFields, ProposalStatus, TemplateProposalFormActionFields } from '@app/types';
+import { GovEra, Proposal, ProposalFormActionFields, ProposalFormFields, ProposalStatus, TemplateProposalFormActionFields } from '@app/types';
 import { ProposalInput } from './ProposalInput';
 import { ProposalFormAction } from './ProposalFormAction';
 import { deleteDraft, getFunctionsFromProposalActions, getProposalActionFromFunction, isProposalActionInvalid, isProposalFormInvalid, linkDraft, publishDraft, simulateOnChainActions, submitProposal } from '@app/util/governance';
@@ -121,6 +121,12 @@ export const ProposalForm = ({
         setForm({ ...form, actions: newActions });
     }
 
+    const handleRawApply = (index: number, partialAction: Partial<ProposalFormActionFields>) => {
+        const newActions = [...form.actions];
+        newActions[index] = { ...newActions[index], ...partialAction };
+        setForm({ ...form, actions: newActions });
+    }
+
     const deleteAction = (index: number) => {
         const actions = [...form.actions];
         actions.splice(index, 1);
@@ -186,6 +192,7 @@ export const ProposalForm = ({
             onDelete={() => deleteAction(i)}
             onDuplicate={() => duplicateAction(i)}
             onFuncChange={(v) => handleFuncChange(i, v)}
+            onRawApply={(partialAction) => handleRawApply(i, partialAction)}
             isDraggable={!previewMode}
             isDragging={draggedIndex === i}
             isDragOver={dragOverIndex === i}

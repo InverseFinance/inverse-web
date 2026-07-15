@@ -1,8 +1,8 @@
 import { ProposalFormActionFields, AutocompleteItem } from '@app/types';
-import { FormControl, FormLabel, Text, Box, Flex, Divider, SlideFade, ScaleFade } from '@chakra-ui/react';
+import { FormControl, FormLabel, Text, Box, Flex, Divider, SlideFade, ScaleFade, useDisclosure, Input, Textarea, Stack } from '@chakra-ui/react';
 import { CopyIcon, DeleteIcon } from '@chakra-ui/icons';
 import { ProposalInput } from './ProposalInput';
-import { isAddress, FunctionFragment } from 'ethers/lib/utils';
+import { isAddress, FunctionFragment, id } from 'ethers/lib/utils';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
 import { Autocomplete } from '@app/components/common/Input/Autocomplete';
 import { getRemoteAbi } from '@app/util/etherscan';
@@ -10,9 +10,11 @@ import { useEffect, useState } from 'react';
 import ScannerLink from '@app/components/common/ScannerLink';
 import { ProposalFormFuncArg } from './ProposalFormFuncArg';
 import { AddressAutocomplete } from '@app/components/common/Input/AddressAutocomplete';
-import { getFunctionFromProposalAction } from '@app/util/governance';
+import { getFunctionFromProposalAction, getArgs, getCallData } from '@app/util/governance';
 import { ProposalActionPreview } from '../ProposalActionPreview';
 import { WarningMessage } from '@app/components/common/Messages';
+import { Modal } from '@app/components/common/Modal';
+import { RSubmitButton } from '@app/components/common/Button/RSubmitButton';
 
 export const ProposalFormAction = ({
     action,
@@ -21,6 +23,7 @@ export const ProposalFormAction = ({
     onDelete,
     onDuplicate,
     onFuncChange,
+    onRawApply,
     isDraggable = false,
     isDragging = false,
     isDragOver = false,
@@ -36,6 +39,7 @@ export const ProposalFormAction = ({
     onDelete: () => void,
     onDuplicate: () => void,
     onFuncChange: (e: any) => void,
+    onRawApply: (partialAction: Partial<ProposalFormActionFields>) => void,
     isDraggable?: boolean,
     isDragging?: boolean,
     isDragOver?: boolean,
@@ -51,6 +55,11 @@ export const ProposalFormAction = ({
     const [contractFunctions, setContractFunctions] = useState([])
     const [scaledInEffect, setScaledInEffect] = useState(true);
     const [notInAbiWarning, setNotInAbiWarning] = useState(false)
+    const { isOpen: isRawOpen, onOpen: onRawOpen, onClose: onRawClose } = useDisclosure();
+    const [rawSignature, setRawSignature] = useState('');
+    const [rawCallData, setRawCallData] = useState('');
+    const [rawValue, setRawValue] = useState('');
+    const [rawError, setRawError] = useState('');
 
     useEffect(() => {
         let isMounted = true;
@@ -125,6 +134,46 @@ export const ProposalFormAction = ({
         }, 200)
     }
 
+    const handleRawOpen = () => {
+        setRawSignature(func || '');
+        setRawValue(value || '');
+        setRawError('');
+        let prefillCallData = '';
+        try {
+            if (action.fragment && action.args?.length) {
+                prefillCallData = getCallData(action);
+            }
+        } catch (e) { }
+        setRawCallData(prefillCallData);
+        onRawOpen();
+    }
+
+    const handleRawApply = () => {
+        try {
+            setRawError('');
+            const fragment = FunctionFragment.from(rawSignature.trim());
+            let callDataHex = rawCallData.trim();
+            if (callDataHex) {
+                if (!callDataHex.startsWith('0x')) {
+                    callDataHex = '0x' + callDataHex;
+                }
+                // Strip the 4-byte function selector if present
+                const selector = id(fragment.format('sighash')).slice(0, 10);
+                if (callDataHex.toLowerCase().startsWith(selector.toLowerCase())) {
+                    callDataHex = '0x' + callDataHex.slice(10);
+                }
+            }
+            const parsedArgs = callDataHex
+                ? getArgs(fragment, callDataHex)
+                : fragment.inputs.map(v => ({ type: v.type, value: '', name: v.name }));
+            onRawApply({ func: fragment.format('sighash'), fragment, args: parsedArgs, value: rawValue });
+            onRawClose();
+            setHideBody(true);
+        } catch (e: any) {
+            setRawError(e.message || 'Invalid signature or call data');
+        }
+    }
+
     let previewFunc = null
     try {
         previewFunc = getFunctionFromProposalAction(action)
@@ -173,6 +222,18 @@ export const ProposalFormAction = ({
                         Action #{index + 1}
                     </Text>
                     <CopyIcon ml="2" cursor="pointer" color="blue.400" onClick={onDuplicate} />
+                    <Text
+                        ml="2"
+                        cursor="pointer"
+                        color="purple.300"
+                        fontSize="12"
+                        fontWeight="bold"
+                        onClick={handleRawOpen}
+                        _hover={{ color: 'purple.200' }}
+                        userSelect="none"
+                    >
+                        RAW
+                    </Text>
                     {
                         notInAbiWarning ?
                             <WarningMessage
@@ -182,6 +243,52 @@ export const ProposalFormAction = ({
                     }
                     <DeleteIcon position="absolute" right="0" ml="2" cursor="pointer" color="red.400" onClick={handleDelete} />
                 </Flex>
+
+                <Modal
+                    isOpen={isRawOpen}
+                    onClose={onRawClose}
+                    header="Raw Action Input"
+                    footer={
+                        <RSubmitButton onClick={handleRawApply}>
+                            Apply
+                        </RSubmitButton>
+                    }
+                >
+                    <Stack p="4" spacing="4">
+                        <FormControl>
+                            <FormLabel fontSize="sm">Function Signature</FormLabel>
+                            <Input
+                                fontSize="12"
+                                placeholder="transfer(address,uint256)"
+                                value={rawSignature}
+                                onChange={(e) => setRawSignature(e.target.value)}
+                            />
+                        </FormControl>
+                        <FormControl>
+                            <FormLabel fontSize="sm">Raw Call Data</FormLabel>
+                            <Textarea
+                                fontSize="12"
+                                placeholder="Data with or without the 4-byte function selector prepended and with or without the 0x prefix."
+                                value={rawCallData}
+                                onChange={(e) => setRawCallData(e.target.value)}
+                                rows={4}
+                                fontFamily="mono"
+                            />
+                        </FormControl>
+                        <FormControl>
+                            <FormLabel fontSize="sm">Value <Text as="span" fontWeight="normal" fontSize="xs" color="gray.400">(in WEI, optional)</Text></FormLabel>
+                            <Input
+                                fontSize="12"
+                                placeholder="0"
+                                value={rawValue}
+                                onChange={(e) => setRawValue(e.target.value)}
+                            />
+                        </FormControl>
+                        {rawError && (
+                            <WarningMessage alertProps={{ fontSize: '12px', p: '2' }} description={rawError} />
+                        )}
+                    </Stack>
+                </Modal>
                 <Divider mt="2" mb="2" />
 
                 <ScaleFade initialScale={0.1} unmountOnExit={true} in={hideBody} reverse={false}>
