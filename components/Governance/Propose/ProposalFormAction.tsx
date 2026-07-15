@@ -265,10 +265,10 @@ export const ProposalFormAction = ({
                             />
                         </FormControl>
                         <FormControl>
-                            <FormLabel fontSize="sm">Raw Call Data <Text as="span" fontWeight="normal" fontSize="xs" color="gray.400">(ABI-encoded args or full tx calldata)</Text></FormLabel>
+                            <FormLabel fontSize="sm">Raw Call Data</FormLabel>
                             <Textarea
                                 fontSize="12"
-                                placeholder="0x000000000000000000000000..."
+                                placeholder="Data with or without the 4-byte function selector prepended and with or without the 0x prefix."
                                 value={rawCallData}
                                 onChange={(e) => setRawCallData(e.target.value)}
                                 rows={4}
