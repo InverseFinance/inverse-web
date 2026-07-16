@@ -251,6 +251,9 @@
   margin-bottom: 10px;
   max-width: 790px;
 }
+.fullscreen-proposal .markdown-body p {
+  max-width: 95vw !important;
+}
 
 .markdown-body blockquote {
   margin: 0;

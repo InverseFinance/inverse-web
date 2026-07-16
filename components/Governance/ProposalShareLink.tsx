@@ -4,13 +4,14 @@ import { ProposalFunction } from '@app/types'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { removeLocalDraft, saveLocalDraft } from '@app/util/governance'
 import { showToast } from '@app/util/notify';
-import { HStack, Popover, PopoverTrigger, PopoverContent, PopoverBody, useClipboard, useDisclosure, Stack, Text, Flex } from '@chakra-ui/react'
+import { HStack, Popover, PopoverTrigger, PopoverContent, PopoverBody, useClipboard, useDisclosure, Stack, Text, Flex, Box } from '@chakra-ui/react'
 import { useRouter } from 'next/dist/client/router'
 import { useEffect, useState } from 'react';
 import { Modal } from '@app/components/common/Modal';
 import { ProposalActionPreview } from './ProposalActionPreview';
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm';
+import InfoModal from '../common/Modal/InfoModal'
 
 const icons = {
     'copy': CopyIcon,
@@ -73,7 +74,7 @@ export const ProposalShareLink = ({
     }
 
     return (
-        <HStack ml="3" spacing="3" alignItems="center">
+        <HStack ml="3" spacing="2" alignItems="center">
             {
                 type === 'copy' ? <>
                     <Link display="inline-block" ml="2" mr="1" href={{ pathname: `/governance/propose`, query: { proposalLinkData } }} isExternal>
@@ -115,12 +116,16 @@ export const ProposalShareLink = ({
                         }
                     </>
             }
-            <AnimatedInfoTooltip type="tooltip" message={"View proposal in fullscreen"}>
-                <ArrowUpDownIcon color="blue.500" fontSize="12px" cursor="pointer" onClick={onFullscreenOpen} />
-            </AnimatedInfoTooltip>
+            <Box mr="2" alignItems="center">
+                <AnimatedInfoTooltip type="tooltip" message={"View proposal in fullscreen"}>
+                    <ArrowUpDownIcon color="blue.500" fontSize="12px" cursor="pointer" onClick={onFullscreenOpen} />
+                </AnimatedInfoTooltip>
+            </Box>
 
-            <Modal isOpen={isFullscreenOpen} onClose={onFullscreenClose} header={title} size="full">
-                <Stack p="6" spacing="6" overflowY="auto">
+            <InfoModal isOpen={isFullscreenOpen} onOk={onFullscreenClose} onClose={onFullscreenClose} title={title}
+                modalProps={{ minW: { base: '98vw' }, minH: { base: '98vh' }, scrollBehavior: 'inside' }}
+            >
+                <Stack className="fullscreen-proposal" p="6" spacing="6" overflowY="auto">
                     <Flex w="full" overflow="auto" color="mainTextColor">
                         <ReactMarkdown className="markdown-body" remarkPlugins={[gfm]}>
                             {description}
@@ -142,7 +147,7 @@ export const ProposalShareLink = ({
                         </Stack>
                     )}
                 </Stack>
-            </Modal>
+            </InfoModal>
         </HStack>
     )
 }
