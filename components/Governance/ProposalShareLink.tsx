@@ -1,12 +1,16 @@
-import { CopyIcon, DeleteIcon, DownloadIcon, EditIcon, LinkIcon } from '@chakra-ui/icons'
+import { CopyIcon, DeleteIcon, DownloadIcon, EditIcon, LinkIcon, ArrowUpDownIcon } from '@chakra-ui/icons'
 import Link from '@app/components/common/Link'
 import { ProposalFunction } from '@app/types'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { removeLocalDraft, saveLocalDraft } from '@app/util/governance'
 import { showToast } from '@app/util/notify';
-import { HStack, Popover, PopoverTrigger, PopoverContent, PopoverBody, useClipboard } from '@chakra-ui/react'
+import { HStack, Popover, PopoverTrigger, PopoverContent, PopoverBody, useClipboard, useDisclosure, Stack, Text, Flex } from '@chakra-ui/react'
 import { useRouter } from 'next/dist/client/router'
 import { useEffect, useState } from 'react';
+import { Modal } from '@app/components/common/Modal';
+import { ProposalActionPreview } from './ProposalActionPreview';
+import ReactMarkdown from 'react-markdown';
+import gfm from 'remark-gfm';
 
 const icons = {
     'copy': CopyIcon,
@@ -38,6 +42,7 @@ export const ProposalShareLink = ({
     const proposalLinkData = JSON.stringify({ title, description, functions })
     const [sharableLink, setSharableLink] = useState('')
     const { hasCopied, onCopy } = useClipboard(sharableLink)
+    const { isOpen: isFullscreenOpen, onOpen: onFullscreenOpen, onClose: onFullscreenClose } = useDisclosure();
     const IconComp = icons[type]
 
     useEffect(() => {
@@ -110,6 +115,34 @@ export const ProposalShareLink = ({
                         }
                     </>
             }
+            <AnimatedInfoTooltip type="tooltip" message={"View proposal in fullscreen"}>
+                <ArrowUpDownIcon color="blue.500" fontSize="12px" cursor="pointer" onClick={onFullscreenOpen} />
+            </AnimatedInfoTooltip>
+
+            <Modal isOpen={isFullscreenOpen} onClose={onFullscreenClose} header={title} size="full">
+                <Stack p="6" spacing="6" overflowY="auto">
+                    <Flex w="full" overflow="auto" color="mainTextColor">
+                        <ReactMarkdown className="markdown-body" remarkPlugins={[gfm]}>
+                            {description}
+                        </ReactMarkdown>
+                    </Flex>
+                    {functions.length > 0 && (
+                        <Stack spacing="4">
+                            <Text fontWeight="semibold" fontSize="md">Actions</Text>
+                            {functions.map((f, i) => (
+                                <ProposalActionPreview
+                                    key={i}
+                                    num={i + 1}
+                                    target={f.target}
+                                    signature={f.signature}
+                                    callData={f.callData}
+                                    value={f.value}
+                                />
+                            ))}
+                        </Stack>
+                    )}
+                </Stack>
+            </Modal>
         </HStack>
     )
 }
