@@ -13,6 +13,11 @@ export const MENUS = {
           href: '/firm',
         },
         {
+          label: 'FiRM (new)',
+          href: 'https://firm.inverse.finance/markets',
+          isExternal: true,
+        },
+        {
           label: 'FiRM rewards',
           href: '/firm/rewards',
         },
@@ -86,6 +91,11 @@ export const MENUS = {
           href: '/governance/proposals',
         },
         {
+          label: 'Community',
+          href: 'https://firm.inverse.finance/community',
+          isExternal: true,
+        },
+        {
           label: 'Create a Draft',
           href: '/governance/propose?proposalLinkData=%7B"title"%3A"Draft"%2C"description"%3A"Forum+post+link,+Draft+content"%2C"actions"%3A%5B%5D%7D#',
         },
@@ -140,8 +150,9 @@ export const MENUS = {
           label: 'INV & DAO',
         },
         {
-          href: '/transparency/dbr',
+          href: 'https://firm.inverse.finance/stats#fees',
           label: 'DBR & FiRM',
+          isExternal: true
         },
         {
           href: '/transparency/dola',
