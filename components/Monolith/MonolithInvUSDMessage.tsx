@@ -8,7 +8,8 @@ import { getBnToNumber } from "@app/util/markets";
 import { InfoMessage } from "../common/Messages";
 
 export const MonolithInvUSDMessage = ({
-    cf = 30
+    cf = 30,
+    onlyShowIfMigrationNeeded = false
 }) => {
     const account = useAccount();
     const { data: invMarketBalBn } = useEtherSWR([
@@ -16,6 +17,7 @@ export const MonolithInvUSDMessage = ({
     ]);
     const invMarketBal = invMarketBalBn ? getBnToNumber(invMarketBalBn) : 0;
     const needMigration = invMarketBal >= 1;
+    if(onlyShowIfMigrationNeeded && !needMigration) return null;
     return <VStack maxW="1200px" w='full' alignItems="center" spacing="0" px="6" mb="4">
         <VStack w='full' alignItems="center" spacing="3" position="relative" zIndex={1}>
             <HStack spacing="2" flexWrap="wrap" justify="center">
