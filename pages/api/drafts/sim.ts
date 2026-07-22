@@ -192,7 +192,7 @@ export default async function handler(req, res) {
       }
       try {
         const executeTx = await govContract.execute(proposalId, {
-          gasLimit: 20000000,
+          gasLimit: 40_000_000,
         });
         txHash = executeTx.hash;
         const receipt = await executeTx.wait();
