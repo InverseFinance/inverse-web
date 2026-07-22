@@ -25,6 +25,7 @@ import { DbrFloatingTrigger } from '@app/components/F2/DbrEasyBuyer.tsx/DbrEasyB
 import { JuniorMessage } from '@app/components/JuniorTranches/JuniorMessage'
 import { MonolithInvUSDMessage } from '@app/components/Monolith/MonolithInvUSDMessage'
 import { JsonLd } from '@app/components/common/JsonLd'
+import { NewFirmVideo } from '@app/components/F2/NewFirmVideo'
 
 export const F2PAGE = ({
     isTwitterAlert = false,
@@ -268,7 +269,8 @@ export const F2PAGE = ({
             <ErrorBoundary>
                 <VStack pt={{ base: 4, md: 8 }} w='full' maxW={{ base: '84rem', '2xl': '90rem' }}>
                     <ErrorBoundary>
-                        <MonolithInvUSDMessage cf={(marketsData?.markets?.find(m => m.isInv)?.collateralFactor||10)*100} />
+                        <NewFirmVideo />
+                        <MonolithInvUSDMessage onlyShowIfMigrationNeeded={true} cf={(marketsData?.markets?.find(m => m.isInv)?.collateralFactor||10)*100} />
                     </ErrorBoundary>
                     {
                         !!globalMessage && (
