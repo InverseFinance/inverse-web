@@ -24,8 +24,8 @@ export const NewFirmVideo = () => {
                     loop
                     width="400"
                     height="auto"
-                    webkit-playsinline
-                    playsinline
+                    playsInline
+                    webkit-playsinline="true"
                     style={{ zIndex: 10, maxWidth: '98%' }}
                 >
                     <source src="/assets/new-firm-video.mp4" type="video/mp4" />
