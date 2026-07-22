@@ -5,16 +5,16 @@ export const NewFirmVideo = () => {
     return <VStack maxW="1200px" w='full' alignItems="center" spacing="0" px="6" mb="4">
         <VStack w='full' alignItems="center" spacing="3" position="relative" zIndex={1}>
             <Stack direction={{ base: 'column', lg: 'row' }} alignItems="center" spacing="5">
-                <VStack w='full' spacing="0" alignItems="center" justifyItems="flex-start" justifyContent="flex-start">
+                <VStack w='full' spacing="0" alignItems="center" justifyItems="center" justifyContent="center">
                     <Link
-                        fontSize={{ base: '14px', md: '18px' }}
+                        fontSize={'18px'}
                         textDecoration="underline"
                         href="https://firm.inverse.finance"
                         isExternal
                         target="_blank"
                         _hover={{ color: 'accentTextColor' }}
                     >Discover the new FiRM app</Link>
-                    <Text color="mainTextColorLight">
+                    <Text textAlign="center" fontSize={'16px'} color="mainTextColorLight" lineHeight="normal">
                         A brand new website dedicated to FiRM with improved UI/UX
                     </Text>
                 </VStack>
