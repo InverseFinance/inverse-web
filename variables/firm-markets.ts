@@ -102,6 +102,7 @@ export const FIRM_MARKETS = [
         oracleStartingBlock: 18264581,
         claimMethod: 'claimDBR',
         hasStakingLikeRewards: true,
+        rewardTypeLabel: 'DBR APR',
         // borrowingWasDisabledBeforeBlock:
     },
     {
