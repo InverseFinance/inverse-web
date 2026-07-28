@@ -54,7 +54,7 @@ const getSteps = (
     const collateralPrice = market.price;
     const targetCollateralBalance = collateralPrice ? desiredWorth / collateralPrice : 0;
 
-    const safeMinHealth = market.collateralFactor >= 0.9 ? 0.2 : 1.6;
+    const safeMinHealth = (market.collateralFactor >= 0.9 || market.underlying.isStable) ? 0.2 : 1.6;
 
     const {
         newDebtSigned,
@@ -106,6 +106,7 @@ const estimateNonProxyAmount = async (
     if (isDeposit) {
         // amounts of each coin being deposited
         const amounts = helperDolaIndex === '1' ? ['0', dolaAmountToDepositOrLpAmountToBurn.toString()] : [dolaAmountToDepositOrLpAmountToBurn.toString(), '0'];
+        console.log(amounts)
         return (await crvLpContract.calc_token_amount(amounts, true));
     } else {
         return (await crvLpContract.calc_withdraw_one_coin(dolaAmountToDepositOrLpAmountToBurn.toString(), helperDolaIndex));
@@ -146,6 +147,7 @@ const nonProxySwapGetters = {
 export const getCollateralLpOutputFromDolaDeposit = async (market: F2Market, amountToDeposit: number, signer, sDolaExRate?: number, underlyingExRate?: number, dolaPrice = 1): Promise<BigNumber> => {
     if (signer) {
         const rootLpAddedBn = await nonProxySwapGetters[market.nonProxySwapType || 'nonProxySwap'](market.rootLp || market.collateral, market.address, getNumberToBn(amountToDeposit), true, market.aleData, signer, sDolaExRate);
+        console.log('rootLpAddedBn', rootLpAddedBn.toString())
         const collateralAdded = underlyingExRate ? getNumberToBn(getBnToNumber(rootLpAddedBn) / underlyingExRate) : rootLpAddedBn;
         return collateralAdded;
     }
@@ -156,6 +158,7 @@ export const getCollateralLpOutputFromDolaDeposit = async (market: F2Market, amo
 
 export const useCollateralLpOutputFromDeposit = (isDolaAsInputCase: boolean, market: F2Market, amountIn: number, sDolaExRate?: number, underlyingExRate?: number, dolaPrice = 1) => {
     const { account, provider, chainId } = useWeb3React<Web3Provider>();
+    // console.log('amountIn', amountIn)
     const { data } = useCustomSWR(`lpCol-amount-out-${isDolaAsInputCase}-${market.name}-${chainId}-${account}-${(amountIn || 0).toFixed(0)}`, async () => {
         if (!isDolaAsInputCase) return BigNumber.from('0');
         return await getCollateralLpOutputFromDolaDeposit(market, amountIn, provider?.getSigner(), sDolaExRate, underlyingExRate, dolaPrice);
@@ -375,7 +378,11 @@ export const FirmBoostInfos = ({
     const knownFixedAmount = isLeverageUp ? debtAmountNum + (isDolaAsInputCase ? inputAmountNum : 0) : collateralAmountNum;
     const aleSlippageFactor = (1 - parseFloat(aleSlippage) / 100);
     const estimatedAmount = leverageLevel > 1 ? parseFloat(isLeverageUp ? isDolaAsInputCase ? totalCollateralAmountNum : leverageCollateralAmount : leverageDebtAmount) : 0;
+    console.log('estimatedAmount', estimatedAmount)
+    
     const minAmount = aleSlippage ? aleSlippageFactor * estimatedAmount : 0;
+    console.log('aleSlippageFactor', aleSlippageFactor)
+    console.log('minAmount 2', minAmount)
     // when leveraging down min amount (or debt) is always the amount repaid, the slippage impacts amount of dola received in wallet
     const amountOfDebtReduced = isLeverageUp ? 0 : Math.min(minAmount, debt);
     const extraDolaReceivedInWallet = isLeverageUp ? 0 : estimatedAmount - amountOfDebtReduced;
