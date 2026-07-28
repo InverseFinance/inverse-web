@@ -395,6 +395,7 @@ export const F2CombinedForm = ({
     const isDeleverageCase = useLeverageInMode && !isDeposit;
     const canShowLeverage = FEATURE_FLAGS.firmLeverage && !market.isLeverageComingSoon && (market.hasAleFeat || !account) && !isUseNativeCoin && ((['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1) || ['Deposit & Borrow', 'Borrow'].includes(mode));
     const canActivateLeverage = ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1));
+    const hasMarketAleAllowanceIssue = useLeverageInMode && isDeposit && ['WETH', 'cvxCRV', 'st-yCRV', 'CVX', 'wstETH', 'WBTC', 'sUSDe', 'scrvUSD-sDOLA'].includes(market.name)
     const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && (debtAmountNum > 0 || isDeleverageCase);
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
     const showNotEnoughDolaToRepayMessage = isRepayCase && debtAmountNum > 0 && dolaBalance < debtAmountNum;
@@ -633,7 +634,7 @@ export const F2CombinedForm = ({
             maxActionLabel={'Unstake all'}
             onAmountChange={handleInputChange}
             showMaxBtn={market.isInv && isWithdrawCase && !debt}
-            isDisabled={disabledConditions[MODES[mode]]}
+            isDisabled={disabledConditions[MODES[mode]] || (hasMarketAleAllowanceIssue)}
             hideInputIfNoAllowance={false}
             hideInput={true}
             hideButtons={false}
@@ -688,9 +689,9 @@ export const F2CombinedForm = ({
                                 />
                             }
                             {
-                                ['WETH', 'cvxCRV', 'st-yCRV', 'CVX', 'wstETH', 'WBTC', 'sUSDe', 'scrvUSD-sDOLA'].includes(market.name) ? <InfoMessage
+                                hasMarketAleAllowanceIssue ? <InfoMessage
                                     alertProps={{ w: 'full' }}
-                                    description="Sorry, this market cannot use the leverage engine at the moment due to a temporary allowance issue, borrowing and manual looping is still possible."
+                                    description="Sorry, this market cannot use the leverage engine at the moment due to a temporary allowance issue, borrowing and manual looping is still possible as well as de-leveraging."
                                 /> : canActivateLeverage ? <ErrorBoundary description="Something went wrong in the leverage interface. Please try again later.">
                                     <FirmBoostInfos
                                         type={isDeposit ? 'up' : 'down'}
