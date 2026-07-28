@@ -688,7 +688,10 @@ export const F2CombinedForm = ({
                                 />
                             }
                             {
-                                canActivateLeverage ? <ErrorBoundary description="Something went wrong in the leverage interface. Please try again later.">
+                                ['WETH', 'cvxCRV', 'st-yCRV', 'CVX', 'wstETH', 'WBTC', 'sUSDe', 'scrvUSD-sDOLA'].includes(market.name) ? <InfoMessage
+                                    alertProps={{ w: 'full' }}
+                                    description="Sorry, this market cannot use the leverage engine at the moment due to a temporary allowance issue, borrowing and manual looping is still possible."
+                                /> : canActivateLeverage ? <ErrorBoundary description="Something went wrong in the leverage interface. Please try again later.">
                                     <FirmBoostInfos
                                         type={isDeposit ? 'up' : 'down'}
                                         triggerCollateralAndOrLeverageChange={triggerCollateralAndOrLeverageChange}
