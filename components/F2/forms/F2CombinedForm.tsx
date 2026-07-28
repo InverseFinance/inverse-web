@@ -570,15 +570,14 @@ export const F2CombinedForm = ({
                 {showNeedDbrMessage && <NoDbrInWalletMessage />}
                 {showNotEnoughDolaToRepayMessage && <NotEnoughDolaToRepayMessage amount={debtAmountNum} />}
                 <Stack direction={{ base: 'column', xl: 'row' }} pt="2" justify="space-between" alignItems="space-between" w='full'>
-                    <Text>DBR auto-buys temporarily disabled</Text>
-                    {/* {
+                    {
                         isDeposit && (hasDebtChange || hasCollateralChange) && !isMultisig ? <DbrHelperSwitch
                             isDeposit={isDeposit}
                             setIsAutoDBR={setIsAutoDBR}
                             isAutoDBR={isAutoDBR}
                             hasHelper={!!market.helper}
                         /> : <Text>&nbsp;</Text>
-                    } */}
+                    }
                     {
                         market.isLeverageComingSoon && <Text color="mainTextColorLight">
                             Leverage coming{market.isLeverageSuspended ? ' back ' : ' '}soon

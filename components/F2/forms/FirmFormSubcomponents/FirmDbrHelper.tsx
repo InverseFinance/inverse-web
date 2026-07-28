@@ -158,7 +158,7 @@ export const DbrHelperSwitch = ({
     isAutoDBR: boolean
     hasHelper: boolean
 }) => {
-    return <FormControl w='fit-content' display='flex' alignItems='center'>
+    return <FormControl onClick={() => window.alert("Sorry, his feature has been temporarily disabled")} w='fit-content' display='flex' alignItems='center'>
         <AnimatedInfoTooltip
             iconProps={{ color: 'secondaryTextColor', fontSize: '12px', mr: '2' }}
             message="This feature allows you to automatically buy DBR alongside your borrow"
@@ -167,7 +167,11 @@ export const DbrHelperSwitch = ({
             Auto-{isDeposit ? 'buy' : 'sell'} DBR
             <Image ml="2" src={TOKEN_IMAGES.DBR} display="inline-block" w="20px" h="20px" />
         </FormLabel>
-        <Switch isDisabled={!hasHelper} onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
+        <Switch 
+            isDisabled={true} 
+            // isDisabled={!hasHelper} 
+            // onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr'
+        />
         {
             !hasHelper && <Badge ml="2">
                 Coming soon
