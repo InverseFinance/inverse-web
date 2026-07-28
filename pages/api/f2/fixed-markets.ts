@@ -4,12 +4,14 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
 import { getBnToNumber, getConvexMarketsExtraApys, getFirmMarketsApys } from '@app/util/markets'
-import { CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
+import { ALE_V4, CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { formatDistributorData, formatMarketData, inverseViewerRaw } from '@app/util/viewer';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { marketsDisplaysCacheKey } from './markets-display';
 import { estimateBlockTimestamp } from '@app/util/misc';
+import { Contract } from 'ethers';
+import { ERC20_ABI } from '@app/config/abis';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -62,10 +64,14 @@ export default async function handler(req, res) {
       marketData,
       invAprData,
       dbrDistributorData,
+      aleAllowancesChecks,
     ] = await getGroupedMulticallOutputs([
       { contract: ifvr.firmContract, functionName: 'getMarketListData', params: [F2_MARKETS.map(m => m.hasNowInvalidFeed ? '0x0000000000000000000000000000000000000000' : m.address)] },
       { contract: ifvr.tokensContract, functionName: 'getInvApr', params: [] },
       { contract: ifvr.tokensContract, functionName: 'getDbrDistributorInfo', params: [] },
+      F2_MARKETS.map(m => {
+        return { contract: new Contract(m.collateral, ERC20_ABI, provider), functionName: 'allowance', params: [ALE_V4, m.address] }
+      })
     ], 1, undefined, provider);
 
     const [formattedMarketData, invApr, formattedDistrubutorData] = [
@@ -104,6 +110,7 @@ export default async function handler(req, res) {
       return {
         ...marketOverrides,
         extraRewardApy,
+        aleAllowance: getBnToNumber(aleAllowancesChecks[i]) > 0 ? 'OK' : 'KO',
         underlying: TOKENS[m.collateral],
         supplyApy: supplyApy + extraRewardApy,
         extraApy: m.isInv ? dbrApr : 0,
