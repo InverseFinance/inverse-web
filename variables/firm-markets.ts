@@ -210,6 +210,9 @@ export const FIRM_MARKETS = [
         isInv: false,
         aleTransformerType: 'marketAddress',
         isERC4626Collateral: true,
+        isPhasingOut: true,
+        phasingOutComment: `Phasing out due to poor liquidity.`,
+        phasingOutLink: 'https://www.inverse.finance/governance/proposals/mills/339',
     },
     {
         name: 'sFRAX',
