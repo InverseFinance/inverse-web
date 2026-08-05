@@ -9,7 +9,7 @@ export const MENUS = {
       href: 'https://firm.inverse.finance/markets',
       submenus: [
         {
-          label: 'FiRM',
+          label: 'FiRM (new UI)',
           href: 'https://firm.inverse.finance/markets',
           isExternal: true,
         },
@@ -55,7 +55,7 @@ export const MENUS = {
         },
         {
           label: 'jrDOLA',
-          href: '/jrDOLA',
+          href: 'https://firm.inverse.finance/jrdola',
         },
         {
           label: 'sINV',
