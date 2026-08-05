@@ -162,7 +162,7 @@ export const Landing = ({
           "url": "https://www.inverse.finance"
         },
         "category": "DeFi Fixed-Rate Lending",
-        "url": "https://www.inverse.finance/firm",
+        "url": "https://firm.inverse.finance/markets",
         "feesAndCommissionsSpecification": "Borrowing cost is determined by the DBR token price. 1 DBR = right to borrow 1 DOLA for 1 year."
       }} />
       <VStack spacing="0" className="landing-v3" w='full' alignItems="center">
@@ -193,9 +193,9 @@ export const Landing = ({
               </GeistText>
             </VStack>
             <VStack w='full' alignItems={{ base: 'flex-start', md: 'center' }} pt="2%" pb="5%">
-              <Link href="/firm">
+              <Link target="_blank" isExternal href="https://firm.inverse.finance/markets">
                 <LandingNoisedBtn>
-                  Launch App <Image ml="2" alt="rocket" src="/assets/landing/rocket.svg" w="20px" h="20px" />
+                  Launch FiRM <Image ml="2" alt="rocket" src="/assets/landing/rocket.svg" w="20px" h="20px" />
                 </LandingNoisedBtn>
               </Link>
               <LandingCard bg="linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 2%, rgba(255, 255, 255, 1) 98%, rgba(0, 0, 0, 0.05) 100%)" borderRadius='4px' boxShadow="unset" mt="12" w="full" maxW="800px">
@@ -248,7 +248,7 @@ export const Landing = ({
                 </GeistText>
                 <VStack py="4">
                   <HStack spacing="8">
-                    <Link href="/firm">
+                    <Link target="_blank" isExternal href="https://firm.inverse.finance/markets">
                       <LandingBtn>
                         Try It Out Now
                       </LandingBtn>
@@ -333,8 +333,8 @@ export const Landing = ({
             // width="600"
             // height="300"
             controls
-            webkit-playsinline
             playsInline
+            webkit-playsinline="true"
           >
             <source src="sDOLA.mp4" type="video/mp4" />
             Your browser does not support the video tag.
@@ -454,7 +454,7 @@ export const Landing = ({
               Ready to Experience Fixed Rates?
             </LandingHeading>
             <ResponsiveStack spacing="10" alignItems="center">
-              <Link href="/firm">
+              <Link target="_blank" isExternal href="https://firm.inverse.finance/markets">
                 <LandingNoisedBtn>
                   Get Started Now <Image ml="2" alt="rocket" src="/assets/landing/rocket.svg" w="20px" h="20px" />
                 </LandingNoisedBtn>

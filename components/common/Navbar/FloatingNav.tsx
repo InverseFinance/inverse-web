@@ -289,7 +289,7 @@ export const FloatingNav = ({
               h="40px"
               fontSize={isLargerThan ? '18px' : '15px'}
             >
-              Launch App
+              Launch FiRM
             </LandingBtn>
           </Link>
           {isSmallerThan && <LandingBurgerMenu isLanding={true} navItems={LANDING_NAV_ITEMS} />}
