@@ -189,7 +189,7 @@ const INVBalance = () => {
   }
 
   const goToSupply = () => {
-    router.push({ pathname: '/firm/INV' });
+    router.push({ pathname: 'https://firm.inverse.finance/firm/INV' });
   }
 
   const onMainnetCase = inv >= 0.01

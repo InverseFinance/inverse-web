@@ -6,28 +6,21 @@ export const MENUS = {
     },
     {
       label: 'Markets',
-      href: '/firm',
+      href: 'https://firm.inverse.finance/markets',
       submenus: [
         {
           label: 'FiRM',
-          href: '/firm',
-        },
-        {
-          label: 'FiRM (new)',
           href: 'https://firm.inverse.finance/markets',
           isExternal: true,
         },
         {
-          label: 'FiRM rewards',
-          href: '/firm/rewards',
+          label: 'FiRM (old UI)',
+          href: '/firm',
         },
         {
-          label: 'FiRM stakers',
-          href: '/firm/stakers',
-        },
-        {
-          label: 'Liquidate Loans',
-          href: '/firm/positions',
+          label: 'FiRM positions',
+          href: 'https://firm.inverse.finance/stats#positions',
+          isExternal: true,
         },
         {
           label: 'My Replenishments',
@@ -234,7 +227,8 @@ export const MENUS = {
         },
         {
           label: 'Request Collateral',
-          href: '/firm/request-collateral',
+          href: 'https://firm.inverse.finance/community',
+          isExternal: true
         },
         // {
         //   label: 'Blog',
