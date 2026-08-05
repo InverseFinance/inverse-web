@@ -23,14 +23,14 @@ const darkNavy = "#5A5D78";
 const LANDING_NAV_ITEMS = [
   {
     label: 'Product',
-    href: '/firm',
+    href: 'https://firm.inverse.finance/markets',
     type: 'big',
     submenus: [
       {
         logo: <FirmLogo w="100px" h="auto" theme="light" />,
         title: 'FiRM',
         text: 'Borrow for any duration at fixed rates',
-        href: '/firm',
+        href: 'https://firm.inverse.finance/markets',
       },
       {
         logo: <HStack spacing="4">
