@@ -224,7 +224,7 @@ export const F2PAGE = ({
                     }
                 ]
             }} />
-            <AppNav active="Markets" activeSubmenu="FiRM" />
+            <AppNav active="Markets" activeSubmenu="FiRM (old UI)" />
             {/* {
                 !colReqShown && <SlideModal closeOnOutsideClick={false} closeIconInside={true} isOpen={crIsOpen} onClose={handleColReqClose} contentProps={{ maxW: '500px', className: '', backgroundColor: 'navBarBackgroundColor' }}>
                     <VStack w='full' justify="flex-start" alignItems="flex-start">

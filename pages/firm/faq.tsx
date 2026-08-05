@@ -11,7 +11,7 @@ export const F2PAGE = () => {
             <Head>
                 <title>Inverse Finance - FiRM FAQ</title>
             </Head>
-            <AppNav active="Borrow" activeSubmenu="FiRM" />
+            <AppNav active="Markets" activeSubmenu="FiRM (old UI)" />
             <ErrorBoundary>
                 <VStack w='full' maxW="64rem" mt="4">
                     <FirmFAQ />
