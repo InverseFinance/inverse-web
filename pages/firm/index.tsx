@@ -271,6 +271,7 @@ export const F2PAGE = ({
                     <ErrorBoundary>
                         <NewFirmVideo />
                         <MonolithInvUSDMessage onlyShowIfMigrationNeeded={true} cf={(marketsData?.markets?.find(m => m.isInv)?.collateralFactor||10)*100} />
+                        <JuniorMessage />
                     </ErrorBoundary>
                     {
                         !!globalMessage && (
