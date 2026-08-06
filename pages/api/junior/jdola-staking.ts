@@ -1,18 +1,16 @@
 import 'source-map-support'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { CHAIN_ID, JDOLA_AUCTION_ADDRESS, ONE_DAY_MS, SDOLA_ADDRESS } from '@app/config/constants';
-import { formatDolaStakingData, getDolaSavingsContract, getSdolaContract } from '@app/util/dola-staking';
+import { CHAIN_ID, JDOLA_AUCTION_ADDRESS } from '@app/config/constants';
 import { getMulticallOutput } from '@app/util/multicall';
 import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 import { getWeekIndexUtc } from '@app/util/misc';
 import { getOnChainData } from '../dola/sdola-comparator';
 import { getBnToNumber } from '@app/util/markets';
 import { formatJDolaStakingData, getJrdolaContract, getJuniorEscrowContract } from '@app/util/junior';
-import { JsonRpcProvider } from '@ethersproject/providers';
 import { dolaStakingCacheKey } from '../dola-staking';
 
-export const jdolaStakingCacheKey = `jdola-staking-v2.0.0`;
+export const jdolaStakingCacheKey = `jdola-staking-v2.0.1`;
 
 export default async function handler(req, res) {
     const { cacheFirst, ignoreCache, includeSpectra } = req.query;

@@ -72,8 +72,6 @@ export const formatJDolaStakingData = (
     const jrDolaSupply = (jrDolaStakingData ? getBnToNumber(jrDolaStakingData[0]) : fallbackData?.jrDolaSupply || 0);
     const yearlyRewardBudget = jrDolaStakingData ? getBnToNumber(jrDolaStakingData[1]) : fallbackData?.yearlyRewardBudget || 0;
     const maxYearlyRewardBudget = jrDolaStakingData ? getBnToNumber(jrDolaStakingData[2]) : fallbackData?.maxYearlyRewardBudget || 0;
-    const maxDolaDbrRatio = jrDolaStakingData ? getBnToNumber(jrDolaStakingData[3]) : fallbackData?.maxDolaDbrRatio || 0;
-    const maxRewardPerDolaMantissa = maxDolaDbrRatio * 1e14;
 
     const weeklyRevenue = jrDolaStakingData ? getBnToNumber(jrDolaStakingData[4]) : fallbackData?.weeklyRevenue || 0;
     const pastWeekRevenue = jrDolaStakingData ? getBnToNumber(jrDolaStakingData[5]) : fallbackData?.pastWeekRevenue || 0;
@@ -81,7 +79,7 @@ export const formatJDolaStakingData = (
     const jrDolaTotalAssets = jrDolaTotalAssetsCurrent + assetsDelta;
 
     // per sDOLA here
-    const dbrRatePerDola = jrDolaTotalAssets > 0 ? Math.min(yearlyRewardBudget / jrDolaTotalAssets, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
+    const dbrRatePerDola = jrDolaTotalAssets > 0 ? yearlyRewardBudget / jrDolaTotalAssets : 0;
     const now = Date.now();
     const secondsPastEpoch = (now - getLastThursdayTimestamp()) / 1000;
     const realizedTimeInDays = secondsPastEpoch / ONE_DAY_SECS;
@@ -106,11 +104,8 @@ export const formatJDolaStakingData = (
         yearlyDbrEarnings: dbrRatePerDola * jrDolaTotalAssetsCurrent,
         yearlyRewardBudget,
         maxYearlyRewardBudget,
-        maxRewardPerDolaMantissa,
         weeklyRevenue,
         pastWeekRevenue,
-        maxDolaDbrRatio,
-        maxDolaDbrRatioBps: maxRewardPerDolaMantissa / 10_000,
         apr,
         // weekly compounding
         apy: aprToApy(apr, WEEKS_PER_YEAR),
