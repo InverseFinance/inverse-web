@@ -14,7 +14,7 @@ export const jdolaStakingCacheKey = `jdola-staking-v2.0.1`;
 
 export default async function handler(req, res) {
     const { cacheFirst, ignoreCache, includeSpectra } = req.query;
-    const cacheDuration = 900;
+    const cacheDuration = 30;
     const isIncludeSpectra = includeSpectra === 'true';
     const cacheKey = isIncludeSpectra ? `${jdolaStakingCacheKey}-spectra` : jdolaStakingCacheKey;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
