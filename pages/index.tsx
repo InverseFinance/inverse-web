@@ -10,7 +10,7 @@ import { EcosystemBanner, EcosystemGrid } from '@app/components/Landing/Ecosyste
 import Link from '@app/components/common/Link'
 import { useEffect, useState } from 'react'
 import FirmLogo from '@app/components/common/Logo/FirmLogo'
-import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, landingLightBorderColor, LandingLink, landingMainColor, landingMutedColor, LandingNoisedBtn, landingPurple, landingPurpleBg, landingPurpleText, LandingStat, LandingStatBasic, LandingStatBasicBig, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
+import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, landingLightBorderColor, LandingLink, landingMainColor, landingMutedColor, LandingNoisedBtn, landingPurple, landingPurpleBg, landingPurpleText, LandingStatBasic, LandingStatBasicBig, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import FooterV2 from '@app/components/common/Footer/FooterV2'
 import { useDBRPrice } from '@app/hooks/useDBR'
@@ -33,7 +33,6 @@ const mobileAnimWidthToHeightRatio = 0.5925925925925926;
 const mobileAnimWidth = 640;
 
 export const Landing = ({
-  currentCirculatingSupply,
   dbrPriceUsd,
   firmTotalTvl,
   invPrice,
@@ -44,7 +43,6 @@ export const Landing = ({
   totalDebt,
   sDolaTvl,
 }: {
-  currentCirculatingSupply: number,
   dbrPriceUsd: number,
   firmTotalTvl: number,
   dolaPrice: number,
@@ -108,36 +106,6 @@ export const Landing = ({
     return () => window.removeEventListener('resize', handleResize);
   }, [isSmallerThan, windowWidth]);
 
-  const stats = [
-    {
-      name: 'sDOLA APY',
-      value: apy ? `${shortenNumber(apy, 2, false)}%` : '-',
-    },
-    {
-      name: 'TVL',
-      value: firmTotalTvl ? shortenNumber(firmTotalTvl, 2, true) : '-',
-    },
-    {
-      name: 'DOLA in Circulation',
-      value: shortenNumber(currentCirculatingSupply, 2, true),
-    },
-    {
-      name: 'FiRM Borrows',
-      value: shortenNumber(totalDebt, 2, true),
-    },
-    // {
-    //   name: 'DOLA 24h Vol.',
-    //   value: dolaVolume,
-    // },
-    // {
-    //   name: 'INV price',
-    //   value: invPrice,
-    // },
-    // {
-    //   name: 'DBR price',
-    //   value: dbrPriceUsd ? dbrPriceUsd : '-',
-    // },
-  ];
 
   return (
     <Layout isLanding={true} isLandingV2={true} pt="0" overflow="hidden">
@@ -192,22 +160,53 @@ export const Landing = ({
                 Stack your leverage with locked rates and multiply your returns - all in one click
               </GeistText>
             </VStack>
-            <VStack w='full' alignItems={{ base: 'flex-start', md: 'center' }} pt="2%" pb="5%">
-              <Link target="_blank" isExternal href="https://firm.inverse.finance/markets">
-                <LandingNoisedBtn>
-                  Launch FiRM <Image ml="2" alt="rocket" src="/assets/landing/rocket.svg" w="20px" h="20px" />
-                </LandingNoisedBtn>
-              </Link>
-              <LandingCard bg="linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 2%, rgba(255, 255, 255, 1) 98%, rgba(0, 0, 0, 0.05) 100%)" borderRadius='4px' boxShadow="unset" mt="12" w="full" maxW="800px">
-                <SimpleGrid columns={{ base: 2, md: 4 }} gap="2" w="full">
-                  {
-                    stats.map((stat) => (
-                      <LandingStat key={stat.name} {...stat} />
-                    ))
-                  }
-                </SimpleGrid>
+            <SimpleGrid columns={{ base: 1, md: 2 }} gap="6" w="full" maxW="900px" pt="8" pb="5%">
+              <LandingCard bg="linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 2%, rgba(255, 255, 255, 1) 98%, rgba(0, 0, 0, 0.05) 100%)" borderRadius='8px' boxShadow="0 2px 8px 2px #33333322" p="6">
+                <VStack spacing="4" w="full" alignItems="flex-start">
+                  <FirmLogo w="65px" h="30px" theme="light" />
+                  <GeistText color={landingMutedColor} fontSize="sm">Fixed-rate borrowing against your favorite collaterals</GeistText>
+                  <SimpleGrid columns={2} gap="4" w="full">
+                    <VStack alignItems="flex-start" spacing="1">
+                      <GeistText color={landingMutedColor} fontSize="sm">TVL</GeistText>
+                      <GeistText fontWeight="bold" fontSize="2xl">{firmTotalTvl ? shortenNumber(firmTotalTvl, 2, true) : '-'}</GeistText>
+                    </VStack>
+                    <VStack alignItems="flex-start" spacing="1">
+                      <GeistText color={landingMutedColor} fontSize="sm">Borrows</GeistText>
+                      <GeistText fontWeight="bold" fontSize="2xl">{totalDebt ? shortenNumber(totalDebt, 2, true) : '-'}</GeistText>
+                    </VStack>
+                  </SimpleGrid>
+                  <Link target="_blank" isExternal href="https://firm.inverse.finance/markets">
+                    <LandingNoisedBtn>
+                      Launch FiRM <Image ml="2" alt="rocket" src="/assets/landing/rocket.svg" w="20px" h="20px" />
+                    </LandingNoisedBtn>
+                  </Link>
+                </VStack>
               </LandingCard>
-            </VStack>
+              <LandingCard bg="linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 2%, rgba(255, 255, 255, 1) 98%, rgba(0, 0, 0, 0.05) 100%)" borderRadius='8px' boxShadow="0 2px 8px 2px #33333322" p="6">
+                <VStack spacing="4" w="full" alignItems="flex-start">
+                  <HStack spacing="2" alignItems="center">
+                    <Image src="/assets/sDOLAx128.png" alt="sDOLA" w="20px" h="20px" />
+                    <GeistText fontWeight="bold" fontSize="lg">sDOLA</GeistText>
+                  </HStack>
+                  <GeistText color={landingMutedColor} fontSize="sm">Earn organic yield with the DOLA savings stablecoin</GeistText>
+                  <SimpleGrid columns={2} gap="4" w="full">
+                    <VStack alignItems="flex-start" spacing="1">
+                      <GeistText color={landingMutedColor} fontSize="sm">TVL</GeistText>
+                      <GeistText fontWeight="bold" fontSize="2xl">{sDolaTvl ? shortenNumber(sDolaTvl, 2, true) : '-'}</GeistText>
+                    </VStack>
+                    <VStack alignItems="flex-start" spacing="1">
+                      <GeistText color={landingMutedColor} fontSize="sm">APY</GeistText>
+                      <GeistText fontWeight="bold" fontSize="2xl">{apy ? `${shortenNumber(apy, 2, false)}%` : '-'}</GeistText>
+                    </VStack>
+                  </SimpleGrid>
+                  <Link target="_blank" isExternal href="https://earn.inverse.finance">
+                    <LandingNoisedBtn btnProps={{ bgColor: landingGreenColor, color: landingMainColor }}>
+                      Start Earning <ArrowForwardIcon ml="2" />
+                    </LandingNoisedBtn>
+                  </Link>
+                </VStack>
+              </LandingCard>
+            </SimpleGrid>
           </VStack>
         </VStack>
         {/* below fold */}
