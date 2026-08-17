@@ -111,7 +111,7 @@ export default async function handler(req, res) {
     const xinvContract = new Contract(XINV, XINV_ABI, provider);
     const invFirmContract = new Contract(F2_MARKETS.find(m => m.isInv).address, F2_MARKET_ABI, provider);
 
-    const vestersToCheck = [...Array(currentPayrolls.length * 2 + 40).keys()];
+    const vestersToCheck = [...Array(currentPayrolls.length * 2 + 50).keys()];
 
     const vesterFactory = new Contract(XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI, provider);
     const vestersResults = await Promise.allSettled([

@@ -25,7 +25,7 @@ const excluded = [
   '0x5c1245F9dB3f8f7Fe1208cB82325eA88fC11Fe89',
 ];
 
-const vestersToCheck = [...Array(45).keys()];
+const vestersToCheck = [...Array(55).keys()];
 
 export default async function handler(req, res) {
   const cacheKey = `inv-circ-supply-evolution-v1.0.3`;
