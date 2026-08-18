@@ -34,9 +34,10 @@ const mainConfig = {
     // f2controller: '0x2DbAd53A647A86b8988E007a33FE78bd55e9Dd6f',
     // f2ale: '0x5233f4C2515ae21B540c438862Abb5603506dEBC',
     // f2ale: '0x4dF2EaA1658a220FDB415B9966a9ae7c3d16e240',
-    f2ale: '0x39D167Fe676EFC3be49bE874a37349A5D89f9058',
+    // f2ale: '0x39D167Fe676EFC3be49bE874a37349A5D89f9058',
+    f2ale: '0x43Fa5E63253b00D5e34f42e711D734A058142055',
     // in current version dbr helper is same address as ale
-    f2helper: '0x39D167Fe676EFC3be49bE874a37349A5D89f9058',
+    f2helper: '0x43Fa5E63253b00D5e34f42e711D734A058142055',
     f2dbrRewardsHelper: '0x3363Ad5780316Fd5180Bb9F34297B533fb9cB335',
     f2markets: FIRM_MARKETS,
     feds: FEDS_PARAMS,
