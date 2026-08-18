@@ -131,6 +131,7 @@ export const TOKEN_IMAGES = {
     "THENA": "https://assets.coingecko.com/coins/images/28864/small/IMG_20230129_155910_852.png?1674984924",
     "veTHENA": "https://assets.coingecko.com/coins/images/28864/small/IMG_20230129_155910_852.png?1674984924",
     "CUSD": "https://assets.coingecko.com/coins/images/26588/small/CUSD-01.png?1658909049",
+    "REUSD": "https://assets.coingecko.com/coins/images/54836/standard/reusd-icon-black-200px.png?1741970002",
     "FTM": "https://assets.coingecko.com/coins/images/4001/small/Fantom.png?1558015016",
     "SLIZ": "https://assets.coingecko.com/coins/images/28968/small/sliz-logo.png?1675746291",
     "RAM": "https://assets.coingecko.com/coins/images/29420/small/RAM_Token_32x32.png?1678678321",
