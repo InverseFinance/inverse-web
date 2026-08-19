@@ -11,7 +11,6 @@ export interface SwapQuote {
   to?: string;
   value?: string;
   error?: string;
-  approvalAddress: string;
   routeSummary?: any;
   exchangeProxy?: string;
 }
@@ -36,6 +35,7 @@ export interface SwapExecuteParams {
   routeSummary?: any;
 }
 
+const kyberswapCommon = { aggregator: "kyberswap", exchangeProxy: '0x6131B5fae19EA4f9D964eAc0408E4408b66337b5' }
 // KyberSwap API
 async function getKyberSwapQuote(params: SwapExecuteParams): Promise<SwapQuote> {
   try {
@@ -48,23 +48,21 @@ async function getKyberSwapQuote(params: SwapExecuteParams): Promise<SwapQuote> 
 
     if (!response.ok) {
       const error = await response.text();
-      return { aggregator: "kyberswap", amountOut: "0", error: error || "KyberSwap API error" };
+      return { ...kyberswapCommon, amountOut: "0", error: error || "KyberSwap API error" };
     }
 
     const data = await response.json();
-    
+
     return {
-      aggregator: "kyberswap",
+      ...kyberswapCommon,
       amountOut: data.data.routeSummary.amountOut || "0",
       gasEstimate: data.data.routeSummary.gas?.toString(),
-      approvalAddress: data.data.routerAddress,
       routeSummary: data.data.routeSummary,
       id: data.requestId,
-      exchangeProxy: '0x6131B5fae19EA4f9D964eAc0408E4408b66337b5',
       priceImpact: data.data.routeSummary.priceImpact ? parseFloat(data.data.routeSummary.priceImpact) * 100 : undefined,
     };
   } catch (error: any) {
-    return { aggregator: "kyberswap", amountOut: "0", error: error.message || "KyberSwap error" };
+    return { ...kyberswapCommon, amountOut: "0", error: error.message || "KyberSwap error" };
   }
 }
 
@@ -93,7 +91,7 @@ async function getKyberSwapSwapData(params: SwapExecuteParams): Promise<SwapQuot
     }
 
     const { data } = await response.json();
-    
+
     return {
       aggregator: "kyberswap",
       amountOut: data.amountOut || "0",
@@ -107,109 +105,133 @@ async function getKyberSwapSwapData(params: SwapExecuteParams): Promise<SwapQuot
   }
 }
 
+const ensoCommon = { aggregator: "enso", exchangeProxy: '0xF75584eF6673aD213a685a1B58Cc0330B8eA22Cf' };
 // // Enso (via @ensofinance/sdk — see lib/enso.ts)
-// async function getEnsoQuote(params: SwapExecuteParams): Promise<SwapQuote> {
-//   try {
-//     if (!process.env.ENSO_API_KEY) {
-//       return {
-//         aggregator: "enso",
-//         amountOut: "0",
-//         approvalAddress: "",
-//         error: "ENSO_API_KEY is not set",
-//       };
-//     }
-    
-//     const data = await fetchEnsoRoute({
-//       fromAddress: params.recipient as `0x${string}`,
-//       tokenIn: params.fromToken as `0x${string}`,
-//       tokenOut: params.toToken as `0x${string}`,
-//       amountIn: params.amountIn,
-//       chainId: params.chainId,
-//       slippage: (params.slippageTolerance * 100).toFixed(0),
-//     });
-    
-//     const amountOut = String(data.amountOut ?? "0");
-//     const priceImpactBps =
-//       data.priceImpact != null && data.priceImpact !== ""
-//         ? Number(data.priceImpact)
-//         : undefined;
-//     return {
-//       aggregator: "enso",
-//       amountOut,
-// exchangeProxy: '0xF75584eF6673aD213a685a1B58Cc0330B8eA22Cf'
-//       gasEstimate:
-//         data.gas !== undefined && data.gas !== null
-//           ? String(data.gas)
-//           : undefined,
-//       priceImpact:
-//         priceImpactBps !== undefined && !Number.isNaN(priceImpactBps)
-//           ? priceImpactBps / 100
-//           : undefined,
-//       route: data.route,
-//       approvalAddress: data.tx.to,
-//     };
-//   } catch (error: any) {
-//     return {
-//       aggregator: "enso",
-//       amountOut: "0",
-//       approvalAddress: "",
-//       error: error.message || "Enso error",
-//     };
-//   }
-// }
+async function getEnsoQuote(params: SwapExecuteParams): Promise<SwapQuote> {
+  try {
+    if (!process.env.NEXT_PUBLIC_ENSO_API_KEY) {
+      return {
+        ...ensoCommon,
+        amountOut: "0",
+        error: "ENSO_API_KEY is not set",
+      };
+    }
 
-// async function getEnsoSwapData(params: SwapExecuteParams): Promise<SwapQuote> {
-//   try {
-//     if (!process.env.ENSO_API_KEY) {
-//       return {
-//         aggregator: "enso",
-//         amountOut: "0",
-//         approvalAddress: "",
-//         error: "ENSO_API_KEY is not set",
-//       };
-//     }
-//     const data = await fetchEnsoRoute({
-//       fromAddress: params.recipient as `0x${string}`,
-//       tokenIn: params.fromToken as `0x${string}`,
-//       tokenOut: params.toToken as `0x${string}`,
-//       amountIn: params.amountIn,
-//       chainId: params.chainId,
-//       slippage: (params.slippageTolerance * 100).toFixed(0),
-//     });
-//     const amountOut = String(data.amountOut ?? "0");
-//     return {
-//       aggregator: "enso",
-//       amountOut,
-//       calldata: data.tx.data,
-//       to: data.tx.to,
-//       value: String(data.tx.value ?? "0"),
-//       gasEstimate:
-//         data.gas !== undefined && data.gas !== null
-//           ? String(data.gas)
-//           : undefined,
-//       approvalAddress: data.tx.to,
-//       route: data.route,
-        // exchangeProxy: '0xF75584eF6673aD213a685a1B58Cc0330B8eA22Cf'
-//     };
-//   } catch (error: any) {
-//     return {
-//       aggregator: "enso",
-//       amountOut: "0",
-//       approvalAddress: "",
-//       error: error.message || "Enso error",
-//     };
-//   }
-// }
+    const fromAddress = params.recipient;
+    const tokenIn = params.fromToken;
+    const tokenOut = params.toToken;
+    const amountIn = params.amountIn;
+    const slippage = (params.slippageTolerance * 100).toFixed(0);
+
+    const res = await fetch(`https://api.enso.build/api/v1/shortcuts/quote?chainId=1&fromAddress=${fromAddress}&amountIn=${amountIn}&slippage=${slippage}&tokenIn=${tokenIn}&tokenOut=${tokenOut}&priceImpact=true&routingStrategy=router`, {
+      method: "GET",
+      headers: {
+        'accept': "*/*",
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ENSO_API_KEY}`,
+      },
+    });
+
+    const data = await res.json();
+
+    if (res.status !== 200 || !data.amountOut) {
+      return {
+        ...ensoCommon,
+        amountOut: "0",
+        error: data?.statusCode === 404 ? "No route found" : "Call failed",
+      };
+    }
+
+    const amountOut = String(data.amountOut ?? "0");
+    const priceImpactBps =
+      data.priceImpact != null && data.priceImpact !== ""
+        ? Number(data.priceImpact)
+        : undefined;
+    return {
+      ...ensoCommon,
+      amountOut,
+      priceImpact:
+        priceImpactBps !== undefined && !Number.isNaN(priceImpactBps)
+          ? priceImpactBps / 100
+          : undefined,
+      route: data.route,
+    };
+  } catch (error: any) {
+    return {
+      ...ensoCommon,
+      amountOut: "0",
+      error: error.message || "Enso error",
+    };
+  }
+}
+
+async function getEnsoSwapData(params: SwapExecuteParams): Promise<SwapQuote> {
+  try {
+    if (!process.env.NEXT_PUBLIC_ENSO_API_KEY) {
+      return {
+        ...ensoCommon,
+        aggregator: "enso",
+        amountOut: "0",
+        error: "ENSO_API_KEY is not set",
+      };
+    }
+
+    const fromAddress = params.recipient;
+    const tokenIn = params.fromToken;
+    const tokenOut = params.toToken;
+    const amountIn = params.amountIn;
+    const slippage = (params.slippageTolerance * 100).toFixed(0);
+
+    const res = await fetch(`https://api.enso.build/api/v1/shortcuts/route?chainId=1&toEoa=true&fromAddress=${fromAddress}&amountIn=${amountIn}&slippage=${slippage}&tokenIn=${tokenIn}&tokenOut=${tokenOut}&refundReceiver=0x8dF2fBeBc0fe876e4001b9E89361C5aE02d663d2&priceImpact=true&routingStrategy=router`, {
+      method: "GET",
+      headers: {
+        'accept': "*/*",
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ENSO_API_KEY}`,
+      }
+    });
+    const data = await res.json();
+  
+    const amountOut = String(data.amountOut ?? "0");
+    const priceImpactBps =
+      data.priceImpact != null && data.priceImpact !== ""
+        ? Number(data.priceImpact)
+        : undefined;
+    return {
+      ...ensoCommon,
+      amountOut,
+      calldata: data.tx.data,
+      to: data.tx.to,
+      value: String(data.tx.value ?? "0"),
+      priceImpact:
+        priceImpactBps !== undefined && !Number.isNaN(priceImpactBps)
+          ? priceImpactBps / 100
+          : undefined,
+      gasEstimate:
+        data.gas !== undefined && data.gas !== null
+          ? String(data.gas)
+          : undefined,
+      route: data.route,
+    };
+  } catch (error: any) {
+    return {
+      ...ensoCommon,
+      amountOut: "0",
+      error: error.message || "Enso error",
+    };
+  }
+}
+
 
 // Get best quote from all aggregators
 export async function getBestQuote(params: SwapExecuteParams): Promise<QuotesResult> {
   const quotes = await Promise.allSettled([
     getKyberSwapQuote(params),
-    // getEnsoQuote(params),
+    getEnsoQuote(params),
   ]);
 
   const validQuotes: SwapQuote[] = [];
-  
+
   for (const result of quotes) {
     if (result.status === "fulfilled" && !result.value.error && result.value.amountOut !== "0") {
       validQuotes.push(result.value);
@@ -220,7 +242,7 @@ export async function getBestQuote(params: SwapExecuteParams): Promise<QuotesRes
     // Return the first error if available
     for (const result of quotes) {
       if (result.status === "fulfilled" && result.value.error) {
-        console.log(result)
+        // console.log(result)
         return result.value;
       }
     }
@@ -240,8 +262,8 @@ export async function getBestQuote(params: SwapExecuteParams): Promise<QuotesRes
     return 0;
   });
 
-  console.log('quotes')
-  console.log(quotes)
+  // console.log('quotes')
+  // console.log(quotes)
   console.log(validQuotes)
 
   return {
@@ -256,8 +278,8 @@ export async function getSwapData(params: SwapExecuteParams): Promise<SwapQuote>
   switch (params.aggregator) {
     case "kyberswap":
       return getKyberSwapSwapData(params);
-    // case "enso":
-    //   return getEnsoSwapData(params);
+    case "enso":
+      return getEnsoSwapData(params);
     default:
       return { aggregator: params.aggregator, amountOut: "0", error: "Unknown aggregator" };
   }
