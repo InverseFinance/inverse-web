@@ -767,6 +767,9 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getDefiLlamaApy('d6667b26-1e1f-44bd-92a2-9ed56003ef36'),
         getYearnVaultApy('0x8A5f20dA6B393fE25aCF1522C828166D22eF8321'),
         getDefiLlamaApy('54c9a039-42a2-4756-896a-50b81b239ba9'),
+        // reUSD
+        getYearnVaultApy('0x7c439Df9ADE8831180EA4D546c1E910D4Ba71a86'),
+        getDefiLlamaApy('7255c661-892b-4c4c-b869-537a1326b669'),
     ]);
 
     let [
@@ -807,6 +810,8 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         wstUSRDOLAConvexData,
         yvwstUSRDOLAData,
         scrvUSDsDOLAStakedaoData,
+        yvreusdSDOLAData,
+        reusdSDOLAStakedaoData,
     ] = externalYieldResults.map(r => {
         return r.status === 'fulfilled' ? r.value : {};
     });
@@ -862,6 +867,8 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'yv-wstUSR-DOLA': yvwstUSRDOLAData?.apy || 0,
         // stakedao
         'scrvUSD-sDOLA': scrvUSDsDOLAStakedaoData?.apy || 0,
+        'yv-reUSD-sDOLA': yvreusdSDOLAData?.apy || 0,
+        'reUSD-sDOLA': reusdSDOLAStakedaoData?.apy || 0,
     };
 }
 
