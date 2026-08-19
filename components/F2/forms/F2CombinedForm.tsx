@@ -395,7 +395,7 @@ export const F2CombinedForm = ({
     const isDeleverageCase = useLeverageInMode && !isDeposit;
     const canShowLeverage = FEATURE_FLAGS.firmLeverage && !market.isLeverageComingSoon && (market.hasAleFeat || !account) && !isUseNativeCoin && ((['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1) || ['Deposit & Borrow', 'Borrow'].includes(mode));
     const canActivateLeverage = ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1));
-    const hasMarketAleAllowanceIssue = useLeverageInMode && isDeposit && ['WETH', 'cvxCRV', 'st-yCRV', 'CVX', 'wstETH', 'WBTC', 'sUSDe', 'scrvUSD-sDOLA'].includes(market.name)
+    const hasMarketAleAllowanceIssue = useLeverageInMode && isDeposit && ['marketwithissue'].includes(market.name)
     const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && (debtAmountNum > 0 || isDeleverageCase);
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
     const showNotEnoughDolaToRepayMessage = isRepayCase && debtAmountNum > 0 && dolaBalance < debtAmountNum;
