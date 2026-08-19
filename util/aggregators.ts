@@ -60,7 +60,7 @@ async function getKyberSwapQuote(params: SwapExecuteParams): Promise<SwapQuote> 
       approvalAddress: data.data.routerAddress,
       routeSummary: data.data.routeSummary,
       id: data.requestId,
-      exchangeProxy: '0xF75584eF6673aD213a685a1B58Cc0330B8eA22Cf',
+      exchangeProxy: '0x6131B5fae19EA4f9D964eAc0408E4408b66337b5',
       priceImpact: data.data.routeSummary.priceImpact ? parseFloat(data.data.routeSummary.priceImpact) * 100 : undefined,
     };
   } catch (error: any) {
@@ -103,7 +103,7 @@ async function getKyberSwapSwapData(params: SwapExecuteParams): Promise<SwapQuot
       gasEstimate: data.gas?.toString(),
     };
   } catch (error: any) {
-    return { aggregator: "kyberswap", amountOut: "0", error: error.message || "KyberSwap error", exchangeProxy: '0xF75584eF6673aD213a685a1B58Cc0330B8eA22Cf' };
+    return { aggregator: "kyberswap", amountOut: "0", error: error.message || "KyberSwap error", exchangeProxy: '0x6131B5fae19EA4f9D964eAc0408E4408b66337b5' };
   }
 }
 
@@ -136,6 +136,7 @@ async function getKyberSwapSwapData(params: SwapExecuteParams): Promise<SwapQuot
 //     return {
 //       aggregator: "enso",
 //       amountOut,
+// exchangeProxy: '0xF75584eF6673aD213a685a1B58Cc0330B8eA22Cf'
 //       gasEstimate:
 //         data.gas !== undefined && data.gas !== null
 //           ? String(data.gas)
