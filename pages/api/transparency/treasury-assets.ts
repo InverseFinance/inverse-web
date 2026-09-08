@@ -111,7 +111,7 @@ export default async function handler(req, res) {
 
   const { ANCHOR_TOKENS, UNDERLYING, TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
   const cacheKey = `treasury-assets-cache-v1.0.1`;
-  
+
   try {
     const cacheDuration = 120;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
@@ -191,6 +191,10 @@ export default async function handler(req, res) {
       ...m,
       funds: multisigsFunds[i]
         .map(m => {
+          // bad zerion data
+          if (m.key === "40 Acres-40 Acres Lending (#7)") {
+            return { balance: 0 };
+          }
           // temporary: for invUSD use liquidity TVL data for now
           if (!!liquidityCachedData && m.token.address === '0xe430e64081a3e7a39d24c5f507d9d4b492b2ed52') {
             const invUsdLiquidityData = liquidityCachedData.liquidity.find(l => l.address.toLowerCase() === '0xe430e64081a3e7a39d24c5f507d9d4b492b2ed52');
