@@ -2,7 +2,7 @@ import 'source-map-support'
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { ONE_DAY_MS } from '@app/config/constants'
 
-export const INV_VALUATION_CACHE_KEY = `inv-valuation-v1.0.1`;
+export const INV_VALUATION_CACHE_KEY = `inv-valuation-v1.0.3`;
 
 const BASE_URL = 'https://www.inverse.finance';
 
@@ -161,8 +161,9 @@ export default async function handler(req, res) {
     // DBR burns are recognized lumpily (a borrower's accrued DBR is deducted in one go on borrow/repay/force-replenish),
     // so annualizing a short window is noise. The run-rate is the sound forward-looking denominator:
     // every DOLA borrowed consumes exactly 1 DBR per year, so yearly interest = borrows * DBR price.
+    // Fed income is excluded on purpose: it is trailing and lumpy, mixing it in would break the forward-looking reading
     const firmInterestRunRate = firmBorrows !== null ? firmBorrows * dbrPrice : null;
-    const annualizedRunRate = firmInterestRunRate !== null ? firmInterestRunRate + fedRevenue.trailing365d : null;
+    const annualizedRunRate = firmInterestRunRate;
 
     const resultData = {
       timestamp: now,
@@ -213,6 +214,10 @@ export default async function handler(req, res) {
           excludingOwnTokens: safeDiv(marketCap, bookValueExclOwnTokens),
         },
         marketCapToTvl: safeDiv(marketCap, firmTvl),
+        // annualized borrower fees over collateral deposited: decomposes into utilization x borrow rate.
+        // uses the run-rate so numerator and denominator are both measured now, a trailing numerator
+        // over a spot TVL would report a take rate the protocol is not currently earning.
+        salesToTvl: safeDiv(annualizedRunRate, firmTvl),
         marketCapToBorrows: safeDiv(marketCap, firmBorrows),
         marketCapToDolaCirculatingSupply: safeDiv(marketCap, dolaCirculatingSupply),
         fdvToSales: {
@@ -230,7 +235,8 @@ export default async function handler(req, res) {
       },
       notes: {
         revenue: 'Protocol revenue = DBR burned (FiRM borrowing interest, each day valued at that day\'s DBR price) + Fed income realized by the DAO (already USD at event time).',
-        annualizedRunRate: 'Preferred P/S denominator: FiRM borrows * DBR price (1 DBR is consumed per DOLA borrowed per year) + trailing 365d Fed income.',
+        annualizedRunRate: 'Preferred P/S denominator: FiRM borrows * DBR price (1 DBR is consumed per DOLA borrowed per year). FiRM interest only, Fed income is excluded as it is trailing and lumpy. Trailing revenue figures do include Fed income.',
+        salesToTvl: 'Annualized borrower fees divided by FiRM TVL, i.e. the take rate on deposited collateral. Equals utilization (borrows / TVL) times the effective borrow rate (DBR price). A business-efficiency measure, not a valuation multiple.',
         annualizedFromShortWindows: 'annualizedFrom30d/90d are noisy: DBR is burned in lumps rather than continuously, so a single large borrower event can dominate a short window.',
         bookValue: 'Gross assets (treasury contract + multisigs + leftover Frontier reserves), not net of liabilities such as payroll or bad debt. excludingOwnTokens drops directly held INV & DBR but not INV/DBR sitting inside LP positions.',
       },

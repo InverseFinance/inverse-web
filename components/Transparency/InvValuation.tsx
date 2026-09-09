@@ -15,6 +15,10 @@ const formatMultiple = (value?: number | null) => {
     return typeof value === 'number' && isFinite(value) ? `${smartShortNumber(value, 2)}x` : '-';
 }
 
+const formatPerc = (value?: number | null, precision = 2) => {
+    return typeof value === 'number' && isFinite(value) ? `${smartShortNumber(value * 100, precision)}%` : '-';
+}
+
 const MetricCard = ({
     label,
     value,
@@ -32,12 +36,15 @@ const MetricCard = ({
     isHighlighted?: boolean,
     color?: string,
 }) => {
+    // the container's content bg is the same token DashBoardCard defaults to, so tint the cards to separate them
     return <DashBoardCard
         minH="140px"
         p="5"
         alignItems="flex-start"
-        borderColor={isHighlighted ? 'accentTextColor' : undefined}
-        borderWidth={isHighlighted ? '1px' : undefined}
+        bg="mainTextColorAlpha"
+        shadow="none"
+        borderColor={isHighlighted ? 'accentTextColor' : 'mainTextColorAlpha'}
+        borderWidth="1px"
     >
         <VStack spacing="1" alignItems="flex-start" w='full'>
             <HStack spacing="1" alignItems="center">
@@ -72,6 +79,11 @@ export const InvValuation = () => {
 
     const usd = (v?: number | null, precision = 2) => typeof v === 'number' ? smartShortNumber(v, precision, true) : '-';
 
+    // Sales / TVL factors into these two, showing them makes the number self-explaining
+    const utilization = protocolData?.firmTvl > 0 ? protocolData.firmBorrows / protocolData.firmTvl : null;
+    // 1 DBR is consumed per DOLA borrowed per year, so the DBR price is the effective annual borrow rate
+    const dbrPrice = revenue?.breakdown?.dbrBurns?.dbrPrice;
+
     const ratioColor = (v?: number | null) => {
         if (typeof v !== 'number' || !isFinite(v)) { return undefined }
         return v < RATIO_CHEAP_BELOW ? 'success' : undefined;
@@ -81,17 +93,17 @@ export const InvValuation = () => {
         {
             label: 'Price / Sales',
             value: formatMultiple(ratios?.priceToSales?.runRate),
-            subLabel: `Run-rate revenue: ${usd(revenue?.annualizedRunRate)}/yr`,
-            color: ratioColor(ratios?.priceToSales?.runRate),
-            tooltip: 'Market cap divided by annualized run-rate revenue (FiRM borrows x DBR price, plus trailing Fed income). Every DOLA borrowed consumes 1 DBR per year, so this is the forward-looking revenue at current borrow levels.',
+            subLabel: `Annualized fees: ${usd(revenue?.annualizedRunRate)}/yr`,
+            //color: ratioColor(ratios?.priceToSales?.runRate),
+            tooltip: `Market cap divided by annualized borrower fees (FiRM borrows x DBR price).`,
             isHighlighted: true,
         },
         {
             label: 'Price / Book',
             value: formatMultiple(ratios?.priceToBook?.total),
             subLabel: `Book value: ${usd(bookValue?.total)}`,
-            color: ratioColor(ratios?.priceToBook?.total),
-            tooltip: 'Market cap divided by the DAO treasury holdings (treasury contract + multisigs + leftover Frontier reserves). Gross assets, not net of liabilities such as payroll or bad debt.',
+            //color: ratioColor(ratios?.priceToBook?.total),
+            tooltip: 'Market cap divided by the DAO treasury holdings (treasury contract + multisigs + leftover Frontier reserves).',
             isHighlighted: true,
         },
         {
@@ -100,6 +112,12 @@ export const InvValuation = () => {
             subLabel: `FiRM TVL: ${usd(protocolData?.firmTvl)}`,
             tooltip: 'Market cap divided by the total value of collateral deposited in FiRM.',
             isHighlighted: true,
+        },
+        {
+            label: 'Sales / TVL',
+            value: formatPerc(ratios?.salesToTvl),
+            subLabel: `Also equal to ${formatPerc(utilization, 1)} utilization x ${formatPerc(dbrPrice, 2)} borrow rate`,
+            tooltip: 'Annualized borrower fees over FiRM TVL. A business-efficiency measure, not a valuation multiple.',
         },
         {
             label: 'Mkt. Cap / Borrows',
@@ -129,16 +147,10 @@ export const InvValuation = () => {
             tooltip: 'Circulating supply times price. FDV uses the total INV supply instead.',
         },
         {
-            label: 'Revenue (365d)',
-            value: usd(revenue?.trailing365d),
-            subLabel: `P/S on trailing: ${formatMultiple(ratios?.priceToSales?.trailing365d)}`,
-            tooltip: 'DBR burned over the last 365 days, each day valued at that day\'s DBR price, plus Fed income realized by the DAO. DBR is burned in lumps rather than continuously, so shorter windows are noisy.',
-        },
-        {
             label: 'Revenue Yield',
-            value: typeof ratios?.revenueYield === 'number' ? `${smartShortNumber(ratios.revenueYield * 100, 1)}%` : '-',
+            value: formatPerc(ratios?.revenueYield, 1),
             subLabel: `Revenue / INV: ${usd(ratios?.revenuePerToken)}/yr`,
-            tooltip: 'Run-rate revenue as a percentage of market cap, the inverse of Price / Sales.',
+            tooltip: 'Annualized fees as a percentage of market cap, the inverse of Price / Sales.',
         },
     ];
 
@@ -146,20 +158,19 @@ export const InvValuation = () => {
         noPadding
         p="0"
         label="INV Valuation Metrics"
-        description="How the market prices INV against the protocol's revenue, treasury and size - see the raw data"
-        href="/api/inv/valuation"
+        description="How the market prices INV against the protocol's revenue, treasury and size"
         contentProps={{ maxW: '94vw' }}
     >
         <VStack spacing="6" w='full' alignItems="flex-start">
             <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="4" w='full'>
                 {valuationMetrics.map(m => <MetricCard key={m.label} isLoading={isLoading} {...m} />)}
             </SimpleGrid>
-            <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing="4" w='full'>
+            <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="4" w='full'>
                 {secondaryMetrics.map(m => <MetricCard key={m.label} isLoading={isLoading} {...m} />)}
             </SimpleGrid>
             <Stack w='full' pt="2">
                 <Text fontSize="12px" color="mainTextColorLight">
-                    Book value is gross of liabilities. Price / Sales uses run-rate revenue as DBR burns are recognized in lumps, making short trailing windows unreliable.
+                    Book value is gross of liabilities. Price / Sales uses annualized fees as DBR burns are recognized in lumps, making short trailing windows unreliable.
                 </Text>
             </Stack>
         </VStack>
