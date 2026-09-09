@@ -116,7 +116,7 @@ export const InvValuation = () => {
         {
             label: 'Sales / TVL',
             value: formatPerc(ratios?.salesToTvl),
-            subLabel: `Also equal to ${formatPerc(utilization, 1)} utilization x ${formatPerc(dbrPrice, 2)} borrow rate`,
+            subLabel: `The yearly return on FiRM TVL`,
             tooltip: 'Annualized borrower fees over FiRM TVL. A business-efficiency measure, not a valuation multiple.',
         },
         {
