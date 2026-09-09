@@ -194,7 +194,6 @@ export const GovTransparency = () => {
             <TransparencyTabs active="dao" />
             <VStack maxW='1400px' spacing='8'>
                 <InvValuation />
-                <InvChart />
                 <Container
                     noPadding
                     p="0"
