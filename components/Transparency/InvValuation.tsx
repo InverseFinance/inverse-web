@@ -168,11 +168,6 @@ export const InvValuation = () => {
             <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="4" w='full'>
                 {secondaryMetrics.map(m => <MetricCard key={m.label} isLoading={isLoading} {...m} />)}
             </SimpleGrid>
-            <Stack w='full' pt="2">
-                <Text fontSize="12px" color="mainTextColorLight">
-                    Book value is gross of liabilities. Price / Sales uses annualized fees as DBR burns are recognized in lumps, making short trailing windows unreliable.
-                </Text>
-            </Stack>
         </VStack>
     </Container>
 }
