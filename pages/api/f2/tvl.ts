@@ -20,9 +20,9 @@ export const firmTvlCacheKey = 'f2-tvl-v1.0.4'
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     try {
-        const cacheDuration = 120;
+        const cacheDuration = 60;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-        
+
         const { data: cachedTvl, isValid: isCachedTvlValid } = await getCacheFromRedisAsObj(firmTvlCacheKey, cacheFirst !== 'true', cacheDuration);
         if (cachedTvl && isCachedTvlValid) {
             res.status(200).json(cachedTvl);
@@ -32,13 +32,16 @@ export default async function handler(req, res) {
         const provider = getProvider(CHAIN_ID);
         const paidProvider = getPaidProvider(1);
 
-        const { firmMarketUsers, marketUsersAndEscrows } = await getFirmMarketUsers(paidProvider);
+        const [firmUsersData, marketsCache] = await Promise.all([
+            getFirmMarketUsers(paidProvider),
+            fetch('https://inverse.finance/api/f2/fixed-markets?v=1.2&cacheFirst=true').then(res => res.json()),
+        ]);
+        const { firmMarketUsers, marketUsersAndEscrows } = firmUsersData;
 
         // trigger
         // fetch('https://inverse.finance/api/f2/fixed-markets');
 
         // const { data: marketsCache } = await getCacheFromRedisAsObj(F2_MARKETS_CACHE_KEY, false);
-        const marketsCache = await fetch('https://inverse.finance/api/f2/fixed-markets?v=1.2&cacheFirst=true').then(res => res.json());
 
         if (!marketsCache) {
             res.status(200).json(cachedTvl || { firmTotalTvl: 0, firmTvls: [] });

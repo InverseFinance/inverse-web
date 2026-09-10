@@ -26,6 +26,7 @@ import { preciseCommify } from '@app/util/misc'
 import { MultisigsDiagram } from '@app/components/Transparency/MultisigsDiagram'
 import Container from '@app/components/common/Container'
 import { InvChart } from '@app/components/Transparency/InvChart'
+import { InvValuation } from '@app/components/Transparency/InvValuation'
 import { DefaultCharts } from '@app/components/Transparency/DefaultCharts'
 import { useEffect, useState } from 'react'
 
@@ -192,7 +193,7 @@ export const GovTransparency = () => {
             <AppNav active="Transparency" activeSubmenu="INV & DAO" hideAnnouncement={true} />
             <TransparencyTabs active="dao" />
             <VStack maxW='1400px' spacing='8'>
-                <InvChart />
+                <InvValuation />
                 <Container
                     noPadding
                     p="0"

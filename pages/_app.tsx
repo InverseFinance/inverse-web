@@ -68,6 +68,7 @@ const App = ({ Component, pageProps }: AppProps) => {
           <meta name="twitter:site" content="@InverseFinance" />
           <meta name="twitter:image:alt" content="inverse finance" />
           <meta property="twitter:card" content="summary_large_image" />
+          <link rel="apple-touch-icon" href="/assets/apple-touch.png" />
           <meta name="google-site-verification" content="bMAjdxhP6hV5H0ZFaFW4AZVipI0NRmFZ2DQPWxgquP4" />
 
           <link rel="icon" type="image/png" href="/assets/favicon.png"></link>

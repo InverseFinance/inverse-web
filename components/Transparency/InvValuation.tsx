@@ -1,0 +1,173 @@
+import { HStack, SimpleGrid, Stack, Text, VStack } from '@chakra-ui/react'
+import Container from '@app/components/common/Container'
+import { DashBoardCard } from '@app/components/F2/UserDashboard'
+import { BigTextLoader } from '@app/components/common/Loaders/BigTextLoader'
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import { useCacheFirstSWR } from '@app/hooks/useCustomSWR'
+import { smartShortNumber } from '@app/util/markets'
+import { fetcher60sectimeout } from '@app/util/web3'
+
+// only meaningful for P/S and P/B: under 1x the market values INV below a year of revenue / its treasury.
+// size ratios like mkt.cap/TVL sit far below 1x for any lending protocol, so highlighting them says nothing.
+const RATIO_CHEAP_BELOW = 1;
+
+const formatMultiple = (value?: number | null) => {
+    return typeof value === 'number' && isFinite(value) ? `${smartShortNumber(value, 2)}x` : '-';
+}
+
+const formatPerc = (value?: number | null, precision = 2) => {
+    return typeof value === 'number' && isFinite(value) ? `${smartShortNumber(value * 100, precision)}%` : '-';
+}
+
+const MetricCard = ({
+    label,
+    value,
+    subLabel,
+    tooltip,
+    isLoading,
+    isHighlighted = false,
+    color = undefined,
+}: {
+    label: string,
+    value: string,
+    subLabel?: string,
+    tooltip: string,
+    isLoading?: boolean,
+    isHighlighted?: boolean,
+    color?: string,
+}) => {
+    // the container's content bg is the same token DashBoardCard defaults to, so tint the cards to separate them
+    return <DashBoardCard
+        minH="140px"
+        p="5"
+        alignItems="flex-start"
+        bg="mainTextColorAlpha"
+        shadow="none"
+        borderColor={isHighlighted ? 'accentTextColor' : 'mainTextColorAlpha'}
+        borderWidth="1px"
+    >
+        <VStack spacing="1" alignItems="flex-start" w='full'>
+            <HStack spacing="1" alignItems="center">
+                <Text fontSize="14px" fontWeight="bold" color="mainTextColorLight">{label}</Text>
+                <AnimatedInfoTooltip size="small" message={tooltip} />
+            </HStack>
+            {
+                isLoading ? <BigTextLoader /> : <Text
+                    className="heading-font"
+                    fontWeight="extrabold"
+                    fontSize={{ base: '26px', '2xl': '32px' }}
+                    color={color || 'mainTextColor'}
+                >
+                    {value}
+                </Text>
+            }
+            {!!subLabel && !isLoading && <Text fontSize="12px" color="mainTextColorLight">{subLabel}</Text>}
+        </VStack>
+    </DashBoardCard>
+}
+
+export const InvValuation = () => {
+    const { data, isLoading } = useCacheFirstSWR('/api/inv/valuation', fetcher60sectimeout);
+
+    const price = data?.price;
+    const marketCap = data?.marketCap;
+    const fdv = data?.fdv;
+    const ratios = data?.ratios;
+    const revenue = data?.revenue;
+    const bookValue = data?.bookValue;
+    const protocolData = data?.protocol;
+
+    const usd = (v?: number | null, precision = 2) => typeof v === 'number' ? smartShortNumber(v, precision, true) : '-';
+
+    // Sales / TVL factors into these two, showing them makes the number self-explaining
+    const utilization = protocolData?.firmTvl > 0 ? protocolData.firmBorrows / protocolData.firmTvl : null;
+    // 1 DBR is consumed per DOLA borrowed per year, so the DBR price is the effective annual borrow rate
+    const dbrPrice = revenue?.breakdown?.dbrBurns?.dbrPrice;
+
+    const ratioColor = (v?: number | null) => {
+        if (typeof v !== 'number' || !isFinite(v)) { return undefined }
+        return v < RATIO_CHEAP_BELOW ? 'success' : undefined;
+    }
+
+    const valuationMetrics = [
+        {
+            label: 'Price / Sales',
+            value: formatMultiple(ratios?.priceToSales?.runRate),
+            subLabel: `Annualized fees: ${usd(revenue?.annualizedRunRate)}/yr`,
+            //color: ratioColor(ratios?.priceToSales?.runRate),
+            tooltip: `Market cap divided by annualized borrower fees (FiRM borrows x DBR price).`,
+            isHighlighted: true,
+        },
+        {
+            label: 'Price / Book',
+            value: formatMultiple(ratios?.priceToBook?.total),
+            subLabel: `Book value: ${usd(bookValue?.total)}`,
+            //color: ratioColor(ratios?.priceToBook?.total),
+            tooltip: 'Market cap divided by the DAO treasury holdings (treasury contract + multisigs + leftover Frontier reserves).',
+            isHighlighted: true,
+        },
+        {
+            label: 'Mkt. Cap / TVL',
+            value: formatMultiple(ratios?.marketCapToTvl),
+            subLabel: `FiRM TVL: ${usd(protocolData?.firmTvl)}`,
+            tooltip: 'Market cap divided by the total value of collateral deposited in FiRM.',
+            isHighlighted: true,
+        },
+        {
+            label: 'Sales / TVL',
+            value: formatPerc(ratios?.salesToTvl),
+            subLabel: `The yearly return on FiRM TVL`,
+            tooltip: 'Annualized borrower fees over FiRM TVL. A business-efficiency measure, not a valuation multiple.',
+        },
+        {
+            label: 'Mkt. Cap / Borrows',
+            value: formatMultiple(ratios?.marketCapToBorrows),
+            subLabel: `FiRM borrows: ${usd(protocolData?.firmBorrows)}`,
+            tooltip: 'Market cap divided by total DOLA borrowed on FiRM, the revenue-generating side of the protocol.',
+        },
+        {
+            label: 'Mkt. Cap / DOLA Supply',
+            value: formatMultiple(ratios?.marketCapToDolaCirculatingSupply),
+            subLabel: `DOLA circ. supply: ${usd(protocolData?.dolaCirculatingSupply)}`,
+            tooltip: 'Market cap divided by the circulating supply of DOLA.',
+        },
+    ];
+
+    const secondaryMetrics = [
+        {
+            label: 'INV Price',
+            value: usd(price, 4),
+            subLabel: `Book value / INV: ${usd(bookValue?.perToken)}`,
+            tooltip: 'Current INV price versus the treasury holdings backing each circulating INV.',
+        },
+        {
+            label: 'Market Cap',
+            value: usd(marketCap),
+            subLabel: `FDV: ${usd(fdv)}`,
+            tooltip: 'Circulating supply times price. FDV uses the total INV supply instead.',
+        },
+        {
+            label: 'Revenue Yield',
+            value: formatPerc(ratios?.revenueYield, 1),
+            subLabel: `Revenue / INV: ${usd(ratios?.revenuePerToken)}/yr`,
+            tooltip: 'Annualized fees as a percentage of market cap, the inverse of Price / Sales.',
+        },
+    ];
+
+    return <Container
+        noPadding
+        p="0"
+        label="INV Valuation Metrics"
+        description="How the market prices INV against the protocol's revenue, treasury and size"
+        contentProps={{ maxW: '94vw' }}
+    >
+        <VStack spacing="6" w='full' alignItems="flex-start">
+            <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="4" w='full'>
+                {valuationMetrics.map(m => <MetricCard key={m.label} isLoading={isLoading} {...m} />)}
+            </SimpleGrid>
+            <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing="4" w='full'>
+                {secondaryMetrics.map(m => <MetricCard key={m.label} isLoading={isLoading} {...m} />)}
+            </SimpleGrid>
+        </VStack>
+    </Container>
+}
