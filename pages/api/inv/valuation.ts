@@ -1,6 +1,5 @@
 import 'source-map-support'
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
-import { ONE_DAY_MS } from '@app/config/constants'
 
 export const INV_VALUATION_CACHE_KEY = `inv-valuation-v1.0.3`;
 
@@ -8,8 +7,6 @@ const BASE_URL = 'https://www.inverse.finance';
 
 // INV & DBR are excluded from the "hard" book value: their worth derives from the protocol itself
 const OWN_TOKENS = ['INV', 'DBR'];
-
-const TRAILING_PERIODS = [30, 90, 365];
 
 const safeDiv = (a: number | null, b: number | null): number | null => {
   return (typeof a === 'number' && isFinite(a) && typeof b === 'number' && isFinite(b) && b > 0) ? a / b : null;
@@ -45,32 +42,11 @@ const sumFunds = (funds: any[], prices: { [key: string]: number }, excludeOwnTok
   }, 0);
 }
 
-// last known price at or before the given timestamp, prices must be sorted by timestamp asc
-const getHistoPriceAt = (histoPrices: [number, number][], timestamp: number, fallback: number): number => {
-  if (!histoPrices?.length) { return fallback }
-  let lo = 0, hi = histoPrices.length - 1, best = -1;
-  while (lo <= hi) {
-    const mid = (lo + hi) >> 1;
-    if (histoPrices[mid][0] <= timestamp) { best = mid; lo = mid + 1 } else { hi = mid - 1 }
-  }
-  return (best === -1 ? histoPrices[0][1] : histoPrices[best][1]) || fallback;
-}
-
-const sumOverPeriods = (items: { timestamp: number, value: number }[], now: number) => {
-  return TRAILING_PERIODS.reduce((prev, nbDays) => {
-    const cutoff = now - (nbDays * ONE_DAY_MS);
-    return {
-      ...prev,
-      [`trailing${nbDays}d`]: items.filter(i => i.timestamp >= cutoff).reduce((acc, i) => acc + i.value, 0),
-    };
-  }, {} as { [key: string]: number });
-}
-
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
 
   try {
-    const cacheDuration = 600;
+    const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(INV_VALUATION_CACHE_KEY, cacheFirst !== 'true', cacheDuration);
     if (isValid && cachedData) {
@@ -84,10 +60,8 @@ export default async function handler(req, res) {
       totalSupplyRes,
       firmTvlRes,
       marketsRes,
-      daoRes,
-      dbrBurnsRes,
+      treasuryRes,
       dbrRes,
-      fedIncomeRes,
       dolaCircSupplyRes,
     ] = await Promise.allSettled([
       fetchApi('/api/prices?cacheFirst=true'),
@@ -95,10 +69,8 @@ export default async function handler(req, res) {
       fetchApi('/api/inv/supply', true),
       fetchApi('/api/f2/tvl?cacheFirst=true'),
       fetchApi('/api/f2/fixed-markets?v=1.2&cacheFirst=true'),
-      fetchApi('/api/transparency/dao?cacheFirst=true'),
-      fetchApi('/api/transparency/dbr-burns-evolution?cacheFirst=true'),
+      fetchApi('/api/transparency/treasury-assets?cacheFirst=true'),
       fetchApi('/api/dbr?withExtra=true&cacheFirst=true'),
-      fetchApi('/api/transparency/fed-income?cacheFirst=true'),
       fetchApi('/api/dola/circulating-supply', true),
     ]);
 
@@ -111,7 +83,7 @@ export default async function handler(req, res) {
     const fdv = invPrice * totalSupply;
 
     // -- Book value: treasury contract + multisigs + leftover Frontier reserves
-    const dao = settled(daoRes, {});
+    const dao = settled(treasuryRes, {});
     const treasuryFunds = dao?.treasury || [];
     const anchorReserves = dao?.anchorReserves || [];
     const multisigFunds = (dao?.multisigs || []).map(m => m.funds || []).flat();
@@ -123,32 +95,8 @@ export default async function handler(req, res) {
     // -- Revenue: DBR burned (interest paid by FiRM borrowers) + Fed income realized by the DAO
     const dbrData = settled(dbrRes, {});
     const dbrPrice = dbrData?.priceUsd || prices['dola-borrowing-right'] || 0;
-    const dbrHistoPrices: [number, number][] = (dbrData?.historicalData?.prices || [])
-      .filter(p => Array.isArray(p) && p[0] !== null && p[1] !== null)
-      .sort((a, b) => a[0] - b[0]);
-
-    const dbrBurns = settled(dbrBurnsRes, {})?.totalBurns || [];
-    // each day's burn is valued at the DBR price of that day, current price is only a fallback
-    const dbrBurnValues = dbrBurns.map(b => ({
-      timestamp: b.timestamp,
-      value: b.amount * getHistoPriceAt(dbrHistoPrices, b.timestamp, dbrPrice),
-    }));
-
-    const fedIncomeEvents = settled(fedIncomeRes, {})?.totalEvents || [];
-    // fed profits are already denominated in USD at the time of the event
-    const fedIncomeValues = fedIncomeEvents.map(e => ({ timestamp: e.timestamp, value: e.profit || 0 }));
 
     const now = Date.now();
-    const dbrRevenue = sumOverPeriods(dbrBurnValues, now);
-    const fedRevenue = sumOverPeriods(fedIncomeValues, now);
-
-    const revenue = TRAILING_PERIODS.reduce((prev, nbDays) => ({
-      ...prev,
-      [`trailing${nbDays}d`]: dbrRevenue[`trailing${nbDays}d`] + fedRevenue[`trailing${nbDays}d`],
-    }), {} as { [key: string]: number });
-
-    const annualizedFrom30d = revenue.trailing30d * (365 / 30);
-    const annualizedFrom90d = revenue.trailing90d * (365 / 90);
 
     // -- Protocol size denominators
     const firmTvl = settled(firmTvlRes, {})?.firmTotalTvl ?? null;
@@ -175,15 +123,10 @@ export default async function handler(req, res) {
       marketCap,
       fdv,
       revenue: {
-        ...revenue,
-        // preferred denominator for P/S, see firmInterestRunRate above
         annualizedRunRate,
-        annualizedFrom30d,
-        annualizedFrom90d,
         breakdown: {
           firmInterestRunRate,
-          dbrBurns: { ...dbrRevenue, dbrPrice },
-          fedIncome: fedRevenue,
+          dbrBurns: { dbrPrice },
         },
       },
       bookValue: {
@@ -205,9 +148,6 @@ export default async function handler(req, res) {
       ratios: {
         priceToSales: {
           runRate: safeDiv(marketCap, annualizedRunRate),
-          trailing365d: safeDiv(marketCap, revenue.trailing365d),
-          annualizedFrom30d: safeDiv(marketCap, annualizedFrom30d),
-          annualizedFrom90d: safeDiv(marketCap, annualizedFrom90d),
         },
         priceToBook: {
           total: safeDiv(marketCap, bookValueTotal),
@@ -222,8 +162,6 @@ export default async function handler(req, res) {
         marketCapToDolaCirculatingSupply: safeDiv(marketCap, dolaCirculatingSupply),
         fdvToSales: {
           runRate: safeDiv(fdv, annualizedRunRate),
-          trailing365d: safeDiv(fdv, revenue.trailing365d),
-          annualizedFrom30d: safeDiv(fdv, annualizedFrom30d),
         },
         fdvToBook: {
           total: safeDiv(fdv, bookValueTotal),
@@ -235,22 +173,10 @@ export default async function handler(req, res) {
       },
       notes: {
         revenue: 'Protocol revenue = DBR burned (FiRM borrowing interest, each day valued at that day\'s DBR price) + Fed income realized by the DAO (already USD at event time).',
-        annualizedRunRate: 'Preferred P/S denominator: FiRM borrows * DBR price (1 DBR is consumed per DOLA borrowed per year). FiRM interest only, Fed income is excluded as it is trailing and lumpy. Trailing revenue figures do include Fed income.',
+        annualizedRunRate: 'Preferred P/S denominator: FiRM borrows * DBR price (1 DBR is consumed per DOLA borrowed per year). FiRM fees only.',
         salesToTvl: 'Annualized borrower fees divided by FiRM TVL, i.e. the take rate on deposited collateral. Equals utilization (borrows / TVL) times the effective borrow rate (DBR price). A business-efficiency measure, not a valuation multiple.',
         annualizedFromShortWindows: 'annualizedFrom30d/90d are noisy: DBR is burned in lumps rather than continuously, so a single large borrower event can dominate a short window.',
         bookValue: 'Gross assets (treasury contract + multisigs + leftover Frontier reserves), not net of liabilities such as payroll or bad debt. excludingOwnTokens drops directly held INV & DBR but not INV/DBR sitting inside LP positions.',
-      },
-      sourcesOk: {
-        prices: pricesRes.status === 'fulfilled',
-        invCirculatingSupply: circSupplyRes.status === 'fulfilled',
-        invTotalSupply: totalSupplyRes.status === 'fulfilled',
-        firmTvl: firmTvlRes.status === 'fulfilled',
-        firmMarkets: marketsRes.status === 'fulfilled',
-        dao: daoRes.status === 'fulfilled',
-        dbrBurns: dbrBurnsRes.status === 'fulfilled',
-        dbr: dbrRes.status === 'fulfilled',
-        fedIncome: fedIncomeRes.status === 'fulfilled',
-        dolaCirculatingSupply: dolaCircSupplyRes.status === 'fulfilled',
       },
     };
 
