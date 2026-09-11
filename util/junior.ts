@@ -217,9 +217,20 @@ export const useJuniorWithdrawDelay = (
     const { data: escrowData } = useEtherSWR([
         [JUNIOR_ESCROW_ADDRESS, 'exitWindows', userAddress],
         [JUNIOR_ESCROW_ADDRESS, 'withdrawAmounts', userAddress],
+        // shares already queued by all users, they sit in the escrow until completed or cancelled
+        [JDOLA_AUCTION_ADDRESS, 'balanceOf', JUNIOR_ESCROW_ADDRESS],
     ]);
 
-    const { data, error } = useSWR(['getWithdrawDelay', parseEther(currentSupply?.toString() || '0').toString(), parseEther(withdrawAmount?.toString() || '0').toString(), userAddress], (...args) => {
+    const escrowedShares = escrowData?.[2] || BigNumber.from(0);
+    // the model prices the delay against the future total in withdrawal, not just our own shares,
+    // so add whatever is already queued to the shares this action would newly queue
+    const totalWithdrawing = (sharesToQueue: BigNumber | string | undefined) => {
+        return escrowedShares.add(sharesToQueue || '0').toString();
+    }
+
+    const supplyBn = parseEther(currentSupply?.toString() || '0').toString();
+
+    const { data, error } = useSWR(['getWithdrawDelay', supplyBn, totalWithdrawing(parseEther(withdrawAmount?.toString() || '0')), userAddress], (...args) => {
         const [method, ...otherParams] = args
         if (provider) {
             return getJuniorWithdrawModelContract(provider?.getSigner()).callStatic[method](...otherParams)
@@ -228,7 +239,7 @@ export const useJuniorWithdrawDelay = (
     })
 
     // unstake all case
-    const { data: dataUnstakeAll } = useSWR(['getWithdrawDelayMax', parseEther(currentSupply?.toString() || '0').toString(), maxBalanceBn, userAddress], (...args) => {
+    const { data: dataUnstakeAll } = useSWR(['getWithdrawDelayMax', supplyBn, totalWithdrawing(maxBalanceBn), userAddress], (...args) => {
         const [name, ...otherParams] = args
         if (provider) {
             return getJuniorWithdrawModelContract(provider?.getSigner()).callStatic['getWithdrawDelay'](...otherParams)
@@ -236,8 +247,8 @@ export const useJuniorWithdrawDelay = (
         return null
     })
 
-    // unstake all case
-    const { data: dataRenew } = useSWR(['getWithdrawDelayZero', parseEther(currentSupply?.toString() || '0').toString(), escrowData ? escrowData[1] : '0', userAddress], (...args) => {
+    // renewing an expired withdrawal queues 0 new shares, ours are already counted in the escrow balance
+    const { data: dataRenew } = useSWR(['getWithdrawDelayZero', supplyBn, totalWithdrawing('0'), userAddress], (...args) => {
         const [name, ...otherParams] = args
         if (provider) {
             return getJuniorWithdrawModelContract(provider?.getSigner()).callStatic['getWithdrawDelay'](...otherParams)
