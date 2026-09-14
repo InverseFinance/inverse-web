@@ -233,7 +233,7 @@ export const GovTransparency = () => {
                             </VStack>
                             <VStack w='full'>
                                 <FundsDetails
-                                    title="INV Granted (xInv scaled, 2y vesting)"
+                                    title="INV Granted (xInv scaled)"
                                     funds={vestersByRole}
                                     type="balance"
                                     prices={{}}
