@@ -82,7 +82,7 @@ export const formatZerionWalletResponse = async (response) => {
         const firstToken = getToken(chainTokens, isMorphoCase ? key.split('-')[1].split('/')[0] : item.attributes.pool_address || item.attributes.fungible_info.symbol) || {};
         const symbolToken = getToken(chainTokens, item.attributes.fungible_info.symbol);
 
-        const isStable = !!exactToken?.symbol ? exactToken.isStable :
+        const isStable = item.attributes.protocol?.toLowerCase()?.includes('llamalend') ? true : !!exactToken?.symbol ? exactToken.isStable :
             !!firstToken?.isStable
             || key.includes('sDOLA') || key.includes('invUSD')
             || (!!symbolToken?.isStable && symbolToken.symbol === 'DOLA' && !/(INV|DBR|ETH)/g.test(item.attributes.name) && Math.abs(1 - item.attributes.price) <= 0.005)
@@ -138,7 +138,7 @@ export const formatZerionWalletResponse = async (response) => {
                 image: position.attributes.fungible_info?.icon?.url,
                 protocolImage: PROTOCOL_IMAGES[(PROTOCOL_ZERION_MAPPING[(position.attributes.protocol || '')] || '')],
             }
-            
+
             return {
                 token,
                 balance: position.attributes?.quantity?.float || 0,
