@@ -12,6 +12,16 @@ import { timestampToUTC, utcDateStringToTimestamp } from '@app/util/misc';
 import { addBlockTimestamps } from '@app/util/timestamps';
 
 const v1CacheKey = `compensations-cache-v1.2.4`;
+const founderRecipient = '0x16EC2AeA80863C1FB4e13440778D0c9967fC51cb';
+
+const compensationsViaFoundation = [{
+  start: "2026-08-14",
+  end: "",
+  recipient: founderRecipient,
+  amount: 144000,
+  lastAmount: 144000,
+  unclaimed: 0,
+}];
 
 export const getPayrollData = async (provider, paidProvider) => {
   const payrollContract = new Contract(DOLA_PAYROLL_V2, DOLA_PAYROLL_V2_ABI, provider);
@@ -21,6 +31,12 @@ export const getPayrollData = async (provider, paidProvider) => {
     payrollContractLogs.queryFilter(payrollContractLogs.filters.SetRecipient()),
   ]);
   const now = Date.now();
+  const nowUtcDate = timestampToUTC(now);
+
+  const currentActiveFoundationCompensations = compensationsViaFoundation.filter(f => {
+    return f.start <= nowUtcDate && (!f.end || f.end > nowUtcDate);
+  });
+
   const currentPayrolls = Object.values(payrollEvents.reduce((prev, curr) => {
     const endTimeMs = getBnToNumber(curr.args[2], 0) * 1000;
     const expired = now > endTimeMs;
@@ -29,7 +45,9 @@ export const getPayrollData = async (provider, paidProvider) => {
       [curr.args[0]]: getBnToNumber(curr.args[1]) > 0 ?
         { recipient: curr.args[0], amount: expired ? 0 : getBnToNumber(curr.args[1]), endTime: endTimeMs, lastAmount: getBnToNumber(curr.args[1]) } : undefined
     }
-  }, {})).filter(v => !!v);
+  }, {}))
+    .filter(v => !!v)
+    .concat(currentActiveFoundationCompensations);
 
   let payrollCheckpoints = {};
 
@@ -44,13 +62,19 @@ export const getPayrollData = async (provider, paidProvider) => {
     const expired = now > endTimeMs;
     payrollCheckpoints[e.args[0]] = expired ? 0 : getBnToNumber(e.args[1]);
 
-    const total = Object.values(payrollCheckpoints).reduce((prev, curr) => prev + curr, 0);
+    const utcDate = timestampToUTC(timestamps[NetworkIds.mainnet][e.blockNumber] * 1000);
+
+    const viaFoundation = compensationsViaFoundation.filter(f => f.start <= utcDate && (!f.end || f.end > utcDate));
+    const totalViaFoundation = viaFoundation.reduce((prev, curr) => prev + curr.amount, 0);
+    const nbViaFoundation = viaFoundation.length;
+
+    const total = totalViaFoundation + Object.values(payrollCheckpoints).reduce((prev, curr) => prev + curr, 0);
     return {
       blockNumber: e.blockNumber,
       timestamp: timestamps[NetworkIds.mainnet][e.blockNumber],
-      utcDate: timestampToUTC(timestamps[NetworkIds.mainnet][e.blockNumber] * 1000),
+      utcDate,
       total,
-      nbRecipients: Object.values(payrollCheckpoints).filter(v => v > 0).length,
+      nbRecipients: Object.values(payrollCheckpoints).filter(v => v > 0).length + nbViaFoundation,
     }
   });
 
@@ -58,11 +82,14 @@ export const getPayrollData = async (provider, paidProvider) => {
 
   const payrollTotalEvolutionByDay = distinctDays.map(day => {
     const dayData = payrollTotalEvolution.findLast(e => e.utcDate === day);
+    const viaFoundation = compensationsViaFoundation.filter(f => f.start <= day && (!f.end || f.end > day));
+    const nbViaFoundation = viaFoundation.length;
+    const totalViaFoundation = viaFoundation.reduce((prev, curr) => prev + curr.amount, 0);
     return {
       timestamp: utcDateStringToTimestamp(day),
       utcDate: day,
-      total: dayData.total!,
-      nbRecipients: dayData.nbRecipients!,
+      total: dayData.total! + totalViaFoundation,
+      nbRecipients: dayData.nbRecipients! + nbViaFoundation,
     }
   });
 
@@ -84,7 +111,7 @@ export const getPayrollData = async (provider, paidProvider) => {
 export default async function handler(req, res) {
 
   const { INV, F2_MARKETS, XINV, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `compensations-cache-v2.0.0`;
+  const cacheKey = `compensations-cache-v2.0.1`;
   const { cacheFirst } = req.query;
   try {
     const cacheDuration = 6000;
@@ -136,7 +163,6 @@ export default async function handler(req, res) {
     ]);
 
     // founder: initial amount was 8k, current vester is just part of it
-    const founderRecipient = '0x16EC2AeA80863C1FB4e13440778D0c9967fC51cb';
     const founderInitialAmount = 8000;
     const founderNewVesterAmount = 3333.33;
     const xinvExRate = getBnToNumber(xinvExRateBn);
