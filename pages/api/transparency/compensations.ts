@@ -64,17 +64,13 @@ export const getPayrollData = async (provider, paidProvider) => {
 
     const utcDate = timestampToUTC(timestamps[NetworkIds.mainnet][e.blockNumber] * 1000);
 
-    const viaFoundation = compensationsViaFoundation.filter(f => f.start <= utcDate && (!f.end || f.end > utcDate));
-    const totalViaFoundation = viaFoundation.reduce((prev, curr) => prev + curr.amount, 0);
-    const nbViaFoundation = viaFoundation.length;
-
-    const total = totalViaFoundation + Object.values(payrollCheckpoints).reduce((prev, curr) => prev + curr, 0);
+    const total = Object.values(payrollCheckpoints).reduce((prev, curr) => prev + curr, 0);
     return {
       blockNumber: e.blockNumber,
       timestamp: timestamps[NetworkIds.mainnet][e.blockNumber],
       utcDate,
       total,
-      nbRecipients: Object.values(payrollCheckpoints).filter(v => v > 0).length + nbViaFoundation,
+      nbRecipients: Object.values(payrollCheckpoints).filter(v => v > 0).length,
     }
   });
 
@@ -111,7 +107,7 @@ export const getPayrollData = async (provider, paidProvider) => {
 export default async function handler(req, res) {
 
   const { INV, F2_MARKETS, XINV, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `compensations-cache-v2.0.1`;
+  const cacheKey = `compensations-cache-v2.0.2`;
   const { cacheFirst } = req.query;
   try {
     const cacheDuration = 6000;
