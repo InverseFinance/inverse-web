@@ -1,6 +1,6 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
-import { CTOKEN_ABI } from '@app/config/abis'
+import { CTOKEN_ABI, VE_NFT_ABI } from '@app/config/abis'
 import { getNetwork, getNetworkConfigConstants } from '@app/util/networks'
 import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
@@ -153,7 +153,9 @@ export default async function handler(req, res) {
       [NetworkIds.base]: Object.keys(CHAIN_TOKENS[NetworkIds.base]).filter(key => isAddress(key)),
     }
 
-    const [treasuryBalances, multisigsFunds, liquidityCachedData] = await Promise.all(
+    const veAero = new Contract('0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4', VE_NFT_ABI, getProvider(NetworkIds.base));
+
+    const [treasuryBalances, multisigsFunds, liquidityCachedData, veAeroBalanceBn] = await Promise.all(
       [
         fetchZerionWithRetry(TREASURY, mainnet.zerionId || mainnet.codename),
         Promise.all(
@@ -163,6 +165,7 @@ export default async function handler(req, res) {
           })
         ),
         getCacheFromRedis(liquidityCacheKey, false),
+        veAero.locked('7'),
       ]
     );
 
@@ -207,6 +210,29 @@ export default async function handler(req, res) {
         })
         .filter(d => d.balance || 0 > 0 || d.allowance || 0 > 0),
     }));
+
+    // temp: zerion is missing veAERO
+    if (!multisigData.find(m => m.shortName === 'TWG on BASE' && m.funds.some(f => f.token.symbol === 'veAERO'))) {
+      const baseMultisigIndex = multisigData.findIndex(m => m.shortName === 'TWG on BASE');
+      const aeroToken = multisigData[baseMultisigIndex].funds.find(f => f.token.symbol === 'AERO');
+      const aeroBalance = Array.isArray(veAeroBalanceBn[0]) ? veAeroBalanceBn[0][0] : veAeroBalanceBn[0];
+      multisigData[baseMultisigIndex].funds.push({
+        "balance": getBnToNumber(aeroBalance) * aeroToken.price,
+        "price": 1,
+        "onlyUsdValue": true,
+        "allowance": 0,
+        "token": {
+          "decimals": 18,
+          "name": "veAERO",
+          "symbol": "veAERO",
+          "image": "https://assets.coingecko.com/coins/images/31745/standard/token.png?1696530564",
+          "address": "0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4",
+          "_price": aeroToken.price
+        },
+        "chainCodeName": "base",
+        "key": "Aerodrom veNft 7"
+      });
+    }
 
     const resultData = {
       timestamp: Date.now(),
