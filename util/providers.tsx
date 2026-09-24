@@ -9,7 +9,7 @@ const ALCHEMY_BASE_URLS = {
     [NetworkIds.base]: `https://base-mainnet.g.alchemy.com/v2`,
     [NetworkIds.arbitrum]: `https://arb-mainnet.g.alchemy.com/v2`,
     [NetworkIds.polygon]: `https://polygon-mainnet.g.alchemy.com/v2`,
-    [NetworkIds.avalanche]: `https://avax-mainnet.g.alchemy.com/v2`, 
+    [NetworkIds.avalanche]: `https://avax-mainnet.g.alchemy.com/v2`,
     [NetworkIds.bsc]: `https://bnb-mainnet.g.alchemy.com/v2`,
     [NetworkIds.mainnet]: `https://eth-mainnet.g.alchemy.com/v2`,
     [NetworkIds.blast]: `https://blast-mainnet.g.alchemy.com/v2`,
@@ -49,14 +49,14 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     // else if (chainId === NetworkIds.mode && !specificAlchemyKey) {
     //     return new JsonRpcProvider('https://mainnet.mode.network');
     // }
-    
+
     return new JsonRpcProvider(`${ALCHEMY_BASE_URLS[chainId as keyof typeof ALCHEMY_BASE_URLS]}/${(specificAlchemyKey || getRandomFromStringList(process.env.ALCHEMY_KEYS!))}`);
 }
 
 export const getPaidProvider = (chainId: string | number) => {
-    // if (chainId?.toString() === NetworkIds.mainnet || chainId?.toString() === NetworkIds.sepolia) {
-    //     return new InfuraProvider(Number(chainId), getRandomFromStringList(process.env.INFURA_KEYS!));
-    // }
+    if (chainId?.toString() === NetworkIds.mainnet || chainId?.toString() === NetworkIds.sepolia) {
+      return new InfuraProvider(Number(chainId), getRandomFromStringList(process.env.INFURA_KEYS!));
+    }
     return getProvider(chainId);
 }
 
