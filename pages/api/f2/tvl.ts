@@ -34,12 +34,12 @@ export default async function handler(req, res) {
 
         const [firmUsersData, marketsCache] = await Promise.all([
             getFirmMarketUsers(paidProvider),
-            fetch('https://inverse.finance/api/f2/fixed-markets?v=1.2&cacheFirst=true').then(res => res.json()),
+            fetch('https://www.inverse.finance/api/f2/fixed-markets?v=1.2&cacheFirst=true').then(res => res.json()),
         ]);
         const { firmMarketUsers, marketUsersAndEscrows } = firmUsersData;
 
         // trigger
-        // fetch('https://inverse.finance/api/f2/fixed-markets');
+        // fetch('https://www.inverse.finance/api/f2/fixed-markets');
 
         // const { data: marketsCache } = await getCacheFromRedisAsObj(F2_MARKETS_CACHE_KEY, false);
 

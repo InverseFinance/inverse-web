@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     res.status(400).json({ status: 'error', message: 'Invalid vnetPublicId' });
     return;
   }
-  
+
   const cacheKey = vnetPublicId ? `f2markets-sim-${vnetPublicId}` : F2_MARKETS_CACHE_KEY;
 
   try {
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
 
     let provider;
     if (vnetPublicId) {
-      // const cachedSims = (await getCacheFromRedis(SIMS_CACHE_KEY, false));    
+      // const cachedSims = (await getCacheFromRedis(SIMS_CACHE_KEY, false));
       // const { ids } =  cachedSims || { ids: [] };
       // const vnet = ids.find(id => id.publicId === vnetPublicId);
       // if(!vnet) {
@@ -56,10 +56,10 @@ export default async function handler(req, res) {
     }
 
     // trigger
-    fetch('https://inverse.finance/api/markets');
-    
+    fetch('https://www.inverse.finance/api/markets');
+
     const ifvr = inverseViewerRaw(provider);
-    
+
     const [
       marketData,
       invAprData,

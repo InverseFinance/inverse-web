@@ -94,7 +94,7 @@ export default async function handler(req, res) {
 
     let provider, paidProvider;
     if (vnetPublicId) {
-      // const cachedSims = (await getCacheFromRedis(SIMS_CACHE_KEY, false));    
+      // const cachedSims = (await getCacheFromRedis(SIMS_CACHE_KEY, false));
       // const { ids } =  cachedSims || { ids: [] };
       // const vnet = ids.find(id => id.publicId === vnetPublicId);
       // if(!vnet) {
@@ -111,8 +111,8 @@ export default async function handler(req, res) {
 
     const [marketUsersCache, marketsCache] = await Promise.all([
       getFirmMarketUsers(paidProvider),
-      (vnetPublicId ? 
-        fetch(`https://inverse.finance/api/f2/fixed-markets?v=1.2&vnetPublicId=${vnetPublicId||''}`).then(r => r.json()) 
+      (vnetPublicId ?
+        fetch(`https://www.inverse.finance/api/f2/fixed-markets?v=1.2&vnetPublicId=${vnetPublicId||''}`).then(r => r.json())
          : getCacheFromRedis(F2_MARKETS_CACHE_KEY, false)),
     ])
     const { firmMarketUsers, marketUsersAndEscrows } = marketUsersCache;
@@ -152,7 +152,7 @@ export default async function handler(req, res) {
       [
         firmMarketUsers.map((f, i) => {
           const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);
-          return { contract: market, functionName: 'debts', params: [f.user] };            
+          return { contract: market, functionName: 'debts', params: [f.user] };
         }),
         firmMarketUsers.map((f, i) => {
           const marketAd = F2_MARKETS[f.marketIndex].address;
@@ -161,7 +161,7 @@ export default async function handler(req, res) {
           return { contract: escrow, functionName: 'balance', params: [] };
         }),
         firmMarketUsers.map((f, i) => {
-          const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);            
+          const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);
           // placeholder debts call for the inv market meanwhile oracle feed is invalid
           return { contract: market, functionName: 'getCreditLimit', params: [f.user] };
         }),

@@ -19,7 +19,7 @@ const getData = async (sInvEscrowContract, distroContract, sInvContract) => {
         { contract: distroContract, functionName: 'maxRewardRate' },
         { contract: sInvContract, functionName: 'totalSupply' },
         { contract: sInvContract, functionName: 'periodRevenue' },
-        { contract: sInvContract, functionName: 'lastPeriodRevenue' },       
+        { contract: sInvContract, functionName: 'lastPeriodRevenue' },
         { contract: sInvContract, functionName: 'totalAssets' },
         { contract: sInvContract, functionName: 'lastBuyPeriod' },
     ]);
@@ -36,22 +36,22 @@ export default async function handler(req, res) {
         //   return;
         // }
 
-        const provider = getProvider(CHAIN_ID);  
+        const provider = getProvider(CHAIN_ID);
         const distroContract = getDbrDistributorContract(provider);
         const sInvContract = getSInvContract(provider);
         const sInvContractV1 = getSInvContract(provider, SINV_ADDRESS_V1);
         const sInvEscrowContract = getSinvEscrowContract(provider);
         const sInvEscrowContractV1 = getSinvEscrowContract(provider, SINV_ESCROW_ADDRESS_V1);
-        
+
         // const firmMarkets = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, false) || { markets: [] };
-        const firmMarkets = await fetch('https://inverse.finance/api/f2/fixed-markets?cacheFirst=true').then(res => res.json());
+        const firmMarkets = await fetch('https://www.inverse.finance/api/f2/fixed-markets?cacheFirst=true').then(res => res.json());
         const firmInv = firmMarkets.markets.find(m => m.name === 'INV');
 
         const [invStakingDataV2, invStakingDataV1] = await Promise.all([
             getData(sInvEscrowContract, distroContract, sInvContract),
             getData(sInvEscrowContractV1, distroContract, sInvContractV1),
         ]);
-       
+
         const { priceInDola: dbrDolaPrice } = await getDbrPriceOnCurve(provider);
 
         const v2FormattedData = formatInvStakingData(dbrDolaPrice, invStakingDataV2, firmInv.supplyApy, firmInv.dbrInvExRate, firmInv.invStakedViaDistributor, undefined, 0, 'V2');
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
             ...v2FormattedData,
             combinedTotalAssets: v2FormattedData.sInvTotalAssets + v1FormattedData.sInvTotalAssets,
             combinedTotalSupply: v2FormattedData.sInvSupply + v1FormattedData.sInvSupply,
-            V1: v1FormattedData,            
+            V1: v1FormattedData,
         }
 
         // await redisSetWithTimestamp(invStakingCacheKey, resultData);
