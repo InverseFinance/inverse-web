@@ -217,7 +217,7 @@ export default async function handler(req, res) {
       const aeroToken = multisigData[baseMultisigIndex].funds.find(f => f.token.symbol === 'AERO');
       const aeroBalance = Array.isArray(veAeroBalanceBn[0]) ? veAeroBalanceBn[0][0] : veAeroBalanceBn[0];
       multisigData[baseMultisigIndex].funds.push({
-        "balance": getBnToNumber(aeroBalance) * aeroToken.price,
+        "balance": getBnToNumber(aeroBalance) * (aeroToken?.price || 0.66,
         "price": 1,
         "onlyUsdValue": true,
         "allowance": 0,
