@@ -155,7 +155,7 @@ export default async function handler(req, res) {
 
     const veAero = new Contract('0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4', VE_NFT_ABI, getProvider(NetworkIds.base));
 
-    const [treasuryBalances, multisigsFunds, liquidityCachedData, veAeroBalanceBn] = await Promise.all(
+    const [treasuryBalances, multisigsFunds, liquidityCachedData, veAeroBalanceBn, prices] = await Promise.all(
       [
         fetchZerionWithRetry(TREASURY, mainnet.zerionId || mainnet.codename),
         Promise.all(
@@ -166,8 +166,11 @@ export default async function handler(req, res) {
         ),
         getCacheFromRedis(liquidityCacheKey, false),
         veAero.locked('7'),
+        fetch('https://www.inverse.finance/api/prices?cacheFirst=true').then(res => res.json()),
       ]
     );
+
+    const formattedPrices = Object.entries(prices).reduce((prev, [key, val]) => ({ ...prev, [key]: { usd: val } }), {});
 
     multisigsFunds.map((bns, i) => {
       const multisig = multisigsToShow[i];
@@ -217,7 +220,7 @@ export default async function handler(req, res) {
       const aeroToken = multisigData[baseMultisigIndex].funds.find(f => f.token.symbol === 'AERO');
       const aeroBalance = Array.isArray(veAeroBalanceBn[0]) ? veAeroBalanceBn[0][0] : veAeroBalanceBn[0];
       multisigData[baseMultisigIndex].funds.push({
-        "balance": getBnToNumber(aeroBalance) * (aeroToken?.price || 0.66),
+        "balance": getBnToNumber(aeroBalance) * (aeroToken?.price || prices['aerodrome-finance']?.usd),
         "price": 1,
         "onlyUsdValue": true,
         "allowance": 0,
@@ -227,7 +230,7 @@ export default async function handler(req, res) {
           "symbol": "veAERO",
           "image": "https://assets.coingecko.com/coins/images/31745/standard/token.png?1696530564",
           "address": "0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4",
-          "_price": (aeroToken?.price || 0.66),
+          "_price": (aeroToken?.price || prices['aerodrome-finance']?.usd),
           "veNftId": "7",
         },
         "chainCodeName": "base",
