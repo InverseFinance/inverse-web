@@ -227,7 +227,7 @@ export default async function handler(req, res) {
           "symbol": "veAERO",
           "image": "https://assets.coingecko.com/coins/images/31745/standard/token.png?1696530564",
           "address": "0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4",
-          "_price": aeroToken.price
+          "_price": (aeroToken?.price || 0.66),
         },
         "chainCodeName": "base",
         "key": "Aerodrom veNft 7"
