@@ -16,8 +16,7 @@ import { answerPoll } from '@app/util/analytics'
 import { showToast } from '@app/util/notify'
 import { POLLS, ACTIVE_POLL } from '@app/variables/poll-data'
 import { FirmInsuranceCover } from '@app/components/common/InsuranceCover'
-import { StatusMessage } from '@app/components/common/Messages'
-import { SERVER_BASE_URL } from '@app/config/constants'
+import { OUTDATED_DATA_MESSAGE, StatusMessage, WarningMessage } from '@app/components/common/Messages'
 import { F2Market } from '@app/types'
 import { useFirmTVL } from '@app/hooks/useTVL'
 import { timeSince } from '@app/util/time'
@@ -26,6 +25,7 @@ import { JuniorMessage } from '@app/components/JuniorTranches/JuniorMessage'
 import { MonolithInvUSDMessage } from '@app/components/Monolith/MonolithInvUSDMessage'
 import { JsonLd } from '@app/components/common/JsonLd'
 import { NewFirmVideo } from '@app/components/F2/NewFirmVideo'
+import { getSsrDbr, getSsrDolaCirculatingSupply, getSsrDolaPrice, getSsrFirmMarkets, getSsrFirmMarketsDisplay, getSsrFirmTvl, SSR_FALLBACK_CACHE_CONTROL } from '@app/util/ssr'
 
 export const F2PAGE = ({
     isTwitterAlert = false,
@@ -37,6 +37,7 @@ export const F2PAGE = ({
     globalMessage,
     globalMessageStatus,
     globalMessageTimestamp,
+    hasOutdatedData = false,
 }: {
     isTwitterAlert: boolean,
     marketsData: { markets: F2Market[] },
@@ -47,6 +48,7 @@ export const F2PAGE = ({
     globalMessage: string,
     globalMessageStatus: string,
     globalMessageTimestamp: number,
+    hasOutdatedData?: boolean,
 }) => {
     const { firmTotalTvl, firmTvls, isLoading: isLoadingTvl } = useFirmTVL();
     const account = useAccount();
@@ -274,6 +276,13 @@ export const F2PAGE = ({
                         <JuniorMessage />
                     </ErrorBoundary>
                     {
+                        hasOutdatedData && (
+                            <VStack w='full' px='6' pb='4'>
+                                <WarningMessage alertProps={{ w: 'full' }} description={OUTDATED_DATA_MESSAGE} />
+                            </VStack>
+                        )
+                    }
+                    {
                         !!globalMessage && (
                             <VStack w='full' px='6' pb='4'>
                                 <StatusMessage
@@ -293,7 +302,7 @@ export const F2PAGE = ({
                     }
                     <ErrorBoundary description="Failed to FiRM header">
                         <VStack px='6' w='full'>
-                            <FirmBar dbrPriceUsd={dbrPriceUsd} dolaPriceUsd={dolaPriceUsd} currentCirculatingSupply={currentCirculatingSupply} firmTotalTvl={isLoadingTvl ? firmTvlData?.firmTotalTvl || null : firmTotalTvl} markets={marketsData.markets} />
+                            <FirmBar dbrPriceUsd={dbrPriceUsd} dolaPriceUsd={dolaPriceUsd} currentCirculatingSupply={currentCirculatingSupply} firmTotalTvl={isLoadingTvl ? firmTvlData?.firmTotalTvl || null : firmTotalTvl} markets={marketsData?.markets} />
                         </VStack>
                     </ErrorBoundary>
                     <Divider display={{ base: 'inline-block', sm: 'none' }} />
@@ -323,9 +332,17 @@ export const F2PAGE = ({
 }
 
 export async function getServerSideProps(context) {
-    context.res.setHeader('Cache-Control', 'public, s-maxage=90, stale-while-revalidate=120');
     const vnetPublicId = context.query?.vnetPublicId || '';
 
+    // an api failure falls back to cached data (flagged by isFallback) instead of failing the page
+    const results = await Promise.all([
+        getSsrFirmMarkets(vnetPublicId),
+        getSsrFirmTvl(),
+        getSsrDolaCirculatingSupply(),
+        getSsrDbr(),
+        getSsrDolaPrice(),
+        getSsrFirmMarketsDisplay(),
+    ]);
     const [
         marketsData,
         firmTvlData,
@@ -333,26 +350,21 @@ export async function getServerSideProps(context) {
         dbrData,
         dolaPriceData,
         marketsDisplaysData,
-    ] = await Promise.all([
-        fetch(`${SERVER_BASE_URL}/api/f2/fixed-markets?v=1.2&${vnetPublicId ? `vnetPublicId=${vnetPublicId}` : 'cacheFirst=true'}`).then(res => res.json()),
-        fetch(`${SERVER_BASE_URL}/api/f2/tvl?cacheFirst=true`).then(res => res.json()),
-        fetch(`${SERVER_BASE_URL}/api/dola/circulating-supply?cacheFirst=true`).then(res => res.text()),
-        fetch(`${SERVER_BASE_URL}/api/dbr?cacheFirst=true`).then(res => res.json()),
-        fetch(`${SERVER_BASE_URL}/api/dola-price?cacheFirst=true`).then(res => res.json()),
-        fetch(`${SERVER_BASE_URL}/api/f2/markets-display`).then(res => res.json()),
-    ]);
-    const dbrPriceUsd = dbrData.priceUsd;
-    const dolaPriceUsd = dolaPriceData['dola-usd'] || 1;
+    ] = results.map(r => r.data);
+    const hasOutdatedData = results.some(r => r.isFallback);
+
+    context.res.setHeader('Cache-Control', hasOutdatedData ? SSR_FALLBACK_CACHE_CONTROL : 'public, s-maxage=90, stale-while-revalidate=120');
     return {
         props: {
-            marketsData: marketsData,
+            marketsData,
             firmTvlData,
-            currentCirculatingSupply: parseFloat(currentCirculatingSupply),
-            dbrPriceUsd,
-            dolaPriceUsd,
-            globalMessage: marketsDisplaysData?.data?.globalMessage,
-            globalMessageStatus: marketsDisplaysData?.data?.globalMessageStatus,
-            globalMessageTimestamp: marketsDisplaysData?.data?.globalMessageTimestamp,
+            currentCirculatingSupply,
+            dbrPriceUsd: dbrData?.priceUsd ?? null,
+            dolaPriceUsd: dolaPriceData?.['dola-usd'] || 1,
+            globalMessage: marketsDisplaysData?.data?.globalMessage ?? null,
+            globalMessageStatus: marketsDisplaysData?.data?.globalMessageStatus ?? null,
+            globalMessageTimestamp: marketsDisplaysData?.data?.globalMessageTimestamp ?? null,
+            hasOutdatedData,
         },
     };
 }

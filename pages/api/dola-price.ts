@@ -60,6 +60,8 @@ export default async function handler(req, res) {
             if (cache) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).json(cache);
+            } else {
+                res.status(500).json({ success: false });
             }
         } catch (e) {
             console.error(e);

@@ -121,10 +121,12 @@ export default async function handler(req, res) {
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).send(cache);
+      } else {
+        res.status(500).end();
       }
     } catch (e) {
       console.error(e);
-      res.status(500);
+      res.status(500).end();
     }
   }
 }

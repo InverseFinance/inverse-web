@@ -3,7 +3,7 @@ import Layout from '@app/components/common/Layout'
 import Head from 'next/head'
 import { shortenNumber } from '@app/util/markets'
 import { getLandingProps } from '@app/blog/lib/utils'
-import { ArrowForwardIcon, CheckCircleIcon, SmallCloseIcon } from '@chakra-ui/icons'
+import { ArrowForwardIcon, CheckCircleIcon, SmallCloseIcon, WarningIcon } from '@chakra-ui/icons'
 import { LandingAnimation, LandingMobileAnimation } from '@app/components/common/Animation/LandingAnimation'
 import FloatingNav from '@app/components/common/Navbar/FloatingNav'
 import { EcosystemBanner, EcosystemGrid } from '@app/components/Landing/EcosystemBanner'
@@ -15,6 +15,8 @@ import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import FooterV2 from '@app/components/common/Footer/FooterV2'
 import { useDBRPrice } from '@app/hooks/useDBR'
 import { JsonLd } from '@app/components/common/JsonLd'
+import { OUTDATED_DATA_MESSAGE } from '@app/components/common/Messages'
+import { SSR_FALLBACK_CACHE_CONTROL } from '@app/util/ssr'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -39,19 +41,19 @@ export const Landing = ({
   dolaPrice,
   apy,
   projectedApy,
-  dolaVolume,
   totalDebt,
   sDolaTvl,
+  hasOutdatedData = false,
 }: {
   dbrPriceUsd: number,
   firmTotalTvl: number,
   dolaPrice: number,
   invPrice: number,
-  dolaVolume: number,
   apy: number,
   projectedApy: number,
   totalDebt: number,
   sDolaTvl: number,
+  hasOutdatedData?: boolean,
 }) => {
   const [isSmallerThan] = useMediaQuery('(max-width: 768px)');
   const [windowSize, setWindowSize] = useState(0);
@@ -147,6 +149,14 @@ export const Landing = ({
           <VStack position="fixed" zIndex="99999" top="0" maxW="2000px" w='full' px={{ base: 0, md: '4%' }} py={{ base: 0, md: '5' }} alignItems="center">
             <FloatingNav />
           </VStack>
+          {
+            hasOutdatedData && (
+              <HStack position="fixed" zIndex="99999" bottom="4" left="50%" transform="translateX(-50%)" w="max-content" maxW="calc(100% - 32px)" pointerEvents="none" bgColor={landingYellowColor} border="1px solid #E8D36A" borderRadius="20px" boxShadow="0 2px 8px 2px #33333322" px="4" py="2" spacing="2">
+                <WarningIcon color="#B7791F" />
+                <GeistText fontSize="sm" fontWeight="semibold">{OUTDATED_DATA_MESSAGE}</GeistText>
+              </HStack>
+            )
+          }
           <VStack maxW="90%" w='full' alignItems="center" pt="50px">
             <VStack pt="8" spacing="8" w='full' alignItems="center">
               <VStack spacing="0" w='full' alignItems={{ base: 'flex-start', 'md': 'center' }}>
@@ -473,6 +483,7 @@ export const Landing = ({
 export default Landing;
 
 export async function getServerSideProps(context) {
-  context.res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
-  return { ...await getLandingProps(context) }
+  const landingProps = await getLandingProps(context);
+  context.res.setHeader('Cache-Control', landingProps.props.hasOutdatedData ? SSR_FALLBACK_CACHE_CONTROL : 'public, s-maxage=300, stale-while-revalidate=3600');
+  return landingProps;
 }
