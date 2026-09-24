@@ -20,7 +20,7 @@ export const GovernanceRules = ({
     const [quorumVotes, proposalThreshold] =
         proposalBlock ?
             getHistoricalGovParamsAsArray(proposalBlock).map(v => parseEther(v.toString())) :
-            otherData || [parseEther('15500'), parseEther('1900')];            
+            otherData || [parseEther('24000'), parseEther('7270')];
 
     return <ShrinkableInfoMessage
         title={`🏛️ Governance Rules${proposalBlock ? ' at proposal creation' : ''}`}
