@@ -17,6 +17,9 @@ type MessageProps = {
     iconProps?: AnimIconProps
 }
 
+// shown when an SSR page had to use cached data because an api failed
+export const OUTDATED_DATA_MESSAGE = 'Maintenance in progress: some data might be outdated';
+
 const statusAnims = {
     info: InfoIcon,
     success: SuccessAnimIcon,
