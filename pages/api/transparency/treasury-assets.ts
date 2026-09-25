@@ -220,7 +220,7 @@ export default async function handler(req, res) {
       const aeroToken = multisigData[baseMultisigIndex].funds.find(f => f.token.symbol === 'AERO');
       const aeroBalance = Array.isArray(veAeroBalanceBn[0]) ? veAeroBalanceBn[0][0] : veAeroBalanceBn[0];
       multisigData[baseMultisigIndex].funds.push({
-        "balance": getBnToNumber(aeroBalance) * (aeroToken?.price || prices['aerodrome-finance']?.usd),
+        "balance": getBnToNumber(aeroBalance) * (aeroToken?.price || prices['aerodrome-finance']),
         "price": 1,
         "onlyUsdValue": true,
         "allowance": 0,
@@ -230,7 +230,7 @@ export default async function handler(req, res) {
           "symbol": "veAERO",
           "image": "https://assets.coingecko.com/coins/images/31745/standard/token.png?1696530564",
           "address": "0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4",
-          "_price": (aeroToken?.price || prices['aerodrome-finance']?.usd),
+          "_price": (aeroToken?.price || prices['aerodrome-finance']),
           "veNftId": "7",
         },
         "chainCodeName": "base",
