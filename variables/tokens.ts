@@ -66,7 +66,7 @@ const chainTokenAddresses = {
     CRV: '0xD533a949740bb3306d119CC777fa900bA034cd52',
     VLCVX: '0x72a19342e8F1838460eBFCCEf09F6585e32db86E',
     VLAURA: '0x3Fa73f1E5d8A792C80F426fc8F84FBF7Ce9bBCAC',
-    LOCKEDDOLAFRAXBP: '0xF06c8696730cf760619e4fA0eDd0f79ea50531A9',    
+    LOCKEDDOLAFRAXBP: '0xF06c8696730cf760619e4fA0eDd0f79ea50531A9',
     BAL: '0xba100000625a3754423978a60c9317c58a424e3D',
     AURA: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF',
     DOLAUSDCBALANCER: '0xFf4ce5AAAb5a627bf82f4A571AB1cE94Aa365eA6',
@@ -150,6 +150,7 @@ const chainTokenAddresses = {
     STYETH: '0x583019fF0f430721aDa9cfb4fac8F06cA104d0B4',
     SFRAX: '0xA663B02CF0a4b149d2aD41910CB81e23e1c41c32',
     sfrxUSD: '0xcf62F905562626CfcDD2261162a51fd02Fc9c5b6',
+    sDOLAFRXUSDCRVLP: '0x9D8AFD5Ce19A3b948049468188f1De13951A4383',
     COMP: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
     sUSDE: '0x9D39A5DE30e57443BfF2A8307A4256c8797A3497',
     PTsUSDe27MAR25: '0xE00bd3Df25fb187d6ABBB620b3dfd19839947b81',
@@ -298,7 +299,7 @@ const chainTokenAddresses = {
     DOLA: '0x221743dc9E954bE4f86844649Bf19B43D6F8366d',
     USDC: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
     SOLISNEK: '0xeeee99b35Eb6aF5E7d76dd846DbE4bcc0c60cA1d',
-    VESOLISNEK: '0xeeee3Bf0E550505C0C17a8432065F2f6b9D06350',    
+    VESOLISNEK: '0xeeee3Bf0E550505C0C17a8432065F2f6b9D06350',
     DOLAUSDCSOLISNEDKLP: '0x7680D9F07f80B11A7a96E4443398245D917998e6',
   },
   // base
@@ -311,10 +312,10 @@ const chainTokenAddresses = {
     VEAERO: '0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4',
     AERO: '0x940181a94A35A4569E4529A3CDfB74e38FD98631',
     USDPLUS: '0xB79DD08EA68A908A97220C76d19A6aA9cBDE4376',
-    AERODOLAUSDPLUS: '0x8E9154AC849e839d60299E85156bcb589De2693A',    
+    AERODOLAUSDPLUS: '0x8E9154AC849e839d60299E85156bcb589De2693A',
     AERODOLAUSDCLP: '0xf213F2D02837012dC0236cC105061e121bB03e37',
     zunUSD: '0xD5B9dDB04f20eA773C9b56607250149B26049B1F',
-    USDz: '0x04D5ddf5f3a8939889F11E97f8c4BB48317F1938',    
+    USDz: '0x04D5ddf5f3a8939889F11E97f8c4BB48317F1938',
     DOLAUSDZLP: '0xcEa8ef6ce6235F2C2CdD13C9E8a3ED470725a638',
     DOLAZUNUSDLP: '0x557c843afA9D8214534A2101D7B1200F1b0F6f6a',
     // native usdc
@@ -342,7 +343,7 @@ const chainTokenAddresses = {
   "34443": {
     DOLA: "0x00eA4344e90c741560f08667961A8dE39FF506D7",
     USDC: "0xd988097fb8612cc24eeC14542bC03424c656005f",
-    VELODOLAUSDCLP: "0x90a0b21936785164103eb9AC7d76792EB5F6c49C",    
+    VELODOLAUSDCLP: "0x90a0b21936785164103eb9AC7d76792EB5F6c49C",
   },
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
@@ -378,7 +379,7 @@ const FRAX = {
   name: 'FRAX',
   symbol: 'FRAX',
   coingeckoId: 'frax',
-  image: TOKEN_IMAGES.FRAX,      
+  image: TOKEN_IMAGES.FRAX,
   decimals: 18,
   isStable: true,
 }
@@ -585,7 +586,7 @@ const chainTokens = {
       symbol: 'fxUSD',
       coingeckoId: 'f-x-protocol-fxusd',
       image: TOKEN_IMAGES.FXUSD,
-      decimals: 18,      
+      decimals: 18,
       isStable: true,
     },
     [chainTokenAddresses["1"].WSTETH]: {
@@ -603,7 +604,7 @@ const chainTokens = {
       symbol: 'gOHM',
       coingeckoId: 'governance-ohm',
       image: TOKEN_IMAGES.gOHM,
-      decimals: 18,      
+      decimals: 18,
     },
     [chainTokenAddresses["1"].INVDOLASLP]: {
       address: chainTokenAddresses["1"].INVDOLASLP,
@@ -791,13 +792,13 @@ const chainTokens = {
       symbol: 'RGUSD',
       coingeckoId: 'revenue-generating-usd',
       image: TOKEN_IMAGES.RGUSD,
-      decimals: 18,   
+      decimals: 18,
       isStable: true,
     },
     [chainTokenAddresses["1"].DOLARGUSDCRVLP]: {
       address: chainTokenAddresses["1"].DOLARGUSDCRVLP,
       name: 'DOLA-RGUSD',
-      symbol: 'DOLA-RGUSD clp', 
+      symbol: 'DOLA-RGUSD clp',
       protocolImage: PROTOCOL_IMAGES.CRV,
       decimals: 18,
       isLP: true,
@@ -812,7 +813,7 @@ const chainTokens = {
     [chainTokenAddresses["1"].DOLAUSRCRVLP]: {
       address: chainTokenAddresses["1"].DOLAUSRCRVLP,
       name: 'DOLA-USR',
-      symbol: 'DOLA-USR clp', 
+      symbol: 'DOLA-USR clp',
       protocolImage: PROTOCOL_IMAGES.CRV,
       decimals: 18,
       isLP: true,
@@ -843,7 +844,7 @@ const chainTokens = {
     [chainTokenAddresses["1"].DOLAwstUSRCRVLP]: {
       address: chainTokenAddresses["1"].DOLAwstUSRCRVLP,
       name: 'DOLA-wstUSR',
-      symbol: 'DOLA-wstUSR clp', 
+      symbol: 'DOLA-wstUSR clp',
       protocolImage: PROTOCOL_IMAGES.CRV,
       decimals: 18,
       isLP: true,
@@ -874,7 +875,7 @@ const chainTokens = {
     [chainTokenAddresses["1"].YUSDSDOLACLP]: {
       address: chainTokenAddresses["1"].YUSDSDOLACLP,
       name: 'sDOLA-YUSD',
-      symbol: 'sDOLA-YUSD clp', 
+      symbol: 'sDOLA-YUSD clp',
       protocolImage: PROTOCOL_IMAGES.CRV,
       decimals: 18,
       isLP: true,
@@ -889,7 +890,7 @@ const chainTokens = {
     [chainTokenAddresses["1"].MORPHOYEARNUSDCVAULT]: {
       address: chainTokenAddresses["1"].MORPHOYEARNUSDCVAULT,
       name: 'yDG-USDC',
-      symbol: 'yDG-USDC', 
+      symbol: 'yDG-USDC',
       protocolImage: PROTOCOL_IMAGES.MORPHO,
       decimals: 18,
       isStable: true,
@@ -899,7 +900,7 @@ const chainTokens = {
     [chainTokenAddresses["1"].DOLAdeUSDCRVLP]: {
       address: chainTokenAddresses["1"].DOLAdeUSDCRVLP,
       name: 'DOLA-deUSD',
-      symbol: 'DOLA-deUSD clp', 
+      symbol: 'DOLA-deUSD clp',
       protocolImage: PROTOCOL_IMAGES.CRV,
       decimals: 18,
       isLP: true,
@@ -946,7 +947,7 @@ const chainTokens = {
     [chainTokenAddresses["1"].sDOLAreUSDCRVLP]: {
       address: chainTokenAddresses["1"].sDOLAreUSDCRVLP,
       name: 'sDOLA-reUSD',
-      symbol: 'sDOLA-reUSD clp', 
+      symbol: 'sDOLA-reUSD clp',
       protocolImage: PROTOCOL_IMAGES.CRV,
       decimals: 18,
       isLP: true,
@@ -958,10 +959,25 @@ const chainTokens = {
       image: TOKEN_IMAGES.DOLA,
       link: 'https://curve.finance/dex/ethereum/pools/factory-stable-ng-413/deposit/',
     },
+    [chainTokenAddresses["1"].sDOLAFRXUSDCRVLP]: {
+      address: chainTokenAddresses["1"].sDOLAFRXUSDCRVLP,
+      name: 'sDOLA-frxUSD',
+      symbol: 'sDOLA-frxUSD clp',
+      protocolImage: PROTOCOL_IMAGES.CRV,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isCrvLP: true,
+      pairs: [
+        chainTokenAddresses["1"].FRXUSD, chainTokenAddresses["1"].SDOLA
+      ],
+      image: TOKEN_IMAGES.DOLA,
+      link: 'https://www.curve.finance/dex/ethereum/pools/0x9D8AFD5Ce19A3b948049468188f1De13951A4383',
+    },
     [chainTokenAddresses["1"].DOLASdeUSDCRVLP]: {
       address: chainTokenAddresses["1"].DOLASdeUSDCRVLP,
       name: 'DOLA-sdeUSD',
-      symbol: 'DOLA-sdeUSD clp', 
+      symbol: 'DOLA-sdeUSD clp',
       protocolImage: PROTOCOL_IMAGES.CRV,
       decimals: 18,
       isLP: true,
@@ -976,7 +992,7 @@ const chainTokens = {
     [chainTokenAddresses["1"].DOLAfxSAVECLP]: {
       address: chainTokenAddresses["1"].DOLAfxSAVECLP,
       name: 'DOLA-fxSAVE',
-      symbol: 'DOLA-fxSAVE clp', 
+      symbol: 'DOLA-fxSAVE clp',
       protocolImage: PROTOCOL_IMAGES.CRV,
       decimals: 18,
       isLP: true,
@@ -991,7 +1007,7 @@ const chainTokens = {
     [chainTokenAddresses["1"].fxSAVE]: {
       address: chainTokenAddresses["1"].fxSAVE,
       name: 'fxSAVE',
-      symbol: 'fxSAVE', 
+      symbol: 'fxSAVE',
       protocolImage: PROTOCOL_IMAGES.FXN,
       decimals: 18,
       isStable: true,
@@ -1006,7 +1022,7 @@ const chainTokens = {
       decimals: 18,
       isLP: true,
       isUniV3: true,
-      uniV3Pool: chainTokenAddresses["1"].DOLAINVUNIV3,      
+      uniV3Pool: chainTokenAddresses["1"].DOLAINVUNIV3,
       pairs: [
         chainTokenAddresses["1"].INV, chainTokenAddresses["1"].DOLA
       ],
@@ -1077,14 +1093,14 @@ const chainTokens = {
       isCrvLP: true,
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].THREECRV
-      ],      
+      ],
       image: TOKEN_IMAGES.DOLA,
       link: 'https://curve.finance/#/ethereum/pools/factory-v2-27/deposit',
     },
     [chainTokenAddresses["1"].DOLAFRAXUSDC]: {
       address: chainTokenAddresses["1"].DOLAFRAXUSDC,
       name: 'DOLA-FRAXBP',
-      symbol: 'DOLA-FRAXBP',      
+      symbol: 'DOLA-FRAXBP',
       protocolImage: PROTOCOL_IMAGES.CRV,
       decimals: 18,
       isLP: true,
@@ -1116,7 +1132,7 @@ const chainTokens = {
     [chainTokenAddresses["1"].DOLAFRAXPYUSD]: {
       address: chainTokenAddresses["1"].DOLAFRAXPYUSD,
       name: 'DOLA-FRAX-PYUSD',
-      symbol: 'DOLA-FRAX-PYUSD',      
+      symbol: 'DOLA-FRAX-PYUSD',
       protocolImage: PROTOCOL_IMAGES.CRV,
       decimals: 18,
       isLP: true,
@@ -1128,13 +1144,13 @@ const chainTokens = {
       image: TOKEN_IMAGES.DOLA,
       link: 'https://curve.finance/#/ethereum/pools/factory-stable-ng-96/deposit',
       deduce: [chainTokenAddresses["1"].DOLAFRAXPYUSDCVX, chainTokenAddresses["1"].YVDOLAFRAXPYUSD],
-    },    
+    },
     [chainTokenAddresses["1"].DOLAFRAXPYUSDCVX]: {
       address: chainTokenAddresses["1"].DOLAFRAXPYUSDCVX,
       isCrvLP: true,
       poolAddress: chainTokenAddresses["1"].DOLAFRAXPYUSD,
       name: 'DOLA-FRAX-PYUSD',
-      symbol: 'DOLA-FRAX-PYUSD cvxlp', 
+      symbol: 'DOLA-FRAX-PYUSD cvxlp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
       isLP: true,
@@ -1145,7 +1161,7 @@ const chainTokens = {
       convexInfos:{
         fromPrice: chainTokenAddresses["1"].DOLAFRAXPYUSD,
       },
-      protocolImage: PROTOCOL_IMAGES.CVX,      
+      protocolImage: PROTOCOL_IMAGES.CVX,
     },
     // [chainTokenAddresses["1"].DOLACUSDALP]: {
     //   address: chainTokenAddresses["1"].DOLACUSDALP,
@@ -1175,7 +1191,7 @@ const chainTokens = {
       balancerInfos: {
         poolId: '0xff4ce5aaab5a627bf82f4a571ab1ce94aa365ea6000200000000000000000426',
         vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      },     
+      },
       pairs: [
         '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
       ],
@@ -1193,12 +1209,12 @@ const chainTokens = {
       balancerInfos: {
         poolId: '0x264062ca46a1322c2e6464471764089e01f22f1900000000000000000000066b',
         vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      },     
+      },
       isComposableMetapool: true,
       pairs: [
         chainTokenAddresses["1"].SDOLADOLABALANCER, chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].SDOLA
       ],
-      image: TOKEN_IMAGES.DOLA,      
+      image: TOKEN_IMAGES.DOLA,
       deduce: [chainTokenAddresses["1"].SDOLADOLAAUR],
     },
     [chainTokenAddresses["1"].SDOLADOLAAUR]: {
@@ -1212,12 +1228,12 @@ const chainTokens = {
       balancerInfos: {
         poolId: '0x264062ca46a1322c2e6464471764089e01f22f1900000000000000000000066b',
         vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      },     
+      },
       isComposableMetapool: true,
       pairs: [
         chainTokenAddresses["1"].SDOLADOLABALANCER, chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].SDOLA
       ],
-      image: TOKEN_IMAGES.DOLA,      
+      image: TOKEN_IMAGES.DOLA,
     },
     [chainTokenAddresses["1"].SDOLAPYUSDBALANCER]: {
       address: chainTokenAddresses["1"].SDOLAPYUSDBALANCER,
@@ -1230,12 +1246,12 @@ const chainTokens = {
       balancerInfos: {
         poolId: '0x09b03b7cbb19b3dae94f884cf60dbc3c99a3947b00000000000000000000066c',
         vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      },     
+      },
       isComposableMetapool: true,
       pairs: [
         chainTokenAddresses["1"].SDOLAPYUSDBALANCER, chainTokenAddresses["1"].PYUSD, chainTokenAddresses["1"].SDOLA
       ],
-      image: TOKEN_IMAGES.DOLA,      
+      image: TOKEN_IMAGES.DOLA,
     },
     [chainTokenAddresses["1"].DBRDOLABALANCER]: {
       address: chainTokenAddresses["1"].DBRDOLABALANCER,
@@ -1247,7 +1263,7 @@ const chainTokens = {
       balancerInfos: {
         poolId: '0x445494f823f3483ee62d854ebc9f58d5b9972a25000200000000000000000415',
         vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      },     
+      },
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].DBR
       ],
@@ -1282,7 +1298,7 @@ const chainTokens = {
     //   balancerInfos: {
     //     poolId: '0x133d241f225750d2c92948e464a5a80111920331000000000000000000000476',
     //     vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-    //   },     
+    //   },
     //   pairs: [
     //     '0x133d241F225750D2c92948E464A5a80111920331', '0x50Cf90B954958480b8DF7958A9E965752F627124', '0x865377367054516e17014CcdED1e7d814EDC9ce4'
     //   ],
@@ -1301,7 +1317,7 @@ const chainTokens = {
     //   balancerInfos: {
     //     poolId: '0x133d241f225750d2c92948e464a5a80111920331000000000000000000000476',
     //     vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-    //   },     
+    //   },
     //   pairs: [
     //     '0x133d241F225750D2c92948E464A5a80111920331', '0x50Cf90B954958480b8DF7958A9E965752F627124', '0x865377367054516e17014CcdED1e7d814EDC9ce4'
     //   ],
@@ -1311,7 +1327,7 @@ const chainTokens = {
     // [chainTokenAddresses["1"].BBEUSD]: {
     //   address: chainTokenAddresses["1"].BBEUSD,
     //   name: 'BB-EULER-USD',
-    //   symbol: 'BB-EULER-USD',   
+    //   symbol: 'BB-EULER-USD',
     //   image: TOKEN_IMAGES['BB-EULER-USD'],
     //   protocolImage: PROTOCOL_IMAGES.EULER,
     //   decimals: 18,
@@ -1515,8 +1531,8 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.CVX,
       convexInfos: {
         account: '0x5170793C4D96f9ca058E2A581BADdA9413EF4b0d',
-        fromPrice: '0xE57180685E3348589E9521aa53Af0BCD497E884d',    
-      },      
+        fromPrice: '0xE57180685E3348589E9521aa53Af0BCD497E884d',
+      },
     },
     [chainTokenAddresses["1"].AURA]: {
       address: chainTokenAddresses["1"].AURA,
@@ -1531,7 +1547,7 @@ const chainTokens = {
       name: 'BAL',
       symbol: 'BAL',
       coingeckoId: 'balancer',
-      image: TOKEN_IMAGES.BAL,     
+      image: TOKEN_IMAGES.BAL,
       decimals: 18,
     },
     [chainTokenAddresses["1"].CUSD]: {
@@ -1804,7 +1820,7 @@ const chainTokens = {
       isYearnV2LP: true,
       pairs: [
         chainTokenAddresses["1"].DOLA, '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E'
-      ],      
+      ],
       link: 'https://yearn.fi/vaults/1/0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96',
     },
     [chainTokenAddresses["1"].YVDOLAFRAXPYUSD]: {
@@ -1820,7 +1836,7 @@ const chainTokens = {
       isYearnV2LP: true,
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FRAXPYUSD
-      ],      
+      ],
       link: `https://yearn.fi/vaults/1/${chainTokenAddresses["1"].YVDOLAFRAXPYUSD.toLowerCase()}`,
     },
     [chainTokenAddresses["1"].YVDOLAFRAXBP]: {
@@ -1836,7 +1852,7 @@ const chainTokens = {
       isYearnV2LP: true,
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FRAXUSDC
-      ],      
+      ],
       link: `https://yearn.fi/vaults/1/${chainTokenAddresses["1"].YVDOLAFRAXBP.toLowerCase()}`,
     },
     [chainTokenAddresses["1"].CRVUSD]: {
@@ -1985,7 +2001,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].SFRAX,
       name: 'sFRAX',
       symbol: 'sFRAX',
-      coingeckoId: 'staked-frax',      
+      coingeckoId: 'staked-frax',
       image: TOKEN_IMAGES.sFRAX,
       decimals: 18,
       isStable: true,
@@ -1994,7 +2010,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].sfrxUSD,
       name: 'sfrxUSD',
       symbol: 'sfrxUSD',
-      coingeckoId: 'staked-frax-usd',      
+      coingeckoId: 'staked-frax-usd',
       image: TOKEN_IMAGES.sfrxUSD,
       decimals: 18,
       isStable: true,
@@ -2016,7 +2032,7 @@ const chainTokens = {
       decimals: 18,
     },
     [chainTokenAddresses["1"].DOLAFXUSDLP]: {
-      address: chainTokenAddresses["1"].DOLAFXUSDLP,      
+      address: chainTokenAddresses["1"].DOLAFXUSDLP,
       name: 'DOLA-FXUSD',
       symbol: 'DOLA-FXUSD clp',
       image: TOKEN_IMAGES.DOLA,
@@ -2028,16 +2044,16 @@ const chainTokens = {
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FXUSD
       ],
       protocolImage: PROTOCOL_IMAGES.CRV,
-      deduce: [chainTokenAddresses["1"].DOLAFXUSDLPCVX],  
+      deduce: [chainTokenAddresses["1"].DOLAFXUSDLPCVX],
     },
     [chainTokenAddresses["1"].DOLAFXUSDLPCVX]: {
-      address: chainTokenAddresses["1"].DOLAFXUSDLPCVX,      
+      address: chainTokenAddresses["1"].DOLAFXUSDLPCVX,
       name: 'DOLA-FXUSD',
       symbol: 'DOLA-FXUSD cvxlp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
       isLP: true,
-      isStable: true, 
+      isStable: true,
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FXUSD
       ],
@@ -2045,10 +2061,10 @@ const chainTokens = {
         fromPrice: chainTokenAddresses["1"].DOLAFXUSDLP,
         // priceField: 'lp_price',
       },
-      protocolImage: PROTOCOL_IMAGES.CVX,   
+      protocolImage: PROTOCOL_IMAGES.CVX,
     },
     [chainTokenAddresses["1"].INVTRICRYPTO]: {
-      address: chainTokenAddresses["1"].INVTRICRYPTO,      
+      address: chainTokenAddresses["1"].INVTRICRYPTO,
       name: 'TricryptoINV',
       symbol: 'TricryptoINV clp',
       image: TOKEN_IMAGES.DOLA,
@@ -2063,8 +2079,8 @@ const chainTokens = {
       deduce: [chainTokenAddresses["1"].INVTRICRYPTOCVX, chainTokenAddresses["1"].INVTRICRYPTOYEARNV2],
     },
     [chainTokenAddresses["1"].INVTRICRYPTOYEARNV2]: {
-      address: chainTokenAddresses["1"].INVTRICRYPTOYEARNV2,    
-      rootCrvPool: chainTokenAddresses["1"].INVTRICRYPTO,  
+      address: chainTokenAddresses["1"].INVTRICRYPTOYEARNV2,
+      rootCrvPool: chainTokenAddresses["1"].INVTRICRYPTO,
       name: 'yvTricryptoINV',
       symbol: 'TricryptoINV yclp',
       image: TOKEN_IMAGES.DOLA,
@@ -2075,14 +2091,14 @@ const chainTokens = {
         chainTokenAddresses["1"].USDC, chainTokenAddresses["1"].WETH, chainTokenAddresses["1"].INV
       ],
       protocolImage: PROTOCOL_IMAGES.YEARN,
-    },    
+    },
     [chainTokenAddresses["1"].INVTRICRYPTOCVX]: {
-      address: chainTokenAddresses["1"].INVTRICRYPTOCVX,      
+      address: chainTokenAddresses["1"].INVTRICRYPTOCVX,
       name: 'TricryptoINV',
       symbol: 'TricryptoINV cvxlp',
       image: TOKEN_IMAGES.INV,
       decimals: 18,
-      isLP: true,    
+      isLP: true,
       pairs: [
         chainTokenAddresses["1"].USDC, chainTokenAddresses["1"].WETH, chainTokenAddresses["1"].INV
       ],
@@ -2090,10 +2106,10 @@ const chainTokens = {
         fromPrice: chainTokenAddresses["1"].INVTRICRYPTO,
         priceField: 'lp_price',
       },
-      protocolImage: PROTOCOL_IMAGES.CVX,      
+      protocolImage: PROTOCOL_IMAGES.CVX,
     },
     [chainTokenAddresses["1"].DBRTRICRYPTO]: {
-      address: chainTokenAddresses["1"].DBRTRICRYPTO,      
+      address: chainTokenAddresses["1"].DBRTRICRYPTO,
       name: 'INV-DBR-DOLA',
       symbol: 'INV-DBR-DOLA clp',
       image: TOKEN_IMAGES.DBR,
@@ -2109,7 +2125,7 @@ const chainTokens = {
       ignoreDefillamaLiquidity: true,
     },
     [chainTokenAddresses["1"].DBRTRICRYPTO2]: {
-      address: chainTokenAddresses["1"].DBRTRICRYPTO2,      
+      address: chainTokenAddresses["1"].DBRTRICRYPTO2,
       name: 'INV-DBR-DOLA',
       symbol: 'INV-DBR-DOLA-bis clp',
       image: TOKEN_IMAGES.DBR,
@@ -2122,10 +2138,10 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.CRV,
       link: 'https://www.curve.finance/dex/ethereum/pools/factory-tricrypto-81/deposit',
       defillamaPoolId: '168a12f8-56b3-47e6-86d6-9de16bcb45ec',
-      // deduce: [chainTokenAddresses["1"].DBRTRICRYPTOCVX],  
+      // deduce: [chainTokenAddresses["1"].DBRTRICRYPTOCVX],
     },
     [chainTokenAddresses["1"].DBRTRICRYPTOCVX]: {
-      address: chainTokenAddresses["1"].DBRTRICRYPTOCVX,      
+      address: chainTokenAddresses["1"].DBRTRICRYPTOCVX,
       name: 'INV-DBR-DOLA',
       symbol: 'INV-DBR-DOLA cvxlp',
       image: TOKEN_IMAGES.DBR,
@@ -2138,7 +2154,7 @@ const chainTokens = {
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].DBR, chainTokenAddresses["1"].INV
       ],
-      protocolImage: PROTOCOL_IMAGES.CVX,      
+      protocolImage: PROTOCOL_IMAGES.CVX,
     },
     [chainTokenAddresses["1"].sUSDz]: {
       address: chainTokenAddresses["1"].sUSDz,
@@ -2451,7 +2467,7 @@ const chainTokens = {
       symbol: 'DOLA-VELO',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       pairs: [
         chainTokenAddresses["10"].VELO, chainTokenAddresses["10"].DOLA
@@ -2464,7 +2480,7 @@ const chainTokens = {
       symbol: 'DOLA-MAI',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: true,
       pairs: [
@@ -2478,7 +2494,7 @@ const chainTokens = {
       symbol: 'DOLA-MAI vlp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: true,
       pairs: [
@@ -2492,7 +2508,7 @@ const chainTokens = {
       symbol: 'DOLA-FRAX',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: true,
       pairs: [
@@ -2506,7 +2522,7 @@ const chainTokens = {
       symbol: 'DOLA-FRAX vlp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: true,
       pairs: [
@@ -2520,7 +2536,7 @@ const chainTokens = {
       symbol: 'DOLA-USDCe archlp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true, 
+      isLP: true,
       isVeloLP: true,
       isStable: true,
       pairs: [
@@ -2820,7 +2836,7 @@ const chainTokens = {
       pairs: [
         chainTokenAddresses["137"].MAI, chainTokenAddresses["137"].DOLA
       ],
-      protocolImage: PROTOCOL_IMAGES.SATIN,      
+      protocolImage: PROTOCOL_IMAGES.SATIN,
     },
     [chainTokenAddresses["137"].CASHDOLASATLP]: {
       address: chainTokenAddresses["137"].CASHDOLASATLP,
@@ -2834,7 +2850,7 @@ const chainTokens = {
       pairs: [
         chainTokenAddresses["137"].CASH, chainTokenAddresses["137"].DOLA
       ],
-      protocolImage: PROTOCOL_IMAGES.SATIN,      
+      protocolImage: PROTOCOL_IMAGES.SATIN,
     },
     [chainTokenAddresses["137"].DOLACASHRETROLP]: {
       address: chainTokenAddresses["137"].DOLACASHRETROLP,
@@ -3133,7 +3149,7 @@ const chainTokens = {
       name: 'BAL',
       symbol: 'BAL',
       coingeckoId: 'balancer',
-      image: TOKEN_IMAGES.BAL,     
+      image: TOKEN_IMAGES.BAL,
       decimals: 18,
     },
   },
@@ -3167,7 +3183,7 @@ const chainTokens = {
       symbol: 'DOLA-USDB fenixlp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: true,
       pairs: [
@@ -3181,7 +3197,7 @@ const chainTokens = {
       symbol: 'DOLA-USDz fenixlp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: true,
       pairs: [
@@ -3222,7 +3238,7 @@ const chainTokens = {
       symbol: 'DOLA-USDC mvelolp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: true,
       pairs: [
@@ -3246,7 +3262,7 @@ const chainTokens = {
     },
     [chainTokenAddresses["8453"].USDC]: {
       ...USDC,
-      address: chainTokenAddresses["8453"].USDC,      
+      address: chainTokenAddresses["8453"].USDC,
     },
     [chainTokenAddresses["8453"].MAI]: {
       ...MAI,
@@ -3299,7 +3315,7 @@ const chainTokens = {
       symbol: 'DOLA-MAI aerolp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: true,
       pairs: [
@@ -3313,7 +3329,7 @@ const chainTokens = {
       symbol: 'DOLA-USDC aerolp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: true,
       pairs: [
@@ -3327,7 +3343,7 @@ const chainTokens = {
       symbol: 'DOLA-zunUSD aerolp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: true,
       pairs: [
@@ -3341,7 +3357,7 @@ const chainTokens = {
       symbol: 'DOLA-USDz aerolp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: true,
       pairs: [
@@ -3355,7 +3371,7 @@ const chainTokens = {
       symbol: 'DOLA-RGUSD aerolp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: true,
       pairs: [
@@ -3369,7 +3385,7 @@ const chainTokens = {
       symbol: 'DOLA-EUSD aerolp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: true,
       pairs: [
@@ -3383,7 +3399,7 @@ const chainTokens = {
       symbol: 'DOLA-USDbC aerolp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: true,
       pairs: [
@@ -3397,7 +3413,7 @@ const chainTokens = {
       symbol: 'DOLA-USD+ aerolp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: true,
       pairs: [
@@ -3419,7 +3435,7 @@ const chainTokens = {
       symbol: 'DOLA-COMP aerolp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: false,
       pairs: [
@@ -3433,7 +3449,7 @@ const chainTokens = {
       symbol: 'DOLA-PAL aerolp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true,
       isVeloLP: true,
       isStable: false,
       pairs: [
@@ -3455,7 +3471,7 @@ const chainTokens = {
       symbol: 'RGUSD',
       coingeckoId: 'revenue-generating-usd',
       image: TOKEN_IMAGES.RGUSD,
-      decimals: 18,   
+      decimals: 18,
     },
   },
 }
@@ -3519,7 +3535,7 @@ const toV1 = (token: Token) => {
   }
 }
 
-/* 
+/*
  * Anchor Markets Underlyings
  * Markets listed here will appear in UI
  * Key: Anchor Market Address, value: Underlying Token
@@ -3636,7 +3652,7 @@ export const PROTOCOL_LINKS = {
   "VELOV2": (lp: Token) => `https://velodrome.finance/deposit?token0=${lp.pairs[0].toLowerCase()}&token1=${lp.pairs[1].toLowerCase()}&stable=true`,
   "THENA": (lp: Token) => 'https://thena.fi/liquidity',
   "AURA": (lp: Token) => 'https://app.aura.finance',
-  "CRV": (lp: Token) => lp?.link || 'https://curve.finance/#/ethereum/pools',    
+  "CRV": (lp: Token) => lp?.link || 'https://curve.finance/#/ethereum/pools',
   "CVX": (lp: Token) => 'https://www.convexfinance.com/stake',
   "SUSHI": (lp: Token) => `https://www.sushi.com/earn/1:${lp?.address?.toLowerCase()}`,
   "UNI": (lp: Token) => `https://v2.info.uniswap.org/pair/${lp?.address?.toLowerCase()}`,
