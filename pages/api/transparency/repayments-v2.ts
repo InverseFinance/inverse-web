@@ -79,10 +79,10 @@ export default async function handler(req, res) {
         const anEth = new Contract('0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8', CTOKEN_ABI, provider);
         const anYfi = new Contract('0xde2af899040536884e062D3a334F2dD36F34b4a4', CTOKEN_ABI, provider);
         const anDola = new Contract('0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670', CTOKEN_ABI, provider);
-        // non-frontier DOLA bad debt, resolved, archived 
+        // non-frontier DOLA bad debt, resolved, archived
         // const anDolaB1 = new Contract('0xC1Fb01415f08Fbd71623aded6Ac8ec74F974Fdc1', CTOKEN_ABI, provider);
         // const anDolaFuse6 = new Contract('0xf65155C9595F99BFC193CaFF0AAb6e2a98cf68aE', CTOKEN_ABI, provider);
-        // const anDolaBadger = new Contract('0x5117D9453cC9Be8c3fBFbA4aE3B858D18fe45903', CTOKEN_ABI, provider);  
+        // const anDolaBadger = new Contract('0x5117D9453cC9Be8c3fBFbA4aE3B858D18fe45903', CTOKEN_ABI, provider);
 
         const currentBlock = await provider.getBlockNumber();
         const currentTotalDolaFrontierBorrows = getBnToNumber(await anDola.callStatic.totalBorrowsCurrent({ blockTag: currentBlock }));
@@ -102,7 +102,7 @@ export default async function handler(req, res) {
             dolaFrontierRepayEvents,
             // dolaB1RepayEvents,
             // dolaFuse6RepayEvents,
-            // dolaBadgerRepayEvents,            
+            // dolaBadgerRepayEvents,
             // fedsOverviewData,
             iouHoldersData,
         ] = await Promise.all([
@@ -118,7 +118,7 @@ export default async function handler(req, res) {
             anDola.queryFilter(anDola.filters.RepayBorrow(), postArchiveV5Block, currentBlock),
             // anDolaB1.queryFilter(anDolaB1.filters.RepayBorrow(), 14886483),
             // anDolaFuse6.queryFilter(anDolaFuse6.filters.RepayBorrow(), 14886483),
-            // anDolaBadger.queryFilter(anDolaBadger.filters.RepayBorrow(), 14886483),            
+            // anDolaBadger.queryFilter(anDolaBadger.filters.RepayBorrow(), 14886483),
             // getCacheFromRedis(fedOverviewCacheKey, false),
             // iou holders
             getTokenHolders(DEBT_CONVERTER, 100, 0, '1'),
@@ -411,7 +411,7 @@ export default async function handler(req, res) {
             // }
         });
 
-        const formattedFirmPositionsRes = await fetch('https://inverse.finance/api/f2/formatted-firm-positions');
+        const formattedFirmPositionsRes = await fetch('https://www.inverse.finance/api/f2/formatted-firm-positions');
         const firmPositionsData = await formattedFirmPositionsRes.json();
         const firmBadDebt = firmPositionsData.formattedPositions.filter(i => i.debtInMarket > i.depositsWorth).reduce((prev, curr) => prev + curr.debtInMarket, 0);
         // TODO: handle FiRM bad debt logic
