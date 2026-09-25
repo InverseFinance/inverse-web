@@ -4,18 +4,34 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
 import { getBnToNumber, getConvexMarketsExtraApys, getFirmMarketsApys } from '@app/util/markets'
-import { ALE_V4, CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
+import { CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { formatDistributorData, formatMarketData, inverseViewerRaw } from '@app/util/viewer';
-import { JsonRpcProvider } from '@ethersproject/providers';
+import { BaseProvider, JsonRpcProvider, Web3Provider } from '@ethersproject/providers';
 import { marketsDisplaysCacheKey } from './markets-display';
-import { estimateBlockTimestamp } from '@app/util/misc';
+import { calculateMaxLeverage, estimateBlockTimestamp } from '@app/util/misc';
 import { Contract } from 'ethers';
 import { ERC20_ABI } from '@app/config/abis';
+import { calculateNetApy, getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 
-const { F2_MARKETS } = getNetworkConfigConstants();
+const { F2_MARKETS, F2_ALE } = getNetworkConfigConstants();
 
 export const F2_MARKETS_CACHE_KEY = `f2markets-v1.6.996`;
+
+// same source as /api/dbr, null if unavailable so that the markets data does not depend on it
+const getDbrPriceUsd = async (provider: BaseProvider) => {
+  try {
+    const [{ priceInDola }, { price: dolaPriceUsd }] = await Promise.all([
+      getDbrPriceOnCurve(provider as Web3Provider),
+      getDolaUsdPriceOnCurve(provider as Web3Provider),
+    ]);
+    const priceUsd = priceInDola * dolaPriceUsd;
+    return priceUsd > 0 ? priceUsd : null;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
 
 export default async function handler(req, res) {
   const cacheDuration = 300;
@@ -70,7 +86,7 @@ export default async function handler(req, res) {
       { contract: ifvr.tokensContract, functionName: 'getInvApr', params: [] },
       { contract: ifvr.tokensContract, functionName: 'getDbrDistributorInfo', params: [] },
       F2_MARKETS.map(m => {
-        return { contract: new Contract(m.collateral, ERC20_ABI, provider), functionName: 'allowance', params: [ALE_V4, m.address] }
+        return { contract: new Contract(m.collateral, ERC20_ABI, provider), functionName: 'allowance', params: [F2_ALE, m.address] }
       })
     ], 1, undefined, provider);
 
@@ -80,15 +96,18 @@ export default async function handler(req, res) {
       formatDistributorData(dbrDistributorData),
     ];
 
-    const [externalApys, convexExtraApys, marketsDisplay, currentBlock] = await Promise.all([
+    const [externalApys, convexExtraApys, marketsDisplay, currentBlock, dbrPriceUsd] = await Promise.all([
       getFirmMarketsApys(provider, invApr, cachedData),
       getConvexMarketsExtraApys(),
       getCacheFromRedis(marketsDisplaysCacheKey, false),
       provider.getBlockNumber(),
+      getDbrPriceUsd(provider),
     ])
     const { cvxCrvData, cvxFxsData } = externalApys;
 
     const dbrApr = formattedDistrubutorData.dbrApr;
+    // fixed borrow rate of all markets in %: borrowing 1 DOLA for 1 year costs 1 DBR
+    const fixedBorrowApy = dbrPriceUsd ? dbrPriceUsd * 100 : null;
 
     const { suspendAllDeposits, suspendAllLeverage, suspendAllBorrows } = (marketsDisplay || {});
 
@@ -107,13 +126,20 @@ export default async function handler(req, res) {
       const isPendleMatured = isPendle && !supplyApy;
       const extraRewardApy = convexExtraApys.find(c => c.name.toLowerCase() === m.name.toLowerCase())?.extraApy || 0;
       const marketOverrides = m.hasNowInvalidFeed ? { ...marketData, price: 0, totalDebt: 0, ...m} : {...m,...marketData}
+      const extraApy = m.isInv ? dbrApr : 0;
+      const collateralFactor = marketOverrides.collateralFactor;
+      const maxLeverage = collateralFactor >= 0 && collateralFactor < 1 ? calculateMaxLeverage(collateralFactor) : null;
       return {
         ...marketOverrides,
         extraRewardApy,
         aleAllowance: getBnToNumber(aleAllowancesChecks[i]) > 0 ? 'OK' : 'KO',
         underlying: TOKENS[m.collateral],
         supplyApy: supplyApy + extraRewardApy,
-        extraApy: m.isInv ? dbrApr : 0,
+        extraApy,
+        // theoretical max leverage: borrow limit at 100% and DOLA at $1
+        maxLeverage,
+        // yield at max leverage net of the fixed borrow cost, same as the front-end
+        maxNetApy: maxLeverage !== null && dbrPriceUsd ? calculateNetApy(supplyApy + extraRewardApy + extraApy, collateralFactor, dbrPriceUsd) : null,
         supplyApyLow: isCvxCrv ? Math.min(cvxCrvData?.group1 || 0, cvxCrvData?.group2 || 0) : 0,
         cvxCrvData: isCvxCrv ? cvxCrvData : undefined,
         cvxFxsData: isCvxFxs ? cvxFxsData : undefined,
@@ -136,6 +162,7 @@ export default async function handler(req, res) {
 
     const resultData = {
       timestamp: now,
+      fixedBorrowApy,
       markets,
     }
 

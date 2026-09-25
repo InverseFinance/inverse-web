@@ -285,9 +285,10 @@ export const getAleSellQuote = async (
     sellAmount: string,
     slippagePercentage = '1',
     getPriceOnly = false,
+    aggregator = '',
 ) => {
     const method = getPriceOnly ? 'quote' : 'swap';
-    let url = `/api/f2/ale-proxy?method=${method}&buyToken=${buyAd.toLowerCase()}&sellToken=${sellAd.toLowerCase()}&sellAmount=${sellAmount}&slippagePercentage=${slippagePercentage}`;
+    let url = `/api/f2/ale-proxy?method=${method}&aggregator=${aggregator}&buyToken=${buyAd.toLowerCase()}&sellToken=${sellAd.toLowerCase()}&sellAmount=${sellAmount}&slippagePercentage=${slippagePercentage}`;
     return await fetcher60sectimeout(url);
 }
 // will do a binary search
