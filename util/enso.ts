@@ -13,6 +13,9 @@ import { SDOLA_ADDRESS } from "@app/config/constants";
 
 const key = 'eb19e745-81bb-4ffc-b40e-04dccf6edb6a'
 export const EthXe = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+// between Enso and Inverse TWG
+export const FEE_SPLITTER = '0x93B3DCA766075b6d5AC786DB4213c9F7a59F184b';
+export const ZAP_FEE_BPS = 10;
 
 export type EnsoZapOptions = {
     fromAddress: string,
@@ -268,11 +271,14 @@ export const ensoSameChainZap = async (
     if (toEoa) {
         path += `&receiver=${fromAddress}`;
         if (!isEth) {
-            path += `&spender=${fromAddress}`            
+            path += `&spender=${fromAddress}`
             // path += `&tokenInAmountToApprove=${amount}`
-        } else {            
+        } else {
             // path += `&tokenInAmountToTransfer=${amount}`
         }
+    }
+    if (ZAP_FEE_BPS > 0) {
+      path += `&fee=${ZAP_FEE_BPS}&feeReceiver=${FEE_SPLITTER}`;
     }
     const res = await fetch(path, {
         method: 'GET',
