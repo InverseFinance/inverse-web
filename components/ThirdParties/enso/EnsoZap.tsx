@@ -278,7 +278,7 @@ function EnsoZap({
                     <Link display="inline" textDecoration="underline" target="_blank" isExternal={true} href="https://www.enso.finance/">
                         Enso Finance
               </Link>
-              <Text display="inline">Quote includes a 10bps</Text>
+              <Text display="inline">&nbsp;Quote includes a 10bps</Text>
                     {/* <Text display="inline">,&nbsp;and has not been audited or endorsed by Inverse Finance</Text>                     */}
                 </Box>
                 {/* <Text><b>Recommended</b>: use a wallet with transaction simulation like Rabby, helps preview the transaction result and reduce the chances of having failed transactions.</Text> */}
