@@ -1,4 +1,5 @@
 
+// important: no fee on leverage
 
 export interface SwapQuote {
   aggregator: string;
@@ -191,7 +192,7 @@ async function getEnsoSwapData(params: SwapExecuteParams): Promise<SwapQuote> {
       }
     });
     const data = await res.json();
-  
+
     const amountOut = String(data.amountOut ?? "0");
     const priceImpactBps =
       data.priceImpact != null && data.priceImpact !== ""
@@ -223,7 +224,7 @@ async function getEnsoSwapData(params: SwapExecuteParams): Promise<SwapQuote> {
 }
 
 
-// Get best quote from all aggregators
+// Get best quote from all aggregators, important: no fee on leverage
 export async function getBestQuote(params: SwapExecuteParams): Promise<QuotesResult> {
   const quotes = await Promise.allSettled([
     getKyberSwapQuote(params),
@@ -273,7 +274,7 @@ export async function getBestQuote(params: SwapExecuteParams): Promise<QuotesRes
   };
 }
 
-// Get swap execution data
+// Get swap execution data, important: no fee on leverage
 export async function getSwapData(params: SwapExecuteParams): Promise<SwapQuote> {
   switch (params.aggregator) {
     case "kyberswap":
