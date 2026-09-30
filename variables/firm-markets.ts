@@ -15,7 +15,7 @@ export enum FIRM_ESCROWS {
 
 // end of the points programs: start of Thursday Oct 1st 2026 UTC, the api then shows 0 points
 const POINTS_EXPIRY_TIMESTAMP = Date.parse('2026-10-01T00:00:00Z');
-
+export const CHECK_MERKL = false;
 export const FIRM_MARKETS = [
     {
         name: 'WETH',
@@ -263,7 +263,8 @@ export const FIRM_MARKETS = [
         isInv: false,
         points: 5,
         pointsImage: 'https://assets.coingecko.com/coins/images/36530/standard/ethena.png?1711701436',
-        pointsExpiryTimestamp: POINTS_EXPIRY_TIMESTAMP,
+      pointsExpiryTimestamp: POINTS_EXPIRY_TIMESTAMP,
+        checkMerklRewards: CHECK_MERKL,
     },
     {
         name: 'crvUSD-DOLA',
@@ -280,7 +281,8 @@ export const FIRM_MARKETS = [
         aleTransformerType: 'marketAddressAndAmount',
         isAleWithoutSwap: true,
         convexRewardsAddress: '0xC94208D230EEdC4cDC4F80141E21aA485A515660',
-        isInv: false,
+      isInv: false,
+        checkMerklRewards: CHECK_MERKL,
     },
     {
         name: 'yv-crvUSD-DOLA',
@@ -298,7 +300,8 @@ export const FIRM_MARKETS = [
         underlyingWithPricePerShare: true,
         underlyingSymbol: 'crvUSD-DOLA',
         isAleWithoutSwap: true,
-        isInv: false,
+      isInv: false,
+        checkMerklRewards: CHECK_MERKL,
     },
     {
         name: 'cbBTC',
@@ -439,7 +442,8 @@ export const FIRM_MARKETS = [
         isInv: false,
         points: 30,
         pointsImage: 'https://assets.coingecko.com/coins/images/36530/standard/ethena.png?1711701436',
-        pointsExpiryTimestamp: POINTS_EXPIRY_TIMESTAMP,
+      pointsExpiryTimestamp: POINTS_EXPIRY_TIMESTAMP,
+        checkMerklRewards: CHECK_MERKL,
     },
     {
         name: 'yv-sUSDe-DOLA',
@@ -461,7 +465,8 @@ export const FIRM_MARKETS = [
         isInv: false,
         points: 30,
         pointsImage: 'https://assets.coingecko.com/coins/images/36530/standard/ethena.png?1711701436',
-        pointsExpiryTimestamp: POINTS_EXPIRY_TIMESTAMP,
+      pointsExpiryTimestamp: POINTS_EXPIRY_TIMESTAMP,
+        checkMerklRewards: CHECK_MERKL,
     },
     {
         name: 'sUSDS-DOLA',
@@ -479,7 +484,8 @@ export const FIRM_MARKETS = [
         aleTransformerType: 'marketAddressAndAmount',
         isAleWithoutSwap: true,
         convexRewardsAddress: '0x081EB123C1ddA50541eE778b59AC2f69704b9A19',
-        isInv: false,
+      isInv: false,
+        checkMerklRewards: CHECK_MERKL,
     },
     {
         name: 'yv-sUSDS-DOLA',
@@ -498,7 +504,8 @@ export const FIRM_MARKETS = [
         underlyingWithPricePerShare: true,
         underlyingSymbol: 'sUSDS-DOLA',
         isAleWithoutSwap: true,
-        isInv: false,
+      isInv: false,
+        checkMerklRewards: CHECK_MERKL,
     },
     {
         name: 'scrvUSD-DOLA',
@@ -848,7 +855,7 @@ export const FIRM_MARKETS = [
         rewardVault: '0x017EC76D2f32D018CbB0f9Ae507d5E5F9BdCeE3c',
         rewardAccountant: '0x93b4B9bd266fFA8AF68e39EDFa8cFe2A62011Ce0',
       isInv: false,
-        checkMerklRewards: true,
+        checkMerklRewards: CHECK_MERKL,
     },
     {
         name: 'reUSD-sDOLA',
@@ -868,7 +875,8 @@ export const FIRM_MARKETS = [
         isAleWithoutSwap: true,
         rewardVault: '0xDe380abFB5a7117B92A868Ebe828E560BeBd1ECC',
         rewardAccountant: '0x93b4B9bd266fFA8AF68e39EDFa8cFe2A62011Ce0',
-        isInv: false,
+      isInv: false,
+        checkMerklRewards: CHECK_MERKL,
     },
     {
         name: 'yv-reUSD-sDOLA',
@@ -887,6 +895,7 @@ export const FIRM_MARKETS = [
         underlyingWithPricePerShare: true,
         underlyingSymbol: 'reUSD-sDOLA',
         isAleWithoutSwap: true,
-        isInv: false,
+      isInv: false,
+        checkMerklRewards: CHECK_MERKL,
     },
 ];
