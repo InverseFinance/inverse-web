@@ -13,6 +13,9 @@ export enum FIRM_ESCROWS {
     'sUSDe-DOLA' = '0x141E4A7eFe8addb63D4a51B30A9a8656CE0678f5',
 }
 
+// end of the points programs: start of Thursday Oct 1st 2026 UTC, the api then shows 0 points
+const POINTS_EXPIRY_TIMESTAMP = Date.parse('2026-10-01T00:00:00Z');
+
 export const FIRM_MARKETS = [
     {
         name: 'WETH',
@@ -260,6 +263,7 @@ export const FIRM_MARKETS = [
         isInv: false,
         points: 5,
         pointsImage: 'https://assets.coingecko.com/coins/images/36530/standard/ethena.png?1711701436',
+        pointsExpiryTimestamp: POINTS_EXPIRY_TIMESTAMP,
     },
     {
         name: 'crvUSD-DOLA',
@@ -435,6 +439,7 @@ export const FIRM_MARKETS = [
         isInv: false,
         points: 30,
         pointsImage: 'https://assets.coingecko.com/coins/images/36530/standard/ethena.png?1711701436',
+        pointsExpiryTimestamp: POINTS_EXPIRY_TIMESTAMP,
     },
     {
         name: 'yv-sUSDe-DOLA',
@@ -456,6 +461,7 @@ export const FIRM_MARKETS = [
         isInv: false,
         points: 30,
         pointsImage: 'https://assets.coingecko.com/coins/images/36530/standard/ethena.png?1711701436',
+        pointsExpiryTimestamp: POINTS_EXPIRY_TIMESTAMP,
     },
     {
         name: 'sUSDS-DOLA',
@@ -595,6 +601,7 @@ export const FIRM_MARKETS = [
         isInv: false,
         points: 10,
         pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/Elixir.png',
+        pointsExpiryTimestamp: POINTS_EXPIRY_TIMESTAMP,
         hasNowInvalidFeed: true,
         isPhasingOut: true,
     },
@@ -618,6 +625,7 @@ export const FIRM_MARKETS = [
         isInv: false,
         points: 10,
         pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/Elixir.png',
+        pointsExpiryTimestamp: POINTS_EXPIRY_TIMESTAMP,
         hasNowInvalidFeed: true,
         isPhasingOut: true,
     },

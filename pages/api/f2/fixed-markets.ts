@@ -35,6 +35,24 @@ const getDbrPriceUsd = async (provider: BaseProvider) => {
   }
 }
 
+const POINTS_EXPIRIES: { [address: string]: number } = Object.fromEntries(
+  F2_MARKETS
+    .filter((m: F2Market) => !!m.pointsExpiryTimestamp)
+    .map((m: F2Market) => [m.address.toLowerCase(), m.pointsExpiryTimestamp]),
+);
+
+// ended points programs show 0 points, applied when serving so that it's also the case for cached data
+const withExpiredPoints = (data: any) => {
+  if (!Array.isArray(data?.markets)) {
+    return data;
+  }
+  const now = Date.now();
+  return {
+    ...data,
+    markets: data.markets.map((m: F2Market) => now >= POINTS_EXPIRIES[(m.address || '').toLowerCase()] ? { ...m, points: 0 } : m),
+  };
+}
+
 export default async function handler(req, res) {
   const cacheDuration = 300;
   res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
@@ -54,7 +72,7 @@ export default async function handler(req, res) {
   try {
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
     if (cachedData && isValid) {
-      res.status(200).json(cachedData);
+      res.status(200).json(withExpiredPoints(cachedData));
       return
     }
 
@@ -181,7 +199,7 @@ export default async function handler(req, res) {
 
     await redisSetWithTimestamp(cacheKey, resultData);
 
-    res.status(200).json(resultData)
+    res.status(200).json(withExpiredPoints(resultData))
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
@@ -189,7 +207,7 @@ export default async function handler(req, res) {
       const cache = await getCacheFromRedis(cacheKey, false);
       if (cache && !vnetPublicId) {
         console.log('Api call failed, returning last cache found');
-        res.status(200).json(cache);
+        res.status(200).json(withExpiredPoints(cache));
       } else {
         res.status(500).json({ success: false });
         // temporary snapshot fallback
