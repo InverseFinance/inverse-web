@@ -15,7 +15,7 @@ export enum FIRM_ESCROWS {
 
 // end of the points programs: start of Thursday Oct 1st 2026 UTC, the api then shows 0 points
 const POINTS_EXPIRY_TIMESTAMP = Date.parse('2026-10-01T00:00:00Z');
-export const CHECK_MERKL = false;
+export const CHECK_MERKL = true;
 export const FIRM_MARKETS = [
     {
         name: 'WETH',
