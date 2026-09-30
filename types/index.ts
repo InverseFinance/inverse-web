@@ -791,6 +791,10 @@ export type F2Market = {
   isNewMarket: boolean
   hasNowInvalidFeed?: boolean
   isStakedaoStrategy?: boolean
+  // incentives distributed via Merkl, merklApy is included in supplyApy
+  checkMerklRewards?: boolean
+  hasMerklRewards?: boolean
+  merklApy?: number
 }
 
 export type FirmAction = {

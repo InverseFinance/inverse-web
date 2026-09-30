@@ -839,7 +839,8 @@ export const FIRM_MARKETS = [
         isAleWithoutSwap: true,
         rewardVault: '0x017EC76D2f32D018CbB0f9Ae507d5E5F9BdCeE3c',
         rewardAccountant: '0x93b4B9bd266fFA8AF68e39EDFa8cFe2A62011Ce0',
-        isInv: false,
+      isInv: false,
+        checkMerklRewards: true,
     },
     {
         name: 'reUSD-sDOLA',
