@@ -1,7 +1,7 @@
 import { getPinnedPost, getAllPostsForHome, getAuthors, getCategories, getPostAndMorePosts, getTag, getLandingPosts } from './api';
 import { BLOG_PAGINATION_SIZE } from './constants';
 import { isInvalidGenericParam } from '@app/util/redis';
-import { SERVER_BASE_URL } from '@app/config/constants';
+import { getSsrDbr, getSsrDolaStaking, getSsrFirmMarkets, getSsrFirmTvl } from '@app/util/ssr';
 
 export const getBlogContext = (context) => {
     const { slug } = context.params || { slug: ['en-US'] };
@@ -45,38 +45,32 @@ export const getLandingProps = async ({ preview = false, ...context }) => {
     const { isPreviewUrl } = getBlogContext(context);
     const isPreview = preview || isPreviewUrl;
     const posts = []//await getLandingPosts({ isPreview }) ?? [];
+    // an api failure falls back to cached data (flagged by isFallback) instead of failing the page
+    const results = await Promise.all([
+        getSsrDbr(),
+        getSsrFirmTvl(),
+        getSsrFirmMarkets(),
+        getSsrDolaStaking(),
+    ]);
     const [
-        currentCirculatingSupply,
         dbrData,
         firmTvlData,
-        dolaMarketData,
         marketsData,
         dolaStakingData,
-    ] = await Promise.all([
-        fetch(`${SERVER_BASE_URL}/api/dola/circulating-supply?cacheFirst=true`).then(res => res.text()),
-        fetch(`${SERVER_BASE_URL}/api/dbr?cacheFirst=true`).then(res => res.json()),
-        fetch(`${SERVER_BASE_URL}/api/f2/tvl?cacheFirst=true`).then(res => res.json()),
-        fetch(`https://pro-api.coingecko.com/api/v3/coins/dola-usd?x_cg_pro_api_key=${process.env.CG_PRO}&localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`).then(res => res.json()),
-        // fetch(`https://api.coingecko.com/api/v3/coins/dola-usd?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`).then(res => res.json()),
-        fetch(`${SERVER_BASE_URL}/api/f2/fixed-markets?cacheFirst=true`).then(res => res.json()),
-        fetch(`${SERVER_BASE_URL}/api/dola-staking?cacheFirst=true`).then(res => res.json()),
-    ]);
-    const dolaVolume = dolaMarketData?.market_data?.total_volume?.usd;
-    const invFirmPrice = marketsData?.markets?.find(m => m.isInv)?.price || 0;
-    const totalDebt = marketsData?.markets?.reduce((prev, curr) => prev + curr.totalDebt, 0);
-    const { apy, projectedApy, tvlUsd, dolaPriceUsd } = dolaStakingData;
-    const dbrPriceUsd = dbrData?.priceUsd;
-    const firmTotalTvl = firmTvlData?.firmTotalTvl;
+    ] = results.map(r => r.data);
+    const markets = marketsData?.markets;
     return {
         props: {
-            preview: isPreview, posts, totalDebt,
-            currentCirculatingSupply: parseFloat(currentCirculatingSupply),
-            invPrice: invFirmPrice,
-            dolaVolume,
-            firmTotalTvl,
-            sDolaTvl: tvlUsd,
-            apy, projectedApy, dolaPrice: dolaPriceUsd, 
-            dbrPriceUsd, firmTotalTvl, 
+            preview: isPreview, posts,
+            totalDebt: markets ? markets.reduce((prev, curr) => prev + (curr.totalDebt || 0), 0) : null,
+            invPrice: markets?.find(m => m.isInv)?.price || 0,
+            firmTotalTvl: firmTvlData?.firmTotalTvl ?? null,
+            sDolaTvl: dolaStakingData?.tvlUsd ?? null,
+            apy: dolaStakingData?.apy ?? null,
+            projectedApy: dolaStakingData?.projectedApy ?? null,
+            dolaPrice: dolaStakingData?.dolaPriceUsd ?? null,
+            dbrPriceUsd: dbrData?.priceUsd ?? null,
+            hasOutdatedData: results.some(r => r.isFallback),
         },
     }
 }

@@ -13,10 +13,12 @@ import { calculateMaxLeverage, estimateBlockTimestamp } from '@app/util/misc';
 import { Contract } from 'ethers';
 import { ERC20_ABI } from '@app/config/abis';
 import { calculateNetApy, getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
+import { getMerklFirmOpportunities, getMerklMarketIncentives } from '@app/util/merkl';
+import { F2Market } from '@app/types';
 
 const { F2_MARKETS, F2_ALE } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.6.996`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.7.0`;
 
 // same source as /api/dbr, null if unavailable so that the markets data does not depend on it
 const getDbrPriceUsd = async (provider: BaseProvider) => {
@@ -31,6 +33,24 @@ const getDbrPriceUsd = async (provider: BaseProvider) => {
     console.error(e);
     return null;
   }
+}
+
+const POINTS_EXPIRIES: { [address: string]: number } = Object.fromEntries(
+  F2_MARKETS
+    .filter((m: F2Market) => !!m.pointsExpiryTimestamp)
+    .map((m: F2Market) => [m.address.toLowerCase(), m.pointsExpiryTimestamp]),
+);
+
+// ended points programs show 0 points, applied when serving so that it's also the case for cached data
+const withExpiredPoints = (data: any) => {
+  if (!Array.isArray(data?.markets)) {
+    return data;
+  }
+  const now = Date.now();
+  return {
+    ...data,
+    markets: data.markets.map((m: F2Market) => now >= POINTS_EXPIRIES[(m.address || '').toLowerCase()] ? { ...m, points: 0 } : m),
+  };
 }
 
 export default async function handler(req, res) {
@@ -52,7 +72,7 @@ export default async function handler(req, res) {
   try {
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
     if (cachedData && isValid) {
-      res.status(200).json(cachedData);
+      res.status(200).json(withExpiredPoints(cachedData));
       return
     }
 
@@ -96,12 +116,13 @@ export default async function handler(req, res) {
       formatDistributorData(dbrDistributorData),
     ];
 
-    const [externalApys, convexExtraApys, marketsDisplay, currentBlock, dbrPriceUsd] = await Promise.all([
+    const [externalApys, convexExtraApys, marketsDisplay, currentBlock, dbrPriceUsd, merklOpportunities] = await Promise.all([
       getFirmMarketsApys(provider, invApr, cachedData),
       getConvexMarketsExtraApys(),
       getCacheFromRedis(marketsDisplaysCacheKey, false),
       provider.getBlockNumber(),
       getDbrPriceUsd(provider),
+      F2_MARKETS.some((m: F2Market) => m.checkMerklRewards) ? getMerklFirmOpportunities() : Promise.resolve([]),
     ])
     const { cvxCrvData, cvxFxsData } = externalApys;
 
@@ -129,17 +150,27 @@ export default async function handler(req, res) {
       const extraApy = m.isInv ? dbrApr : 0;
       const collateralFactor = marketOverrides.collateralFactor;
       const maxLeverage = collateralFactor >= 0 && collateralFactor < 1 ? calculateMaxLeverage(collateralFactor) : null;
+      // Merkl api unavailable: keep the last known incentives
+      const cachedMarket = cachedData?.markets?.find((cm: F2Market) => cm.address === m.address);
+      const { hasMerklRewards, merklApy } = !m.checkMerklRewards ?
+        { hasMerklRewards: false, merklApy: 0 } :
+        merklOpportunities ?
+          getMerklMarketIncentives(m.address, merklOpportunities) :
+          { hasMerklRewards: !!cachedMarket?.hasMerklRewards, merklApy: cachedMarket?.merklApy || 0 };
+      const totalSupplyApy = supplyApy + extraRewardApy + merklApy;
       return {
         ...marketOverrides,
         extraRewardApy,
+        merklApy,
+        hasMerklRewards,
         aleAllowance: getBnToNumber(aleAllowancesChecks[i]) > 0 ? 'OK' : 'KO',
         underlying: TOKENS[m.collateral],
-        supplyApy: supplyApy + extraRewardApy,
+        supplyApy: totalSupplyApy,
         extraApy,
         // theoretical max leverage: borrow limit at 100% and DOLA at $1
         maxLeverage,
         // yield at max leverage net of the fixed borrow cost, same as the front-end
-        maxNetApy: maxLeverage !== null && dbrPriceUsd ? calculateNetApy(supplyApy + extraRewardApy + extraApy, collateralFactor, dbrPriceUsd) : null,
+        maxNetApy: maxLeverage !== null && dbrPriceUsd ? calculateNetApy(totalSupplyApy + extraApy, collateralFactor, dbrPriceUsd) : null,
         supplyApyLow: isCvxCrv ? Math.min(cvxCrvData?.group1 || 0, cvxCrvData?.group2 || 0) : 0,
         cvxCrvData: isCvxCrv ? cvxCrvData : undefined,
         cvxFxsData: isCvxFxs ? cvxFxsData : undefined,
@@ -168,7 +199,7 @@ export default async function handler(req, res) {
 
     await redisSetWithTimestamp(cacheKey, resultData);
 
-    res.status(200).json(resultData)
+    res.status(200).json(withExpiredPoints(resultData))
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
@@ -176,7 +207,7 @@ export default async function handler(req, res) {
       const cache = await getCacheFromRedis(cacheKey, false);
       if (cache && !vnetPublicId) {
         console.log('Api call failed, returning last cache found');
-        res.status(200).json(cache);
+        res.status(200).json(withExpiredPoints(cache));
       } else {
         res.status(500).json({ success: false });
         // temporary snapshot fallback

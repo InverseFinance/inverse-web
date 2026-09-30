@@ -791,6 +791,14 @@ export type F2Market = {
   isNewMarket: boolean
   hasNowInvalidFeed?: boolean
   isStakedaoStrategy?: boolean
+  // points program multiplier, 0 once pointsExpiryTimestamp (ms) is reached
+  points?: number
+  pointsImage?: string
+  pointsExpiryTimestamp?: number
+  // incentives distributed via Merkl, merklApy is included in supplyApy
+  checkMerklRewards?: boolean
+  hasMerklRewards?: boolean
+  merklApy?: number
 }
 
 export type FirmAction = {

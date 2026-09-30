@@ -8,6 +8,8 @@ import { TOKENS, getToken } from "@app/variables/tokens";
 import { HStack, VStack, Text, Stack } from "@chakra-ui/react"
 import { DbrExtraClaimButtons } from "./DbrExtraClaimButtons";
 import { FEATURE_FLAGS } from "@app/config/features";
+import { LinkButton } from "@app/components/common/Button";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 export const ZapperTokens = ({
     claimables,
@@ -16,13 +18,16 @@ export const ZapperTokens = ({
     onSuccess,
     market,
     showMarketBtn = false,
+    claimLink,
 }: {
     claimables: any,
     totalRewardsUSD: number,
     market: F2Market,
     showMarketBtn?: boolean,
-    handleClaim: () => void,
+    handleClaim?: () => void,
     onSuccess?: () => void,
+    // rewards claimed on an external app instead of the escrow
+    claimLink?: string,
 }) => {
     const showClaimButtons = (totalRewardsUSD > 0.1 || !!claimables.find(c => !c.price && c.balance > 0));
     const isUnknownPricing = !claimables.find(c => !!c.price);// 0 asset with known price (in case ref price source is down)
@@ -37,14 +42,20 @@ export const ZapperTokens = ({
                 }
             </HStack>
             {
-                showClaimButtons && <RSubmitButton
-                    // disabled={!totalRewardsUSD}
-                    fontSize='16px'
-                    onClick={() => handleClaim()}
-                    onSuccess={onSuccess}
-                >
-                    Claim rewards
-                </RSubmitButton>
+                showClaimButtons && (
+                    claimLink ?
+                        <LinkButton href={claimLink} target="_blank" isExternal={true} w="fit-content" fontSize="16px" flexProps={{ px: '4' }}>
+                            Claim rewards<ExternalLinkIcon ml="2" />
+                        </LinkButton>
+                        : <RSubmitButton
+                            // disabled={!totalRewardsUSD}
+                            fontSize='16px'
+                            onClick={() => handleClaim?.()}
+                            onSuccess={onSuccess}
+                        >
+                            Claim rewards
+                        </RSubmitButton>
+                )
             }
             {
                 showClaimButtons && market.isInv && claimables?.length > 0 && FEATURE_FLAGS.firmDbrRewardsHelper
@@ -58,7 +69,7 @@ export const ZapperTokens = ({
                     return <HStack justify='space-between' key={t.address} w={{ base: 'full', sm: 'fit-content' }} border='1px solid #ccc' p='2' borderRadius='5px'>
                         <VStack spacing="1" alignItems="flex-start" w='80px'>
                             <HStack>
-                                <UnderlyingItem {...underlying} label={underlying.symbol || t.symbol} textProps={{ fontSize: '14px', fontWeight: 'bold' }} />
+                                <UnderlyingItem {...underlying} image={underlying.image || t.image} label={underlying.symbol || t.symbol} textProps={{ fontSize: '14px', fontWeight: 'bold' }} />
                             </HStack>
                             {
                                 !!t.price && <Text color='mainTextColorLight' fontSize='14px'>
