@@ -31,6 +31,7 @@ import { F2Market } from "@app/types";
 import InfoModal from "../common/Modal/InfoModal";
 import { YieldBreakdownTable } from "./rewards/YieldBreakdownTable";
 import { MerklRewardsBadges } from "./rewards/FirmMerklRewards";
+import { FEATURE_FLAGS } from "@app/config/features";
 import { OLD_BORROW_CONTROLLER } from "@app/config/constants";
 import { ptMarkets } from "@app/util/pendle";
 import { showToast } from "@app/util/notify";
@@ -313,12 +314,14 @@ export const MarketApyInfos = ({ showLeveragedApy = true, isLeverageComingSoon, 
                 {(isUserApy ? 'Your Fixed APY' : rewardTypeLabel) || (isInv ? supplyApy > 0 ? 'INV + DBR APR' : 'DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
             </Text>
         }
-        <MerklRewardsBadges
-            merklApy={merklApy}
-            merklBorrowApr={borrowPaused ? 0 : merklBorrowApr}
-            pt="1"
-            alignItems={_isMobileCase ? 'flex-end' : 'center'}
-        />
+        {
+            FEATURE_FLAGS.firmMerklRewards && <MerklRewardsBadges
+                merklApy={merklApy}
+                merklBorrowApr={borrowPaused ? 0 : merklBorrowApr}
+                pt="1"
+                alignItems={_isMobileCase ? 'flex-end' : 'center'}
+            />
+        }
         {
             showLeveragedApy && !borrowPaused && !isLeverageComingSoon && maxApy > totalApy && dbrPriceUsd > 0 && <CellText fontSize="12px" color="accentTextColor">
                 Up to <b>{maxApy.toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
