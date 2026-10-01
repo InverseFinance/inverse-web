@@ -18,7 +18,7 @@ import { F2Market } from '@app/types';
 
 const { F2_MARKETS, F2_ALE } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.7.0`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.8.0`;
 
 // same source as /api/dbr, null if unavailable so that the markets data does not depend on it
 const getDbrPriceUsd = async (provider: BaseProvider) => {
@@ -155,22 +155,22 @@ export default async function handler(req, res) {
       const { hasMerklRewards, merklApy, merklBorrowApr } = merklOpportunities ?
         getMerklMarketIncentives(m.address, merklOpportunities) :
         { hasMerklRewards: !!cachedMarket?.hasMerklRewards, merklApy: cachedMarket?.merklApy || 0, merklBorrowApr: cachedMarket?.merklBorrowApr || 0 };
-      const totalSupplyApy = supplyApy + extraRewardApy + merklApy;
       return {
         ...marketOverrides,
         extraRewardApy,
+        // Merkl rewards are separate from the supplyApy
         merklApy,
         merklBorrowApr,
         hasMerklRewards,
         aleAllowance: getBnToNumber(aleAllowancesChecks[i]) > 0 ? 'OK' : 'KO',
         underlying: TOKENS[m.collateral],
-        supplyApy: totalSupplyApy,
+        supplyApy: supplyApy + extraRewardApy,
         extraApy,
         // theoretical max leverage: borrow limit at 100% and DOLA at $1
         maxLeverage,
-        // yield at max leverage net of the fixed borrow cost, plus the Merkl borrowing incentives earned on the debt
+        // yield at max leverage net of the fixed borrow cost, plus the Merkl rewards on the deposits and the debt
         maxNetApy: maxLeverage !== null && dbrPriceUsd ?
-          calculateNetApy(totalSupplyApy + extraApy, collateralFactor, dbrPriceUsd) + merklBorrowApr * (maxLeverage - 1)
+          calculateNetApy(supplyApy + extraRewardApy + merklApy + extraApy, collateralFactor, dbrPriceUsd) + merklBorrowApr * (maxLeverage - 1)
           : null,
         supplyApyLow: isCvxCrv ? Math.min(cvxCrvData?.group1 || 0, cvxCrvData?.group2 || 0) : 0,
         cvxCrvData: isCvxCrv ? cvxCrvData : undefined,

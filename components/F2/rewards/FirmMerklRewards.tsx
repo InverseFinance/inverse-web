@@ -7,17 +7,62 @@ import { useMerklFirmRewards } from "@app/hooks/useMerkl";
 import { getMerklUserUrl } from "@app/util/merkl";
 import { shortenNumber } from "@app/util/markets";
 import { preciseCommify } from "@app/util/misc";
-import { VStack } from "@chakra-ui/react";
+import { Badge, Stack, StackProps, Tooltip, VStack } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { ZapperTokens } from "./ZapperTokens";
+
+const MerklRewardsBadge = ({ apr, label, tooltip }: { apr: number, label: string, tooltip: string }) => {
+    return <Tooltip hasArrow label={tooltip}>
+        <Badge
+            fontWeight="normal"
+            textTransform="none"
+            borderRadius="50px"
+            px="8px"
+            cursor="default"
+            bgColor="accentTextColor"
+            color="contrastMainTextColor"
+        >
+            {shortenNumber(apr, 2)}% {label}
+        </Badge>
+    </Tooltip>
+}
+
+// Merkl incentives are shown apart from the collateral yield
+export const MerklRewardsBadges = ({
+    merklApy = 0,
+    merklBorrowApr = 0,
+    ...props
+}: {
+    merklApy?: number
+    merklBorrowApr?: number
+} & StackProps) => {
+    if (!(merklApy > 0) && !(merklBorrowApr > 0)) {
+        return null;
+    }
+    return <Stack spacing="1" {...props}>
+        {
+            merklBorrowApr > 0 && <MerklRewardsBadge
+                apr={merklBorrowApr}
+                label="Merkl borrow rewards"
+                tooltip="APR on the DOLA borrowed in this market, distributed by Merkl and claimable on the Merkl app"
+            />
+        }
+        {
+            merklApy > 0 && <MerklRewardsBadge
+                apr={merklApy}
+                label="Merkl rewards"
+                tooltip="APR on the collateral deposited in this market, distributed by Merkl and claimable on the Merkl app"
+            />
+        }
+    </Stack>
+}
 
 // FiRM incentives distributed by Merkl, the rewards are claimed on the Merkl app
 export const FirmMerklRewards = ({ market }: { market: F2Market }) => {
     const account = useAccount();
-    const { claimables, isLoading, error } = useMerklFirmRewards(account);
+    const { claimables, isLoading, error } = useMerklFirmRewards(market.hasMerklRewards ? account : undefined);
 
-    // no active incentive for this market and nothing to claim
-    if (!account || isLoading || (!market.hasMerklRewards && !claimables.length)) {
+    if (!market.hasMerklRewards || !account || isLoading) {
         return <></>
     }
 
@@ -40,6 +85,7 @@ export const FirmMerklRewards = ({ market }: { market: F2Market }) => {
         }
     >
         <VStack w='full' alignItems="flex-start" spacing="4">
+            <MerklRewardsBadges merklApy={market.merklApy} merklBorrowApr={market.merklBorrowApr} direction="row" />
             {
                 withBalance.length > 0 ?
                     <ZapperTokens

@@ -30,6 +30,7 @@ import FirmLogo from "../common/Logo/FirmLogo";
 import { F2Market } from "@app/types";
 import InfoModal from "../common/Modal/InfoModal";
 import { YieldBreakdownTable } from "./rewards/YieldBreakdownTable";
+import { MerklRewardsBadges } from "./rewards/FirmMerklRewards";
 import { OLD_BORROW_CONTROLLER } from "@app/config/constants";
 import { ptMarkets } from "@app/util/pendle";
 import { showToast } from "@app/util/notify";
@@ -287,7 +288,7 @@ export const MarketPointsInfo = ({
     </HStack>
 }
 
-export const MarketApyInfos = ({ showLeveragedApy = true, isLeverageComingSoon, isUserApy, maxApy, minWidth = "140px", points, pointsImage, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
+export const MarketApyInfos = ({ showLeveragedApy = true, isLeverageComingSoon, isUserApy, maxApy, minWidth = "140px", points, pointsImage, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, merklApy = 0, merklBorrowApr = 0, _isMobileCase }) => {
     const maxLong = calculateMaxLeverage(collateralFactor);
     const totalApy = ((supplyApy || 0) + (extraApy || 0));
     return <Cell spacing="0" direction="column" minWidth={minWidth} alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" fontSize="14px">
@@ -312,6 +313,12 @@ export const MarketApyInfos = ({ showLeveragedApy = true, isLeverageComingSoon, 
                 {(isUserApy ? 'Your Fixed APY' : rewardTypeLabel) || (isInv ? supplyApy > 0 ? 'INV + DBR APR' : 'DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
             </Text>
         }
+        <MerklRewardsBadges
+            merklApy={merklApy}
+            merklBorrowApr={borrowPaused ? 0 : merklBorrowApr}
+            pt="1"
+            alignItems={_isMobileCase ? 'flex-end' : 'center'}
+        />
         {
             showLeveragedApy && !borrowPaused && !isLeverageComingSoon && maxApy > totalApy && dbrPriceUsd > 0 && <CellText fontSize="12px" color="accentTextColor">
                 Up to <b>{maxApy.toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
@@ -389,8 +396,10 @@ const columns = [
         label: 'Underlying APY',
         tooltip: <><b>For information purpose only</b>, please check the official value on the third-party website when relevant. The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM. If leverage is possible the Net yield at maximum theoretical leverage will be showed as well.</>,
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
-        value: ({ name, isUserApy, isLeverageComingSoon, maxApy, isLeverageView, supplyApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
+        value: ({ name, isUserApy, isLeverageComingSoon, maxApy, isLeverageView, supplyApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, merklApy = 0, merklBorrowApr = 0, _isMobileCase }) => {
             return <MarketApyInfos
+                merklApy={merklApy}
+                merklBorrowApr={merklBorrowApr}
                 name={name}
                 isLeverageComingSoon={isLeverageComingSoon}
                 isUserApy={isUserApy}

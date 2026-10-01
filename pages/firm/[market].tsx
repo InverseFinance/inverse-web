@@ -237,7 +237,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                     (f2market.hasClaimableRewards) && <FirmRewardWrapper market={f2market} />
                                                 }
                                                 {
-                                                    (f2market.hasMerklRewards || f2market.checkMerklRewards) && <ErrorBoundary description="Merkl rewards could not load">
+                                                    f2market.hasMerklRewards && <ErrorBoundary description="Merkl rewards could not load">
                                                         <FirmMerklRewards market={f2market} />
                                                     </ErrorBoundary>
                                                 }
