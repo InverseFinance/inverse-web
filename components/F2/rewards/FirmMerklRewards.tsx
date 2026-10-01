@@ -14,7 +14,7 @@ import { ZapperTokens } from "./ZapperTokens";
 // FiRM incentives distributed by Merkl, the rewards are claimed on the Merkl app
 export const FirmMerklRewards = ({ market }: { market: F2Market }) => {
     const account = useAccount();
-    const { claimables, isLoading } = useMerklFirmRewards(account);
+    const { claimables, isLoading, error } = useMerklFirmRewards(account);
 
     // no active incentive for this market and nothing to claim
     if (!account || isLoading || (!market.hasMerklRewards && !claimables.length)) {
@@ -48,7 +48,11 @@ export const FirmMerklRewards = ({ market }: { market: F2Market }) => {
                         totalRewardsUSD={totalRewardsUSD}
                         claimLink={merklUrl}
                     />
-                    : <InfoMessage description="This market has Merkl rewards but you don't have any to claim at the moment." />
+                    : <InfoMessage description={
+                        error ?
+                            "Your Merkl rewards could not be loaded at the moment, you can check them on the Merkl app."
+                            : "This market has Merkl rewards but you don't have any to claim at the moment."
+                    } />
             }
             {
                 withPending.length > 0 && <InfoMessage

@@ -40,7 +40,7 @@ export const getMerklUserUrl = (account: string) => `https://app.merkl.xyz/users
 
 export const getMerklFirmUserRewardsUrl = (account: string) => `${MERKL_API_URL}/users/${account}/protocols/${MERKL_FIRM_PROTOCOL_ID}/rewards?chainId=1`;
 
-// live FiRM incentives, null if the Merkl api is unavailable
+// live incentives of all FiRM markets, null if the Merkl api is unavailable
 export const getMerklFirmOpportunities = async (): Promise<MerklOpportunity[] | null> => {
     try {
         const res = await fetch(
@@ -58,6 +58,10 @@ export const getMerklFirmOpportunities = async (): Promise<MerklOpportunity[] | 
     }
 }
 
+const sumAprs = (opportunities: MerklOpportunity[]) => {
+    return opportunities.reduce((total, o) => total + (Number.isFinite(o.apr) && o.apr > 0 ? o.apr : 0), 0);
+}
+
 // active incentives of a FiRM market, the opportunity targets the market contract
 export const getMerklMarketIncentives = (marketAddress: string, opportunities: MerklOpportunity[]) => {
     const address = marketAddress.toLowerCase();
@@ -66,10 +70,10 @@ export const getMerklMarketIncentives = (marketAddress: string, opportunities: M
     });
     return {
         hasMerklRewards: marketOpportunities.length > 0,
-        // borrowing incentives do not add to the collateral yield
-        merklApy: marketOpportunities
-            .filter(o => o.action !== 'BORROW')
-            .reduce((total, o) => total + (Number.isFinite(o.apr) && o.apr > 0 ? o.apr : 0), 0),
+        // collateral incentives, apr on the deposits
+        merklApy: sumAprs(marketOpportunities.filter(o => o.action !== 'BORROW')),
+        // borrowing incentives (eg FIRM_DEBT campaigns), apr on the DOLA debt
+        merklBorrowApr: sumAprs(marketOpportunities.filter(o => o.action === 'BORROW')),
     };
 }
 

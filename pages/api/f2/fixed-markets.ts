@@ -122,7 +122,7 @@ export default async function handler(req, res) {
       getCacheFromRedis(marketsDisplaysCacheKey, false),
       provider.getBlockNumber(),
       getDbrPriceUsd(provider),
-      F2_MARKETS.some((m: F2Market) => m.checkMerklRewards) ? getMerklFirmOpportunities() : Promise.resolve([]),
+      getMerklFirmOpportunities(),
     ])
     const { cvxCrvData, cvxFxsData } = externalApys;
 
@@ -152,16 +152,15 @@ export default async function handler(req, res) {
       const maxLeverage = collateralFactor >= 0 && collateralFactor < 1 ? calculateMaxLeverage(collateralFactor) : null;
       // Merkl api unavailable: keep the last known incentives
       const cachedMarket = cachedData?.markets?.find((cm: F2Market) => cm.address === m.address);
-      const { hasMerklRewards, merklApy } = !m.checkMerklRewards ?
-        { hasMerklRewards: false, merklApy: 0 } :
-        merklOpportunities ?
-          getMerklMarketIncentives(m.address, merklOpportunities) :
-          { hasMerklRewards: !!cachedMarket?.hasMerklRewards, merklApy: cachedMarket?.merklApy || 0 };
+      const { hasMerklRewards, merklApy, merklBorrowApr } = merklOpportunities ?
+        getMerklMarketIncentives(m.address, merklOpportunities) :
+        { hasMerklRewards: !!cachedMarket?.hasMerklRewards, merklApy: cachedMarket?.merklApy || 0, merklBorrowApr: cachedMarket?.merklBorrowApr || 0 };
       const totalSupplyApy = supplyApy + extraRewardApy + merklApy;
       return {
         ...marketOverrides,
         extraRewardApy,
         merklApy,
+        merklBorrowApr,
         hasMerklRewards,
         aleAllowance: getBnToNumber(aleAllowancesChecks[i]) > 0 ? 'OK' : 'KO',
         underlying: TOKENS[m.collateral],
@@ -169,8 +168,10 @@ export default async function handler(req, res) {
         extraApy,
         // theoretical max leverage: borrow limit at 100% and DOLA at $1
         maxLeverage,
-        // yield at max leverage net of the fixed borrow cost, same as the front-end
-        maxNetApy: maxLeverage !== null && dbrPriceUsd ? calculateNetApy(totalSupplyApy + extraApy, collateralFactor, dbrPriceUsd) : null,
+        // yield at max leverage net of the fixed borrow cost, plus the Merkl borrowing incentives earned on the debt
+        maxNetApy: maxLeverage !== null && dbrPriceUsd ?
+          calculateNetApy(totalSupplyApy + extraApy, collateralFactor, dbrPriceUsd) + merklBorrowApr * (maxLeverage - 1)
+          : null,
         supplyApyLow: isCvxCrv ? Math.min(cvxCrvData?.group1 || 0, cvxCrvData?.group2 || 0) : 0,
         cvxCrvData: isCvxCrv ? cvxCrvData : undefined,
         cvxFxsData: isCvxFxs ? cvxFxsData : undefined,
