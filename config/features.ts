@@ -5,16 +5,19 @@ type Features = {
     firmLeverage: boolean
     lpZaps: boolean
     firmDbrRewardsHelper: boolean
+    // Merkl rewards badge in the markets list and Merkl rewards in the market page
+    firmMerklRewards: boolean
 }
 
 const envFlags = process.env.NEXT_PUBLIC_FF?.length
-    ? process.env.NEXT_PUBLIC_FF.split(',') : ['true', 'true', 'false', 'true'];
+    ? process.env.NEXT_PUBLIC_FF.split(',') : ['true', 'true', 'false', 'true', 'false'];
 
 const defaultFeatures: Features = {
     firmMinDebt: envFlags[0] === 'true',
     firmLeverage: envFlags[1] === 'true',
     lpZaps: envFlags[2] === 'true',
     firmDbrRewardsHelper: envFlags[3] === 'true',
+    firmMerklRewards: envFlags[4] === 'true',
 }
 
 export const CHAIN_FEATURE_FLAGS = {

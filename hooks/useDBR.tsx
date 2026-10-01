@@ -179,8 +179,7 @@ export const useDBRMarketsReformat = (apiData?: any, marketOrList?: string | str
       return {
         ...m,
         ...cachedMarkets[i],
-        // the api supplyApy includes the merklApy
-        supplyApy: (m.name === 'sUSDe' && sUsdeApy ? sUsdeApy + (cachedMarkets[i]?.merklApy || 0) : cachedMarkets[i]?.supplyApy || m.supplyApy) || 0,
+        supplyApy: (m.name === 'sUSDe' ? (sUsdeApy||0) || cachedMarkets[i]?.supplyApy||m.supplyApy : cachedMarkets[i]?.supplyApy||m.supplyApy) || 0,
         price: !vnetPublicId && data && data[i] ? getBnToNumber(data[i], (36 - m.underlying.decimals)) : cachedMarkets[i]?.price ?? 0,
         collateralFactor: !vnetPublicId && data ? getBnToNumber(data[i + nbMarkets], 4) : cachedMarkets[i]?.collateralFactor ?? 0,
         totalDebt: !vnetPublicId && data ? getBnToNumber(data[i + 2 * nbMarkets]) : cachedMarkets[i]?.totalDebt ?? 0,

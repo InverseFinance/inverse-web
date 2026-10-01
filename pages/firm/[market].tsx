@@ -19,6 +19,7 @@ import { FirmGovToken, InvInconsistentFirmDelegation } from '@app/components/F2/
 import { FirstTimeModal } from '@app/components/F2/Modals/FirstTimeModal'
 import { FirmRewardWrapper } from '@app/components/F2/rewards/FirmRewardWrapper'
 import { FirmMerklRewards } from '@app/components/F2/rewards/FirmMerklRewards'
+import { FEATURE_FLAGS } from '@app/config/features'
 import { CvxCrvPreferences } from '@app/components/F2/rewards/CvxCrvPreferences'
 import { DailyLimitCountdown } from '@app/components/common/Countdown'
 import Container from '@app/components/common/Container'
@@ -237,7 +238,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                     (f2market.hasClaimableRewards) && <FirmRewardWrapper market={f2market} />
                                                 }
                                                 {
-                                                    f2market.checkMerklRewards && <ErrorBoundary description="Merkl rewards could not load">
+                                                    FEATURE_FLAGS.firmMerklRewards && f2market.hasMerklRewards && <ErrorBoundary description="Merkl rewards could not load">
                                                         <FirmMerklRewards market={f2market} />
                                                     </ErrorBoundary>
                                                 }

@@ -795,10 +795,10 @@ export type F2Market = {
   points?: number
   pointsImage?: string
   pointsExpiryTimestamp?: number
-  // incentives distributed via Merkl, merklApy is included in supplyApy
-  checkMerklRewards?: boolean
+  // live Merkl incentives, separate from the supplyApy: merklApy is on the deposits, merklBorrowApr on the debt
   hasMerklRewards?: boolean
   merklApy?: number
+  merklBorrowApr?: number
 }
 
 export type FirmAction = {
