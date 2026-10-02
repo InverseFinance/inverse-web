@@ -152,13 +152,14 @@ export default async function handler(req, res) {
       const maxLeverage = collateralFactor >= 0 && collateralFactor < 1 ? calculateMaxLeverage(collateralFactor) : null;
       // Merkl api unavailable: keep the last known incentives
       const cachedMarket = cachedData?.markets?.find((cm: F2Market) => cm.address === m.address);
-      const { hasMerklRewards, merklApy, merklBorrowApr, merklCampaignEndTimestamp } = merklOpportunities ?
+      const { hasMerklRewards, merklApy, merklBorrowApr, merklCampaignEndTimestamp, merklRewardTokens } = merklOpportunities ?
         getMerklMarketIncentives(m.address, merklOpportunities) :
         {
           hasMerklRewards: !!cachedMarket?.hasMerklRewards,
           merklApy: cachedMarket?.merklApy || 0,
           merklBorrowApr: cachedMarket?.merklBorrowApr || 0,
           merklCampaignEndTimestamp: cachedMarket?.merklCampaignEndTimestamp || null,
+          merklRewardTokens: cachedMarket?.merklRewardTokens || [],
         };
       return {
         ...marketOverrides,
@@ -168,6 +169,7 @@ export default async function handler(req, res) {
         merklBorrowApr,
         hasMerklRewards,
         merklCampaignEndTimestamp,
+        merklRewardTokens,
         aleAllowance: getBnToNumber(aleAllowancesChecks[i]) > 0 ? 'OK' : 'KO',
         underlying: TOKENS[m.collateral],
         supplyApy: supplyApy + extraRewardApy,

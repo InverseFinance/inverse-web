@@ -801,6 +801,8 @@ export type F2Market = {
   merklBorrowApr?: number
   // end of the last live Merkl campaign, in ms
   merklCampaignEndTimestamp?: number | null
+  // tokens distributed by the live Merkl campaigns, main one first
+  merklRewardTokens?: { address: string, symbol: string, icon: string | null }[]
 }
 
 export type FirmAction = {

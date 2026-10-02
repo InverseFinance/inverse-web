@@ -15,6 +15,19 @@ export type MerklOpportunity = {
     apr: number
     // unix timestamp in seconds, as a string
     latestCampaignEnd?: string
+    // daily rewards per campaign, value in USD
+    rewardsRecord?: {
+        breakdowns?: {
+            token?: { address: string, symbol: string, displaySymbol?: string, icon?: string }
+            value?: number
+        }[]
+    }
+}
+
+export type MerklRewardToken = {
+    address: string
+    symbol: string
+    icon: string | null
 }
 
 type MerklUserReward = {
@@ -70,6 +83,22 @@ const getLatestCampaignEnd = (opportunities: MerklOpportunity[]) => {
     return ends.length > 0 ? Math.max(...ends) : null;
 }
 
+// tokens distributed by the campaigns, the one with the most daily rewards first
+const getRewardTokens = (opportunities: MerklOpportunity[]): MerklRewardToken[] => {
+    const rewardTokens: { [address: string]: { token: MerklRewardToken, value: number } } = {};
+    opportunities.flatMap(o => o.rewardsRecord?.breakdowns || []).forEach(({ token, value }) => {
+        if (!token?.address) {
+            return;
+        }
+        const key = token.address.toLowerCase();
+        rewardTokens[key] = {
+            token: { address: token.address, symbol: token.displaySymbol || token.symbol, icon: token.icon || null },
+            value: (rewardTokens[key]?.value || 0) + (Number.isFinite(value) ? Number(value) : 0),
+        };
+    });
+    return Object.values(rewardTokens).sort((a, b) => b.value - a.value).map(({ token }) => token);
+}
+
 // active incentives of a FiRM market, the opportunity targets the market contract
 export const getMerklMarketIncentives = (marketAddress: string, opportunities: MerklOpportunity[]) => {
     const address = marketAddress.toLowerCase();
@@ -84,6 +113,7 @@ export const getMerklMarketIncentives = (marketAddress: string, opportunities: M
         merklBorrowApr: sumAprs(marketOpportunities.filter(o => o.action === 'BORROW')),
         // when the last live Merkl campaign of the market ends
         merklCampaignEndTimestamp: getLatestCampaignEnd(marketOpportunities),
+        merklRewardTokens: getRewardTokens(marketOpportunities),
     };
 }
 
