@@ -799,6 +799,8 @@ export type F2Market = {
   hasMerklRewards?: boolean
   merklApy?: number
   merklBorrowApr?: number
+  // end of the last live Merkl campaign, in ms
+  merklCampaignEndTimestamp?: number | null
 }
 
 export type FirmAction = {

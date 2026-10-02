@@ -13,6 +13,8 @@ export type MerklOpportunity = {
     action: string
     // in %
     apr: number
+    // unix timestamp in seconds, as a string
+    latestCampaignEnd?: string
 }
 
 type MerklUserReward = {
@@ -62,6 +64,12 @@ const sumAprs = (opportunities: MerklOpportunity[]) => {
     return opportunities.reduce((total, o) => total + (Number.isFinite(o.apr) && o.apr > 0 ? o.apr : 0), 0);
 }
 
+// end of the last campaign, in ms
+const getLatestCampaignEnd = (opportunities: MerklOpportunity[]) => {
+    const ends = opportunities.map(o => Number(o.latestCampaignEnd) * 1000).filter(end => Number.isFinite(end) && end > 0);
+    return ends.length > 0 ? Math.max(...ends) : null;
+}
+
 // active incentives of a FiRM market, the opportunity targets the market contract
 export const getMerklMarketIncentives = (marketAddress: string, opportunities: MerklOpportunity[]) => {
     const address = marketAddress.toLowerCase();
@@ -74,6 +82,8 @@ export const getMerklMarketIncentives = (marketAddress: string, opportunities: M
         merklApy: sumAprs(marketOpportunities.filter(o => o.action !== 'BORROW')),
         // borrowing incentives (eg FIRM_DEBT campaigns), apr on the DOLA debt
         merklBorrowApr: sumAprs(marketOpportunities.filter(o => o.action === 'BORROW')),
+        // when the last live Merkl campaign of the market ends
+        merklCampaignEndTimestamp: getLatestCampaignEnd(marketOpportunities),
     };
 }
 
