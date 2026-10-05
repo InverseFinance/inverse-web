@@ -49,28 +49,37 @@ export const getPayrollData = async (provider, paidProvider) => {
     .filter(v => !!v)
     .concat(currentActiveFoundationCompensations);
 
-  let payrollCheckpoints = {};
-
   const timestamps = await addBlockTimestamps(payrollEvents.map(e => e.blockNumber), NetworkIds.mainnet);
 
-  const payrollTotalEvolution = payrollEvents.map(e => {
-    if (!payrollCheckpoints[e.args[0]]) {
-      payrollCheckpoints[e.args[0]] = 0;
-    }
+  const payrollSettings = payrollEvents.map(e => ({
+    recipient: e.args[0],
+    amount: getBnToNumber(e.args[1]),
+    endTimeMs: getBnToNumber(e.args[2], 0) * 1000,
+    timestampMs: timestamps[NetworkIds.mainnet][e.blockNumber] * 1000,
+  }));
 
-    const endTimeMs = getBnToNumber(e.args[2], 0) * 1000;
-    const expired = now > endTimeMs;
-    payrollCheckpoints[e.args[0]] = expired ? 0 : getBnToNumber(e.args[1]);
+  // past expiries of payrolls that were not updated before their end time
+  const expiriesMs = payrollSettings
+    .filter(s => s.amount > 0 && s.endTimeMs <= now)
+    .filter(s => !payrollSettings.some(o => o.recipient === s.recipient && o.timestampMs > s.timestampMs && o.timestampMs <= s.endTimeMs))
+    .map(s => s.endTimeMs);
 
-    const utcDate = timestampToUTC(timestamps[NetworkIds.mainnet][e.blockNumber] * 1000);
+  // evaluate the payroll state at each SetRecipient event and at each past expiry,
+  // a payroll is active at a given time if it was set before and has not expired yet at that time
+  const evolutionTimestampsMs = [...new Set(
+    payrollSettings.map(s => s.timestampMs).concat(expiriesMs)
+  )].sort((a, b) => a - b);
 
-    const total = Object.values(payrollCheckpoints).reduce((prev, curr) => prev + curr, 0);
+  const payrollTotalEvolution = evolutionTimestampsMs.map(ts => {
+    const payrollCheckpoints = payrollSettings
+      .filter(s => s.timestampMs <= ts)
+      .reduce((prev, curr) => ({ ...prev, [curr.recipient]: curr.endTimeMs > ts ? curr.amount : 0 }), {});
+    const activeAmounts = Object.values(payrollCheckpoints).filter(v => v > 0);
     return {
-      blockNumber: e.blockNumber,
-      timestamp: timestamps[NetworkIds.mainnet][e.blockNumber],
-      utcDate,
-      total,
-      nbRecipients: Object.values(payrollCheckpoints).filter(v => v > 0).length,
+      timestamp: ts / 1000,
+      utcDate: timestampToUTC(ts),
+      total: activeAmounts.reduce((prev, curr) => prev + curr, 0),
+      nbRecipients: activeAmounts.length,
     }
   });
 
@@ -107,7 +116,7 @@ export const getPayrollData = async (provider, paidProvider) => {
 export default async function handler(req, res) {
 
   const { INV, F2_MARKETS, XINV, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `compensations-cache-v2.0.2`;
+  const cacheKey = `compensations-cache-v2.0.4`;
   const { cacheFirst } = req.query;
   try {
     const cacheDuration = 6000;
