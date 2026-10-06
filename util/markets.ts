@@ -501,8 +501,6 @@ export const getCvxCrvAPRs = async (provider, _prices?: any) => {
 
 // Monolith Lens on Ethereum mainnet (Sepolia: 0xf4DddA5149b482daF29f358986aFbA10A286116a)
 const MONOLITH_LENS = '0x0f3a7cd1828698D2B6daEf081d5c319c0734fA1c';
-// 12s blocks: the APR compounds once per block, as in the Monolith app
-const BLOCKS_PER_YEAR = 2_628_000;
 
 /**
  * Real-time staking APY of a Monolith sCoin (a Coin's staking vault), in percent: 5 means 5%.
