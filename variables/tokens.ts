@@ -185,6 +185,7 @@ const chainTokenAddresses = {
     JRDOLASDOLALP: '0x33664fD97D15D1a5e730c2a278E91df8e60fFE78',
     INVUSDSDOLALP: '0xe430e64081a3e7a39d24c5f507d9d4b492b2ed52',
     invUSD: '0x5377680B5986296AA4F9e684e5315a4F24832e56',
+    sinvUSD: '0x3FF361197036Ae1d24B939146D8a449A80F8427d',
     // PAL: '0xAB846Fb6C81370327e784Ae7CbB6d6a6af6Ff4BF',
   },
   "250": {
@@ -427,6 +428,16 @@ const chainTokens = {
       name: 'invUSD',
       isStable: true,
     },
+    [chainTokenAddresses["1"].sinvUSD]: {
+     decimals: 18,
+     image: TOKEN_IMAGES.sinvUSD,
+     // coingeckoId: 'junior-dola',
+     address: chainTokenAddresses["1"].sinvUSD,
+     symbol: 'sinvUSD',
+     name: 'sinvUSD',
+     isStable: true,
+     isERC4626: true,
+   },
     [chainTokenAddresses["1"].SINV]: {
       decimals: 18,
       image: TOKEN_IMAGES.SINV,

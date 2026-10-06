@@ -18,7 +18,7 @@ import { F2Market } from '@app/types';
 
 const { F2_MARKETS, F2_ALE } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.8.0`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.8.1`;
 
 // same source as /api/dbr, null if unavailable so that the markets data does not depend on it
 const getDbrPriceUsd = async (provider: BaseProvider) => {

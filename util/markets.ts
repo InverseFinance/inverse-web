@@ -499,6 +499,29 @@ export const getCvxCrvAPRs = async (provider, _prices?: any) => {
     return {};
 }
 
+// Monolith Lens on Ethereum mainnet (Sepolia: 0xf4DddA5149b482daF29f358986aFbA10A286116a)
+const MONOLITH_LENS = '0x0f3a7cd1828698D2B6daEf081d5c319c0734fA1c';
+// 12s blocks: the APR compounds once per block, as in the Monolith app
+const BLOCKS_PER_YEAR = 2_628_000;
+
+/**
+ * Real-time staking APY of a Monolith sCoin (a Coin's staking vault), in percent: 5 means 5%.
+ * Same calculation as the Monolith app: the Lens's real-time savings rate (an 18-decimal
+ * annual APR: the borrow rate net of fees, diluted when more is staked than paid debt),
+ * compounded every block. Works with ethers v5 and v6.
+ */
+export const getSCoinStakingApy = async (
+  sCoin: string,
+  provider: ConstructorParameters<typeof Contract>[2],
+  lens = MONOLITH_LENS,
+): Promise<{apy:number}> => {
+    const lender: string = await new Contract(sCoin, ['function lender() view returns (address)'], provider).lender();
+    const [, savingsRate] = await new Contract(lens, ['function getRates(address lender) view returns (uint256 borrowRate, uint256 savingsRate)'], provider).getRates(lender);
+    const apr = Number(savingsRate.toString()) / 1e18;
+    const apy = (Math.pow(1 + apr / BLOCKS_PER_YEAR, BLOCKS_PER_YEAR) - 1) * 100;
+  return { apy: Math.min(apy, 999_999_999) };
+}
+
 export const getGOhmData = async () => {
     try {
         const results = await fetch("https://api.thegraph.com/subgraphs/name/olympusdao/olympus-protocol-metrics", {
@@ -770,6 +793,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         // reUSD
         getYearnVaultApy('0x7c439Df9ADE8831180EA4D546c1E910D4Ba71a86'),
         getDefiLlamaApy('7255c661-892b-4c4c-b869-537a1326b669'),
+        getSCoinStakingApy('0x3FF361197036Ae1d24B939146D8a449A80F8427d', provider),
     ]);
 
     let [
@@ -812,6 +836,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         scrvUSDsDOLAStakedaoData,
         yvreusdSDOLAData,
         reusdSDOLAStakedaoData,
+        sinvUSData,
     ] = externalYieldResults.map(r => {
         return r.status === 'fulfilled' ? r.value : {};
     });
@@ -869,6 +894,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'scrvUSD-sDOLA': scrvUSDsDOLAStakedaoData?.apy || 0,
         'yv-reUSD-sDOLA': yvreusdSDOLAData?.apy || 0,
         'reUSD-sDOLA': reusdSDOLAStakedaoData?.apy || 0,
+        'sinvUSD': sinvUSData?.apy || 0,
     };
 }
 
