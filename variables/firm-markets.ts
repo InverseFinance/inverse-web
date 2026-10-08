@@ -254,7 +254,7 @@ export const FIRM_MARKETS = [
         escrowImplementation: FIRM_ESCROWS.simple,
         helper: true,
         oracleType: "chainlink",
-        badgeInfo: 'Ethena points',
+        badgeInfo: 'Ethena',
         rewardTypeLabel: 'sUSDe\'s Annual Yield',
         underlyingSymbol: 'USDe',
         badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
