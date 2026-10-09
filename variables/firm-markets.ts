@@ -900,7 +900,7 @@ export const FIRM_MARKETS = [
       underlyingSymbol: 'invUSD',
       badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
       isERC4626Collateral: true,
-      startingBlock: 25947097,
+      startingBlock: 26157005,
       isInv: false,
   },
 ];
