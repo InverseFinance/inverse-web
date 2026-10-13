@@ -18,7 +18,7 @@ import { F2Market } from '@app/types';
 
 const { F2_MARKETS, F2_ALE } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.8.5`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.8.6`;
 
 // same source as /api/dbr, null if unavailable so that the markets data does not depend on it
 const getDbrPriceUsd = async (provider: BaseProvider) => {
@@ -152,12 +152,19 @@ export default async function handler(req, res) {
       const maxLeverage = collateralFactor >= 0 && collateralFactor < 1 ? calculateMaxLeverage(collateralFactor) : null;
       // Merkl api unavailable: keep the last known incentives
       const cachedMarket = cachedData?.markets?.find((cm: F2Market) => cm.address === m.address);
-      const { hasMerklRewards, merklApy, merklBorrowApr, merklCampaignEndTimestamp, merklRewardTokens } = merklOpportunities ?
+      const {
+        hasMerklRewards, merklApy, merklBorrowApr, merklMaxApy, merklBorrowMaxApr,
+        merklDailyRewards, merklMaxDailyRewards, merklCampaignEndTimestamp, merklRewardTokens,
+      } = merklOpportunities ?
         getMerklMarketIncentives(m.address, merklOpportunities) :
         {
           hasMerklRewards: !!cachedMarket?.hasMerklRewards,
           merklApy: cachedMarket?.merklApy || 0,
           merklBorrowApr: cachedMarket?.merklBorrowApr || 0,
+          merklMaxApy: cachedMarket?.merklMaxApy || 0,
+          merklBorrowMaxApr: cachedMarket?.merklBorrowMaxApr || 0,
+          merklDailyRewards: cachedMarket?.merklDailyRewards || 0,
+          merklMaxDailyRewards: cachedMarket?.merklMaxDailyRewards || 0,
           merklCampaignEndTimestamp: cachedMarket?.merklCampaignEndTimestamp || null,
           merklRewardTokens: cachedMarket?.merklRewardTokens || [],
         };
@@ -167,6 +174,10 @@ export default async function handler(req, res) {
         // Merkl rewards are separate from the supplyApy
         merklApy,
         merklBorrowApr,
+        merklMaxApy,
+        merklBorrowMaxApr,
+        merklDailyRewards,
+        merklMaxDailyRewards,
         hasMerklRewards,
         merklCampaignEndTimestamp,
         merklRewardTokens,
