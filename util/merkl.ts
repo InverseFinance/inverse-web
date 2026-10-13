@@ -59,7 +59,7 @@ export const getMerklFirmUserRewardsUrl = (account: string) => `${MERKL_API_URL}
 export const getMerklFirmOpportunities = async (): Promise<MerklOpportunity[] | null> => {
     try {
         const res = await fetch(
-            `${MERKL_API_URL}/opportunities?mainProtocolId=${MERKL_FIRM_PROTOCOL_ID}&chainId=1&status=LIVE&items=100`,
+            `${MERKL_API_URL}/opportunities?type=FIRM_DEBT`,
             { signal: AbortSignal.timeout(10000) },
         );
         if (!res.ok) {
