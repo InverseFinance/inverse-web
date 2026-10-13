@@ -910,7 +910,7 @@ export const FIRM_MARKETS = [
       escrowImplementation: FIRM_ESCROWS.simple,
       helper: true,
       oracleType: "chainlink+CurveLP",
-      badgeInfo: 'Yearn Strategy',
+      badgeInfo: 'BOLD stability pool',
       rewardTypeLabel: "Vault's APY",
       underlyingSymbol: 'BOLD',
       badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
