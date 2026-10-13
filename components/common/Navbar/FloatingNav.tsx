@@ -269,7 +269,7 @@ export const FloatingNav = ({
           ))}
         </Stack>
         <HStack alignItems="center" justifyContent="flex-end" spacing="8">
-          <Link href="/firm">
+          <Link isExternal target="_blank" href="https://firm.inverse.finance/markets">
             <LandingBtn
               color={landingMainColor}
               className="landing-v3-text"

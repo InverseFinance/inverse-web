@@ -54,7 +54,7 @@ export const RateComparatorPage = () => {
                         p="0"
                         label="List of Active FiRM Markets"
                         description="Go to FiRM"
-                        href="/firm"
+                        href="https://firm.inverse.finance/markets"
                     >
                         <SimpleGrid minChildWidth="250px" gap="4" w='full'>
                             {

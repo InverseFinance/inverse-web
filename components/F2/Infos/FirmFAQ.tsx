@@ -147,7 +147,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 <FaqText>
                     Yes borrowing DOLA with INV is possible when there's liquidity in the INV market.
                 </FaqText>
-                <FaqLink href="/firm/INV">
+                <FaqLink href="https://firm.inverse.finance/markets/INV">
                     Stake INV & borrow DOLA
                 </FaqLink>
             </FaqStack>
@@ -158,7 +158,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 <FaqText>
                     When staking INV on FiRM you are protected against dilution and you earn real yield via DBR streaming, the real yield you get is directly linked to FiRM's success as the yearly rewards will increase when borrowing demand increases.
                 </FaqText>
-                <FaqLink href="/firm/INV">
+                <FaqLink href="https://firm.inverse.finance/markets/INV">
                     Stake INV
                 </FaqLink>
                 <FaqLink href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dbr">
@@ -172,7 +172,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 <FaqText>
                     It's possible to borrow for free (in DBR terms) when you have enough INV staked as the DBR rewards will be higher than the DBR burned for borrowing. There is a calculator to help you with that.
                 </FaqText>
-                <FaqLink href="/firm/INV">
+                <FaqLink href="https://firm.inverse.finance/markets/INV">
                     Stake INV
                 </FaqLink>
             </FaqStack>

@@ -43,7 +43,7 @@ export const Anchor = () => {
             <InfoMessage alertProps={{ w: 'full' }} description={
               <Flex display="inline-block" w='full'>
                 <Text display="inline-block">INV staking is now live on&nbsp;</Text>
-                <Link display="inline-block" textDecoration="underline" href="/firm/INV">FiRM</Link>
+                <Link target="_blank" isExternal display="inline-block" textDecoration="underline" href="https://firm.inverse.finance/markets/INV">FiRM</Link>
                 <Text display="inline-block">!&nbsp;Stake on FiRM to get DBR real yield in addition to INV dilution protection.</Text>
               </Flex>
             }

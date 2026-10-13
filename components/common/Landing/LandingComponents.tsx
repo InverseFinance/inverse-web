@@ -15,7 +15,7 @@ export const landingLightBorderColor = '#E3E3E3';
 
 export const LandingNoisedBtn = ({ children, btnProps, ...props }: { children: React.ReactNode, btnProps?: any, props?: any }) => {
     return <VStack borderRadius="6px" bgColor={landingMainColor} {...props}>
-        <LandingBtn w="fit-content" h="50px" minH="50px" fontSize={{ base: '16px', "2xl": '18px' }} px="6" py="2" href="/firm" {...btnProps}>
+        <LandingBtn w="fit-content" h="50px" minH="50px" fontSize={{ base: '16px', "2xl": '18px' }} px="6" py="2" href="https://firm.inverse.finance/markets" {...btnProps}>
             {children}
         </LandingBtn>
     </VStack>

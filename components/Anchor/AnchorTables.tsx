@@ -24,7 +24,7 @@ import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { useRouter } from 'next/router'
 import { HAS_REWARD_TOKEN, OLD_XINV } from '@app/config/constants'
 import { NotifBadge } from '@app/components/common/NotifBadge'
- 
+
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
 import { showToast } from '@app/util/notify'
@@ -622,7 +622,7 @@ export const AnchorBorrow = ({ paused, modalOnly }: { paused?: boolean, modalOnl
       <Table noDataMessage={
         <VStack alignItems="flex-start">
             <Text>DOLA borrowing is now available on our new protocol!</Text>
-            <Link textDecoration="underline" href="/firm">Borrow DOLA on FiRM</Link>
+            <Link textDecoration="underline" target="_blank" isExternal={true} href="https://firm.inverse.finance/markets">Borrow DOLA on FiRM</Link>
         </VStack>
       } columns={columns} keyName="token" items={marketsWithUsdLiquidity.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} data-testid={TEST_IDS.anchor.borrowTable} />
       {modalAsset && <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}

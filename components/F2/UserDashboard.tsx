@@ -280,9 +280,9 @@ const SmallLinkBtn = ({ href = '', ...props }) => {
     </Link>
 }
 
-const BorrowDola = <BigLinkBtn href="/firm">Borrow DOLA</BigLinkBtn>;
-const SupplyAssets = <BigLinkBtn href="/firm">Supply Assets</BigLinkBtn>;
-const StakeINV = <SmallLinkBtn href="/firm">Use INV as collateral</SmallLinkBtn>;
+const BorrowDola = <BigLinkBtn href="https://firm.inverse.finance/markets">Borrow DOLA</BigLinkBtn>;
+const SupplyAssets = <BigLinkBtn href="https://firm.inverse.finance/markets">Supply Assets</BigLinkBtn>;
+const StakeINV = <SmallLinkBtn href="https://firm.inverse.finance/markets">Use INV as collateral</SmallLinkBtn>;
 const StakeDOLA = <SmallLinkBtn  target="_blank" isExternal={true} href="https://earn.inverse.finance">Stake DOLA</SmallLinkBtn>;
 const StakeSINV = <SmallLinkBtn href="/sINV">Stake INV</SmallLinkBtn>;
 
@@ -346,7 +346,7 @@ export const UserDashboard = ({
                     <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%" >
                         <NumberAndPieCard footer={
                             <CardFooter
-                                labelRight={<Link textDecoration="underline" href="/firm">Go to markets</Link>}
+                                labelRight={<Link textDecoration="underline" href="https://firm.inverse.finance/markets">Go to markets</Link>}
                             />
                         } noDataFallback={SupplyAssets} isLoading={isLoading} fill={themeStyles.colors.mainTextColorLight} activeFill={themeStyles.colors.mainTextColor} value={totalTotalSuppliedUsd} label="Deposits" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
                         <NumberAndPieCard noDataFallback={BorrowDola} isLoading={isLoading} fill={themeStyles.colors.warning} activeFill={themeStyles.colors.error} value={debt} label="DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
@@ -360,7 +360,7 @@ export const UserDashboard = ({
                     labelLeft={<>INV APR: <b>{shortenNumber(invMarket?.supplyApy, 2)}%</b></>}
                     labelRight={<>DBR APR: <b>{shortenNumber(invMarket?.dbrApr, 2)}%</b></>}
                 />
-            } href="/firm/INV" noDataFallback={StakeINV} isLoading={isLoading} price={invMarket?.price} value={stakedInFirm} label="INV staked in FiRM" precision={2} />
+            } href="https://firm.inverse.finance/markets/INV" noDataFallback={StakeINV} isLoading={isLoading} price={invMarket?.price} value={stakedInFirm} label="INV staked in FiRM" precision={2} />
             <NumberCard
                 imageSrc={TOKEN_IMAGES.DOLA}
                 footer={

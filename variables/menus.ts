@@ -37,7 +37,7 @@ export const MENUS = {
         // {
         //   label: 'WETH Market',
         //   href: '/firm/WETH',
-        // },        
+        // },
         // {
         //   label: 'Borrow DOLA',
         //   href: '/frontier?marketType=borrow&market=dola#',
@@ -67,7 +67,7 @@ export const MENUS = {
         // },
         {
           label: 'Buy DBR (auction)',
-          href: '/dbr/auction',        
+          href: '/dbr/auction',
         },
       ],
     },
@@ -124,7 +124,7 @@ export const MENUS = {
         },
         {
           label: 'INV buybacks',
-          href: '/dbr/auction/inv-buy-backs',        
+          href: '/dbr/auction/inv-buy-backs',
         },
         {
           href: '/transparency/veNfts',
@@ -168,7 +168,7 @@ export const MENUS = {
         //   label: 'Frontier & Other',
         // },
       ],
-    }, 
+    },
     // {
     //   label: 'Bond',
     //   href: '/bonds',
@@ -196,11 +196,11 @@ export const MENUS = {
     //     {
     //       label: 'DBR auctions',
     //       href: '/dbr/auction',
-    //     },  
+    //     },
     //     {
     //       label: 'DBR auctions stats',
     //       href: '/dbr/auction/stats',
-    //     },  
+    //     },
     //   ],
     // },
     {
@@ -241,7 +241,7 @@ export const MENUS = {
         {
           label: 'Yield Opportunities',
           href: '/yield-opportunities',
-        },        
+        },
         // {
         //   label: 'Native Base Bridge',
         //   href: '/base',
@@ -303,7 +303,7 @@ export const MENUS = {
     //     },
     //     {
     //       label: 'Buy DBR (auction)',
-    //       href: '/dbr/auction',        
+    //       href: '/dbr/auction',
     //     },
     //     {
     //       label: 'Buy DOLA',
@@ -321,7 +321,7 @@ export const MENUS = {
     //       needReload: true,
     //     },
     //   ]
-    // },     
+    // },
     // {
     //   label: 'Swap',
     //   href: '/swap/DAI/DOLA',
@@ -382,13 +382,13 @@ export const MENUS = {
     //     {
     //       href: '/analytics',
     //       label: 'Analytics',
-    //     },       
+    //     },
     //   ]
-    // },    
+    // },
     // {
     //   label: 'Blog',
     //   href: '/blog',
-    // },       
+    // },
   ],
   "footerGroups": [
     {
@@ -413,7 +413,7 @@ export const MENUS = {
         // },
         {
           label: 'FiRM',
-          href: '/firm',
+          href: 'https://firm.inverse.finance/markets',
         },
         {
           label: 'Monolith',
@@ -511,7 +511,7 @@ export const MENUS = {
         // {
         //   label: 'Telegram',
         //   href: 'https://t.me/InverseFinance',
-        // },        
+        // },
         {
           label: 'Newsletter',
           href: '/newsletter',

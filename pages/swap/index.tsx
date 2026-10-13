@@ -83,7 +83,7 @@ export const Swap = () => {
                 <Text>
                   INV is Inverse Finance's Governance token, allowing you to <b>vote on proposals</b> and <b>earn Real Yield</b> via DBR issuance when staking on FiRM.
                 </Text>
-                <Link href="/firm/INV" textDecoration="underline">
+                <Link target="_blank" isExternal href="https://firm.inverse.finance/markets/INV" textDecoration="underline">
                   Stake INV on FiRM
                 </Link>
                 <Text fontSize="14px" fontWeight="bold">What is DBR?</Text>
@@ -97,7 +97,7 @@ export const Swap = () => {
                 <Text>
                   FiRM is our <b>Fixed-Rate Market</b> and it's where the <b>synergy between DOLA, INV & DBR</b> happens! <b>DBR rewards to INV stakers increases when borrowing demand for DOLA increases</b>!
                 </Text>
-                <Link href="/firm" textDecoration="underline">
+                <Link target="_blank" isExternal href="https://firm.inverse.finance/markets" textDecoration="underline">
                   Go to FiRM
                 </Link>
               </Stack>

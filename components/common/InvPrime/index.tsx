@@ -11,7 +11,7 @@ export const InvPrime = ({
 }) => {
     const icon = <Image mr="4" borderRadius="6px" src="/assets/inv-key.png" w='70px' />
     return <Stack direction={{ base: 'column-reverse', lg: 'row' }} spacing="2" alignItems="center">
-        <InfoMessage  
+        <InfoMessage
             alertProps={{ w: 'full', m: '0', icon }}
             title="Early access for INV stakers"
             description={
@@ -27,7 +27,7 @@ export const InvPrime = ({
                             <Link textDecoration="underline" target="_blank" isExternal href={BUY_LINKS.INV}>
                                 Buy INV
                             </Link>
-                            <Link textDecoration="underline" href="/firm/INV">
+                            <Link textDecoration="underline" href="https://firm.inverse.finance/markets/INV">
                                 Stake INV on FiRM
                             </Link>
                         </Stack>

@@ -70,7 +70,7 @@ const EligibleComp = ({
                     iconProps={{ height: 50, width: 50 }}
                     title="DBR claimed!"
                     description={
-                        <Link pt="2" textDecoration="underline" href="/firm/WETH">
+                        <Link pt="2" textDecoration="underline" href="https://firm.inverse.finance/markets/WETH">
                             Borrow DOLA
                         </Link>
                     }

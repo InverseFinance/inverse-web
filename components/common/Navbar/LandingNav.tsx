@@ -52,7 +52,7 @@ export const LandingNav = ({
               </Link>
             ))}
           <Btn
-            href="/firm"
+            href="https://firm.inverse.finance/markets"
             fontWeight="bold"
             // fontSize={slightlyBiggerSize}
             outline={isBottom ? '2px solid white' : `2px solid ${lightTheme.colors.mainTextColor}`}
