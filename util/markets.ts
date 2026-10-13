@@ -792,6 +792,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getYearnVaultApy('0x7c439Df9ADE8831180EA4D546c1E910D4Ba71a86'),
         getDefiLlamaApy('7255c661-892b-4c4c-b869-537a1326b669'),
         getSCoinStakingApy('0x3FF361197036Ae1d24B939146D8a449A80F8427d', provider),
+        getYearnVaultApy('0x23346B04a7f55b8760E5860AA5A77383D63491cD'),
     ]);
 
     let [
@@ -835,6 +836,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         yvreusdSDOLAData,
         reusdSDOLAStakedaoData,
         sinvUSData,
+        ysyBOLDData,
     ] = externalYieldResults.map(r => {
         return r.status === 'fulfilled' ? r.value : {};
     });
@@ -893,6 +895,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'yv-reUSD-sDOLA': yvreusdSDOLAData?.apy || 0,
         'reUSD-sDOLA': reusdSDOLAStakedaoData?.apy || 0,
         'sinvUSD': sinvUSData?.apy || 0,
+        'ysyBOLD': ysyBOLDData?.apy || 0,
     };
 }
 

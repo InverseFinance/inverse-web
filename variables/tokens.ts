@@ -186,6 +186,7 @@ const chainTokenAddresses = {
     INVUSDSDOLALP: '0xe430e64081a3e7a39d24c5f507d9d4b492b2ed52',
     invUSD: '0x5377680B5986296AA4F9e684e5315a4F24832e56',
     sinvUSD: '0x3FF361197036Ae1d24B939146D8a449A80F8427d',
+    ysyBOLD: '0x23346B04a7f55b8760E5860AA5A77383D63491cD',
     // PAL: '0xAB846Fb6C81370327e784Ae7CbB6d6a6af6Ff4BF',
   },
   "250": {
@@ -437,6 +438,18 @@ const chainTokens = {
      name: 'sinvUSD',
      isStable: true,
      isERC4626: true,
+     link: 'https://app.monolith.market/1/coin/v1-0',
+    },
+    [chainTokenAddresses["1"].ysyBOLD]: {
+     decimals: 18,
+     image: TOKEN_IMAGES.ysyBOLD,
+     // coingeckoId: 'junior-dola',
+     address: chainTokenAddresses["1"].ysyBOLD,
+     symbol: 'ysyBOLD',
+     name: 'ysyBOLD',
+     isStable: true,
+     isERC4626: true,
+     link: 'https://yearn.fi/v3/1/0x9F4330700a36B29952869fac9b33f45EEdd8A3d8',
    },
     [chainTokenAddresses["1"].SINV]: {
       decimals: 18,
