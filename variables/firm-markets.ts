@@ -915,7 +915,7 @@ export const FIRM_MARKETS = [
       underlyingSymbol: 'BOLD',
       badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
       isERC4626Collateral: true,
-      startingBlock: 26157005,
+      startingBlock: 26179133,
       isInv: false,
   },
 ];
