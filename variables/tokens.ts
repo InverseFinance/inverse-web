@@ -438,6 +438,7 @@ const chainTokens = {
      name: 'sinvUSD',
      isStable: true,
      isERC4626: true,
+     link: 'https://app.monolith.market/1/coin/v1-0',
     },
     [chainTokenAddresses["1"].ysyBOLD]: {
      decimals: 18,
@@ -448,6 +449,7 @@ const chainTokens = {
      name: 'ysyBOLD',
      isStable: true,
      isERC4626: true,
+     link: 'https://yearn.fi/v3/1/0x9F4330700a36B29952869fac9b33f45EEdd8A3d8',
    },
     [chainTokenAddresses["1"].SINV]: {
       decimals: 18,
