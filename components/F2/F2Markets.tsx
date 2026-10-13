@@ -160,7 +160,7 @@ const getMarketInfos = ({ marketName, underlying, isStakedaoStrategy }: { market
     }
     const isPT = underlying.symbol.startsWith('PT-');
     const prefix = underlying.isYearnV2LP ? "Yearn vault - " : isPT ? 'Pendle - ' : "";
-    const suffix = underlying.isLP ? "" : " LP";
+    const suffix = underlying.isLP ? " LP" : "";
     return {
         name: marketName,
         fullname: `${prefix}${marketName}${suffix}`,
