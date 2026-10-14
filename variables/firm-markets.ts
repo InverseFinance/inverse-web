@@ -298,7 +298,8 @@ export const FIRM_MARKETS = [
         underlyingWithPricePerShare: true,
         underlyingSymbol: 'crvUSD-DOLA',
         isAleWithoutSwap: true,
-      isInv: false,
+        isInv: false,
+        isPhasingOut: true,
     },
     {
         name: 'cbBTC',

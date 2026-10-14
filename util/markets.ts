@@ -560,7 +560,7 @@ export const getYearnVaultKongApy = async (vaultId: string) => {
         const response = await fetch(`https://kong.yearn.fi/api/rest/snapshot/1/${vaultId}`);
         const data = await response.json();
         return {
-            apy: (data?.performance?.oracle?.apy||0) * 100
+            apy: (data?.performance?.oracle?.apy || data?.performance?.estimated?.apy || data?.performance?.historical?.weeklyNet ||0) * 100
         };
     } catch (e) {
         console.log(`Failed to fetch APY for Yearn vault ${vaultId}:`, e);
