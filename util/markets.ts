@@ -545,7 +545,7 @@ export const getYearnVaultApy = async (vaultId: string) => {
         return {
             apy: data?.apr?.forwardAPR?.netAPR
                 ? data.apr.forwardAPR.netAPR * 100
-                : data?.apr?.netAPR
+                : data?.apr?.points?.weekAgo ? data?.apr?.points?.weekAgo * 100 : data?.apr?.netAPR
                     ? data.apr.netAPR * 100
                     : 0
         };
