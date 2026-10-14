@@ -6,6 +6,8 @@ export const MERKL_API_URL = 'https://api.merkl.xyz/v4';
 export const MERKL_FIRM_PROTOCOL_ID = 'firm';
 
 export type MerklOpportunity = {
+    // too big for a js number, kept as a string by the api
+    id: string
     chainId: number
     identifier: string
     explorerAddress?: string
@@ -58,6 +60,8 @@ export type MerklClaimable = {
 
 export const getMerklUserUrl = (account: string) => `https://app.merkl.xyz/users/${account}`;
 
+export const getMerklOpportunityUrl = (opportunityId: string) => `https://app.merkl.xyz/opportunities/${opportunityId}`;
+
 export const getMerklFirmUserRewardsUrl = (account: string) => `${MERKL_API_URL}/users/${account}/protocols/${MERKL_FIRM_PROTOCOL_ID}/rewards?chainId=1`;
 
 // live incentives of all FiRM markets, null if the Merkl api is unavailable
@@ -93,6 +97,12 @@ const getLatestCampaignEnd = (opportunities: MerklOpportunity[]) => {
 }
 
 // tokens distributed by the campaigns, the one with the most daily rewards first
+// page of the opportunity distributing the most rewards
+const getMainOpportunityUrl = (opportunities: MerklOpportunity[]) => {
+    const [main] = [...opportunities].sort((a, b) => (Number(b.dailyRewards) || 0) - (Number(a.dailyRewards) || 0));
+    return main?.id ? getMerklOpportunityUrl(main.id) : null;
+}
+
 const getRewardTokens = (opportunities: MerklOpportunity[]): MerklRewardToken[] => {
     const rewardTokens: { [address: string]: { token: MerklRewardToken, value: number } } = {};
     opportunities.flatMap(o => o.rewardsRecord?.breakdowns || []).forEach(({ token, value }) => {
@@ -131,6 +141,8 @@ export const getMerklMarketIncentives = (marketAddress: string, opportunities: M
         // when the last live Merkl campaign of the market ends
         merklCampaignEndTimestamp: getLatestCampaignEnd(marketOpportunities),
         merklRewardTokens: getRewardTokens(marketOpportunities),
+        // Merkl page of the main live opportunity
+        merklUrl: getMainOpportunityUrl(marketOpportunities),
     };
 }
 

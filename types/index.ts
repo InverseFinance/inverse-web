@@ -809,6 +809,8 @@ export type F2Market = {
   merklCampaignEndTimestamp?: number | null
   // tokens distributed by the live Merkl campaigns, main one first
   merklRewardTokens?: { address: string, symbol: string, icon: string | null }[]
+  // Merkl page of the main live opportunity
+  merklUrl?: string | null
 }
 
 export type FirmAction = {

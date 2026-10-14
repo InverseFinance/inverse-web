@@ -18,7 +18,7 @@ import { F2Market } from '@app/types';
 
 const { F2_MARKETS, F2_ALE } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.8.7`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.8.8`;
 
 // same source as /api/dbr, null if unavailable so that the markets data does not depend on it
 const getDbrPriceUsd = async (provider: BaseProvider) => {
@@ -154,7 +154,7 @@ export default async function handler(req, res) {
       const cachedMarket = cachedData?.markets?.find((cm: F2Market) => cm.address === m.address);
       const {
         hasMerklRewards, merklApy, merklBorrowApr, merklMaxApy, merklBorrowMaxApr,
-        merklDailyRewards, merklMaxDailyRewards, merklCampaignEndTimestamp, merklRewardTokens,
+        merklDailyRewards, merklMaxDailyRewards, merklCampaignEndTimestamp, merklRewardTokens, merklUrl,
       } = merklOpportunities ?
         getMerklMarketIncentives(m.address, merklOpportunities) :
         {
@@ -167,6 +167,7 @@ export default async function handler(req, res) {
           merklMaxDailyRewards: cachedMarket?.merklMaxDailyRewards || 0,
           merklCampaignEndTimestamp: cachedMarket?.merklCampaignEndTimestamp || null,
           merklRewardTokens: cachedMarket?.merklRewardTokens || [],
+          merklUrl: cachedMarket?.merklUrl || null,
         };
       return {
         ...marketOverrides,
@@ -181,6 +182,7 @@ export default async function handler(req, res) {
         hasMerklRewards,
         merklCampaignEndTimestamp,
         merklRewardTokens,
+        merklUrl,
         aleAllowance: getBnToNumber(aleAllowancesChecks[i]) > 0 ? 'OK' : 'KO',
         underlying: TOKENS[m.collateral],
         supplyApy: supplyApy + extraRewardApy,
