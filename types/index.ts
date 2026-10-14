@@ -799,6 +799,12 @@ export type F2Market = {
   hasMerklRewards?: boolean
   merklApy?: number
   merklBorrowApr?: number
+  // apr caps of the live Merkl campaigns in %, 0 when not capped
+  merklMaxApy?: number
+  merklBorrowMaxApr?: number
+  // rewards distributed per day by the live Merkl campaigns and the most they can distribute per day, in USD
+  merklDailyRewards?: number
+  merklMaxDailyRewards?: number
   // end of the last live Merkl campaign, in ms
   merklCampaignEndTimestamp?: number | null
   // tokens distributed by the live Merkl campaigns, main one first

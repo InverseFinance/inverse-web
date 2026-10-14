@@ -13,6 +13,11 @@ export type MerklOpportunity = {
     action: string
     // in %
     apr: number
+    // apr cap of the campaigns as a fraction (0.05 = 5%), 0 when not capped
+    maxApr?: number | null
+    // rewards distributed per day and the most that can be distributed per day, values in USD
+    dailyRewards?: number
+    maxDailyRewards?: number
     // unix timestamp in seconds, as a string
     latestCampaignEnd?: string
     // daily rewards per campaign, value in USD
@@ -73,8 +78,12 @@ export const getMerklFirmOpportunities = async (): Promise<MerklOpportunity[] | 
     }
 }
 
-const sumAprs = (opportunities: MerklOpportunity[]) => {
-    return opportunities.reduce((total, o) => total + (Number.isFinite(o.apr) && o.apr > 0 ? o.apr : 0), 0);
+// sum of the valid positive values of a field of the opportunities
+const sumField = (opportunities: MerklOpportunity[], field: 'apr' | 'maxApr' | 'dailyRewards' | 'maxDailyRewards') => {
+    return opportunities.reduce((total, o) => {
+        const value = o[field];
+        return total + (typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : 0);
+    }, 0);
 }
 
 // end of the last campaign, in ms
@@ -105,12 +114,20 @@ export const getMerklMarketIncentives = (marketAddress: string, opportunities: M
     const marketOpportunities = opportunities.filter(o => {
         return o.chainId === 1 && o.status === 'LIVE' && [o.identifier, o.explorerAddress].some(a => a?.toLowerCase() === address);
     });
+    const collateralOpportunities = marketOpportunities.filter(o => o.action !== 'BORROW');
+    const borrowOpportunities = marketOpportunities.filter(o => o.action === 'BORROW');
     return {
         hasMerklRewards: marketOpportunities.length > 0,
         // collateral incentives, apr on the deposits
-        merklApy: sumAprs(marketOpportunities.filter(o => o.action !== 'BORROW')),
+        merklApy: sumField(collateralOpportunities, 'apr'),
         // borrowing incentives (eg FIRM_DEBT campaigns), apr on the DOLA debt
-        merklBorrowApr: sumAprs(marketOpportunities.filter(o => o.action === 'BORROW')),
+        merklBorrowApr: sumField(borrowOpportunities, 'apr'),
+        // apr caps in %, 0 when the campaigns are not capped
+        merklMaxApy: sumField(collateralOpportunities, 'maxApr') * 100,
+        merklBorrowMaxApr: sumField(borrowOpportunities, 'maxApr') * 100,
+        // rewards distributed per day by all the live campaigns and the most they can distribute per day, in USD
+        merklDailyRewards: sumField(marketOpportunities, 'dailyRewards'),
+        merklMaxDailyRewards: sumField(marketOpportunities, 'maxDailyRewards'),
         // when the last live Merkl campaign of the market ends
         merklCampaignEndTimestamp: getLatestCampaignEnd(marketOpportunities),
         merklRewardTokens: getRewardTokens(marketOpportunities),
