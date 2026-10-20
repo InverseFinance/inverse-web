@@ -71,6 +71,103 @@ export const getFirmMarketUsers = async (provider, cacheDuration = 240) => {
   return { firmMarketUsers, marketUsersAndEscrows };
 }
 
+// positions of all the FiRM users, on a tenderly vnet when vnetPublicId is set
+export const getFirmPositions = async (provider, paidProvider, vnetPublicId?: string) => {
+  const [marketUsersCache, marketsCache] = await Promise.all([
+    getFirmMarketUsers(paidProvider),
+    (vnetPublicId ?
+      fetch(`https://www.inverse.finance/api/f2/fixed-markets?v=1.2&vnetPublicId=${vnetPublicId||''}`).then(r => r.json())
+       : getCacheFromRedis(F2_MARKETS_CACHE_KEY, false)),
+  ])
+  const { firmMarketUsers, marketUsersAndEscrows } = marketUsersCache;
+  const _markets = marketsCache?.markets || F2_MARKETS;
+
+  let dbrUsers: string[] = [];
+  const dbrContract = new Contract(DBR, DBR_ABI, provider);
+
+  _markets.map(market => {
+    const marketUsers = marketUsersAndEscrows[market.address]?.users || [];
+    dbrUsers = dbrUsers.concat(marketUsers);
+  });
+
+  dbrUsers = [...new Set(dbrUsers)];
+
+  const [dbrSignedBalanceBn, totalDebtsBn, dueTokensAccruedBn, lastUpdatedBn] = await getGroupedMulticallOutputs(
+    [
+      dbrUsers.map(u => {
+        return { contract: dbrContract, functionName: 'signedBalanceOf', params: [u] }
+      }),
+      dbrUsers.map(u => {
+        return { contract: dbrContract, functionName: 'debts', params: [u] }
+      }),
+      dbrUsers.map(u => {
+        return { contract: dbrContract, functionName: 'dueTokensAccrued', params: [u] }
+      }),
+      dbrUsers.map(u => {
+        return { contract: dbrContract, functionName: 'lastUpdated', params: [u] }
+      }),
+    ],
+    1,
+    undefined,
+    provider,
+  );
+
+  const [debtsBn, depositsBn, creditLimitsBn] = await getGroupedMulticallOutputs(
+    [
+      firmMarketUsers.map((f, i) => {
+        const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);
+        return { contract: market, functionName: 'debts', params: [f.user] };
+      }),
+      firmMarketUsers.map((f, i) => {
+        const marketAd = F2_MARKETS[f.marketIndex].address;
+        const users = marketUsersAndEscrows[marketAd].users;
+        const escrow = new Contract(marketUsersAndEscrows[marketAd].escrows[users.indexOf(f.user)], F2_ESCROW_ABI, provider);
+        return { contract: escrow, functionName: 'balance', params: [] };
+      }),
+      firmMarketUsers.map((f, i) => {
+        const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);
+        // placeholder debts call for the inv market meanwhile oracle feed is invalid
+        return { contract: market, functionName: 'getCreditLimit', params: [f.user] };
+      }),
+    ],
+    1,
+    undefined,
+    provider,
+  );
+
+  const deposits = depositsBn.map((bn, i) => getBnToNumber(bn, getToken(CHAIN_TOKENS[CHAIN_ID], F2_MARKETS[firmMarketUsers[i].marketIndex].collateral)?.decimals));
+  const debts = debtsBn.map((bn) => getBnToNumber(bn));
+  const creditLimits = creditLimitsBn.map((bn) => getBnToNumber(bn));
+  const liquidableDebts = creditLimits.map((creditLimit, i) => (creditLimit >= debts[i] ? 0 : debts[i] * (_markets[firmMarketUsers[i].marketIndex]?.liquidationFactor || 0.5)));
+  const now = Date.now();
+
+  const positions = firmMarketUsers.map((f, i) => {
+    const dbrIdx = dbrUsers.findIndex(du => du === f.user);
+    const lastUpdatedMs = getBnToNumber(lastUpdatedBn[dbrIdx], 0) * 1000;
+    const dueTokensStored = getBnToNumber(dueTokensAccruedBn[dbrIdx]);
+    const totalDebt = getBnToNumber(totalDebtsBn[dbrIdx]);
+    return {
+      ...f,
+      liquidatableDebt: liquidableDebts[i],
+      deposits: deposits[i],
+      debt: debts[i],
+      totalDebt: totalDebt,
+      dbrBalance: getBnToNumber(dbrSignedBalanceBn[dbrIdx]),
+      dueTokensAccruedStored: dueTokensStored,
+      // live
+      dueTokensAccrued: dueTokensStored + (now - lastUpdatedMs) * totalDebt / (365 * ONE_DAY_MS),
+      lastAccrualUpdate: lastUpdatedMs,
+    }
+  });
+
+  return {
+    nbUniqueUsers: uniqueBy(positions, (a, b) => a.user === b.user).length,
+    positions: positions.filter((p, i) => p.debt > 0 || (p.deposits * _markets[firmMarketUsers[i].marketIndex].price >= 1)),
+    // marketUsersAndEscrows,
+    timestamp: now,
+  }
+}
+
 export default async function handler(req, res) {
   const { cacheFirst, vnetPublicId } = req.query;
 
@@ -109,99 +206,7 @@ export default async function handler(req, res) {
       paidProvider = getPaidProvider(CHAIN_ID);
     }
 
-    const [marketUsersCache, marketsCache] = await Promise.all([
-      getFirmMarketUsers(paidProvider),
-      (vnetPublicId ?
-        fetch(`https://www.inverse.finance/api/f2/fixed-markets?v=1.2&vnetPublicId=${vnetPublicId||''}`).then(r => r.json())
-         : getCacheFromRedis(F2_MARKETS_CACHE_KEY, false)),
-    ])
-    const { firmMarketUsers, marketUsersAndEscrows } = marketUsersCache;
-    const _markets = marketsCache?.markets || F2_MARKETS;
-
-    let dbrUsers: string[] = [];
-    const dbrContract = new Contract(DBR, DBR_ABI, provider);
-
-    _markets.map(market => {
-      const marketUsers = marketUsersAndEscrows[market.address]?.users || [];
-      dbrUsers = dbrUsers.concat(marketUsers);
-    });
-
-    dbrUsers = [...new Set(dbrUsers)];
-
-    const [dbrSignedBalanceBn, totalDebtsBn, dueTokensAccruedBn, lastUpdatedBn] = await getGroupedMulticallOutputs(
-      [
-        dbrUsers.map(u => {
-          return { contract: dbrContract, functionName: 'signedBalanceOf', params: [u] }
-        }),
-        dbrUsers.map(u => {
-          return { contract: dbrContract, functionName: 'debts', params: [u] }
-        }),
-        dbrUsers.map(u => {
-          return { contract: dbrContract, functionName: 'dueTokensAccrued', params: [u] }
-        }),
-        dbrUsers.map(u => {
-          return { contract: dbrContract, functionName: 'lastUpdated', params: [u] }
-        }),
-      ],
-      1,
-      undefined,
-      provider,
-    );
-
-    const [debtsBn, depositsBn, creditLimitsBn] = await getGroupedMulticallOutputs(
-      [
-        firmMarketUsers.map((f, i) => {
-          const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);
-          return { contract: market, functionName: 'debts', params: [f.user] };
-        }),
-        firmMarketUsers.map((f, i) => {
-          const marketAd = F2_MARKETS[f.marketIndex].address;
-          const users = marketUsersAndEscrows[marketAd].users;
-          const escrow = new Contract(marketUsersAndEscrows[marketAd].escrows[users.indexOf(f.user)], F2_ESCROW_ABI, provider);
-          return { contract: escrow, functionName: 'balance', params: [] };
-        }),
-        firmMarketUsers.map((f, i) => {
-          const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);
-          // placeholder debts call for the inv market meanwhile oracle feed is invalid
-          return { contract: market, functionName: 'getCreditLimit', params: [f.user] };
-        }),
-      ],
-      1,
-      undefined,
-      provider,
-    );
-
-    const deposits = depositsBn.map((bn, i) => getBnToNumber(bn, getToken(CHAIN_TOKENS[CHAIN_ID], F2_MARKETS[firmMarketUsers[i].marketIndex].collateral)?.decimals));
-    const debts = debtsBn.map((bn) => getBnToNumber(bn));
-    const creditLimits = creditLimitsBn.map((bn) => getBnToNumber(bn));
-    const liquidableDebts = creditLimits.map((creditLimit, i) => (creditLimit >= debts[i] ? 0 : debts[i] * (_markets[firmMarketUsers[i].marketIndex]?.liquidationFactor || 0.5)));
-    const now = Date.now();
-
-    const positions = firmMarketUsers.map((f, i) => {
-      const dbrIdx = dbrUsers.findIndex(du => du === f.user);
-      const lastUpdatedMs = getBnToNumber(lastUpdatedBn[dbrIdx], 0) * 1000;
-      const dueTokensStored = getBnToNumber(dueTokensAccruedBn[dbrIdx]);
-      const totalDebt = getBnToNumber(totalDebtsBn[dbrIdx]);
-      return {
-        ...f,
-        liquidatableDebt: liquidableDebts[i],
-        deposits: deposits[i],
-        debt: debts[i],
-        totalDebt: totalDebt,
-        dbrBalance: getBnToNumber(dbrSignedBalanceBn[dbrIdx]),
-        dueTokensAccruedStored: dueTokensStored,
-        // live
-        dueTokensAccrued: dueTokensStored + (now - lastUpdatedMs) * totalDebt / (365 * ONE_DAY_MS),
-        lastAccrualUpdate: lastUpdatedMs,
-      }
-    });
-
-    const resultData = {
-      nbUniqueUsers: uniqueBy(positions, (a, b) => a.user === b.user).length,
-      positions: positions.filter((p, i) => p.debt > 0 || (p.deposits * _markets[firmMarketUsers[i].marketIndex].price >= 1)),
-      // marketUsersAndEscrows,
-      timestamp: now,
-    }
+    const resultData = await getFirmPositions(provider, paidProvider, vnetPublicId);
 
     await redisSetWithTimestamp(cacheKey, resultData);
 
