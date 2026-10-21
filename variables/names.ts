@@ -14,7 +14,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x6B175474E89094C44Da98b954EedeAC495271d0F': 'DAI',
     '0x7e2a6e9395df9f01c00bc3af095068b454fd896e': 'InvPriceFeed',
     '0x40A2aCCbd92BCA938b02010E17A5b8929b49130D': 'SafeMultiSend',
-    '0xAAc0aa431c237C2C0B5f041c8e59B3f1a43aC78F': 'c2tp.eth',    
+    '0xAAc0aa431c237C2C0B5f041c8e59B3f1a43aC78F': 'c2tp.eth',
     // Feds
     '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664': 'Fed Fuse6',
     '0x2b34548b865ad66A2B046cb82e59eE43F75B90fd': 'Fed FiRM',
@@ -127,9 +127,9 @@ const namedAddresses: { [key: string]: string } = {
     // FiRM
     '0xAD038Eb671c44b853887A7E32528FaB35dC5D710': 'DBR',
     '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2': 'WETH',
-    '0xaBe146CF570FD27ddD985895ce9B138a7110cce8': 'FiRMOracle',        
+    '0xaBe146CF570FD27ddD985895ce9B138a7110cce8': 'FiRMOracle',
     '0x2A256306D8ba899E33B01e495982656884Ac77FF': 'FiRMcbBTCMarket',
-    '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f': 'FiRMSimpleEscrow', 
+    '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f': 'FiRMSimpleEscrow',
     '0xb4c4cD74e7b99ad2cf2f7b3A4F7091efB8BCeb7A': 'FiRMgOHMEscrow',
     '0x502a7759809bD673cd39A0055beed44b40EAac98': 'FiRMINVEscrow',
     '0x2F32a5E5E000d1a7257090DF260fC08F0Bab2125': 'FiRMcvxCRVEscrow',
@@ -243,7 +243,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x9F56094C450763769BA0EA9Fe2876070c0fD5F77': 'PT-sUSDe-25SEP25',
     '0xBC6736d346a5eBC0dEbc997397912CD9b8FAe10a': 'PT-USDe-25SEP25',
     '0xe6A934089BBEe34F832060CE98848359883749B3': 'PT-sUSDe-27NOV25',
-    '0x62C6E813b9589C3631Ba0Cdb013acdB8544038B7': 'PT-USDe-27NOV25',
+  '0x62C6E813b9589C3631Ba0Cdb013acdB8544038B7': 'PT-USDe-27NOV25',
     // FiRM strategies rewards
     '0xC94208D230EEdC4cDC4F80141E21aA485A515660': 'ConvexRewards-crvUSD-DOLA',
     '0xE8cBdBFD4A1D776AB1146B63ABD1718b2F92a823': 'ConvexRewards-FraxPyUSD-DOLA',
@@ -259,7 +259,12 @@ const namedAddresses: { [key: string]: string } = {
     '0xDe380abFB5a7117B92A868Ebe828E560BeBd1ECC': 'StakeDaoVault-reUSD-sDOLA',
     '0x93b4B9bd266fFA8AF68e39EDFa8cFe2A62011Ce0': 'StakeDaoAccountant',
     // partners
-    '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647': 'DWF Swapper',
+  '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647': 'DWF Swapper',
+    //
+  '0xa3A7B6F88361F48403514059F1F16C8E78d60EeC': 'Arbitrum Bridge',
+  '0xC564EE9f21Ed8A2d8E7e76c085740d5e4c5FaFbE': 'Multichain: Fantom bridge',
+  '0x3154cf16ccdb4c6d922629664174b904d80f2c35': 'Base Bridge',
+  '0x66da369fC5dBBa0774Da70546Bd20F2B242Cd34d': 'crvDBRINV',
 }
 FIRM_MARKETS.forEach(market => {
     namedAddresses[market.address] = `FiRM ${market.name} Market`;
