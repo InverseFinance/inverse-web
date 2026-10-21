@@ -138,7 +138,7 @@ export const getFirmPositions = async (provider, paidProvider, vnetPublicId?: st
   const deposits = depositsBn.map((bn, i) => getBnToNumber(bn, getToken(CHAIN_TOKENS[CHAIN_ID], F2_MARKETS[firmMarketUsers[i].marketIndex].collateral)?.decimals));
   const debts = debtsBn.map((bn) => getBnToNumber(bn));
   const creditLimits = creditLimitsBn.map((bn) => getBnToNumber(bn));
-  const liquidableDebts = creditLimits.map((creditLimit, i) => (creditLimit >= debts[i] ? 0 : debts[i] * (_markets[firmMarketUsers[i].marketIndex]?.liquidationFactor || 0.5)));
+  const liquidableDebts = creditLimits.map((creditLimit, i) => (creditLimit >= debts[i] ? 0 : debts[i] * (_markets[firmMarketUsers[i].marketIndex]?.liquidationFactor || 1)));
   const now = Date.now();
 
   const positions = firmMarketUsers.map((f, i) => {
