@@ -9,12 +9,13 @@ import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { uniqueBy } from '@app/util/misc';
 import { CHAIN_ID, SDOLA_ADDRESS } from '@app/config/constants';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
-import { F2_POSITIONS_CACHE_KEY, getFirmPositions } from './firm-positions';
-import { pricesCacheKey } from '../prices';
+import { F2_POSITIONS_CACHE_KEY, getFirmPositions } from './f2/firm-positions';
+import { F2_MARKETS_CACHE_KEY } from './f2/fixed-markets';
+import { pricesCacheKey } from './prices';
 
 const { F2_MARKETS, DOLA } = getNetworkConfigConstants();
 
-export const FIRM_POSITIONS_BREAKDOWN_CACHE_KEY = 'firm-positions-breakdown-v1.0.0';
+export const FIRM_POSITIONS_BREAKDOWN_CACHE_KEY = 'firm-positions-breakdown-v1.1.0';
 // max age of the cached firm-positions data, in seconds, fresh data is fetched otherwise
 const POSITIONS_MAX_AGE = 1800;
 // tokens counted in the dola percentage of the LPs
@@ -32,8 +33,9 @@ const getLpBreakdown = (pool, lpBalance: number) => {
     return {
         lp: pool.address,
         lpSymbol: pool.symbol,
+        lpName: pool.name,
         lpBalance,
-        poolShare,
+        poolSharePercentage: poolShare * 100,
         underlying: pool.coins.map(({ address, symbol, balance, price, percentage }) => ({
             address,
             symbol,
@@ -45,15 +47,29 @@ const getLpBreakdown = (pool, lpBalance: number) => {
     };
 }
 
+// all the markets and positions, or only the LP ones
+const getResponseData = (data, lpOnly: boolean) => {
+    const markets = lpOnly ? data.markets.filter(m => !!m.lpBreakdown) : data.markets;
+    const positions = lpOnly ? data.positions.filter(p => !!p.lpBreakdown) : data.positions;
+    return {
+        timestamp: data.timestamp,
+        nbUniqueUsers: uniqueBy(positions, (a, b) => a.user === b.user).length,
+        markets,
+        positions,
+    };
+}
+
 // firm-positions data enriched with the markets infos and the underlying tokens of the LP positions
 export default async function handler(req, res) {
+    const lpOnly = req.query.lpOnly === 'true';
     const cacheDuration = 300;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(FIRM_POSITIONS_BREAKDOWN_CACHE_KEY, true, cacheDuration);
 
     try {
-        if (isValid && !!cachedData && Date.now() - cachedData.positionsTimestamp < POSITIONS_MAX_AGE * 1000) {
-            return res.status(200).json(cachedData);
+        // the timestamp is the one of the firm-positions data
+        if (isValid && !!cachedData && Date.now() - cachedData.timestamp < POSITIONS_MAX_AGE * 1000) {
+            return res.status(200).json(getResponseData(cachedData, lpOnly));
         }
 
         const provider = getProvider(CHAIN_ID);
@@ -71,8 +87,9 @@ export default async function handler(req, res) {
         const lps = uniqueBy(lpMarkets.map(({ lp }) => lp), (a, b) => a.address === b.address);
         const vaultMarkets = lpMarkets.filter(({ market }) => !!market.rootLp);
 
-        const [prices, multicallResults] = await Promise.all([
+        const [prices, marketsCache, multicallResults] = await Promise.all([
             getCacheFromRedis(pricesCacheKey, false),
+            getCacheFromRedis(F2_MARKETS_CACHE_KEY, false),
             getGroupedMulticallOutputs(
                 [
                     ...lps.map(lp => {
@@ -80,6 +97,8 @@ export default async function handler(req, res) {
                         return lp.pairs.map((pair, i) => ({ contract: pool, functionName: 'balances', params: [i] }));
                     }),
                     lps.map(lp => ({ contract: new Contract(lp.address, ERC20_ABI, provider), functionName: 'totalSupply' })),
+                    lps.map(lp => ({ contract: new Contract(lp.address, ERC20_ABI, provider), functionName: 'symbol' })),
+                    lps.map(lp => ({ contract: new Contract(lp.address, ERC20_ABI, provider), functionName: 'name' })),
                     vaultMarkets.map(({ market }) => {
                         const vault = new Contract(market.collateral, ['function pricePerShare() public view returns (uint)'], provider);
                         return { contract: vault, functionName: 'pricePerShare' };
@@ -90,8 +109,12 @@ export default async function handler(req, res) {
                 provider,
             ),
         ]);
+        // collateral prices for the deposits values
+        if (!marketsCache?.markets) {
+            throw new Error('fixed-markets cache unavailable');
+        }
         const poolsBalancesBn = multicallResults.slice(0, lps.length);
-        const [totalSuppliesBn, pricePerSharesBn] = multicallResults.slice(lps.length);
+        const [totalSuppliesBn, lpSymbols, lpNames, pricePerSharesBn] = multicallResults.slice(lps.length);
 
         // composition of the Curve pools, the percentages are by USD value
         const pools = lps.map((lp, lpIndex) => {
@@ -105,7 +128,8 @@ export default async function handler(req, res) {
             const coinsWithPercentage = coins.map(coin => ({ ...coin, percentage: totalValue > 0 ? coin.value / totalValue * 100 : 0 }));
             return {
                 address: lp.address,
-                symbol: lp.symbol,
+                symbol: lpSymbols[lpIndex],
+                name: lpNames[lpIndex],
                 totalSupply: getBnToNumber(totalSuppliesBn[lpIndex], lp.decimals),
                 coins: coinsWithPercentage,
                 // sDOLA counts as DOLA
@@ -125,49 +149,57 @@ export default async function handler(req, res) {
         const positions = firmPositions.positions.map(position => {
             const market = F2_MARKETS[position.marketIndex];
             const lpMarketData = lpMarketsData[market.address];
+            const price = marketsCache.markets.find(m => m.address === market.address)?.price || 0;
             return {
-                ...position,
+                user: position.user,
                 marketName: market.name,
                 market: market.address,
                 collateral: market.collateral,
                 collateralSymbol: getToken(CHAIN_TOKENS[CHAIN_ID], market.collateral)?.symbol,
+                deposits: position.deposits,
+                depositsValue: position.deposits * price,
+                debt: position.debt,
                 lpBreakdown: lpMarketData ? getLpBreakdown(lpMarketData.pool, position.deposits * lpMarketData.lpPerCollateral) : null,
             }
         });
+        const listedPositions = positions.filter(p => p.depositsValue >= 1);
 
-        const lpMarketsBreakdown = lpMarkets
-            .map(({ market }) => {
+        // the market totals include the positions that are not listed
+        const markets = F2_MARKETS
+            .map(market => {
                 const marketPositions = positions.filter(p => p.market === market.address);
-                const lpBalance = marketPositions.reduce((prev, curr) => prev + curr.lpBreakdown.lpBalance, 0);
+                const lpMarketData = lpMarketsData[market.address];
                 return {
                     marketName: market.name,
                     market: market.address,
                     collateral: market.collateral,
                     collateralSymbol: getToken(CHAIN_TOKENS[CHAIN_ID], market.collateral)?.symbol,
-                    nbPositions: marketPositions.length,
-                    ...getLpBreakdown(lpMarketsData[market.address].pool, lpBalance),
+                    totalDebt: marketPositions.reduce((prev, curr) => prev + curr.debt, 0),
+                    nbPositions: listedPositions.filter(p => p.market === market.address).length,
+                    lpBreakdown: lpMarketData ?
+                        getLpBreakdown(lpMarketData.pool, marketPositions.reduce((prev, curr) => prev + curr.lpBreakdown.lpBalance, 0))
+                        : null,
                 }
             })
-            .filter(m => m.nbPositions > 0);
+            // markets with debt or with listed positions
+            .filter(m => m.totalDebt >= 1 || m.nbPositions > 0);
 
         const resultData = {
-            timestamp: Date.now(),
             // when the firm-positions data was fetched
-            positionsTimestamp: firmPositions.timestamp,
-            nbUniqueUsers: firmPositions.nbUniqueUsers,
-            lpMarkets: lpMarketsBreakdown,
-            positions,
+            timestamp: firmPositions.timestamp,
+            markets,
+            positions: listedPositions,
         }
 
         await redisSetWithTimestamp(FIRM_POSITIONS_BREAKDOWN_CACHE_KEY, resultData);
 
-        res.status(200).json(resultData)
+        res.status(200).json(getResponseData(resultData, lpOnly))
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
         if (cachedData) {
             console.log('Api call failed, returning last cache found');
-            res.status(200).json(cachedData);
+            res.status(200).json(getResponseData(cachedData, lpOnly));
         } else {
             res.status(500).json({ success: false });
         }
