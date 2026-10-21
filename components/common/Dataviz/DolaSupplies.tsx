@@ -50,9 +50,15 @@ export const DolaSupplies = ({
                 <>
                     <Flex alignItems="center">
                         <Image borderRadius="50px" mr="2" display="inline-block" src={dola.image} ignoreFallback={true} w='15px' h='15px' />
-                        DOLA Total Supplies:
+                        DOLA Total Supply:
                     </Flex>
-                    {
+                    <Flex fontWeight="bold" direction="row" w='full' justify="space-between" alignItems="center">
+                        <Text>{shortenNumber(totalSupply)}</Text>
+                    </Flex>
+                    <Link textDecoration="underline" isExternal target="_blank" href="https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dola">
+                        Learn more about DOLA
+                    </Link>
+                    {/*{
                         isLoading || !supplies?.length ? <SkeletonText />
                             :
                             <>
@@ -101,7 +107,7 @@ export const DolaSupplies = ({
                                     Learn more about DOLA
                                 </Link>
                             </>
-                    }
+                    }*/}
                 </>
             }
         />
