@@ -42,7 +42,7 @@ export default async function handler(req, res) {
         const firmMarketsHolders = holders.filter(h => FIRM_MARKETS.has(h.address.toLowerCase()));
         const firmMarketsItem = {
             address: null,
-            label: 'FiRM markets',
+            label: 'FiRM markets (unborrowed DOLA)',
             balance: firmMarketsHolders.reduce((prev, curr) => prev + curr.balance, 0),
         };
 
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
             .concat(firmMarketsHolders.length > 0 ? [firmMarketsItem] : [])
             .sort((a, b) => b.balance - a.balance)
             .slice(0, NB_TOP_HOLDERS)
-            .map(h => ({ ...h, supplyPercentage: totalSupply > 0 ? h.balance / totalSupply * 100 : 0 }));
+            .map(h => ({ ...h, label: h.label?.replace('anDOLA', 'Frontier DOLA'), supplyPercentage: totalSupply > 0 ? h.balance / totalSupply * 100 : 0 }));
 
         const resultData = {
             timestamp: Date.now(),
