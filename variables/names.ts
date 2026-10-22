@@ -265,6 +265,8 @@ const namedAddresses: { [key: string]: string } = {
   '0xC564EE9f21Ed8A2d8E7e76c085740d5e4c5FaFbE': 'Multichain: Fantom bridge',
   '0x3154cf16ccdb4c6d922629664174b904d80f2c35': 'Base Bridge',
   '0x66da369fC5dBBa0774Da70546Bd20F2B242Cd34d': 'crvDBRINV',
+  '0x000000000004444c5dc75cB358380D2e3dE08A90': 'Uniswap V4',
+  '0x7fcb7dac61ee35b3d4a51117a7c58d53f0a8a670': 'Frontier DOLA',
 }
 FIRM_MARKETS.forEach(market => {
     namedAddresses[market.address] = `FiRM ${market.name} Market`;
