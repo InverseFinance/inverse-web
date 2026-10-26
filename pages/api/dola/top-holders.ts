@@ -51,7 +51,7 @@ export default async function handler(req, res) {
             .concat(firmMarketsHolders.length > 0 ? [firmMarketsItem] : [])
             .sort((a, b) => b.balance - a.balance)
             .slice(0, NB_TOP_HOLDERS)
-            .map(h => ({ ...h, label: h.label?.replace('anDOLA', 'Frontier DOLA'), supplyPercentage: totalSupply > 0 ? h.balance / totalSupply * 100 : 0 }));
+            .map(h => ({ ...h, label: h.label?.replace('anDOLA', 'Frontier DOLA')?.replace('DSA', 'DSA (sDOLA)'), supplyPercentage: totalSupply > 0 ? h.balance / totalSupply * 100 : 0 }));
 
         const resultData = {
             timestamp: Date.now(),
