@@ -10,10 +10,11 @@ import { getBnToNumber } from '@app/util/markets';
 import { BigNumber, Contract } from 'ethers';
 import { F2_MARKETS_CACHE_KEY } from '../f2/fixed-markets';
 import { CTOKEN_ABI, DOLA_ABI } from '@app/config/abis';
-import { getLPBalances, getLPPrice, getPoolRewards } from '@app/util/contracts';
+import { computeLPBalances, computeLPPrice, getLPBalancesCalls, getLPPriceCalls, getPoolRewards } from '@app/util/contracts';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { pricesCacheKey } from '../prices';
-import { getGroupedMulticallOutputs } from '@app/util/multicall';
+import { getGroupedMulticallOutputs, getMulticallOutput } from '@app/util/multicall';
+import { BaseProvider } from '@ethersproject/providers';
 
 const { FEDS, ANCHOR_DOLA, DOLA } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -26,6 +27,20 @@ const FUSE_CTOKENS = {
 };
 const FUSE_FEDS = Object.entries(FUSE_CTOKENS).map(([fedAddress, ctoken]) => ({ fedAddress, ctoken }));
 const OTHER_FEDS = FEDS.filter(f => [FedTypes.CROSS, FedTypes.PSM].includes(f.type) && !!f.borrowConfig);
+
+type CallRequests = Parameters<typeof getMulticallOutput>[0];
+
+// outputs of each group of calls, with a single multicall per chain in try mode: a failing call returns its fallbackValue or null
+const getCallGroupsOutputs = async (callGroups: { chainId: string, calls: CallRequests }[], getChainProvider: (chainId: string) => BaseProvider) => {
+  const outputs: any[][] = new Array(callGroups.length);
+  const chainIds = [...new Set(callGroups.map(group => group.chainId))];
+  await Promise.all(chainIds.map(async chainId => {
+    const groupIndexes = callGroups.map((group, i) => group.chainId === chainId ? i : -1).filter(i => i !== -1);
+    const chainOutputs = await getGroupedMulticallOutputs(groupIndexes.map(i => callGroups[i].calls), Number(chainId), undefined, getChainProvider(chainId), true);
+    groupIndexes.forEach((groupIndex, i) => outputs[groupIndex] = chainOutputs[i]);
+  }));
+  return outputs;
+}
 
 export const fedOverviewCacheKey = `fed-overview-v1.0.92`;
 
@@ -46,7 +61,71 @@ export default async function handler(req, res) {
     const prices = (await getCacheFromRedis(pricesCacheKey, false)) || {};
 
     const provider = getProvider(NetworkIds.mainnet);
-    const anDolaContract = new Contract(ANCHOR_DOLA, CTOKEN_ABI, provider);
+    // not CTOKEN_ABI: the multicall functionName 'totalBorrows' would match totalBorrowsCurrent (accrues interest) first
+    const totalBorrowsAbi = ['function totalBorrows() view returns (uint)'];
+    const anDolaContract = new Contract(ANCHOR_DOLA, totalBorrowsAbi, provider);
+    const providers: { [chainId: string]: BaseProvider } = { [NetworkIds.mainnet]: provider };
+    const getChainProvider = (chainId: string) => {
+      if (!providers[chainId]) {
+        providers[chainId] = getProvider(chainId);
+      }
+      return providers[chainId];
+    }
+
+    // all the calls are batched with a single multicall per chain
+    const callGroups: { chainId: string, calls: CallRequests }[] = [];
+    const addCallGroup = (chainId: string, calls: CallRequests) => callGroups.push({ chainId, calls }) - 1;
+
+    const anDolaBorrowsGroup = addCallGroup(NetworkIds.mainnet, [{ contract: anDolaContract, functionName: 'totalBorrows' }]);
+    const fuseBorrowsGroup = addCallGroup(NetworkIds.mainnet, FUSE_FEDS.map(fuseFed => {
+      return { contract: new Contract(fuseFed.ctoken, totalBorrowsAbi, provider), functionName: 'totalBorrows' };
+    }));
+    const otherFedsBorrowsGroups = OTHER_FEDS.map(fed => {
+      const chainProvider = getChainProvider(fed.chainId);
+      const contract = new Contract(fed.borrowConfig!.contractAddress, fed.borrowConfig!.abi, chainProvider);
+      if (!fed.borrowConfig?.customCalls) {
+        return addCallGroup(fed.chainId, [{ contract, functionName: fed.borrowConfig!.functionName }]);
+      }
+      return addCallGroup(fed.chainId, fed.borrowConfig.customCalls.map(call => ({
+        contract: call.onFed ? new Contract(fed.address, [`function ${call.functionName}() view returns (uint)`], chainProvider) : contract,
+        functionName: call.functionName,
+        params: call.params || [],
+      })));
+    });
+    const lpFedsGroups = FEDS.map(lpFed => {
+      if (!lpFed.strategy?.lpBalanceContract) {
+        return null;
+      }
+      const address = lpFed.incomeSrcAd || lpFed.address;
+      const chainId = lpFed.incomeChainId || lpFed.chainId;
+      const chainProvider = getChainProvider(chainId);
+      const contract = new Contract(lpFed.strategy.lpBalanceContract, CTOKEN_ABI, chainProvider);
+      const token = CHAIN_TOKENS[chainId][lpFed.strategy.pools[0].address];
+      return {
+        chainId,
+        token,
+        balanceAndSupply: addCallGroup(chainId, [
+          { contract, functionName: 'balanceOf', params: [address] },
+          { contract, functionName: 'totalSupply' },
+        ]),
+        price: addCallGroup(chainId, token ? getLPPriceCalls(token, chainProvider) : []),
+        subBalances: addCallGroup(chainId, token ? getLPBalancesCalls(token, chainProvider) : []),
+      };
+    });
+    const idleDolaGroups = FEDS.map(lpFed => {
+      if (!lpFed.incomeSrcAd) {
+        return null;
+      }
+      const chainId = lpFed.incomeChainId || lpFed.chainId;
+      const dolaContract = new Contract(getToken(CHAIN_TOKENS[chainId], 'DOLA').address!, DOLA_ABI, getChainProvider(chainId));
+      return addCallGroup(chainId, [{ contract: dolaContract, functionName: 'balanceOf', params: [lpFed.incomeSrcAd] }]);
+    });
+    const minterRightsGroup = addCallGroup(NetworkIds.mainnet, FEDS.map(fed => ({
+      contract: new Contract(DOLA, DOLA_ABI, provider),
+      functionName: 'minters',
+      params: [fed.address],
+      fallbackValue: true,
+    })));
 
     const [
       _fedsData,
@@ -54,83 +133,14 @@ export default async function handler(req, res) {
       firmTvlData,
       firmMarketsData,
       _multisigData,
-      anDolaBorrows,
-      fuseDolaBorrowsBn,
-      otherCrossFedBorrows,
-      lpBalancesBn,
-      lpSupplyBn,
-      lpPrices,
-      lpSubBalances,
       lpRewards,
-      idleDolaBalances,
+      callGroupsOutputs,
     ] = await Promise.all([
       getCacheFromRedis(cacheFedDataKey, false),
       getCacheFromRedis(frontierMarketsCacheKey, false),
       getCacheFromRedis(firmTvlCacheKey, false),
       getCacheFromRedis(F2_MARKETS_CACHE_KEY, false),
       getCacheFromRedis(cacheMultisigDataKey, false),
-      anDolaContract.totalBorrows(),
-      Promise.all(
-        FUSE_FEDS.map(fuseFed => {
-          const contract = new Contract(fuseFed.ctoken, CTOKEN_ABI, provider);
-          return contract.totalBorrows();
-        })
-      ),
-      Promise.all(
-        OTHER_FEDS.map(fed => {
-          const fedContract = new Contract(fed.address, [`function ${fed.supplyFuncName||'supply'}() view returns (uint)`], getProvider(fed.chainId));
-          const contract = new Contract(fed.borrowConfig!.contractAddress, fed.borrowConfig!.abi, getProvider(fed.chainId));
-          if (fed.borrowConfig?.customFunction) {
-            return fed.borrowConfig.customFunction(contract, fedContract);
-          }
-          return contract[fed.borrowConfig!.functionName]();
-        })
-      ),
-      Promise.all(
-        FEDS.map(lpFed => {
-          if (!lpFed.strategy?.lpBalanceContract) {
-            return new Promise((res) => res(BigNumber.from('0')));
-          }
-          const address = lpFed.incomeSrcAd || lpFed.address;
-          const chainId = lpFed.incomeChainId || lpFed.chainId;
-          const chainProvider = getProvider(chainId);
-          const contract = new Contract(lpFed.strategy.lpBalanceContract, CTOKEN_ABI, chainProvider);
-          return contract.balanceOf(address);
-        })
-      ),
-      Promise.all(
-        FEDS.map(lpFed => {
-          if (!lpFed.strategy?.lpBalanceContract) {
-            return new Promise((res) => res(0));
-          }
-          const chainId = lpFed.incomeChainId || lpFed.chainId;
-          const chainProvider = getProvider(chainId);
-          const contract = new Contract(lpFed.strategy?.lpBalanceContract, CTOKEN_ABI, chainProvider);
-          return contract.totalSupply();
-        })
-      ),
-      Promise.all(
-        FEDS.map(lpFed => {
-          if (!lpFed.strategy?.lpBalanceContract) {
-            return new Promise((res) => res(0));
-          }
-          const chainId = lpFed.incomeChainId || lpFed.chainId;
-          const token = CHAIN_TOKENS[chainId][lpFed.strategy?.pools[0].address];
-          const chainProvider = getProvider(chainId);
-          return getLPPrice(token, chainId, chainProvider, prices);
-        })
-      ),
-      Promise.all(
-        FEDS.map(lpFed => {
-          if (!lpFed.strategy?.lpBalanceContract) {
-            return new Promise((res) => res([]));
-          }
-          const chainId = lpFed.incomeChainId || lpFed.chainId;
-          const token = CHAIN_TOKENS[chainId][lpFed.strategy?.pools[0].address];
-          const chainProvider = getProvider(chainId);
-          return getLPBalances(token, chainId, chainProvider);
-        })
-      ),
       Promise.all(
         FEDS.map(lpFed => {
           if (!lpFed.strategy?.rewardPools?.length > 0) {
@@ -143,37 +153,48 @@ export default async function handler(req, res) {
           // return getPoolRewards(lpFed.strategy?.rewardPools, address, chainId, chainProvider);
         })
       ),
-      Promise.all(
-        FEDS.map(lpFed => {
-          if (!lpFed.incomeSrcAd) {
-            return new Promise((res) => res(BigNumber.from('0')));
-          }
-          const address = lpFed.incomeSrcAd;
-          const chainId = lpFed.incomeChainId || lpFed.chainId;
-          const chainProvider = getProvider(chainId);
-          const dolaContract = new Contract(getToken(CHAIN_TOKENS[chainId], 'DOLA').address!, DOLA_ABI, chainProvider);
-          return dolaContract.balanceOf(address);
-        })
-      ),
+      getCallGroupsOutputs(callGroups, getChainProvider),
     ]);
+
+    // a failing call makes the api return the last cached results, except for the lp prices, lp balances and custom borrows
+    const getRequiredOutputs = (groupIndex: number) => {
+      const outputs = callGroupsOutputs[groupIndex];
+      if (outputs.some(output => output === null || output === undefined)) {
+        throw new Error('fed-overview: a required call failed');
+      }
+      return outputs;
+    }
+
+    const [anDolaBorrows] = getRequiredOutputs(anDolaBorrowsGroup);
+    const fuseDolaBorrowsBn = getRequiredOutputs(fuseBorrowsGroup);
+    const otherCrossFedBorrows = OTHER_FEDS.map((fed, i) => {
+      if (!fed.borrowConfig?.customFunction) {
+        return getRequiredOutputs(otherFedsBorrowsGroups[i])[0];
+      }
+      const outputs = callGroupsOutputs[otherFedsBorrowsGroups[i]];
+      try {
+        return outputs.some(output => output === null || output === undefined) ? BigNumber.from(0) : fed.borrowConfig.customFunction(outputs);
+      } catch (e) {
+        console.error(e);
+        return BigNumber.from(0);
+      }
+    });
+    const lpBalancesBn = lpFedsGroups.map(lpFedGroups => lpFedGroups ? getRequiredOutputs(lpFedGroups.balanceAndSupply)[0] : BigNumber.from('0'));
+    const lpSupplyBn = lpFedsGroups.map(lpFedGroups => lpFedGroups ? getRequiredOutputs(lpFedGroups.balanceAndSupply)[1] : 0);
+    const lpPrices = lpFedsGroups.map(lpFedGroups => {
+      return lpFedGroups?.token ? computeLPPrice(lpFedGroups.token, lpFedGroups.chainId, callGroupsOutputs[lpFedGroups.price], prices) : 0;
+    });
+    const lpSubBalances = lpFedsGroups.map(lpFedGroups => {
+      return lpFedGroups?.token ? computeLPBalances(lpFedGroups.token, lpFedGroups.chainId, callGroupsOutputs[lpFedGroups.subBalances]) : [];
+    });
+    const idleDolaBalances = idleDolaGroups.map(groupIndex => groupIndex !== null ? getRequiredOutputs(groupIndex)[0] : BigNumber.from('0'));
+    const minterRights = callGroupsOutputs[minterRightsGroup];
 
     const fedsData = _fedsData || [];
     const frontierMarkets = frontierData?.markets || [];
     const firmMarkets = firmMarketsData?.markets || [];
     const firmTotalTvl = firmTvlData?.firmTotalTvl || 0;
     const multisigData = _multisigData || [];
-
-    const [minterRights] = await getGroupedMulticallOutputs(
-      [
-        FEDS.map(fed => ({
-          contract: new Contract(DOLA, DOLA_ABI, provider),
-          functionName: 'minters',
-          params: [fed.address],
-          fallbackValue: true,
-        }))
-      ],
-      Number(NetworkIds.mainnet),
-    )
 
     const fedOverviews = FEDS.map((fedConfig, fedIndex) => {
       const fedData = fedsData.find(f => f.address === fedConfig.address);

@@ -540,69 +540,143 @@ const getLPPriceCase = (LPToken: Token) => {
   return 'balances';
 }
 
+// calls to price an LP like getLPPrice, to batch in a multicall
+export const getLPPriceCalls = (LPToken: Token, provider: BaseProvider) => {
+  switch (getLPPriceCase(LPToken)) {
+    case 'crv':
+      return [{ contract: new Contract(LPToken.poolAddress || LPToken.address, DOLA3POOLCRV_ABI, provider), functionName: 'get_virtual_price' }];
+    case 'yearnV2':
+      return [
+        { contract: new Contract(LPToken.rootCrvPool!, DOLA3POOLCRV_ABI, provider), functionName: 'lp_price' },
+        { contract: new Contract(LPToken.address, ['function pricePerShare() public view returns (uint)'], provider), functionName: 'pricePerShare' },
+      ];
+    case 'convex':
+      return [{ contract: new Contract(LPToken.convexInfos!.fromPrice, DOLA3POOLCRV_ABI, provider), functionName: LPToken.convexInfos!.priceField || 'get_virtual_price' }];
+    case 'balances':
+      return [
+        { contract: new Contract(LPToken.address, ERC20_ABI, provider), functionName: 'totalSupply' },
+        ...(LPToken.balancerInfos ?
+          [{ contract: new Contract(LPToken.balancerInfos.vault, BALANCER_VAULT_ABI, provider), functionName: 'getPoolTokens', params: [LPToken.balancerInfos.poolId] }]
+          : LPToken.pairs!.map(address => ({ contract: new Contract(address, ERC20_ABI, provider), functionName: 'balanceOf', params: [LPToken.address] }))
+        ),
+      ];
+    default:
+      return [];
+  }
+}
+
+// LP price from the outputs of its getLPPriceCalls, 0 if a call failed like a failing getLPPrice
+export const computeLPPrice = (LPToken: Token, chainId: string, outputs: any[], prices: { [key: string]: { usd: number } }): number => {
+  if (outputs.some((output: any) => output === null || output === undefined)) {
+    return 0;
+  }
+  try {
+    switch (getLPPriceCase(LPToken)) {
+      case 'fixed':
+        return LPToken.lpPrice!;
+      case 'uniV3':
+        // treat uniV3 nft pos as $1
+        return 1;
+      case 'crv':
+      case 'convex':
+        return getBnToNumber(outputs[0], LPToken.decimals);
+      case 'yearnV2':
+        return getBnToNumber(outputs[0]) * getBnToNumber(outputs[1]);
+    }
+    const tokens = LPToken.pairs!.map(address => CHAIN_TOKENS[chainId][address]);
+    const [lpTokenTotalSupply, ...balancesOutputs] = outputs;
+    // getPoolTokens returns [addresses, balances, lastChangeBlock]
+    const balancesInLp = LPToken.balancerInfos ? balancesOutputs[0][1] : balancesOutputs;
+    const balances: number[] = balancesInLp.map((bn: BigNumber, i: number) => getBnToNumber(bn, tokens[i].decimals));
+    const supply = LPToken.isComposableMetapool ?
+      balances.reduce((prev, curr, idx) => prev + (tokens[idx].address === LPToken.address ? 0 : curr), 0)
+      : getBnToNumber(lpTokenTotalSupply);
+    return tokens.reduce((prev, curr, idx) => {
+      const bal = (tokens[idx].address === LPToken.address ? 0 : balances[idx]);
+      return prev + (bal * (prices[curr.coingeckoId!]?.usd || 1) / supply);
+    }, 0);
+  } catch (e) {
+    return 0;
+  }
+}
+
 // same as getLPPrice for several LPs of a chain, with a single multicall, prices are the coingecko prices
 export const getLPPrices = async (LPTokens: Token[], chainId: string, provider: BaseProvider, prices: { [key: string]: { usd: number } }): Promise<number[]> => {
-  const lpsCalls = LPTokens.map(LPToken => {
-    switch (getLPPriceCase(LPToken)) {
-      case 'crv':
-        return [{ contract: new Contract(LPToken.poolAddress || LPToken.address, DOLA3POOLCRV_ABI, provider), functionName: 'get_virtual_price' }];
-      case 'yearnV2':
-        return [
-          { contract: new Contract(LPToken.rootCrvPool!, DOLA3POOLCRV_ABI, provider), functionName: 'lp_price' },
-          { contract: new Contract(LPToken.address, ['function pricePerShare() public view returns (uint)'], provider), functionName: 'pricePerShare' },
-        ];
-      case 'convex':
-        return [{ contract: new Contract(LPToken.convexInfos!.fromPrice, DOLA3POOLCRV_ABI, provider), functionName: LPToken.convexInfos!.priceField || 'get_virtual_price' }];
-      case 'balances':
-        return [
+  // try mode: a failing call gives a null output
+  const outputs = await getGroupedMulticallOutputs(LPTokens.map(LPToken => getLPPriceCalls(LPToken, provider)), Number(chainId), undefined, provider, true);
+  return LPTokens.map((LPToken, i) => computeLPPrice(LPToken, chainId, outputs[i], prices));
+}
+
+// the getLPBalances cases, in the same order
+const getLPBalancesCase = (LPToken: Token) => {
+  if (!LPToken.pairs) return 'none';
+  else if (LPToken.isCrvLP) return 'crv';
+  else if (LPToken.balancerInfos) return 'balancer';
+  else if (LPToken.isUniV3) return 'uniV3';
+  else if (LPToken.isFusionLP) return 'fusion';
+  return 'reserves';
+}
+
+// calls to get the balances of an LP like getLPBalances, to batch in a multicall
+export const getLPBalancesCalls = (LPToken: Token, provider: BaseProvider) => {
+  switch (getLPBalancesCase(LPToken)) {
+    case 'crv': {
+      const pool = new Contract(LPToken.poolAddress || LPToken.address, DOLA3POOLCRV_ABI, provider);
+      return LPToken.pairs!.map((address, tokenIndex) => ({ contract: pool, functionName: 'balances', params: [tokenIndex] }));
+    }
+    case 'balancer':
+      return [
+        { contract: new Contract(LPToken.balancerInfos!.vault, BALANCER_VAULT_ABI, provider), functionName: 'getPoolTokens', params: [LPToken.balancerInfos!.poolId] },
+        // blp supply and aura lp supply
+        ...(LPToken.protocolImage === PROTOCOL_IMAGES.AURA ? [
+          { contract: new Contract(LPToken.balancerInfos!.poolId.substring(0, 42), ERC20_ABI, provider), functionName: 'totalSupply' },
           { contract: new Contract(LPToken.address, ERC20_ABI, provider), functionName: 'totalSupply' },
-          ...(LPToken.balancerInfos ?
-            [{ contract: new Contract(LPToken.balancerInfos.vault, BALANCER_VAULT_ABI, provider), functionName: 'getPoolTokens', params: [LPToken.balancerInfos.poolId] }]
-            : LPToken.pairs!.map(address => ({ contract: new Contract(address, ERC20_ABI, provider), functionName: 'balanceOf', params: [LPToken.address] }))
-          ),
-        ];
-      default:
-        return [];
-    }
-  });
+        ] : []),
+      ];
+    case 'uniV3':
+      return LPToken.pairs!.map(address => ({ contract: new Contract(address, ERC20_ABI, provider), functionName: 'balanceOf', params: [LPToken.uniV3Pool || LPToken.address] }));
+    case 'fusion':
+      return [{ contract: new Contract(LPToken.address, ['function getTotalAmounts() public view returns (uint,uint)'], provider), functionName: 'getTotalAmounts' }];
+    case 'reserves':
+      return [{ contract: new Contract(LPToken.address, ['function getReserves() public view returns (uint,uint,uint)'], provider), functionName: 'getReserves' }];
+    default:
+      return [];
+  }
+}
 
-  // try mode: a failing call gives a null output and a 0 price for its LP, like a failing getLPPrice
-  const outputs = await getGroupedMulticallOutputs(lpsCalls, Number(chainId), undefined, provider, true);
-
-  return LPTokens.map((LPToken, i) => {
-    const lpOutputs = outputs[i];
-    if (lpOutputs.some((output: any) => output === null || output === undefined)) {
-      return 0;
-    }
-    try {
-      switch (getLPPriceCase(LPToken)) {
-        case 'fixed':
-          return LPToken.lpPrice!;
-        case 'uniV3':
-          // treat uniV3 nft pos as $1
-          return 1;
-        case 'crv':
-        case 'convex':
-          return getBnToNumber(lpOutputs[0], LPToken.decimals);
-        case 'yearnV2':
-          return getBnToNumber(lpOutputs[0]) * getBnToNumber(lpOutputs[1]);
+// LP balances from the outputs of its getLPBalancesCalls, [] if a call failed like a failing getLPBalances
+export const computeLPBalances = (LPToken: Token, chainId: string, outputs: any[]): (Token & { balance: number, perc: number })[] => {
+  if (outputs.some((output: any) => output === null || output === undefined)) {
+    return [];
+  }
+  const tokens = LPToken.pairs?.map(address => CHAIN_TOKENS[chainId][address]) || [];
+  const withPercentages = (_tokens: Token[], balances: number[]) => {
+    const total = balances.reduce((prev, curr) => prev + curr, 0);
+    return _tokens.map((token, i) => ({ ...token, balance: balances[i], perc: total > 0 ? balances[i] / total * 100 : 0 }));
+  }
+  try {
+    switch (getLPBalancesCase(LPToken)) {
+      case 'crv':
+      case 'uniV3':
+        return withPercentages(tokens, outputs.map((bn: BigNumber, i: number) => getBnToNumber(bn, tokens[i].decimals)));
+      case 'balancer': {
+        // getPoolTokens returns [addresses, balances, lastChangeBlock]
+        const [[, balancesBn], balSupply, auraSupply] = outputs;
+        const subShareFactor = LPToken.protocolImage === PROTOCOL_IMAGES.AURA ? getBnToNumber(auraSupply) / getBnToNumber(balSupply) : 1;
+        const bpPool = LPToken.balancerInfos!.poolId.substring(0, 42);
+        const _balances: number[] = balancesBn.map((bn: BigNumber, i: number) => getBnToNumber(bn, tokens[i]?.decimals || 18) * subShareFactor);
+        // balancer composable metapools contain the LP itself, we can skip it for our calc
+        const balances = _balances.filter((v, i) => tokens[i].address?.toLowerCase() !== bpPool?.toLowerCase());
+        return withPercentages(tokens.filter(token => token.address.toLowerCase() !== bpPool.toLowerCase()), balances);
       }
-      const tokens = LPToken.pairs!.map(address => CHAIN_TOKENS[chainId][address]);
-      const [lpTokenTotalSupply, ...balancesOutputs] = lpOutputs;
-      // getPoolTokens returns [addresses, balances, lastChangeBlock]
-      const balancesInLp = LPToken.balancerInfos ? balancesOutputs[0][1] : balancesOutputs;
-      const balances: number[] = balancesInLp.map((bn: BigNumber, i: number) => getBnToNumber(bn, tokens[i].decimals));
-      const supply = LPToken.isComposableMetapool ?
-        balances.reduce((prev, curr, idx) => prev + (tokens[idx].address === LPToken.address ? 0 : curr), 0)
-        : getBnToNumber(lpTokenTotalSupply);
-      return tokens.reduce((prev, curr, idx) => {
-        const bal = (tokens[idx].address === LPToken.address ? 0 : balances[idx]);
-        return prev + (bal * (prices[curr.coingeckoId!]?.usd || 1) / supply);
-      }, 0);
-    } catch (e) {
-      return 0;
+      case 'fusion':
+      case 'reserves':
+        return withPercentages(tokens, outputs[0].slice(0, 2).map((bn: BigNumber, i: number) => getBnToNumber(bn, tokens[i].decimals)));
     }
-  });
+  } catch (e) {
+    console.log(e);
+  }
+  return [];
 }
 
 export const disperseEther =(params: { address: string, value: string }[], signer: JsonRpcSigner) => {

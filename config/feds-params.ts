@@ -1,6 +1,6 @@
 import { FedTypes, NetworkIds } from "@app/types";
 import { TOKEN_IMAGES } from "@app/variables/images";
-import { BigNumber, Contract } from "ethers";
+import { BigNumber } from "ethers";
 import { PSM_ADDRESS } from "./constants";
 
 export const FEDS_PARAMS = [
@@ -471,18 +471,9 @@ export const FEDS_PARAMS = [
             contractAddress: '0x31426271449F60d37Cc5C9AEf7bD12aF3BdC7A94',
             abi: ["function totalBorrowed() view returns (uint)", "function totalAssets() view returns (uint)"],
             functionName: 'totalBorrowed',
-            customFunction: async (contract: Contract, fedContract: Contract) => {
-                try {
-                    const [totalBorrowed, totalAssets, lentByFed] = await Promise.all([
-                        contract.totalBorrowed(),
-                        contract.totalAssets(),
-                        fedContract.supply(),
-                    ]);
-                    return totalBorrowed.mul(lentByFed).div(totalAssets);
-                } catch (e) {
-                    console.error(e);
-                    return BigNumber.from(0);
-                }
+            customCalls: [{ functionName: 'totalBorrowed' }, { functionName: 'totalAssets' }, { functionName: 'supply', onFed: true }],
+            customFunction: ([totalBorrowed, totalAssets, lentByFed]: BigNumber[]) => {
+                return totalBorrowed.mul(lentByFed).div(totalAssets);
             }
         },
     },
@@ -499,17 +490,9 @@ export const FEDS_PARAMS = [
             contractAddress: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
             abi: ["function balanceOf(address) view returns (uint)"],
             functionName: 'balanceOf',
-            customFunction: async (contract: Contract, fedContract: Contract) => {
-                try {
-                    const [dolaBalInPSM, supplied] = await Promise.all([
-                        contract.balanceOf(PSM_ADDRESS),
-                        fedContract.supply(),
-                    ]);
-                    return supplied.sub(dolaBalInPSM);
-                } catch (e) {
-                    console.error(e);
-                    return BigNumber.from(0);
-                }
+            customCalls: [{ functionName: 'balanceOf', params: [PSM_ADDRESS] }, { functionName: 'supply', onFed: true }],
+            customFunction: ([dolaBalInPSM, supplied]: BigNumber[]) => {
+                return supplied.sub(dolaBalInPSM);
             }
         },
     },
