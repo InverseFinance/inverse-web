@@ -15,7 +15,7 @@ import { pricesCacheKey } from './prices';
 
 const { F2_MARKETS, DOLA } = getNetworkConfigConstants();
 
-export const FIRM_POSITIONS_BREAKDOWN_CACHE_KEY = 'firm-positions-breakdown-v1.1.0';
+export const FIRM_POSITIONS_BREAKDOWN_CACHE_KEY = 'firm-positions-breakdown-v1.1.1';
 // max age of the cached firm-positions data, in seconds, fresh data is fetched otherwise
 const POSITIONS_MAX_AGE = 1800;
 // tokens counted in the dola percentage of the LPs

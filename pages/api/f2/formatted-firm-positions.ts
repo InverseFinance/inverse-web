@@ -8,7 +8,7 @@ const { F2_MARKETS } = getNetworkConfigConstants();
 
 // external use in spreadsheet
 export default async function handler(req, res) {
-    const cacheKey = `formatted-firm-positions-v1.0.0`;
+    const cacheKey = `formatted-firm-positions-v1.0.1`;
     const cacheDuration = 300;
 
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
