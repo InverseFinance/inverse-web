@@ -1,4 +1,4 @@
-import { JsonRpcSigner, Web3Provider, FallbackProvider, Provider } from '@ethersproject/providers'
+import { JsonRpcSigner, Web3Provider, FallbackProvider, Provider, BaseProvider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 import {
   COMPTROLLER_ABI,
@@ -30,7 +30,7 @@ import { CHAIN_TOKENS } from '@app/variables/tokens'
 import { getBnToNumber } from './markets'
 import { BigNumber, BigNumberish } from 'ethers'
 import { PROTOCOL_IMAGES } from '@app/variables/images'
-import { getMulticallOutput } from './multicall'
+import { getGroupedMulticallOutputs, getMulticallOutput } from './multicall'
 
 const { DEBT_CONVERTER, DOLA3POOLCRV, DOLAFRAXCRV } = getNetworkConfigConstants();
 
@@ -530,7 +530,82 @@ export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBL
   return lpPrice;
 }
 
-export const disperseEther = (params: { address: string, value: string }[], signer: JsonRpcSigner) => {
+// the getLPPrice cases, in the same order
+const getLPPriceCase = (LPToken: Token) => {
+  if (LPToken.lpPrice) return 'fixed';
+  else if (LPToken.isCrvLP) return 'crv';
+  else if (LPToken.isYearnV2LP) return 'yearnV2';
+  else if (LPToken.convexInfos) return 'convex';
+  else if (LPToken.isUniV3) return 'uniV3';
+  return 'balances';
+}
+
+// same as getLPPrice for several LPs of a chain, with a single multicall, prices are the coingecko prices
+export const getLPPrices = async (LPTokens: Token[], chainId: string, provider: BaseProvider, prices: { [key: string]: { usd: number } }): Promise<number[]> => {
+  const lpsCalls = LPTokens.map(LPToken => {
+    switch (getLPPriceCase(LPToken)) {
+      case 'crv':
+        return [{ contract: new Contract(LPToken.poolAddress || LPToken.address, DOLA3POOLCRV_ABI, provider), functionName: 'get_virtual_price' }];
+      case 'yearnV2':
+        return [
+          { contract: new Contract(LPToken.rootCrvPool!, DOLA3POOLCRV_ABI, provider), functionName: 'lp_price' },
+          { contract: new Contract(LPToken.address, ['function pricePerShare() public view returns (uint)'], provider), functionName: 'pricePerShare' },
+        ];
+      case 'convex':
+        return [{ contract: new Contract(LPToken.convexInfos!.fromPrice, DOLA3POOLCRV_ABI, provider), functionName: LPToken.convexInfos!.priceField || 'get_virtual_price' }];
+      case 'balances':
+        return [
+          { contract: new Contract(LPToken.address, ERC20_ABI, provider), functionName: 'totalSupply' },
+          ...(LPToken.balancerInfos ?
+            [{ contract: new Contract(LPToken.balancerInfos.vault, BALANCER_VAULT_ABI, provider), functionName: 'getPoolTokens', params: [LPToken.balancerInfos.poolId] }]
+            : LPToken.pairs!.map(address => ({ contract: new Contract(address, ERC20_ABI, provider), functionName: 'balanceOf', params: [LPToken.address] }))
+          ),
+        ];
+      default:
+        return [];
+    }
+  });
+
+  // try mode: a failing call gives a null output and a 0 price for its LP, like a failing getLPPrice
+  const outputs = await getGroupedMulticallOutputs(lpsCalls, Number(chainId), undefined, provider, true);
+
+  return LPTokens.map((LPToken, i) => {
+    const lpOutputs = outputs[i];
+    if (lpOutputs.some((output: any) => output === null || output === undefined)) {
+      return 0;
+    }
+    try {
+      switch (getLPPriceCase(LPToken)) {
+        case 'fixed':
+          return LPToken.lpPrice!;
+        case 'uniV3':
+          // treat uniV3 nft pos as $1
+          return 1;
+        case 'crv':
+        case 'convex':
+          return getBnToNumber(lpOutputs[0], LPToken.decimals);
+        case 'yearnV2':
+          return getBnToNumber(lpOutputs[0]) * getBnToNumber(lpOutputs[1]);
+      }
+      const tokens = LPToken.pairs!.map(address => CHAIN_TOKENS[chainId][address]);
+      const [lpTokenTotalSupply, ...balancesOutputs] = lpOutputs;
+      // getPoolTokens returns [addresses, balances, lastChangeBlock]
+      const balancesInLp = LPToken.balancerInfos ? balancesOutputs[0][1] : balancesOutputs;
+      const balances: number[] = balancesInLp.map((bn: BigNumber, i: number) => getBnToNumber(bn, tokens[i].decimals));
+      const supply = LPToken.isComposableMetapool ?
+        balances.reduce((prev, curr, idx) => prev + (tokens[idx].address === LPToken.address ? 0 : curr), 0)
+        : getBnToNumber(lpTokenTotalSupply);
+      return tokens.reduce((prev, curr, idx) => {
+        const bal = (tokens[idx].address === LPToken.address ? 0 : balances[idx]);
+        return prev + (bal * (prices[curr.coingeckoId!]?.usd || 1) / supply);
+      }, 0);
+    } catch (e) {
+      return 0;
+    }
+  });
+}
+
+export const disperseEther =(params: { address: string, value: string }[], signer: JsonRpcSigner) => {
   const { DISPERSE_APP } = getNetworkConfigConstants();
   const contract = new Contract(DISPERSE_APP, DISPERSE_APP_ABI, signer);
   const addresses = params.map(p => p.address);

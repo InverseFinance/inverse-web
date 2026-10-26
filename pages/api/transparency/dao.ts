@@ -216,33 +216,39 @@ export default async function handler(req, res) {
     //   await redisSetWithTimestamp(cacheMulBalKey, multisigsBalanceValues);
     // }
 
-    const multisigAllCache = await getCacheFromRedis(cacheMulAllKey, true, 300);
-    const multisigsAllowanceValues: BigNumber[][] = multisigAllCache?.map(bns => bns.map(bn => BigNumber.from(bn))) || ((await Promise.all([
-      ...multisigsToShow.map((m) => {
-        const provider = getProvider(m.chainId);
+    const multisigAllCache = await getCacheFromRedis(cacheMulAllKey, true, ONE_DAY_SECS);
+    let multisigsAllowanceValues: BigNumber[][] = multisigAllCache?.map(bns => bns.map(bn => BigNumber.from(bn)));
+    if (!multisigsAllowanceValues) {
+      const allowanceChainIds = [...new Set(multisigsToShow.map(m => m.chainId))];
+      const allowanceProviders = Object.fromEntries(allowanceChainIds.map(chainId => [chainId, getProvider(chainId)]));
+      const allowanceRequests = multisigsToShow.map((m) => {
         const chainFundsToCheck = multisigsFundsToCheck[m.chainId];
-        return Promise.allSettled(
-          chainFundsToCheck.map(tokenAddress => {
-            const token = CHAIN_TOKENS[m.chainId][tokenAddress]
-            const isTWGtype = m.shortName.includes('TWG');
-            if (
-              // reduce numbers of check
-              (!isTWGtype && m.shortName !== 'BBP' && !['DOLA', 'INV', 'DBR'].includes(token?.symbol))
-              || (m.shortName === 'BBP' && !['DOLA', 'INV', 'USDC', 'USDT', 'DAI'].includes(token?.symbol))
-              || (['TWG on FTM', 'TWG on OP', 'TWG on BSC', 'TWG on ARB 1', 'TWG on ARB 2', 'AWG', 'RWG', 'FedChair'].includes(m.shortName))
-              // skip yearn vaults
-              || token?.symbol?.startsWith('yv')
-            ) {
-              return new Promise((res) => res(BigNumber.from('0')));
-            } else {
-              const contract = new Contract(tokenAddress, ERC20_ABI, provider);
-              return contract.allowance(TREASURY, m.address);
-            }
-          })
-        )
-      })
-    ])).map(m => m.map(a => a.status === 'fulfilled' ? a.value : BigNumber.from('0'))));
-    if (!multisigAllCache) {
+        return chainFundsToCheck.map(tokenAddress => {
+          const token = CHAIN_TOKENS[m.chainId][tokenAddress]
+          const isTWGtype = m.shortName.includes('TWG');
+          const isSkipped = (
+            // reduce numbers of check
+            (!isTWGtype && m.shortName !== 'BBP' && !['DOLA', 'INV', 'DBR'].includes(token?.symbol))
+            || (m.shortName === 'BBP' && !['DOLA', 'INV', 'USDC', 'USDT', 'DAI'].includes(token?.symbol))
+            || (['TWG on FTM', 'TWG on OP', 'TWG on BSC', 'TWG on ARB 1', 'TWG on ARB 2', 'AWG', 'RWG', 'FedChair'].includes(m.shortName))
+            // skip yearn vaults
+            || token?.symbol?.startsWith('yv')
+          );
+          const contract = new Contract(tokenAddress, ERC20_ABI, allowanceProviders[m.chainId]);
+          return { contract, functionName: 'allowance', params: [TREASURY, m.address], forceFallback: isSkipped, fallbackValue: BigNumber.from('0') };
+        });
+      });
+      // one multicall per chain, in try mode: a failing allowance call returns 0
+      const chainsAllowanceValues = await Promise.all(allowanceChainIds.map(chainId => {
+        const chainRequests = allowanceRequests.filter((requests, i) => multisigsToShow[i].chainId === chainId);
+        return chainRequests.flat().every((r: { forceFallback: boolean }) => r.forceFallback) ?
+          chainRequests.map(requests => requests.map((r: { fallbackValue: BigNumber }) => r.fallbackValue)) :
+          getGroupedMulticallOutputs(chainRequests, Number(chainId), undefined, allowanceProviders[chainId], true);
+      }));
+      multisigsAllowanceValues = multisigsToShow.map((m) => {
+        const chainMultisigs = multisigsToShow.filter(cm => cm.chainId === m.chainId);
+        return chainsAllowanceValues[allowanceChainIds.indexOf(m.chainId)][chainMultisigs.indexOf(m)];
+      });
       await redisSetWithTimestamp(cacheMulAllKey, multisigsAllowanceValues);
     }
 

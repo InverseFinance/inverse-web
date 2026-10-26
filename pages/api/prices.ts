@@ -2,7 +2,8 @@ import 'source-map-support'
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds, Prices, Token } from '@app/types'
 import { CHAIN_TOKENS } from '@app/variables/tokens'
-import { getLPPrice } from '@app/util/contracts'
+import { getLPPrices } from '@app/util/contracts'
+import { getGroupedMulticallOutputs } from '@app/util/multicall'
 import { getProvider } from '@app/util/providers'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { COMPTROLLER_ABI, ORACLE_ABI, SVAULT_ABI } from '@app/config/abis'
@@ -51,12 +52,15 @@ export default async function handler(req, res) {
         // && !UNDERLYING[address]?.pairs?.length
       );
 
-    const oraclePrices = await Promise.all([
-      ...markets.map(address => oracle.getUnderlyingPrice(address))
-    ]);
+    const sUSDSContract = new Contract('0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD', SVAULT_ABI, provider);
+
+    const [oraclePrices, [sUSDSExRateBn]] = await getGroupedMulticallOutputs([
+      markets.map(address => ({ contract: oracle, functionName: 'getUnderlyingPrice', params: [address] })),
+      [{ contract: sUSDSContract, functionName: 'convertToAssets', params: ['1000000000000000000'] }],
+    ], 1, undefined, provider);
 
     oraclePrices
-      .forEach((v, i) => {
+      .forEach((v: BigNumber, i: number) => {
         const underlying = UNDERLYING[markets[i]];
         const price = parseFloat(formatUnits(v, BigNumber.from(36).sub(underlying.decimals)));
         prices[underlying.symbol] = price;
@@ -101,12 +105,9 @@ export default async function handler(req, res) {
       prices[key] = value.usd;
     });
 
-    const sUSDSContract = new Contract('0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD', SVAULT_ABI, provider);
-
-    const [dolaUsdCurveData, jrDolaData, sUSDSExRateBn] = await Promise.all([
+    const [dolaUsdCurveData, jrDolaData] = await Promise.all([
       getDolaUsdPriceOnCurve(getProvider(NetworkIds.mainnet)),
       getCacheFromRedis(jdolaStakingCacheKey, false),
-      sUSDSContract.convertToAssets('1000000000000000000'),
     ]);
 
     const { price: chainlinkDolaUsdPrice } = dolaUsdCurveData;
@@ -126,12 +127,8 @@ export default async function handler(req, res) {
           })
       })
    
-    const lpDataResults = await Promise.allSettled([
-      ...lps.map(lp => {
-        return getLPPrice(lp.token, lp.chainId, getProvider(lp.chainId), geckoPrices);
-      })
-    ]);
-    const lpData = lpDataResults.map(r => r.status === 'fulfilled' ? r.value : null);
+    // mainnet LPs only, all priced with a single multicall
+    const lpData = await getLPPrices(lps.map(lp => lp.token), NetworkIds.mainnet, provider, geckoPrices);
 
     lps.forEach((lpToken, i) => {
       if (lpData[i]) {
