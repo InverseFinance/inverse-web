@@ -313,6 +313,9 @@ const chainTokenAddresses = {
     AERODOLAUSDBCLP: '0x0B25c51637c43decd6CC1C1e3da4518D54ddb528',
     VEAERO: '0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4',
     AERO: '0x940181a94A35A4569E4529A3CDfB74e38FD98631',
+    // Aero token and its veNft after the Aerodrome and Velodrome migration
+    AEROV2: '0x3f5bF3EdAc59d650D8fDf9657a71F2f904A3a4Ee',
+    SAERO: '0xBF7977E1521e9a3032bf7243Ee4712f311f13915',
     USDPLUS: '0xB79DD08EA68A908A97220C76d19A6aA9cBDE4376',
     AERODOLAUSDPLUS: '0x8E9154AC849e839d60299E85156bcb589De2693A',
     AERODOLAUSDCLP: '0xf213F2D02837012dC0236cC105061e121bB03e37',
@@ -3332,6 +3335,25 @@ const chainTokens = {
       decimals: 18,
       coingeckoId: 'aerodrome-finance',
       veNftId: '7',
+    },
+    [chainTokenAddresses["8453"].AEROV2]: {
+      address: chainTokenAddresses["8453"].AEROV2,
+      name: 'Aero',
+      symbol: 'AERO',
+      image: TOKEN_IMAGES.AERO,
+      decimals: 18,
+      coingeckoId: 'aero',
+    },
+    // veAERO 7 and veVELO 4130 (Optimism) were migrated to these sAERO nfts
+    [chainTokenAddresses["8453"].SAERO]: {
+      address: chainTokenAddresses["8453"].SAERO,
+      name: 'sAERO',
+      symbol: 'sAERO',
+      image: TOKEN_IMAGES.AERO,
+      decimals: 18,
+      coingeckoId: 'aero',
+      veNftIds: ['8305', '8232'],
+      isStakedVeNft: true,
     },
     [chainTokenAddresses["8453"].AERODOLAMAILP]: {
       address: chainTokenAddresses["8453"].AERODOLAMAILP,

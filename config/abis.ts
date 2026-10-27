@@ -665,6 +665,9 @@ export const VE_NFT_ABI = [
   "function tokenOfOwnerByIndex(address _owner, uint256 _tokenIndex) view returns (uint256)",
   "function locked(uint256 _tokenId) view returns (tuple(int128 amount, uint256 end))",
   "function balanceOfNFT(uint) public view returns (uint)",
+  // VotingEscrow v3 (sAERO)
+  "function staked(uint256 _tokenId) view returns (tuple(uint128 amount, uint48 end, bool isPermanent))",
+  "function balanceOfNFTAt(uint256 _tokenId, uint256 _t) view returns (uint256)",
 ]
 
 export const PSM_ABI = [
