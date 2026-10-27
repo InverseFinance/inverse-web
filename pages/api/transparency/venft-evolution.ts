@@ -1,16 +1,16 @@
 import 'source-map-support'
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
-import { NetworkIds } from '@app/types';
-import { CHAIN_TOKENS } from '@app/variables/tokens';
+import { NetworkIds, Token } from '@app/types';
+import { CHAIN_TOKENS, CHAIN_TOKEN_ADDRESSES } from '@app/variables/tokens';
 import { ARCHIVED_UTC_DATES_BLOCKS } from '@app/fixtures/utc-dates-blocks';
 import { DAILY_UTC_CACHE_KEY } from '../cron-daily-block-timestamp';
 import { getBnToNumber, getHistoricalTokenData } from '@app/util/markets';
 import { getMulticallOutput } from '@app/util/multicall';
-import { Contract } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import { VE_NFT_ABI } from '@app/config/abis';
 import { getHistoricalProvider, getProvider } from '@app/util/providers';
-import { getOrClosest, timestampToUTC } from '@app/util/misc';
-import { ONE_DAY_SECS } from '@app/config/constants';
+import { getOrClosest, timestampToUTC, utcDateStringToTimestamp } from '@app/util/misc';
+import { ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
 import { cgPricesCacheKey } from '../prices';
 
 const startingBlocks = {
@@ -19,6 +19,58 @@ const startingBlocks = {
   [NetworkIds.base]: 3200584,
   [NetworkIds.bsc]: 24435328,
   [NetworkIds.arbitrum]: 69988101,
+}
+
+// tokens with one veNft id or several (veNftIds)
+const isVeNftToken = ({ veNftId, veNftIds }: Token) => !!veNftId || (veNftIds?.length || 0) > 0;
+
+// staked veNfts with an evolution backfilled since a starting date: the veAERO and veVELO nfts were migrated to the sAERO nfts on 2026-10-22
+const stakedVeNftsStartingDates = {
+  [CHAIN_TOKEN_ADDRESSES[NetworkIds.base].SAERO]: '2026-10-23',
+}
+
+// adds the missing daily points of a staked veNft from its starting date until yesterday, today's point is added with the current values
+const getBackfilledEvolution = async (token: Token & { chainId: string }, evolution: any[], utcDateNow: string) => {
+  const startingDate = stakedVeNftsStartingDates[token.address];
+  if (!token.isStakedVeNft || !startingDate) {
+    return evolution;
+  }
+  const missingDates: string[] = [];
+  for (let ts = utcDateStringToTimestamp(startingDate); ts < utcDateStringToTimestamp(utcDateNow); ts += ONE_DAY_MS) {
+    const date = timestampToUTC(ts);
+    if (!evolution.find(e => e.date === date)) {
+      missingDates.push(date);
+    }
+  }
+  if (!missingDates.length) {
+    return evolution;
+  }
+  const veNftIds = token.veNftIds!;
+  const contract = new Contract(token.address, VE_NFT_ABI, getProvider(token.chainId));
+  const [histoData, votingPowers, utcKeyBlocksCache] = await Promise.all([
+    getHistoricalTokenData(token.coingeckoId!, utcDateStringToTimestamp(missingDates[0]) / 1000 - ONE_DAY_SECS, utcDateStringToTimestamp(utcDateNow) / 1000),
+    // the voting power of a permanent lock is its staked amount, no archive call needed
+    getMulticallOutput(
+      missingDates.flatMap(date => veNftIds.map(id => ({ contract, functionName: 'balanceOfNFTAt', params: [id, utcDateStringToTimestamp(date) / 1000] }))),
+      Number(token.chainId),
+    ),
+    getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, false),
+  ]);
+  const histoPrices: [number, number][] = histoData?.prices || [];
+  // failed calls are null in the multicall output, the backfill is retried next time instead of saving 0 balances
+  if (!histoPrices.length || votingPowers.some((v: BigNumber | null) => !v)) {
+    return evolution;
+  }
+  const newData = missingDates.map((date, i) => {
+    const dateTs = utcDateStringToTimestamp(date);
+    // the price closest to the start of the day, like the daily snapshots
+    const [, price] = histoPrices.reduce((closest, curr) => Math.abs(curr[0] - dateTs) < Math.abs(closest[0] - dateTs) ? curr : closest);
+    const balance = votingPowers
+      .slice(i * veNftIds.length, (i + 1) * veNftIds.length)
+      .reduce((prev: number, curr: BigNumber) => prev + getBnToNumber(curr, token.decimals), 0);
+    return { block: utcKeyBlocksCache?.data?.[token.chainId]?.[date] || null, date, balance, price };
+  });
+  return [...evolution, ...newData].sort((a, b) => a.date < b.date ? -1 : 1);
 }
 
 // TODO: refacto historical script part to another file
@@ -47,16 +99,16 @@ export default async function handler(req, res) {
       //   .values(CHAIN_TOKENS[NetworkIds.mainnet]).filter(({ veNftId }) => !!veNftId)
       //   .map((lp) => ({ chainId: NetworkIds.mainnet, ...lp })),
       ...Object
-        .values(CHAIN_TOKENS[NetworkIds.optimism]).filter(({ veNftId }) => !!veNftId)
+        .values(CHAIN_TOKENS[NetworkIds.optimism]).filter(isVeNftToken)
         .map((lp) => ({ chainId: NetworkIds.optimism, ...lp })),
       ...Object
-        .values(CHAIN_TOKENS[NetworkIds.base]).filter(({ veNftId }) => !!veNftId)
+        .values(CHAIN_TOKENS[NetworkIds.base]).filter(isVeNftToken)
         .map((lp) => ({ chainId: NetworkIds.base, ...lp })),
       ...Object
-        .values(CHAIN_TOKENS[NetworkIds.bsc]).filter(({ veNftId }) => !!veNftId)
+        .values(CHAIN_TOKENS[NetworkIds.bsc]).filter(isVeNftToken)
         .map((lp) => ({ chainId: NetworkIds.bsc, ...lp })),
       ...Object
-        .values(CHAIN_TOKENS[NetworkIds.arbitrum]).filter(({ veNftId }) => !!veNftId)
+        .values(CHAIN_TOKENS[NetworkIds.arbitrum]).filter(isVeNftToken)
         .map((lp) => ({ chainId: NetworkIds.arbitrum, ...lp })),
       // ...Object
       //   .values(CHAIN_TOKENS[NetworkIds.polygon]).filter(({ veNftId }) => !!veNftId)
@@ -71,7 +123,11 @@ export default async function handler(req, res) {
 
     for (let token of veNfts) {
       const archivedEvolution = cachedData?.veNfts?.find(_t => _t.address === token.address)?.evolution || [];
-      token.evolution = archivedEvolution;
+      // if the backfill fails the daily snapshot still happens, the backfill is retried next time
+      token.evolution = await getBackfilledEvolution(token, archivedEvolution, utcDateNow).catch(e => {
+        console.error(e);
+        return archivedEvolution;
+      });
 
       // if ((!!updateChainId && token.chainId !== updateChainId) || !updateChainId || !utcKeyBlockValues[token.chainId]) {        
       //   continue;
@@ -123,6 +179,11 @@ export default async function handler(req, res) {
       Promise.all(
         veNfts.map(veNft => {
           const contract = new Contract(veNft.address, VE_NFT_ABI, getProvider(veNft.chainId));
+          // VotingEscrow v3: amounts are in staked(), the amounts of the veNftIds are summed (in an array like a locked() output)
+          if (veNft.isStakedVeNft) {
+            return Promise.all(veNft.veNftIds!.map(id => contract.staked(id)))
+              .then(stakes => [stakes.reduce((prev, curr) => prev.add(curr.amount), BigNumber.from('0'))]);
+          }
           return contract['locked'](veNft.veNftId);
         })
       ),

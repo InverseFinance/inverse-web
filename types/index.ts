@@ -48,7 +48,11 @@ export interface Token {
   protocolImage?: string,
   order?: number
   veNftId?: string
+  // several veNfts of the same contract
+  veNftIds?: string[]
   isLockedVeNft?: boolean
+  // VotingEscrow v3 (sAERO): the locked amounts are in staked() instead of locked()
+  isStakedVeNft?: boolean
   twgAddress?: string
   deduce?: string[]
   defillamaPoolId?: string
