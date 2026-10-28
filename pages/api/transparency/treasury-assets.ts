@@ -8,9 +8,11 @@ import { Multisig, NetworkIds, Token } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_TOKENS, CHAIN_TOKEN_ADDRESSES } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
-import { getGroupedMulticallOutputs } from '@app/util/multicall';
+import { BaseProvider } from '@ethersproject/providers';
+import { getGroupedMulticallOutputs, getMulticallOutput } from '@app/util/multicall';
 import { fetchZerionWithRetry } from '@app/util/zerion';
 import { timestampToUTC } from '@app/util/misc';
+import { PROTOCOL_IMAGES, TOKEN_IMAGES } from '@app/variables/images';
 import { liquidityCacheKey } from './liquidity';
 import { getPayrollData } from './compensations';
 
@@ -27,6 +29,60 @@ const ANCHOR_RESERVES_TO_CHECK = [
   '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326',
   '0xde2af899040536884e062D3a334F2dD36F34b4a4',
 ];
+
+// Aero (unified Aerodrome & Velodrome protocol) DOLA-USDC concentrated liquidity pool on mainnet, its gauge and positions nft
+const AERO_DOLA_USDC_POOL = '0x8751b7494B206c73A49BA034225EF36466569545';
+const AERO_DOLA_USDC_GAUGE = '0x6dc4417b7Ff0dE51aa106bB33B854A9980a6dFC1';
+const AERO_CL_POSITIONS_NFT = '0x4857DB576eE0e45F10525eC59527BfD10beeC60b';
+
+// zerion does not price the SwanDAO token and its staked version (1:1), they are valued at the Curve SWAN/WETH pool price
+const SWAN = '0xd0a32f6d4850f9d6df7d4f8f84af1fcd3cf993cc';
+const SSWAN = '0xcbc108384e874d9b0436ade3918685baa709e48c';
+const SWAN_WETH_CURVE_POOL = '0xffb7f90354c496210c471459133da2e452d8138a';
+
+// token amounts of a concentrated liquidity position (uniswap v3 math)
+const getClPositionAmounts = (liquidity: BigNumber, tickLower: number, tickUpper: number, sqrtPriceX96: BigNumber) => {
+  const L = getBnToNumber(liquidity, 0);
+  const [sqrtA, sqrtB] = [tickLower, tickUpper].map(tick => Math.sqrt(1.0001 ** tick));
+  // current price bounded to the position range
+  const sqrtP = Math.min(Math.max(getBnToNumber(sqrtPriceX96, 0) / 2 ** 96, sqrtA), sqrtB);
+  return [L * (sqrtB - sqrtP) / (sqrtP * sqrtB), L * (sqrtP - sqrtA)];
+}
+
+// the account positions in the Aero DOLA-USDC pool, staked in the gauge or not
+const getAeroDolaUsdcPositions = async (account: string, provider: BaseProvider): Promise<{ id: string, dolaAmount: number, usdcAmount: number }[]> => {
+  const nft = new Contract(AERO_CL_POSITIONS_NFT, [
+    'function balanceOf(address) view returns (uint256)',
+    'function tokenOfOwnerByIndex(address, uint256) view returns (uint256)',
+    'function positions(uint256) view returns (uint96 nonce, address operator, address token0, address token1, int24 tickSpacing, int24 tickLower, int24 tickUpper, uint128 liquidity, uint256 feeGrowthInside0LastX128, uint256 feeGrowthInside1LastX128, uint128 tokensOwed0, uint128 tokensOwed1)',
+  ], provider);
+  const gauge = new Contract(AERO_DOLA_USDC_GAUGE, ['function stakedValues(address) view returns (uint256[])'], provider);
+  const pool = new Contract(AERO_DOLA_USDC_POOL, ['function slot0() view returns (uint160 sqrtPriceX96, int24 tick, uint16, uint16, uint16, bool)'], provider);
+  const [stakedIds, nbUnstaked, slot0] = await getMulticallOutput([
+    { contract: gauge, functionName: 'stakedValues', params: [account] },
+    { contract: nft, functionName: 'balanceOf', params: [account] },
+    { contract: pool, functionName: 'slot0' },
+  ], 1, undefined, provider);
+  const unstakedIds = nbUnstaked.gt(0) ? await getMulticallOutput(
+    [...Array(nbUnstaked.toNumber()).keys()].map(i => ({ contract: nft, functionName: 'tokenOfOwnerByIndex', params: [account, i] })),
+    1, undefined, provider,
+  ) : [];
+  const ids: BigNumber[] = [...stakedIds, ...unstakedIds];
+  if (!ids.length) {
+    return [];
+  }
+  const positions: any[] = await getMulticallOutput(ids.map(id => ({ contract: nft, functionName: 'positions', params: [id] })), 1, undefined, provider);
+  const [dola, usdc] = [CHAIN_TOKEN_ADDRESSES[NetworkIds.mainnet].DOLA, CHAIN_TOKEN_ADDRESSES[NetworkIds.mainnet].USDC]
+    .map(address => CHAIN_TOKENS[NetworkIds.mainnet][address]);
+  return positions
+    .map((p, i) => ({ ...p, id: ids[i].toString() }))
+    // the unstaked nfts can be positions of other pools
+    .filter(p => p.token0 === dola.address && p.token1 === usdc.address && p.tickSpacing === 1 && p.liquidity.gt(0))
+    .map(p => {
+      const [dolaAmount, usdcAmount] = getClPositionAmounts(p.liquidity, p.tickLower, p.tickUpper, slot0.sqrtPriceX96);
+      return { id: p.id, dolaAmount: dolaAmount / 10 ** dola.decimals, usdcAmount: usdcAmount / 10 ** usdc.decimals };
+    });
+}
 
 const calcStables = (multisigs: Multisig[], treasury: Token[], anchorReserves: Token[], prices = {}) => {
   const TWGmultisigs = multisigs?.filter(m => m.shortName.includes('TWG') && m.chainId !== NetworkIds.ftm) || [];
@@ -133,12 +189,20 @@ export default async function handler(req, res) {
 
     const mainnetTokens = CHAIN_TOKEN_ADDRESSES["1"];
 
-    const [anchorReserves] = await getGroupedMulticallOutputs([
-      ANCHOR_TOKENS.map((ad: string) => {
-        const contract = new Contract(ad, CTOKEN_ABI, provider);
-        return { contract, functionName: 'totalReserves', params: [], forceFallback: !ANCHOR_RESERVES_TO_CHECK.includes(ad), fallbackValue: BigNumber.from('0') };
-      })
+    const [[anchorReserves, [swanWethPrice]], prices] = await Promise.all([
+      getGroupedMulticallOutputs([
+        ANCHOR_TOKENS.map((ad: string) => {
+          const contract = new Contract(ad, CTOKEN_ABI, provider);
+          return { contract, functionName: 'totalReserves', params: [], forceFallback: !ANCHOR_RESERVES_TO_CHECK.includes(ad), fallbackValue: BigNumber.from('0') };
+        }),
+        // ema price of SWAN in WETH (pool coins: WETH, SWAN)
+        [{ contract: new Contract(SWAN_WETH_CURVE_POOL, ['function price_oracle() view returns (uint256)'], provider), functionName: 'price_oracle' }],
+      ]),
+      fetch('https://www.inverse.finance/api/prices?cacheFirst=true').then(res => res.json()),
     ]);
+
+    const swanPrice = getBnToNumber(swanWethPrice) * prices['weth'];
+    const zerionFallbackPrices = { [SWAN]: swanPrice, [SSWAN]: swanPrice };
 
     const multisigsFundsToCheck = {
       [NetworkIds.mainnet]: Object.keys(CHAIN_TOKENS[NetworkIds.mainnet])
@@ -156,19 +220,20 @@ export default async function handler(req, res) {
     // the veAERO and veVELO nfts were migrated to sAERO nfts
     const sAeroToken = CHAIN_TOKENS[NetworkIds.base][CHAIN_TOKEN_ADDRESSES[NetworkIds.base].SAERO];
     const sAero = new Contract(sAeroToken.address, VE_NFT_ABI, getProvider(NetworkIds.base));
+    const twg = multisigsToShow.find(m => m.shortName === 'TWG' && m.chainId === NetworkIds.mainnet)!;
 
-    const [treasuryBalances, multisigsFunds, liquidityCachedData, sAeroStakes, prices] = await Promise.all(
+    const [treasuryBalances, multisigsFunds, liquidityCachedData, sAeroStakes, aeroDolaUsdcPositions] = await Promise.all(
       [
-        fetchZerionWithRetry(TREASURY, mainnet.zerionId || mainnet.codename),
+        fetchZerionWithRetry(TREASURY, mainnet.zerionId || mainnet.codename, zerionFallbackPrices),
         Promise.all(
           multisigsToShow.map(multisig => {
             const net = getNetwork(multisig.chainId);
-            return fetchZerionWithRetry(multisig.address, net.zerionId || net.codename)
+            return fetchZerionWithRetry(multisig.address, net.zerionId || net.codename, zerionFallbackPrices)
           })
         ),
         getCacheFromRedis(liquidityCacheKey, false),
         Promise.all(sAeroToken.veNftIds!.map(id => sAero.staked(id))),
-        fetch('https://www.inverse.finance/api/prices?cacheFirst=true').then(res => res.json()),
+        getAeroDolaUsdcPositions(twg.address, provider),
       ]
     );
 
@@ -240,6 +305,35 @@ export default async function handler(req, res) {
         },
         "chainCodeName": "base",
         "key": `Aero sAERO veNfts ${sAeroToken.veNftIds!.join(', ')}`,
+      });
+    }
+
+    // temp: zerion does not support the Aero protocol yet, the TWG DOLA-USDC positions are added if zerion does not have them
+    const twgFunds: any[] = multisigData.find(m => m.address === twg.address && m.chainId === twg.chainId)!.funds;
+    const aeroIds = aeroDolaUsdcPositions.map(p => p.id);
+    const isAeroDolaUsdcInZerion = twgFunds.some(f => f.token.address?.toLowerCase() === AERO_DOLA_USDC_POOL.toLowerCase()
+      || (/aero|velodrome|slipstream/i.test(f.key || '') && (aeroIds.includes(f.nftId) || /dola/i.test(f.key))));
+    if (aeroIds.length > 0 && !isAeroDolaUsdcInZerion) {
+      const dolaAmount = aeroDolaUsdcPositions.reduce((prev, curr) => prev + curr.dolaAmount, 0);
+      const usdcAmount = aeroDolaUsdcPositions.reduce((prev, curr) => prev + curr.usdcAmount, 0);
+      const name = `Aero DOLA/USDC #${aeroIds.join(', #')}`;
+      twgFunds.push({
+        "balance": dolaAmount * (prices['dola-usd'] || 1) + usdcAmount * (prices['usd-coin'] || 1),
+        "price": 1,
+        "onlyUsdValue": true,
+        "allowance": 0,
+        "token": {
+          "decimals": 18,
+          "name": name,
+          "symbol": name,
+          "image": TOKEN_IMAGES.DOLA,
+          "protocolImage": PROTOCOL_IMAGES.AERO,
+          "isStable": true,
+          "isLP": true,
+          "address": AERO_DOLA_USDC_POOL,
+        },
+        "chainCodeName": "ethereum",
+        "key": `Aero-${name}`,
       });
     }
 

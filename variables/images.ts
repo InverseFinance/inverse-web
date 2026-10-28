@@ -234,6 +234,7 @@ export const PROTOCOL_DEFILLAMA_MAPPING = {
 export const PROTOCOL_ZERION_MAPPING = {
     "Velodrome": 'VELO',
     "Aerodrome": 'AERO',
+    "Aero": 'AERO',
     "Thena": 'THENA',
     "Aura Finance": 'AURA',
     "Convex": 'CVX',
