@@ -61,7 +61,11 @@ export const Overview = () => {
   const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
 
   const TWGmultisigs = multisigs?.filter(m => m.shortName.includes('TWG') && m.chainId !== NetworkIds.ftm) || [];
-  const TWGfunds = TWGmultisigs.map(m => m.funds);
+  // multisig cards in order of highest worth
+  const TWGmultisigsByWorth = TWGmultisigs
+    .map(m => ({ ...m, funds: m.funds.filter(above100UsdFilter) }))
+    .map(m => ({ ...m, worth: getFundsTotalUsd(m.funds, prices, 'balance') }))
+    .sort((a, b) => b.worth - a.worth);
 
   // stable reserves
   const treasuryStables = treasury?.filter(f => (f.token.isStable) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS', 'jrDOLA'].includes(f.token.symbol))).map(f => {
@@ -224,9 +228,9 @@ export const Overview = () => {
               {/* <FundsDetails title="Reserved For Bonds" funds={bonds?.balances.filter(({ token }) => token.symbol === RTOKEN_SYMBOL)} prices={prices} /> */}
               {/* <FundsDetails title="Kept in the Bonds Manager" funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)} prices={prices} /> */}
               {
-                TWGfunds.map((mf, i) => {
-                  return <DashBoardCard externalLink={`${getScanner(TWGmultisigs[i].chainId)}/address/${TWGmultisigs[i].address}`} imageSrc={getNetworkImage(TWGmultisigs[i].chainId)} cardTitle={TWGmultisigs[i].shortName === 'TWG' ? 'TWG on Mainnet' : TWGmultisigs[i].shortName} cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                    <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={mf.filter(above100UsdFilter)} prices={prices} type='balance' useRecharts={true} />
+                TWGmultisigsByWorth.map(m => {
+                  return <DashBoardCard key={`${m.chainId}-${m.address}`} externalLink={`${getScanner(m.chainId)}/address/${m.address}`} imageSrc={getNetworkImage(m.chainId)} cardTitle={m.shortName === 'TWG' ? 'TWG on Mainnet' : m.shortName} cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
+                    <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={m.funds} prices={prices} type='balance' useRecharts={true} />
                   </DashBoardCard>
                 })
               }

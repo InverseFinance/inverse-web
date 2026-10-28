@@ -5,7 +5,7 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { useDOLAPrice, usePricesV2 } from '@app/hooks/usePrices'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
-import { useDAO, useFedOverview } from '@app/hooks/useDAO'
+import { useFedOverview, useTreasuryAssets } from '@app/hooks/useDAO'
 import { Funds, getFundsTotalUsd } from '@app/components/Transparency/Funds'
 import { DashBoardCard, NumberCard } from '@app/components/F2/UserDashboard'
 import { useState } from 'react'
@@ -42,7 +42,7 @@ export const KeymetricsPage = () => {
   const { prices, isLoading: isLoadingPrices } = usePricesV2(true);
   const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
   const { positions, userPositions, isLoading: isLoadingPositions } = useFirmUsers();
-  const { treasury, anchorReserves, multisigs, isLoading: isLoadingDao } = useDAO();
+  const { treasury, anchorReserves, multisigs, isLoading: isLoadingTreasuryAssets } = useTreasuryAssets();
   const { fedOverviews, isLoading: isLoadingOverview } = useFedOverview();
   const { data: currentCirculatingSupply } = useCustomSWR(`/api/dola/circulating-supply`);
   const { data: invCirculatingSupply } = useCustomSWR(`/api/inv/circulating-supply`);
@@ -80,7 +80,7 @@ export const KeymetricsPage = () => {
   const groupMarketsByDeposits = groupPositionsBy(positionsWithDeposits, 'marketName', 'tvl');
   const groupMarketsByDebt = groupPositionsBy(positionsWithDebt, 'marketName', 'debt');
 
-  const isLoading = isLoadingDao || isLoadingPrices || isDolaPriceLoading || isLoadingPositions;
+  const isLoading = isLoadingTreasuryAssets || isLoadingPrices || isDolaPriceLoading || isLoadingPositions;
   const mainFontSize = { base: '16px', sm: '20px', md: '26px' };
   const dashboardCardTitleProps = { w: 'fit-content', fontSize: mainFontSize, fontWeight: 'extrabold', transform: { base: 'translateY(5px)', md: 'translateY(-20px)' } };
   const defillamaTextProps = { ...dashboardCardTitleProps, fontSize: '26px', mt: '1', transform: 'none' };

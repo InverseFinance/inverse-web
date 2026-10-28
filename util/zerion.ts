@@ -8,9 +8,29 @@ const WALLET_ZERION_URL = 'https://api.zerion.io/v1/wallets';
 
 const SOLIDLY_PROTOCOLS = ['AERODROME', 'VELODROME', 'THENA', 'RAMSES', 'SOLIDLIZARD'];
 
+// usd prices of tokens zerion does not price yet, by lowercased address
+type FallbackPrices = { [address: string]: number };
+
+const ZERION_FALLBACK_PRICES: FallbackPrices = {
+    // SwanUSD, minted 1:1 against USDS
+    '0x9bf2b2f57a2968a0e81546ed50cbbbb7c9d6e05e': 1,
+};
+
+// fallback price when zerion has no price for the position's token
+const getFallbackPrice = (position: any, fallbackPrices: FallbackPrices, address: string = position.id.split('-')[0]) => {
+    return !position.attributes?.price ? fallbackPrices[address?.toLowerCase()] : undefined;
+}
+
+const getPositionValue = (position: any, fallbackPrices: FallbackPrices) => {
+    const fallbackPrice = getFallbackPrice(position, fallbackPrices);
+    return fallbackPrice ? (position.attributes.quantity?.float || 0) * fallbackPrice : position.attributes.value;
+}
+
 export const fetchZerionWithRetry = async (
     wallet = '',
     chainCodeName = 'ethereum',
+    // added to ZERION_FALLBACK_PRICES, ex: prices computed onchain by the caller
+    fallbackPrices: FallbackPrices = {},
     maxRetries = 1,
     currentRetry = 0,
 ): Promise<Response | undefined> => {
@@ -30,9 +50,9 @@ export const fetchZerionWithRetry = async (
 
     if (response?.status !== 200 && currentRetry < maxRetries) {
         await new Promise((r) => setTimeout(() => r(true), 1050));
-        return await fetchZerionWithRetry(wallet, chainCodeName, maxRetries, currentRetry + 1);
+        return await fetchZerionWithRetry(wallet, chainCodeName, fallbackPrices, maxRetries, currentRetry + 1);
     };
-    return formatZerionWalletResponse(response);
+    return formatZerionWalletResponse(response, fallbackPrices);
 }
 // handle mopho non-unique protocol-name combination for pools
 const getKeyName = (position, index, positions) => {
@@ -48,12 +68,13 @@ const getKeyName = (position, index, positions) => {
     return `${position.attributes.protocol}-${position.attributes.name}`;
 }
 
-export const formatZerionWalletResponse = async (response) => {
+export const formatZerionWalletResponse = async (response, fallbackPrices: FallbackPrices = {}) => {
     if (response.status !== 200) {
         console.log(response)
         return [];
     }
     const responseData = await response.json();
+    const _fallbackPrices = { ...ZERION_FALLBACK_PRICES, ...fallbackPrices };
 
     // filter out Frontier
     const cleanData = responseData.data.filter(p => p.attributes.name !== 'Inverse Lending');
@@ -70,7 +91,7 @@ export const formatZerionWalletResponse = async (response) => {
         const item = cleanData.find((position, index) => getKeyName(position, index, cleanData) === key);
         const totalValue = cleanData
             .filter((r, index) => getKeyName(r, index, cleanData) === key)
-            .reduce((prev, curr) => prev + (curr.attributes.position_type === 'loan' ? -curr.attributes.value : curr.attributes.value), 0);
+            .reduce((prev, curr) => prev + (curr.attributes.position_type === 'loan' ? -getPositionValue(curr, _fallbackPrices) : getPositionValue(curr, _fallbackPrices)), 0);
         const splitData = item.id.split('-');
         const isVeNft = item.attributes.position_type === 'locked' && SOLIDLY_PROTOCOLS.includes(item.attributes.protocol.toUpperCase());
         // let address = splitData[0];
@@ -97,6 +118,8 @@ export const formatZerionWalletResponse = async (response) => {
             isLP: exactToken?.isLP,
             address: isMorphoCase ? null : item.attributes.pool_address,
             _price: item.attributes.price,
+            // locked in a listed veNft contract not covered by isVeNft (ex: sAERO), a veNftId puts the fund in the veNFTs category
+            veNftId: item.attributes.position_type === 'locked' ? (exactToken?.veNftId || exactToken?.veNftIds?.join(', ')) : undefined,
         };
         if(!token.image){
             if(token.name.toLowerCase().includes('sdola')) token.image = TOKEN_IMAGES.SDOLA;
@@ -142,7 +165,7 @@ export const formatZerionWalletResponse = async (response) => {
             return {
                 token,
                 balance: position.attributes?.quantity?.float || 0,
-                price: position.attributes?.price,
+                price: getFallbackPrice(position, _fallbackPrices, address) || position.attributes?.price,
                 allowance: 0,
                 chainCodeName,
             };
