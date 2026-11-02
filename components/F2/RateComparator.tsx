@@ -24,6 +24,7 @@ const projectImages = {
     'FiRM': 'https://icons.llamao.fi/icons/protocols/inverse-finance?w=48&h=48',
     'Spark': 'https://icons.llamao.fi/icons/protocols/spark?w=48&h=48',
     'Fluid': 'https://icons.llamao.fi/icons/protocols/fluid?w=48&h=48',
+    'Monolith': 'https://app.monolith.market/square-logo.png',
 }
 
 export const projectCollaterals = {
@@ -34,6 +35,7 @@ export const projectCollaterals = {
     'Spark': ['WETH', 'WBTC', 'wstETH', 'rETH'],
     'FiRM': [],
     'Fluid': ['WBTC', 'cbBTC', 'wstETH', 'sUSDe', 'wstETH', 'sUSDe'],
+    'Monolith': ['wstETH'],
 }
 
 const ProjectToken = ({ project, borrowToken, isMobile = false, themeStyles }: { project: string }) => {

@@ -2,13 +2,13 @@ import 'source-map-support'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { getAaveV3Rate, getAaveV3RateDAI, getCompoundRate, getCrvUSDRate, getFirmRate, getFluidRates, getFraxRate, getSparkRate } from '@app/util/borrow-rates-comp';
+import { getAaveV3Rate, getAaveV3RateDAI, getCompoundRate, getCrvUSDRate, getFirmRate, getFluidRates, getFraxRate, getMonolithRates, getSparkRate } from '@app/util/borrow-rates-comp';
 import { timestampToUTC } from '@app/util/misc';
 import { TOKEN_IMAGES } from '@app/variables/images';
 import { projectCollaterals } from '@app/components/F2/RateComparator';
 
 export default async function handler(req, res) {
-  const cacheKey = `borrow-rates-compare-v1.1.7`;
+  const cacheKey = `borrow-rates-compare-v1.1.8`;
 
   try {
     const cacheDuration = 900;
@@ -44,6 +44,7 @@ export default async function handler(req, res) {
       getSparkRate(),
       getFirmRate(provider),
       getFluidRates(),
+      getMonolithRates(),
     ])).flat();
 
     _rates.sort((a, b) => {
@@ -83,9 +84,10 @@ export default async function handler(req, res) {
       };
     });
 
+    // keep the last 90 days
     if(utcSnapshots.length > 90) {
-      utcSnapshots = utcSnapshots.slice(0, 90);
-      pastRates = pastRates.slice(0, 90);
+      utcSnapshots = utcSnapshots.slice(-90);
+      pastRates = pastRates.slice(-90);
     }
 
     const result = {

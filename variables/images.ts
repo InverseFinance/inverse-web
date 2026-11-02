@@ -34,6 +34,7 @@ export const TOKEN_IMAGES = {
     "ysyBOLD": "https://www.inverse.finance/assets/projects/ybold.png",
     "invUSD": "https://app.monolith.market/invUSD.png",
     "sinvUSD": "https://app.monolith.market/invUSD.png",
+    "SwanUSD": "https://www.swanusd.com/icon.png",
     "fxSAVE": 'https://assets.coingecko.com/coins/images/67384/standard/fxsave.jpg?1752628124',
     "reUSD": "https://assets.coingecko.com/coins/images/54836/standard/reusd-icon-black-200px.png?1741970002",
     "YUSD": "https://assets.coingecko.com/coins/images/53607/standard/yUSD.png?1739862886",

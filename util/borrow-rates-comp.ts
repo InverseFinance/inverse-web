@@ -141,6 +141,22 @@ export const getSparkRate = async () => {
     return { project: 'Spark', hasLeverage: false, borrowRate: 5.99, type: 'variable', collateral: 'Multiple', borrowToken: 'DAI', link: 'https://app.spark.fi' };
 }
 
+// compared Monolith deployments by coin address: SwanUSD (wstETH collateral)
+const MONOLITH_COINS = ['0x9BF2B2F57A2968A0E81546Ed50cBbbb7C9d6e05E'].map(a => a.toLowerCase());
+
+export const getMonolithRates = async () => {
+    try {
+        const res = await fetch(`https://app.monolith.market/api/deployments?cacheFirst=true&factory=0xc68F3e777f28c52FF9DB0276a14F59D96Aa2f931&chainId=1`);
+        const deployments: { id: string, coin: string, symbol: string, collateralSymbol: string, borrowApy: number }[] = (await res.json()).deployments;
+        return deployments
+            .filter(d => MONOLITH_COINS.includes(d.coin.toLowerCase()))
+            .map(d => ({ project: 'Monolith', hasLeverage: false, borrowRate: d.borrowApy, type: 'variable', collateral: d.collateralSymbol, borrowToken: d.symbol, link: `https://app.monolith.market/1/coin/${d.id}` }));
+    } catch (e) {
+        console.log('Err fetching monolith rates');
+    }
+    return [];
+}
+
 export const getFluidRates = async () => {
     const res = await fetch(`https://api.fluid.instadapp.io/v2/1/vaults`);
     const data = await res.json();
