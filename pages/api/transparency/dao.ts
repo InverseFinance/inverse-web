@@ -1,7 +1,7 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
 import { CTOKEN_ABI, DOLA_ABI, ERC20_ABI, INV_ABI, MULTISIG_ABI } from '@app/config/abis'
-import { getNetwork, getNetworkConfigConstants } from '@app/util/networks'
+import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, Multisig, NetworkIds, Token } from '@app/types';
@@ -11,7 +11,7 @@ import { isAddress } from 'ethers/lib/utils';
 import { DOLA_BRIDGED_CHAINS, INV_BRIDGED_CHAINS, ONE_DAY_SECS } from '@app/config/constants';
 import { liquidityCacheKey } from './liquidity';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
-import { fetchZerionWithRetry } from '@app/util/zerion';
+import { getZerionWalletsFunds } from '@app/util/zerion';
 
 const formatBn = (bn: BigNumber, token: Token) => {
   return { token, balance: getBnToNumber(bn, token.decimals) }
@@ -54,7 +54,6 @@ export default async function handler(req, res) {
     const dolaContract = new Contract(DOLA, DOLA_ABI, provider);
     const invContract = new Contract(INV, INV_ABI, provider);
 
-    const mainnet = getNetwork(NetworkIds.mainnet);
     const multisigsToShow = MULTISIGS.filter(m => m.chainId !== NetworkIds.ftm);
 
     let dolaBridgedSupplies = [];
@@ -252,17 +251,8 @@ export default async function handler(req, res) {
       await redisSetWithTimestamp(cacheMulAllKey, multisigsAllowanceValues);
     }
 
-    const [treasuryBalances, multisigsFunds] = await Promise.all(
-      [
-        fetchZerionWithRetry(TREASURY, mainnet.zerionId || mainnet.codename),
-        Promise.all(
-          multisigsToShow.map(multisig => {
-            const net = getNetwork(multisig.chainId);
-            return fetchZerionWithRetry(multisig.address, net.zerionId || net.codename)
-          })
-        ),
-      ]
-    );
+    // cached zerion data only, the treasury-assets api refreshes it
+    const [treasuryBalances, ...multisigsFunds] = await getZerionWalletsFunds([{ address: TREASURY, chainId: NetworkIds.mainnet }, ...multisigsToShow]);
 
     multisigsAllowanceValues.map((bns, i) => {
       const multisig = multisigsToShow[i];

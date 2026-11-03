@@ -1,7 +1,7 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
 import { CTOKEN_ABI, VE_NFT_ABI } from '@app/config/abis'
-import { getNetwork, getNetworkConfigConstants } from '@app/util/networks'
+import { getNetworkConfigConstants } from '@app/util/networks'
 import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { Multisig, NetworkIds, Token } from '@app/types';
@@ -10,7 +10,7 @@ import { CHAIN_TOKENS, CHAIN_TOKEN_ADDRESSES } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
 import { BaseProvider } from '@ethersproject/providers';
 import { getGroupedMulticallOutputs, getMulticallOutput } from '@app/util/multicall';
-import { fetchZerionWithRetry } from '@app/util/zerion';
+import { getZerionWalletsFunds } from '@app/util/zerion';
 import { timestampToUTC } from '@app/util/misc';
 import { PROTOCOL_IMAGES, TOKEN_IMAGES } from '@app/variables/images';
 import { liquidityCacheKey } from './liquidity';
@@ -169,7 +169,7 @@ export default async function handler(req, res) {
   const cacheKey = `treasury-assets-cache-v1.0.1`;
 
   try {
-    // zerion allows 300 free requests per day, so around 300s cache is fine
+    // the zerion requests are limited by the per-wallet cache of util/zerion, not by this one
     const cacheDuration = 360;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
@@ -185,7 +185,6 @@ export default async function handler(req, res) {
       return
     }
 
-    const mainnet = getNetwork(NetworkIds.mainnet);
     const multisigsToShow = MULTISIGS;
 
     const mainnetTokens = CHAIN_TOKEN_ADDRESSES["1"];
@@ -223,15 +222,10 @@ export default async function handler(req, res) {
     const sAero = new Contract(sAeroToken.address, VE_NFT_ABI, getProvider(NetworkIds.base));
     const twg = multisigsToShow.find(m => m.shortName === 'TWG' && m.chainId === NetworkIds.mainnet)!;
 
-    const [treasuryBalances, multisigsFunds, liquidityCachedData, sAeroStakes, aeroDolaUsdcPositions] = await Promise.all(
+    const [[treasuryBalances, ...multisigsFunds], liquidityCachedData, sAeroStakes, aeroDolaUsdcPositions] = await Promise.all(
       [
-        fetchZerionWithRetry(TREASURY, mainnet.zerionId || mainnet.codename, zerionFallbackPrices),
-        Promise.all(
-          multisigsToShow.map(multisig => {
-            const net = getNetwork(multisig.chainId);
-            return fetchZerionWithRetry(multisig.address, net.zerionId || net.codename, zerionFallbackPrices)
-          })
-        ),
+        // last successful zerion data of each wallet, the outdated ones are refreshed within 20s
+        getZerionWalletsFunds([{ address: TREASURY, chainId: NetworkIds.mainnet }, ...multisigsToShow], zerionFallbackPrices, 20000),
         getCacheFromRedis(liquidityCacheKey, false),
         Promise.all(sAeroToken.veNftIds!.map(id => sAero.staked(id))),
         getAeroDolaUsdcPositions(twg.address, provider),
