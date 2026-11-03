@@ -169,7 +169,8 @@ export default async function handler(req, res) {
   const cacheKey = `treasury-assets-cache-v1.0.1`;
 
   try {
-    const cacheDuration = 120;
+    // zerion allows 300 free requests per day, so around 300s cache is fine
+    const cacheDuration = 360;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
 
