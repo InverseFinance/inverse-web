@@ -792,6 +792,8 @@ export type F2Market = {
   underlyingWithPricePerShare?: boolean
   fixedFeed?: boolean
   convexRewardsAddress?: string
+  // reward token of a StakingRewardsEscrow market, claimable from the escrow
+  stakingRewardsToken?: string
   noDeposit?: boolean
   noZap?: boolean
   expiry?: string

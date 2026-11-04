@@ -1,6 +1,6 @@
 import { F2Market } from "@app/types"
 import { useContext, useEffect } from "react";
-import { useConvexLpRewards, useCvxCrvRewards, useCvxFxsRewards, useCvxRewards, useEscrowBalance, useEscrowRewards, useINVEscrowRewards, useStakedaoLpRewards, useStakedInFirm } from "@app/hooks/useFirm";
+import { useConvexLpRewards, useCvxCrvRewards, useCvxFxsRewards, useCvxRewards, useEscrowBalance, useEscrowRewards, useINVEscrowRewards, useStakedaoLpRewards, useStakedInFirm, useStakingRewardsEscrowRewards } from "@app/hooks/useFirm";
 import { F2MarketContext } from "../F2Contex";
 import { BURN_ADDRESS } from "@app/config/constants";
 import { zapperRefresh } from "@app/util/f2";
@@ -69,6 +69,12 @@ export const FirmRewardWrapper = ({
             {...commonProps}
             rewardAccountant={market.rewardAccountant}
             rewardVault={market.rewardVault}
+        />
+    }
+    else if (!!market.stakingRewardsToken) {
+        return <FirmStakingRewardsEscrowRewardWrapperContent
+            {...commonProps}
+            rewardToken={market.stakingRewardsToken}
         />
     }
 
@@ -215,6 +221,45 @@ export const FirmConvexLpRewardWrapperContent = ({
     />
 }
 
+
+export const FirmStakingRewardsEscrowRewardWrapperContent = ({
+    market,
+    label,
+    showMarketBtn = false,
+    extraAtBottom = false,
+    escrow,
+    rewardToken,
+    onLoad,
+    hideIfNoRewards,
+}: {
+    market: F2Market
+    label?: string
+    escrow?: string
+    rewardToken: string
+    showMarketBtn?: boolean
+    extraAtBottom?: boolean
+    onLoad?: (v: number) => void
+    hideIfNoRewards?: boolean
+}) => {
+    const { rewardsInfos, isLoading } = useStakingRewardsEscrowRewards(escrow, rewardToken);
+    useEffect(() => {
+        if (!onLoad || !rewardsInfos?.tokens?.length || isLoading) { return }
+        const totalUsd = rewardsInfos.tokens.filter(t => t.metaType === 'claimable')
+            .reduce((prev, curr) => prev + curr.balanceUSD, 0);
+        onLoad(totalUsd);
+    }, [rewardsInfos, onLoad])
+
+    return <FirmRewards
+        hideIfNoRewards={hideIfNoRewards}
+        market={market}
+        escrow={escrow}
+        rewardsInfos={rewardsInfos}
+        label={label}
+        showMarketBtn={showMarketBtn}
+        extraAtBottom={extraAtBottom}
+        isLoading={isLoading}
+    />
+}
 
 export const FirmStakedaoLpRewardWrapperContent = ({
     market,

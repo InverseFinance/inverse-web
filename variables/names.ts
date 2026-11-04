@@ -148,6 +148,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x7d85f47E93df278A4d6f4d6d0B680D1a8A060602': 'FiRMwstUSR-DOLA-ConvexEscrow',
     '0x88df2a32C1130Ae8371Bf6B5d5C644a485FC650B': 'FiRMscrvUSD-sDOLA-StakeDaoEscrow',
     '0x683a904DA9CD1B3A2326B7bC110a44eCceD8362a': 'FiRMreUSD-sDOLA-StakeDaoEscrow',
+    '0xD591d4573e867967596a934724AA8492b025A22c': 'FiRMsSwanUSD-StakingRewardsEscrow',
     '0x545C963eB523199969cf0298395EeAdcE514b691': 'FiRMViewer',
     '0x20C7349f6D6A746a25e66f7c235E96DAC880bc0D': 'FiRMBorrowController-v1',
     '0x44B7895989Bc7886423F06DeAa844D413384b0d6': 'FiRMBorrowController-v1.1',

@@ -187,6 +187,9 @@ const chainTokenAddresses = {
     invUSD: '0x5377680B5986296AA4F9e684e5315a4F24832e56',
     sinvUSD: '0x3FF361197036Ae1d24B939146D8a449A80F8427d',
     ysyBOLD: '0x23346B04a7f55b8760E5860AA5A77383D63491cD',
+    SwanUSD: '0x9BF2B2F57A2968A0E81546Ed50cBbbb7C9d6e05E',
+    sSwanUSD: '0xfa80c7349cC2357C42A64C2954B24B1a61C29435',
+    SWAN: '0xD0a32F6d4850F9D6DF7d4F8f84af1Fcd3Cf993CC',
     // PAL: '0xAB846Fb6C81370327e784Ae7CbB6d6a6af6Ff4BF',
   },
   "250": {
@@ -454,6 +457,33 @@ const chainTokens = {
      isERC4626: true,
      link: 'https://yearn.fi/v3/1/0x9F4330700a36B29952869fac9b33f45EEdd8A3d8',
    },
+    [chainTokenAddresses["1"].SwanUSD]: {
+      decimals: 18,
+      image: TOKEN_IMAGES.SwanUSD,
+      address: chainTokenAddresses["1"].SwanUSD,
+      symbol: 'SwanUSD',
+      name: 'SwanUSD',
+      isStable: true,
+      link: 'https://app.monolith.market/1/coin/2',
+    },
+    [chainTokenAddresses["1"].sSwanUSD]: {
+      decimals: 18,
+      image: TOKEN_IMAGES.sSwanUSD,
+      address: chainTokenAddresses["1"].sSwanUSD,
+      symbol: 'sSwanUSD',
+      name: 'Staked SwanUSD',
+      isStable: true,
+      isERC4626: true,
+      link: 'https://app.monolith.market/1/coin/2',
+    },
+    // rewards of the sSwanUSD FiRM market
+    [chainTokenAddresses["1"].SWAN]: {
+      decimals: 18,
+      image: TOKEN_IMAGES.SWAN,
+      address: chainTokenAddresses["1"].SWAN,
+      symbol: 'SWAN',
+      name: 'SwanDAO',
+    },
     [chainTokenAddresses["1"].SINV]: {
       decimals: 18,
       image: TOKEN_IMAGES.SINV,

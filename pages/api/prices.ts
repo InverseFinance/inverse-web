@@ -12,7 +12,7 @@ import { formatUnits } from '@ethersproject/units'
 import { getTokenData } from '@app/util/livecoinwatch'
 import { getChainlinkDolaUsdPrice, getDolaUsdPriceOnCurve } from '@app/util/f2'
 import { dolaStakingCacheKey } from './dola-staking'
-import { getBnToNumber } from '@app/util/markets'
+import { getBnToNumber, getMonolithCoinDaos } from '@app/util/markets'
 import { jdolaStakingCacheKey } from './junior/jdola-staking'
 
 export const pricesCacheKey = `prices-v1.0.91`;
@@ -105,9 +105,10 @@ export default async function handler(req, res) {
       prices[key] = value.usd;
     });
 
-    const [dolaUsdCurveData, jrDolaData] = await Promise.all([
+    const [dolaUsdCurveData, jrDolaData, monolithCoinDaos] = await Promise.all([
       getDolaUsdPriceOnCurve(getProvider(NetworkIds.mainnet)),
       getCacheFromRedis(jdolaStakingCacheKey, false),
+      getMonolithCoinDaos().catch(() => []),
     ]);
 
     const { price: chainlinkDolaUsdPrice } = dolaUsdCurveData;
@@ -146,6 +147,10 @@ export default async function handler(req, res) {
     prices['sUSDS'] = (prices['usds'] || 1) * getBnToNumber(sUSDSExRateBn);
     // temporary
     prices['invUSD'] = 1;
+    // gov tokens of the Monolith coin DAOs, ex: SWAN (rewards of the sSwanUSD FiRM market)
+    monolithCoinDaos
+      .filter(dao => !!dao.govPriceUsd && !prices[dao.govSymbol])
+      .forEach(dao => prices[dao.govSymbol] = dao.govPriceUsd);
 
     prices['_timestamp'] = Date.now();
 
