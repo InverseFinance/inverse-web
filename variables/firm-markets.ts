@@ -938,7 +938,7 @@ export const FIRM_MARKETS = [
       hasClaimableRewards: true,
       // claimable from the escrow, staked in the SWAN staking pool
       stakingRewardsToken: '0xD0a32F6d4850F9D6DF7d4F8f84af1Fcd3Cf993CC',
-      startingBlock: 26298376,
+      startingBlock: 26342755,
       isInv: false,
   },
 ];
