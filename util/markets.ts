@@ -520,6 +520,31 @@ export const getSCoinStakingApy = async (
   return { apy: Math.min(apy, 999_999_999) };
 }
 
+// Monolith apis on mainnet: the coins with their vault's staking apy, and the coin DAOs with their gov token price and the gov token rewards apr of vault stakers
+export const getMonolithDeployments = (): Promise<{ vault: string, stakingApy: number }[]> => {
+    return fetchWithTimeout('https://app.monolith.market/api/deployments?cacheFirst=false&factory=0xc68F3e777f28c52FF9DB0276a14F59D96Aa2f931&chainId=1', undefined, 5000)
+        .then(res => res.json())
+        .then(data => data.deployments);
+}
+
+export const getMonolithCoinDaos = (): Promise<{ stakingToken: string, govSymbol: string, govPriceUsd: number, coinStakingApr: number, isEmissionActive: boolean }[]> => {
+    return fetchWithTimeout('https://app.monolith.market/api/coindaos?cacheFirst=false&chainId=1', undefined, 5000)
+        .then(res => res.json())
+        .then(data => data.daos);
+}
+
+/**
+ * APY in percent of a Monolith vault staked for its coin DAO's gov token rewards, ex: sSwanUSD with SWAN rewards:
+ * the vault's staking APY plus the rewards APR (claimable from the FiRM escrow which stakes the collateral).
+ */
+export const getMonolithStakedVaultApy = async (vault: string) => {
+    const [deployments, daos] = await Promise.all([getMonolithDeployments(), getMonolithCoinDaos()]);
+    const vaultApy = deployments.find(d => d.vault?.toLowerCase() === vault.toLowerCase())?.stakingApy || 0;
+    const dao = daos.find(d => d.stakingToken?.toLowerCase() === vault.toLowerCase());
+    const rewardsApr = dao?.isEmissionActive ? dao.coinStakingApr || 0 : 0;
+    return { apy: vaultApy + rewardsApr, vaultApy, rewardsApr };
+}
+
 export const getGOhmData = async () => {
     try {
         const results = await fetch("https://api.thegraph.com/subgraphs/name/olympusdao/olympus-protocol-metrics", {
@@ -793,6 +818,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getDefiLlamaApy('7255c661-892b-4c4c-b869-537a1326b669'),
         getSCoinStakingApy('0x3FF361197036Ae1d24B939146D8a449A80F8427d', provider),
         getYearnVaultApy('0x23346B04a7f55b8760E5860AA5A77383D63491cD'),
+        getMonolithStakedVaultApy('0xfa80c7349cC2357C42A64C2954B24B1a61C29435'),
     ]);
 
     let [
@@ -837,6 +863,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         reusdSDOLAStakedaoData,
         sinvUSData,
         ysyBOLDData,
+        sSwanUSDData,
     ] = externalYieldResults.map(r => {
         return r.status === 'fulfilled' ? r.value : {};
     });
@@ -896,6 +923,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'reUSD-sDOLA': reusdSDOLAStakedaoData?.apy || 0,
         'sinvUSD': sinvUSData?.apy || 0,
         'ysyBOLD': ysyBOLDData?.apy || 0,
+        'sSwanUSD': sSwanUSDData?.apy || 0,
     };
 }
 

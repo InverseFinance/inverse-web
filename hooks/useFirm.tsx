@@ -14,7 +14,7 @@ import useEtherSWR from "./useEtherSWR";
 import { useAccount } from "./misc";
 import { useBlocksTimestamps } from "./useBlockTimestamp";
 import { TOKENS, getToken } from "@app/variables/tokens";
-import { useDOLAPrice, usePrices } from "./usePrices";
+import { useDOLAPrice, usePrices, usePricesV2 } from "./usePrices";
 import { getConvexLpRewards, getCvxCrvRewards, getCvxRewards, getStakedaoRewards } from "@app/util/firm-extra";
 import { useWeb3React } from "@web3-react/core";
 import useSWR from "swr";
@@ -600,6 +600,37 @@ export const useCvxFxsRewards = (escrow: string) => {
   return {
     rewardsInfos: {
       tokens: rewards || [],
+      timestamp: Date.now(),
+    },
+    isLoading: !rewardsData && !error,
+    isError: error,
+  }
+}
+
+// StakingRewardsEscrow markets: the collateral is staked in a staking pool, ex: sSwanUSD with SWAN rewards
+export const useStakingRewardsEscrowRewards = (escrow: string | undefined, rewardToken: string) => {
+  // priced by the prices api, ex: SWAN from the Monolith coin DAOs
+  const { prices } = usePricesV2();
+  const { data: rewardsData, error } = useEtherSWR({
+    args: !!escrow && escrow !== BURN_ADDRESS ? [
+      [escrow, 'claimable'],
+    ] : [[]],
+    abi: F2_ESCROW_ABI,
+  });
+
+  const token = getToken(TOKENS, rewardToken)!;
+  const balance = rewardsData?.[0] ? getBnToNumber(rewardsData[0], token.decimals) : 0;
+  const price = prices?.[token.symbol!]?.usd || 0;
+
+  return {
+    rewardsInfos: {
+      tokens: [{
+        metaType: 'claimable',
+        balanceUSD: balance * price,
+        price,
+        balance,
+        address: token.address,
+      }],
       timestamp: Date.now(),
     },
     isLoading: !rewardsData && !error,

@@ -11,6 +11,8 @@ export enum FIRM_ESCROWS {
     'crvUSD-DOLA' = '0xCB21Dc82C4346cE448808A8B9C51719F13cE00c3',
     'ConvexEscrowV2' = '0x5a78852fC9246272E893C0189Db0214EBDCaB372',
     'sUSDe-DOLA' = '0x141E4A7eFe8addb63D4a51B30A9a8656CE0678f5',
+    // StakingRewardsEscrow: stakes the collateral in a staking pool, rewards claimable separately
+    'sSwanUSD' = '0xD591d4573e867967596a934724AA8492b025A22c',
 }
 
 // end of the points programs: start of Thursday Oct 1st 2026 UTC, the api then shows 0 points
@@ -917,6 +919,26 @@ export const FIRM_MARKETS = [
       badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
       isERC4626Collateral: true,
       startingBlock: 26179133,
+      isInv: false,
+  },
+  {
+      name: 'sSwanUSD',
+      collateral: '0xfa80c7349cC2357C42A64C2954B24B1a61C29435',
+      address: '0x529203f9F07c66d2D96812E3D942387312Fab0Ee',
+      escrowImplementation: FIRM_ESCROWS.sSwanUSD,
+      helper: true,
+      oracleType: "custom",
+      badgeInfo: 'SWAN Rewards',
+      rewardTypeLabel: 'Yield + SWAN APR',
+      underlyingSymbol: 'SwanUSD',
+      badgeProps: { bgColor: 'accentTextColor', color: 'contrastMainTextColor' },
+      isERC4626Collateral: true,
+      // ALE: SwanUSD swaps, converted by the ERC4626 helper
+      aleTransformerType: 'marketAddress',
+      hasClaimableRewards: true,
+      // claimable from the escrow, staked in the SWAN staking pool
+      stakingRewardsToken: '0xD0a32F6d4850F9D6DF7d4F8f84af1Fcd3Cf993CC',
+      startingBlock: 26298376,
       isInv: false,
   },
 ];
