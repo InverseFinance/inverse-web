@@ -40,6 +40,13 @@ const SWAN = '0xd0a32f6d4850f9d6df7d4f8f84af1fcd3cf993cc';
 const SSWAN = '0xcbc108384e874d9b0436ade3918685baa709e48c';
 const SWAN_WETH_CURVE_POOL = '0xffb7f90354c496210c471459133da2e452d8138a';
 
+// SWAN vesting wallets of Inverse (OpenZeppelin VestingWallet clones, the owner is the beneficiary): the Monolith fee (2% of the supply) and the deployer allocation (10%)
+// zerion does not see them: their unreleased SWAN is added to the funds of the beneficiary, the released SWAN is already in its wallet
+const SWAN_VESTING_WALLETS = [
+  { address: '0xe8a13530fcf9fF804F56eDB097C2631F9AF8ceF3', name: 'Monolith 2% fee' },
+  { address: '0xf7863699e429F3E06A969328738E9e674ebF2742', name: 'deployer 10% allocation' },
+];
+
 // token amounts of a concentrated liquidity position (uniswap v3 math)
 const getClPositionAmounts = (liquidity: BigNumber, tickLower: number, tickUpper: number, sqrtPriceX96: BigNumber) => {
   const L = getBnToNumber(liquidity, 0);
@@ -189,7 +196,9 @@ export default async function handler(req, res) {
 
     const mainnetTokens = CHAIN_TOKEN_ADDRESSES["1"];
 
-    const [[anchorReserves, [swanWethPrice]], prices] = await Promise.all([
+    const swan = new Contract(SWAN, ['function balanceOf(address) view returns (uint256)'], provider);
+
+    const [[anchorReserves, [swanWethPrice], swanVestingBalances, swanVestingOwners], prices] = await Promise.all([
       getGroupedMulticallOutputs([
         ANCHOR_TOKENS.map((ad: string) => {
           const contract = new Contract(ad, CTOKEN_ABI, provider);
@@ -197,11 +206,15 @@ export default async function handler(req, res) {
         }),
         // ema price of SWAN in WETH (pool coins: WETH, SWAN)
         [{ contract: new Contract(SWAN_WETH_CURVE_POOL, ['function price_oracle() view returns (uint256)'], provider), functionName: 'price_oracle' }],
+        // unreleased SWAN and beneficiary of the vesting wallets
+        SWAN_VESTING_WALLETS.map(({ address }) => ({ contract: swan, functionName: 'balanceOf', params: [address] })),
+        SWAN_VESTING_WALLETS.map(({ address }) => ({ contract: new Contract(address, ['function owner() view returns (address)'], provider), functionName: 'owner' })),
       ]),
       fetch('https://www.inverse.finance/api/prices?cacheFirst=true').then(res => res.json()),
     ]);
 
-    const swanPrice = getBnToNumber(swanWethPrice) * prices['weth'];
+    // the Monolith coin DAOs price as fallback
+    const swanPrice = getBnToNumber(swanWethPrice) * prices['weth'] || prices['SWAN'] || 0;
     const zerionFallbackPrices = { [SWAN]: swanPrice, [SSWAN]: swanPrice };
 
     const multisigsFundsToCheck = {
@@ -331,6 +344,34 @@ export default async function handler(req, res) {
         "key": `Aero-${name}`,
       });
     }
+
+    // the unreleased SWAN of the vesting wallets in the funds of their beneficiary: the treasury or a mainnet multisig
+    const swanToken = CHAIN_TOKENS[NetworkIds.mainnet][CHAIN_TOKEN_ADDRESSES[NetworkIds.mainnet].SWAN];
+    SWAN_VESTING_WALLETS.forEach(({ address, name }, i) => {
+      const balance = getBnToNumber(swanVestingBalances[i], swanToken.decimals);
+      const beneficiary = String(swanVestingOwners[i] || '').toLowerCase();
+      const beneficiaryFunds: any[] | undefined = beneficiary === TREASURY.toLowerCase() ?
+        treasuryBalances
+        : multisigData.find(m => m.chainId === NetworkIds.mainnet && m.address.toLowerCase() === beneficiary)?.funds;
+      if (!balance || !beneficiaryFunds) {
+        return;
+      }
+      beneficiaryFunds.push({
+        "balance": balance,
+        "price": swanPrice,
+        "allowance": 0,
+        "token": {
+          ...swanToken,
+          // one asset for all the vesting wallets in the treasury breakdown
+          "symbol": "SWAN Vesting",
+          "name": `SWAN Vesting (${name})`,
+          // the vesting wallet: distinct from the released SWAN in the same funds
+          "address": address,
+        },
+        "chainCodeName": "ethereum",
+        "key": `SwanDAO-SWAN Vesting (${name})`,
+      });
+    });
 
     const resultData = {
       timestamp: Date.now(),
