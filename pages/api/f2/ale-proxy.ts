@@ -1,10 +1,19 @@
-import { getBestQuote, getSwapData } from '@app/util/aggregators';
+import { Aggregator, getBestQuote, getSwapData } from '@app/util/aggregators';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { getPendleSwapData, ptMarkets } from '@app/util/pendle';
+import { CHAIN_TOKEN_ADDRESSES } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
 import 'source-map-support'
 
 const { F2_ALE, DOLA, F2_MARKETS } = getNetworkConfigConstants();
+
+// aggregators allowed when buying or selling a token (default: all of them)
+const { SwanUSD, sSwanUSD } = CHAIN_TOKEN_ADDRESSES["1"];
+const TOKEN_AGGREGATORS: { [token: string]: Aggregator[] } = {
+  // sSwanUSD market: SwanUSD is the swapped token, sSwanUSD the collateral
+  [SwanUSD.toLowerCase()]: ['enso'],
+  [sSwanUSD.toLowerCase()]: ['enso'],
+};
 
 export default async function handler(req, res) {
   const cacheDuration = 2;
@@ -43,13 +52,15 @@ export default async function handler(req, res) {
       });
     } else {
       const params = { aggregator, recipient: F2_ALE, chainId: 1, fromToken: sellToken, toToken: buyToken, amountIn: sellAmount, slippageTolerance: slippagePercentage }
+      const allowedAggregators = TOKEN_AGGREGATORS[buyToken.toLowerCase()] || TOKEN_AGGREGATORS[sellToken.toLowerCase()];
 
       let swapCalldata;
       let selectedData;
-      const { bestQuote } = await getBestQuote(params);
+      const { bestQuote } = await getBestQuote(params, allowedAggregators);
 
       if(method === 'swap' && !!bestQuote?.aggregator) {
-        params.aggregator = aggregator || bestQuote.aggregator;
+        // a requested aggregator must be allowed for the tokens
+        params.aggregator = !!aggregator && (!allowedAggregators || allowedAggregators.includes(aggregator)) ? aggregator : bestQuote.aggregator;
         params.routeSummary = routeSummary || bestQuote.routeSummary;
         selectedData = await getSwapData(params);
         swapCalldata = selectedData?.calldata;

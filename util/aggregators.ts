@@ -224,12 +224,16 @@ async function getEnsoSwapData(params: SwapExecuteParams): Promise<SwapQuote> {
 }
 
 
-// Get best quote from all aggregators, important: no fee on leverage
-export async function getBestQuote(params: SwapExecuteParams): Promise<QuotesResult> {
-  const quotes = await Promise.allSettled([
-    getKyberSwapQuote(params),
-    getEnsoQuote(params),
-  ]);
+export type Aggregator = 'kyberswap' | 'enso';
+
+const quoteGetters: { [key in Aggregator]: (params: SwapExecuteParams) => Promise<SwapQuote> } = {
+  kyberswap: getKyberSwapQuote,
+  enso: getEnsoQuote,
+};
+
+// Get best quote from the aggregators (default: all of them), important: no fee on leverage
+export async function getBestQuote(params: SwapExecuteParams, aggregators = Object.keys(quoteGetters) as Aggregator[]): Promise<QuotesResult> {
+  const quotes = await Promise.allSettled(aggregators.map(aggregator => quoteGetters[aggregator](params)));
 
   const validQuotes: SwapQuote[] = [];
 
