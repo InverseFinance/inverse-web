@@ -71,6 +71,8 @@ export default async function handler(req, res) {
         deadline: swapDeadline,
         // routing leftovers go back to an account swapping for itself
         refundReceiver: recipient || undefined,
+        // and its swap, which can be executed minutes later, isn't routed through quotes expiring by then
+        durableOnly: !!recipient,
       }
       const allowedAggregators = TOKEN_AGGREGATORS[buyToken.toLowerCase()] || TOKEN_AGGREGATORS[sellToken.toLowerCase()];
       // a requested aggregator, when allowed for the tokens, is the only one quoted: a Safe's
@@ -89,10 +91,15 @@ export default async function handler(req, res) {
         swapCalldata = selectedData?.calldata;
       }
       
-      if (method === 'swap' && !swapCalldata) {
-        return res.status(500).json({ error: true, msg: 'Failed to fecth swap data, please try again' });
+      // a failure (the aggregators rate-limit, routes don't always come back) isn't
+      // kept by the browser: asked again, it's tried again
+      if (!bestQuote?.amountOut || bestQuote.amountOut === '0' || (method === 'swap' && !swapCalldata)) {
+        res.setHeader('Cache-Control', 'no-store');
       }
-  
+      if (method === 'swap' && !swapCalldata) {
+        return res.status(500).json({ error: true, msg: 'Failed to fetch swap data, please try again' });
+      }
+
       return res.status(200).json({
         buyAmount: bestQuote?.amountOut,
         bestProxyName: bestQuote?.aggregator,
@@ -107,6 +114,7 @@ export default async function handler(req, res) {
     }
   } catch (err) {
     console.error(err);
+    res.setHeader('Cache-Control', 'no-store');
     return res.status(500).json({ error: true, msg: 'Something went wrong' })
   }
 }
