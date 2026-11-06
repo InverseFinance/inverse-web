@@ -38,13 +38,48 @@ export interface SwapExecuteParams {
   deadline?: number;
   // who gets the routing leftovers (Enso), when not the default one
   refundReceiver?: string;
+  // a swap executed minutes after it's quoted (a Safe's): routed only through sources
+  // whose prices still hold by then (KyberSwap)
+  durableOnly?: boolean;
+}
+
+// KyberSwap sources whose quotes don't last until a multisig executes: RFQ and market
+// makers' quotes, limit orders, prop AMMs (priced by their operator block by block) and
+// Angstrom's pools. KyberSwap tags the RFQ ones; the rest go by name. Read from its
+// source list, these as of 2026-11 the fallback.
+const KYBER_SHORT_LIVED_SOURCES = [
+  'bebop', 'hashflow-v3', 'kyber-pmm', 'native-v1', 'native-v2', 'pmm-1', 'pmm-2', 'pmm-3', 'pmm-4', 'pmm-5', 'pmm-6',
+  'pmm-7', 'pmm-8', 'pmm-10', 'pmm-11', 'pmm-12', 'pmm-18', 'pmm-19', 'pmm-20', 'kyberswap-limit-order',
+  'kyberswap-limit-order-v2', 'bebop-prop', 'elzorro-prop', 'goliath-prop', 'kaliber-prop', 'kaliber-rwa-prop',
+  'kipseli-prop', 'metric-propamm', 'stelaxis-prop', 'taurusfi-prop', 'tempest-prop', 'titan-prop', 'uniswap-v4-angstrom',
+];
+const isShortLivedKyberSource = (dex: { dexId: string, tags?: { name: string }[] | null }) =>
+  !!dex.tags?.some(tag => tag.name === 'RFQ sources') || /-prop$|propamm|limit-order|angstrom/.test(dex.dexId);
+
+let kyberShortLived: { at: number, ids: string[] } | undefined;
+async function getKyberShortLivedSources(): Promise<string[]> {
+  if (kyberShortLived && Date.now() - kyberShortLived.at < 3600_000) return kyberShortLived.ids;
+  const ids = new Set(KYBER_SHORT_LIVED_SOURCES);
+  try {
+    for (let page = 1; page <= 5; page++) {
+      const res = await fetch(`https://ks-setting.kyberswap.com/api/v1/dexes?chain=ethereum&isEnabled=true&pageSize=100&page=${page}`);
+      const dexes = (await res.json())?.data?.dexes || [];
+      dexes.filter(isShortLivedKyberSource).forEach(dex => ids.add(dex.dexId));
+      if (dexes.length < 100) break;
+    }
+    kyberShortLived = { at: Date.now(), ids: [...ids] };
+  } catch (e) {
+    // the fallback list, asked again next time
+  }
+  return [...ids];
 }
 
 const kyberswapCommon = { aggregator: "kyberswap", exchangeProxy: '0x6131B5fae19EA4f9D964eAc0408E4408b66337b5' }
 // KyberSwap API
 async function getKyberSwapQuote(params: SwapExecuteParams): Promise<SwapQuote> {
   try {
-    const response = await fetch(`https://aggregator-api.kyberswap.com/ethereum/api/v1/routes?tokenIn=${params.fromToken}&tokenOut=${params.toToken}&amountIn=${params.amountIn}`, {
+    const excluded = params.durableOnly ? `&excludedSources=${(await getKyberShortLivedSources()).join(',')}` : '';
+    const response = await fetch(`https://aggregator-api.kyberswap.com/ethereum/api/v1/routes?tokenIn=${params.fromToken}&tokenOut=${params.toToken}&amountIn=${params.amountIn}${excluded}`, {
       headers: {
         "Accept": "application/json",
         "x-client-Id": "inverse-finance",
