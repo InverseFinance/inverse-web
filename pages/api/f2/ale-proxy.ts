@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', `*`);
   res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
 
-  const { method, buyToken, sellToken, sellAmount, slippagePercentage, isFullDeleverage, aggregator, routeSummary } = req.query;
+  const { method, buyToken, sellToken, sellAmount, slippagePercentage, isFullDeleverage, aggregator, routeSummary, recipient, deadline } = req.query;
 
   const pendleCollaterals = Object.keys(ptMarkets).map(k => k.toLowerCase());
   const isPendleCase = pendleCollaterals.includes(buyToken.toLowerCase()) || pendleCollaterals.includes(sellToken.toLowerCase());
@@ -30,6 +30,15 @@ export default async function handler(req, res) {
   if (!['swap', 'quote'].includes(method) || !isAddress(buyToken) || !isAddress(sellToken) || (buyToken.toLowerCase() !== DOLA.toLowerCase() && sellToken.toLowerCase() !== DOLA.toLowerCase()) || (!/^[1-9]+[0-9]*$/.test(sellAmount) && isFullDeleverage !== 'true')) {
     return res.status(400).json({ msg: 'invalid request' });
   }
+
+  // Optional, for an account swapping without the ALE (a Safe's leverage rounds): the
+  // swap's sender and recipient, and when its swap data stops being valid (unix seconds)
+  const now = Math.floor(Date.now() / 1000);
+  const swapDeadline = deadline ? parseInt(deadline) : undefined;
+  if ((!!recipient && !isAddress(recipient)) || (!!deadline && (!/^[0-9]+$/.test(deadline) || swapDeadline! <= now || swapDeadline! > now + 86400))) {
+    return res.status(400).json({ msg: 'invalid recipient or deadline' });
+  }
+  const swapRecipient = recipient || F2_ALE;
 
   try {
     if (isPendleCase) {
@@ -51,12 +60,26 @@ export default async function handler(req, res) {
         isExpiredPendleMarket: isExpired,
       });
     } else {
-      const params = { aggregator, recipient: F2_ALE, chainId: 1, fromToken: sellToken, toToken: buyToken, amountIn: sellAmount, slippageTolerance: slippagePercentage }
+      const params = {
+        aggregator,
+        recipient: swapRecipient,
+        chainId: 1,
+        fromToken: sellToken,
+        toToken: buyToken,
+        amountIn: sellAmount,
+        slippageTolerance: slippagePercentage,
+        deadline: swapDeadline,
+        // routing leftovers go back to an account swapping for itself
+        refundReceiver: recipient || undefined,
+      }
       const allowedAggregators = TOKEN_AGGREGATORS[buyToken.toLowerCase()] || TOKEN_AGGREGATORS[sellToken.toLowerCase()];
+      // a requested aggregator, when allowed for the tokens, is the only one quoted: a Safe's
+      // rounds all go through the same one
+      const requestedAggregators = !!aggregator && (!allowedAggregators || allowedAggregators.includes(aggregator)) ? [aggregator] : undefined;
 
       let swapCalldata;
       let selectedData;
-      const { bestQuote } = await getBestQuote(params, allowedAggregators);
+      const { bestQuote } = await getBestQuote(params, requestedAggregators || allowedAggregators);
 
       if(method === 'swap' && !!bestQuote?.aggregator) {
         // a requested aggregator must be allowed for the tokens
@@ -77,6 +100,9 @@ export default async function handler(req, res) {
         exchangeProxy: bestQuote?.exchangeProxy,
         data: swapCalldata,
         gasPrice: bestQuote?.gasPrice,
+        // what the swap data was built for: its own expected output (the minimum it
+        // enforces derives from it), and who it pays
+        ...(method === 'swap' ? { swapAmountOut: selectedData?.amountOut, recipient: swapRecipient, deadline: swapDeadline } : {}),
       });
     }
   } catch (err) {

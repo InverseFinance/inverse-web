@@ -34,6 +34,10 @@ export interface SwapExecuteParams {
   referrerFee?: number; // in basis points (100 = 1%)
   id?: string;
   routeSummary?: any;
+  // unix seconds after which the swap data reverts (KyberSwap's default: 20 minutes)
+  deadline?: number;
+  // who gets the routing leftovers (Enso), when not the default one
+  refundReceiver?: string;
 }
 
 const kyberswapCommon = { aggregator: "kyberswap", exchangeProxy: '0x6131B5fae19EA4f9D964eAc0408E4408b66337b5' }
@@ -83,6 +87,7 @@ async function getKyberSwapSwapData(params: SwapExecuteParams): Promise<SwapQuot
         // enableGasEstimation: false,
         // ignoreCappedSlippage: false,
         slippageTolerance: parseInt((params.slippageTolerance * 100).toFixed(0)),
+        ...(params.deadline ? { deadline: params.deadline } : {}),
       }),
     });
 
@@ -183,7 +188,9 @@ async function getEnsoSwapData(params: SwapExecuteParams): Promise<SwapQuote> {
     const amountIn = params.amountIn;
     const slippage = (params.slippageTolerance * 100).toFixed(0);
 
-    const res = await fetch(`https://api.enso.build/api/v1/shortcuts/route?chainId=1&toEoa=true&fromAddress=${fromAddress}&amountIn=${amountIn}&slippage=${slippage}&tokenIn=${tokenIn}&tokenOut=${tokenOut}&refundReceiver=0x8dF2fBeBc0fe876e4001b9E89361C5aE02d663d2&priceImpact=true&routingStrategy=router`, {
+    const refundReceiver = params.refundReceiver || '0x8dF2fBeBc0fe876e4001b9E89361C5aE02d663d2';
+
+    const res = await fetch(`https://api.enso.build/api/v1/shortcuts/route?chainId=1&toEoa=true&fromAddress=${fromAddress}&amountIn=${amountIn}&slippage=${slippage}&tokenIn=${tokenIn}&tokenOut=${tokenOut}&refundReceiver=${refundReceiver}&priceImpact=true&routingStrategy=router`, {
       method: "GET",
       headers: {
         'accept': "*/*",
