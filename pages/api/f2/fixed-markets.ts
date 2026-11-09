@@ -3,7 +3,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
-import { getBnToNumber, getConvexMarketsExtraApys, getFirmMarketsApys } from '@app/util/markets'
+import { getBnToNumber, getFirmMarketsApys } from '@app/util/markets'
 import { CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { formatDistributorData, formatMarketData, inverseViewerRaw } from '@app/util/viewer';
@@ -116,9 +116,8 @@ export default async function handler(req, res) {
       formatDistributorData(dbrDistributorData),
     ];
 
-    const [externalApys, convexExtraApys, marketsDisplay, currentBlock, dbrPriceUsd, merklOpportunities] = await Promise.all([
+    const [externalApys, marketsDisplay, currentBlock, dbrPriceUsd, merklOpportunities] = await Promise.all([
       getFirmMarketsApys(provider, invApr, cachedData),
-      getConvexMarketsExtraApys(),
       getCacheFromRedis(marketsDisplaysCacheKey, false),
       provider.getBlockNumber(),
       getDbrPriceUsd(provider),
@@ -145,7 +144,6 @@ export default async function handler(req, res) {
       const isPendle = m.name.startsWith('PT-');
       const supplyApy = externalApys[underlying.symbol] || externalApys[m.name] || 0;
       const isPendleMatured = isPendle && !supplyApy;
-      const extraRewardApy = convexExtraApys.find(c => c.name.toLowerCase() === m.name.toLowerCase())?.extraApy || 0;
       const marketOverrides = m.hasNowInvalidFeed ? { ...marketData, price: 0, totalDebt: 0, ...m} : {...m,...marketData}
       const extraApy = m.isInv ? dbrApr : 0;
       const collateralFactor = marketOverrides.collateralFactor;
@@ -171,7 +169,8 @@ export default async function handler(req, res) {
         };
       return {
         ...marketOverrides,
-        extraRewardApy,
+        // kept for the api consumers: the extra rewards of the Convex markets are in their supplyApy
+        extraRewardApy: 0,
         // Merkl rewards are separate from the supplyApy
         merklApy,
         merklBorrowApr,
@@ -185,13 +184,13 @@ export default async function handler(req, res) {
         merklUrl,
         aleAllowance: getBnToNumber(aleAllowancesChecks[i]) > 0 ? 'OK' : 'KO',
         underlying: TOKENS[m.collateral],
-        supplyApy: supplyApy + extraRewardApy,
+        supplyApy,
         extraApy,
         // theoretical max leverage: borrow limit at 100% and DOLA at $1
         maxLeverage,
         // yield at max leverage net of the fixed borrow cost, plus the Merkl rewards on the deposits and the debt
         maxNetApy: maxLeverage !== null && dbrPriceUsd ?
-          calculateNetApy(supplyApy + extraRewardApy + merklApy + extraApy, collateralFactor, dbrPriceUsd) + merklBorrowApr * (maxLeverage - 1)
+          calculateNetApy(supplyApy + merklApy + extraApy, collateralFactor, dbrPriceUsd) + merklBorrowApr * (maxLeverage - 1)
           : null,
         supplyApyLow: isCvxCrv ? Math.min(cvxCrvData?.group1 || 0, cvxCrvData?.group2 || 0) : 0,
         cvxCrvData: isCvxCrv ? cvxCrvData : undefined,

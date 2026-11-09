@@ -2,15 +2,14 @@ import { CHAIN_TOKENS, TOKENS } from '@app/variables/tokens';
 import { BigNumberList, Market, NetworkIds, TokenList } from '@app/types';
 import { BigNumber, Contract } from 'ethers';
 import { formatUnits, commify, isAddress, parseUnits, parseEther } from 'ethers/lib/utils';
-import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY, ONE_DAY_SECS, WEEKS_PER_YEAR, ONE_DAY_MS, BURN_ADDRESS } from '@app/config/constants';
+import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY, ONE_DAY_SECS, WEEKS_PER_YEAR, ONE_DAY_MS } from '@app/config/constants';
 
 import { getAvgOnLastItems, getNextThursdayTimestamp, lowercaseObjectKeys, removeTrailingZeros, toFixed } from './misc';
 import { getProvider } from './providers';
 import { NETWORKS_BY_NAME } from '@app/config/networks';
 import { fetchWithTimeout } from './web3';
-import { getEnsoData } from './enso';
 import { FIRM_MARKETS } from '@app/variables/firm-markets';
-import { getGroupedMulticallOutputs } from './multicall';
+import { getConvexPoolsAprs } from './convex';
 import { CONVEX_REWARD_POOL } from '@app/config/abis';
 
 const DEFI_LLAMA_POOL_IDS = {
@@ -18,10 +17,6 @@ const DEFI_LLAMA_POOL_IDS = {
     CVX_CRV: 'ef32dd3b-a03b-4f79-9b65-8420d7e04ad0',
     DSR: 'c8a24fee-ec00-4f38-86c0-9f6daebc4225',
     ST_CVX: '777032e6-e815-4f44-90b4-abb98f0f9632',
-    CRVUSD_DOLA: 'e85c4caf-f504-4ffe-932d-b2054ac0e2bb',
-    SUSDE_DOLA: '85407c01-6f16-4cef-9ef2-1b2bf2556183',
-    FRAX_PYUSD_DOLA: '0ae6a3d1-5aed-460e-bfb7-bbd855f0bc21',
-    FRAX_BP_DOLA: 'd05cb04d-f1e5-451d-95a2-6a3a9da001ad',
     SFRAX: '55de30c3-bf9f-4d4e-9e0b-536a8ef5ab35',
 } as const;
 
@@ -337,14 +332,6 @@ export const getSUSDEData = async (provider, alsoGet30d = false) => {
     return [];
 }
 
-export const getCrvUSDDOLAConvexData = () => getDefiLlamaApy(DEFI_LLAMA_POOL_IDS.CRVUSD_DOLA);
-
-export const getSUSDeDOLAConvexData = () => getDefiLlamaApy(DEFI_LLAMA_POOL_IDS.SUSDE_DOLA);
-
-export const getFraxPyusdDOLAConvexData = () => getDefiLlamaApy(DEFI_LLAMA_POOL_IDS.FRAX_PYUSD_DOLA);
-
-export const getFraxBPDOLAConvexData = () => getDefiLlamaApy(DEFI_LLAMA_POOL_IDS.FRAX_BP_DOLA);
-
 export const getSFraxData = async (provider) => {
     return getDefiLlamaApy('55de30c3-bf9f-4d4e-9e0b-536a8ef5ab35');
     //   try {
@@ -390,28 +377,6 @@ export const getStYethData = async () => {
         return { apr: apr * 100, apy: apy * 100 };
     } catch (e) { console.log(e) }
     return {};
-}
-
-// cross-check between defillama and enso apy
-export const getCrossCheckedApyData = async (poolId: string, convexAddress: string) => {
-    const [defillamaData, ensoData] = await Promise.all([
-        getPoolYield(poolId),
-        getEnsoData([convexAddress]),
-    ])
-
-    const ensoItem = ensoData[0];
-    if (!ensoItem) {
-        return {
-            defillamaData,
-        }
-    }
-    // enso seem to handle better the pending harvest case for Convex in which case the apyReward is null there
-    const apy = ensoItem.apyReward === null ? defillamaData.apyBase : defillamaData.apy;
-
-    return {
-        ...defillamaData,
-        apy,
-    }
 }
 
 export const getCvxCrvData = () => getDefiLlamaApy(DEFI_LLAMA_POOL_IDS.CVX_CRV);
@@ -770,6 +735,13 @@ export const getHistoricalTokenData = async (cgId: string, fromTsSec?: number, t
 }
 
 export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
+    const convexMarkets = FIRM_MARKETS.filter(m => !!m.convexRewardsAddress);
+    // Convex LPs: APRs as shown by the Convex UI
+    const convexPoolsAprsPromise = getConvexPoolsAprs(convexMarkets.map(m => m.convexRewardsAddress as string), provider)
+        .catch((e): { [rewardContract: string]: number | undefined } => {
+            console.log('Failed to fetch the Convex APRs', e);
+            return {};
+        });
     // external yield bearing apys
     const externalYieldResults = await Promise.allSettled([
         getStethData(),
@@ -781,27 +753,15 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getStYethData(),
         getSFraxData(provider),
         getSUSDEData(provider),
-        getCrvUSDDOLAConvexData(),
         getYvCrvUsdDOLAData(),
-        getFraxPyusdDOLAConvexData(),
         getYvFraxPyusdDOLAData(),
-        getFraxBPDOLAConvexData(),
         getYvFraxBPDOLAData(),
         getPendleMarketApy('0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce'),
-        getSUSDeDOLAConvexData(),
         getYvSUSDeDOLAData(),
-        getDefiLlamaApy('51f9c038-feed-4666-8866-30efc92e0566'),
         getYearnVaultApy('0x342D24F2a3233F7Ac8A7347fA239187BFd186066'),
-        // scrvUSD-DOLA
-        // getCrossCheckedApyData('8d316467-0da9-4404-923c-d7726ee60780', '0xff17dAb22F1E61078aBa2623c89cE6110E878B3c'),
-        getDefiLlamaApy('8d316467-0da9-4404-923c-d7726ee60780'),
-        //
         getYearnVaultApy('0xbCe40f1840A449cAAaF374Df0A1fEe1e212784CB'),
-        getDefiLlamaApy('0ff79814-dc93-4b3f-a4e1-7f395ddf0860'),
         getYearnVaultApy('0x08c0833AF1331831759b8e0BFeF1BC5738436325'),
-        getDefiLlamaApy('2f3c88e7-8e18-4cdf-88e2-73ffa6f16af8'),
         getYearnVaultApy('0xc7C1B907BCD3194C0D9bFA2125251af98BdDAfbb'),
-        getDefiLlamaApy('a850d185-5433-4932-99df-cdfea0336b9e'),
         getYearnVaultApy('0x57a2c7925bAA1894a939f9f6721Ea33F2EcFD0e2'),
         getPendleMarketApy('0xb162b764044697cf03617c2efbcb1f42e31e4766'),
         getPendleMarketApy('0x4339ffe2b7592dc783ed13cce310531ab366deac'),
@@ -810,7 +770,6 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getPendleMarketApy('0xb6ac3d5da138918ac4e84441e924a20daa60dbdd'),
         getPendleMarketApy('0x4eaa571eafcd96f51728756bd7f396459bb9b869'),
         // wstUSR
-        getDefiLlamaApy('d6667b26-1e1f-44bd-92a2-9ed56003ef36'),
         getYearnVaultApy('0x8A5f20dA6B393fE25aCF1522C828166D22eF8321'),
         getDefiLlamaApy('54c9a039-42a2-4756-896a-50b81b239ba9'),
         // reUSD
@@ -831,24 +790,15 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         stYethData,
         sFraxData,
         sUSDEData,
-        crvUSDDOLAConvexData,
         yvCrvUsdDOLAData,
-        fraxPyusdDOLAConvexData,
         yvFraxPyusdDOLAData,
-        fraxBPDOLAConvexData,
         yvFraxBPDOLAData,
         ptSUSDe27MAR25Data,
-        sUSDeDOLAConvexData,
         yvSUSDeDOLAData,
-        sUSDSDolaConvexData,
         yvSUSDSDolaData,
-        scrvUsdDolaConvexData,
         yvscrvUsdDolaData,
-        scrvUsdSDolaConvexData,
         yvscrvUsdSDolaData,
-        deUSDDOLAConvexData,
         yvdeUSDDOLAData,
-        USRDOLAConvexData,
         yvUSRDOLAData,
         ptSUSDe29MAY25Data,
         ptSUSDe31JUL25Data,
@@ -856,7 +806,6 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         ptUSDe25SEP25Data,
         ptSUSDe27NOV25Data,
         ptUSDe27NOV25Data,
-        wstUSRDOLAConvexData,
         yvwstUSRDOLAData,
         scrvUSDsDOLAStakedaoData,
         yvreusdSDOLAData,
@@ -876,6 +825,13 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         cvxFxsData = cachedData.markets.find(m => m.name === 'cvxFXS').cvxFxsData;
     }
 
+    // the last known Convex APRs if unavailable
+    const convexPoolsAprs = await convexPoolsAprsPromise;
+    const convexMarketsAprs = Object.fromEntries(convexMarkets.map(m => {
+        const apr = convexPoolsAprs[(m.convexRewardsAddress as string).toLowerCase()];
+        return [m.name, apr ?? cachedData?.markets?.find((cm: { name: string, supplyApy?: number }) => cm.name === m.name)?.supplyApy ?? 0];
+    }));
+
     return {
         cvxCrvData,
         cvxFxsData,
@@ -890,24 +846,16 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'st-yETH': stYethData?.apy || 0,
         'sFRAX': sFraxData?.apy || 0,
         'sUSDe': sUSDEData?.apy || 0,
-        'crvUSD-DOLA': crvUSDDOLAConvexData?.apy || 0,
+        ...convexMarketsAprs,
         'yv-crvUSD-DOLA': yvCrvUsdDOLAData?.apy || 0,
-        'FraxPyUSD-DOLA': fraxPyusdDOLAConvexData?.apy || 0,
         'yv-FraxPyUSD-DOLA': yvFraxPyusdDOLAData?.apy || 0,
-        'FraxBP-DOLA': fraxBPDOLAConvexData?.apy || 0,
         'yv-FraxBP-DOLA': yvFraxBPDOLAData?.apy || 0,
         'PT-sUSDe-27MAR25': ptSUSDe27MAR25Data?.apy || 0,
-        'sUSDe-DOLA': sUSDeDOLAConvexData?.apy || 0,
         'yv-sUSDe-DOLA': yvSUSDeDOLAData?.apy || 0,
-        'sUSDS-DOLA': sUSDSDolaConvexData?.apy || 0,
         'yv-sUSDS-DOLA': yvSUSDSDolaData?.apy || 0,
-        'scrvUSD-DOLA': scrvUsdDolaConvexData?.apy || 0,
         'yv-scrvUSD-DOLA': yvscrvUsdDolaData?.apy || 0,
-        'scrvUSD-sDOLA-convex': scrvUsdSDolaConvexData?.apy || 0,
         'yv-scrvUSD-sDOLA': yvscrvUsdSDolaData?.apy || 0,
-        'deUSD-DOLA': deUSDDOLAConvexData?.apy || 0,
         'yv-deUSD-DOLA': yvdeUSDDOLAData?.apy || 0,
-        'USR-DOLA': 0,
         'yv-USR-DOLA': yvUSRDOLAData?.apy || 0,
         'PT-sUSDe-29MAY25': ptSUSDe29MAY25Data?.apy || 0,
         'PT-sUSDe-31JUL25': ptSUSDe31JUL25Data?.apy || 0,
@@ -915,7 +863,6 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'PT-USDe-25SEP25': ptUSDe25SEP25Data?.apy || 0,
         'PT-sUSDe-27NOV25': ptSUSDe27NOV25Data?.apy || 0,
         'PT-USDe-27NOV25': ptUSDe27NOV25Data?.apy || 0,
-        'wstUSR-DOLA': wstUSRDOLAConvexData?.apy || 0,
         'yv-wstUSR-DOLA': yvwstUSRDOLAData?.apy || 0,
         // stakedao
         'scrvUSD-sDOLA': scrvUSDsDOLAStakedaoData?.apy || 0,
@@ -957,104 +904,6 @@ export const getExtraCvxRewards = async (rewardContractAddress: string, escrow: 
         return {
             address: extraRewardTokens[i],
             bigBalance: extraEarnedData[i],
-        }
-    })
-}
-
-export const getConvexMarketsExtraApys = async () => {
-    const provider = getProvider(1);
-
-    const cvxMarkets = FIRM_MARKETS
-        .filter(m => !!m.convexRewardsAddress);
-
-    // simplified
-    const [
-        extraRewards,
-        rewardRates,
-        totalSupplies,
-    ] = await getGroupedMulticallOutputs(
-        [
-            cvxMarkets.map(c => {
-                const contract = new Contract(c.convexRewardsAddress, CONVEX_REWARD_POOL, provider);
-                return {
-                    contract, functionName: 'extraRewards', params: [1], fallbackValue: BURN_ADDRESS
-                }
-            }),
-            cvxMarkets.map(c => {
-                const contract = new Contract(c.convexRewardsAddress, CONVEX_REWARD_POOL, provider);
-                return {
-                    contract, functionName: 'rewardRate', params: []
-                }
-            }),
-            cvxMarkets.map(c => {
-                const contract = new Contract(c.convexRewardsAddress, CONVEX_REWARD_POOL, provider);
-                return {
-                    contract, functionName: 'totalSupply', params: []
-                }
-            }),
-        ]
-        , 1, undefined, provider, true);
-
-    const [
-        extraRewardTokenWrappers,
-        extraRewardRates,
-        extraRewardTotalSupplies,
-        extraRewardPeriodFinishes,
-    ] = await getGroupedMulticallOutputs(
-        [
-            extraRewards.map(c => {
-                const contract = new Contract(c, CONVEX_REWARD_POOL, provider);
-                return {
-                    contract, functionName: 'rewardToken', forceFallback: c === BURN_ADDRESS, fallbackValue: BURN_ADDRESS
-                }
-            }),
-            extraRewards.map(c => {
-                const contract = new Contract(c, CONVEX_REWARD_POOL, provider);
-                return {
-                    contract, functionName: 'rewardRate', forceFallback: c === BURN_ADDRESS, fallbackValue: BigNumber.from(0)
-                }
-            }),
-            extraRewards.map(c => {
-                const contract = new Contract(c, CONVEX_REWARD_POOL, provider);
-                return {
-                    contract, functionName: 'totalSupply', forceFallback: c === BURN_ADDRESS, fallbackValue: BigNumber.from(0)
-                }
-            }),
-            extraRewards.map(c => {
-                const contract = new Contract(c, CONVEX_REWARD_POOL, provider);
-                return {
-                    contract, functionName: 'periodFinish', forceFallback: c === BURN_ADDRESS, fallbackValue: BURN_ADDRESS
-                }
-            }),
-        ]
-        , 1, undefined, provider, true);
-
-    const [
-        extraRewardTokens,
-    ] = await getGroupedMulticallOutputs(
-        [
-            extraRewardTokenWrappers.map(c => {
-                const contract = new Contract(c, CONVEX_REWARD_POOL, provider);
-                return {
-                    contract, functionName: 'token', params: []
-                }
-            }),
-        ]
-        , 1, undefined, provider, true);
-
-    const now = Math.floor(Date.now() / 1000);
-
-    return cvxMarkets.map((m, i) => {
-        const periodFinish = getBnToNumber(extraRewardPeriodFinishes[i], 0);
-        const isExtraRewardActive = periodFinish > now;
-        return {
-            name: m.name,
-            extraRewardTokens: extraRewardTokens[i],
-            extraRewards: extraRewards[i],
-            extraRewardTokenWrappers: extraRewardTokenWrappers[i],
-            extraRewardRates: extraRewardRates[i],
-            rewardRates: rewardRates[i],
-            extraApy: isExtraRewardActive && getBnToNumber(extraRewardTotalSupplies[i]) > 0 ? getBnToNumber(extraRewardRates[i]) * 86400 * 365 / getBnToNumber(extraRewardTotalSupplies[i]) * 100 : 0,
         }
     })
 }
