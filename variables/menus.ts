@@ -399,10 +399,6 @@ export const MENUS = {
           href: 'https://earn.inverse.finance',
           isExternal: true,
         },
-        {
-          label: 'DOLA',
-          href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/dola',
-        },
         // {
         //   label: 'sINV',
         //   href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/products/tokens/sinv',
@@ -423,6 +419,11 @@ export const MENUS = {
         {
           label: 'Compare Stablecoin Yields',
           href: 'https://stableyields.info',
+          isExternal: true,
+        },
+        {
+          label: 'Mantis',
+          href: 'https://mantis.inverse.finance',
           isExternal: true,
         },
         // {

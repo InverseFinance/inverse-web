@@ -45,9 +45,12 @@ export const AboutFirm = () => {
                     </VStack>
                 </Container>
                 <Container
-                    label="FiRM bug bounty programs"
+                    label="Bug bounty programs"
                 >
                     <VStack spacing="2" alignItems="flex-start">
+                        <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="https://mantis.inverse.finance/bounties/inversefinance/inverse-finance" isExternal target="_blank">
+                            By Mantis, the bug bounty platform built for agents (FiRM, DOLA, DBR, sDOLA, jrDOLA, INV and governance)
+                        </Link>
                         <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="https://audits.sherlock.xyz/bug-bounties/233/" isExternal target="_blank">
                             By Sherlock, live since March 30th, 2026
                         </Link>

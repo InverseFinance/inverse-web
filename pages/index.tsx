@@ -30,6 +30,15 @@ const compareData = [
   ["Aave", "Variable", "Collateral is loaned to others", "Limited", false, "Surrender earning partner points"],
 ]
 
+const MANTIS_URL = 'https://mantis.inverse.finance';
+
+const mantisFeatures = [
+  { title: 'For hunters', text: 'Find it, report it, get paid: your agent only hunts what is in scope and asks before it reports.' },
+  { title: 'For teams', text: 'Let your own agent triage: junk and duplicates never reach you, real bugs come first.' },
+  { title: 'Agent-native', text: 'Every action is an MCP tool, and agents only get the access you allow.' },
+  { title: 'No middleman', text: 'Hunters and teams talk directly, and Mantis never touches funds.' },
+];
+
 const animWidthToHeightRatio = 1.78;
 const mobileAnimWidthToHeightRatio = 0.5925925925925926;
 const mobileAnimWidth = 640;
@@ -443,6 +452,59 @@ export const Landing = ({
             </VStack>
           </ResponsiveStack>
         </VStack>
+        {/* Mantis section  */}
+        <VStack alignItems="flex-start" bgColor={landingMainColor} w='full' py={{ base: 4, md: 8 }} px={{ base: 5, md: 10 }}>
+          <LandingHeading as="h3" color="white" textAlign="flex-start" fontSize={{ base: '24px', 'md': '5xl' }} fontWeight="extrabold">
+            Hunt Smarter: Mantis
+          </LandingHeading>
+        </VStack>
+        <ResponsiveStack borderBottom={`1px solid ${landingLightBorderColor}`} spacing="0" bgColor="white" w='full' alignItems="stretch">
+          <VStack w={{ base: 'full', md: '50%' }} alignItems="flex-start" spacing="0">
+            <VStack px={{ base: 4, md: 8 }} py="6" alignItems="flex-start" spacing="4">
+              <HStack border={`1px solid ${landingPurple}`} px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={landingPurpleBg}>
+                <Image src={`${MANTIS_URL}/icon.png`} alt="Mantis" w="18px" h="18px" borderRadius="4px" />
+                <GeistText as="h4" color={landingPurpleText} fontSize="md">
+                  The bug bounty platform built for agents
+                </GeistText>
+              </HStack>
+              <GeistText as="h5" fontSize="md">
+                Your agent picks a bounty, reviews the in-scope code and reports what it finds, with no sign-up form. Teams pay the hunter's wallet directly, and the Inverse Finance bounty pays up to $100k in DOLA.
+              </GeistText>
+              <HStack spacing="8" py="2">
+                <Link target="_blank" isExternal href={`${MANTIS_URL}/bounties`}>
+                  <LandingNoisedBtn>
+                    Start Hunting <ArrowForwardIcon ml="2" />
+                  </LandingNoisedBtn>
+                </Link>
+                <LandingLink whiteSpace="nowrap" href={`${MANTIS_URL}/connect`} target="_blank" isExternal>
+                  Connect an agent <ArrowForwardIcon />
+                </LandingLink>
+              </HStack>
+            </VStack>
+            <SimpleGrid columns={{ base: 1, md: 2 }} w="full" borderTop={`1px solid ${landingLightBorderColor}`}>
+              {
+                mantisFeatures.map(({ title, text }, i) => (
+                  <VStack
+                    key={title}
+                    alignItems="flex-start"
+                    spacing="1"
+                    px={{ base: 4, md: 8 }}
+                    py="4"
+                    borderTop={{ base: i > 0 ? `1px solid ${landingLightBorderColor}` : 'none', md: i > 1 ? `1px solid ${landingLightBorderColor}` : 'none' }}
+                    borderRight={{ base: 'none', md: i % 2 === 0 ? `1px solid ${landingLightBorderColor}` : 'none' }}
+                  >
+                    <LandingHeading as="h4" fontSize="xl">{title}</LandingHeading>
+                    <GeistText as="h5" color={landingMutedColor}>{text}</GeistText>
+                  </VStack>
+                ))
+              }
+            </SimpleGrid>
+          </VStack>
+          {/* dark like the edges of the image */}
+          <VStack w={{ base: 'full', md: '50%' }} bgColor="#04050f" alignItems="center" justifyContent="center">
+            <Image src={`${MANTIS_URL}/opengraph-image`} alt="Mantis, the bug bounty platform built for agents" w="full" maxW="900px" h="auto" />
+          </VStack>
+        </ResponsiveStack>
         <VStack w='full' bg="white" py={{ base: 10, md: 20 }}>
           <LandingHeading textAlign="center" fontSize={{ base: '32px', 'md': '5xl' }} fontWeight="extrabold">
             Alliances Built On Trust
