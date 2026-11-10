@@ -40,6 +40,20 @@ export default async function handler(req, res) {
   }
   const swapRecipient = recipient || F2_ALE;
 
+  // Optional, comma-separated: what to route around (e.g. pools a batch's earlier swaps
+  // drained), in the aggregator's names from a route this returned. Pools are only
+  // taken by KyberSwap; protocols by both (Enso's standards or aggregators)
+  const listOf = (value: unknown) =>
+    typeof value === 'string' && value ? value.split(',').map(item => item.trim().toLowerCase()).filter(Boolean) : [];
+  const excludedPools = listOf(req.query.excludedPools);
+  const excludedProtocols = listOf(req.query.excludedProtocols);
+  // KyberSwap's pool ids: an address, a Uniswap v4 pool id, or an address with tokens (e.g. 0x…_0x…_0x…)
+  const poolId = /^0x(?:[0-9a-f]{40}|[0-9a-f]{64})(?:_0x[0-9a-f]{40}){0,4}$/;
+  if (excludedPools.length > 20 || excludedPools.some(pool => !poolId.test(pool))
+    || excludedProtocols.length > 20 || excludedProtocols.some(protocol => !/^[a-z0-9][a-z0-9._-]{0,63}$/.test(protocol))) {
+    return res.status(400).json({ msg: 'invalid excluded pools or protocols' });
+  }
+
   try {
     if (isPendleCase) {
       const firmMarket = F2_MARKETS.find(m => [buyToken.toLowerCase(), sellToken.toLowerCase()].includes(m.collateral.toLowerCase()));
@@ -73,6 +87,8 @@ export default async function handler(req, res) {
         refundReceiver: recipient || undefined,
         // and its swap, which can be executed minutes later, isn't routed through quotes expiring by then
         durableOnly: !!recipient,
+        excludedPools,
+        excludedProtocols,
       }
       const allowedAggregators = TOKEN_AGGREGATORS[buyToken.toLowerCase()] || TOKEN_AGGREGATORS[sellToken.toLowerCase()];
       // a requested aggregator, when allowed for the tokens, is the only one quoted: a Safe's
@@ -110,6 +126,8 @@ export default async function handler(req, res) {
         // what the swap data was built for: its own expected output (the minimum it
         // enforces derives from it), and who it pays
         ...(method === 'swap' ? { swapAmountOut: selectedData?.amountOut, recipient: swapRecipient, deadline: swapDeadline } : {}),
+        // the route it goes through, when the aggregator describes it (RouteHop[])
+        route: (method === 'swap' ? selectedData?.route : bestQuote?.route) || undefined,
       });
     }
   } catch (err) {

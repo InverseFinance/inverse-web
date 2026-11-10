@@ -1,13 +1,33 @@
 
 // important: no fee on leverage
 
+/** One step of a swap's route, as the aggregator describes it. */
+export interface RouteHop {
+  // the venue, in the aggregator's own names: KyberSwap's source ids (e.g. 'uniswap-v3',
+  // 'curve-stable-ng'), Enso's standards ('uniswap-v3', 'yearn-v3'...) or the
+  // aggregator a hop goes through ('0x', '1inch'...), and 'enso' for its own steps
+  protocol: string;
+  // what it does: KyberSwap's hops are all swaps; Enso's: 'swap', 'deposit', 'redeem'...
+  action: string;
+  // the pools it trades in, lowercase, when the aggregator says
+  pools: string[];
+  tokenIn: string[];
+  tokenOut: string[];
+  // KyberSwap: what goes in and comes out of the hop, and the split path it's on
+  amountIn?: string;
+  amountOut?: string;
+  path?: number;
+  // Enso: the contract it calls
+  address?: string;
+}
+
 export interface SwapQuote {
   aggregator: string;
   amountOut: string;
   // Estimated gas units for the transaction
   gasEstimate?: string;
   priceImpact?: number;
-  route?: any[];
+  route?: RouteHop[];
   calldata?: string;
   to?: string;
   value?: string;
@@ -41,7 +61,49 @@ export interface SwapExecuteParams {
   // a swap executed minutes after it's quoted (a Safe's): routed only through sources
   // whose prices still hold by then (KyberSwap)
   durableOnly?: boolean;
+  // routed around these (e.g. pools a batch's earlier swaps drained), in the
+  // aggregator's names (RouteHop): pools, which only KyberSwap takes, and protocols
+  excludedPools?: string[];
+  excludedProtocols?: string[];
 }
+
+const kyberRoute = (routeSummary: any): RouteHop[] =>
+  (routeSummary?.route || []).flatMap((path: any[], i: number) =>
+    (path || []).map((hop: any) => ({
+      protocol: hop.exchange,
+      action: 'swap',
+      pools: hop.pool ? [hop.pool.toLowerCase()] : [],
+      tokenIn: [hop.tokenIn?.toLowerCase()],
+      tokenOut: [hop.tokenOut?.toLowerCase()],
+      amountIn: hop.swapAmount,
+      amountOut: hop.amountOut,
+      path: i,
+    })),
+  );
+
+const lower = (list?: string[]) => (list || []).map(a => a.toLowerCase());
+const ensoRoute = (route: any): RouteHop[] =>
+  (route || []).map((hop: any) => ({
+    protocol: hop.protocol,
+    action: hop.action,
+    pools: [...new Set(lower(hop.poolAddresses))],
+    tokenIn: lower(hop.tokenIn),
+    tokenOut: lower(hop.tokenOut),
+    ...(hop.primaryAddress ? { address: hop.primaryAddress.toLowerCase() } : {}),
+  }));
+
+// Enso excludes by aggregator (these, its own list) or by standard (any other
+// protocol), not by pool; its own steps ('enso') can't be
+const ENSO_AGGREGATORS = new Set([
+  '0x', '1inch', 'openocean', 'kyberswap', 'native', 'paraswap', 'bebop', 'barter', 'sushiswap-router', 'ooga-booga',
+  'renegade', 'uniswap', 'rooster', 'wowmax', 'grapher', 'hyperbloom', 'hyperswap', 'hyperflow', 'fly', 'eisen',
+  'nordstern', 'everlong', 'bitget', 'akka',
+]);
+const ensoExclusions = (params: SwapExecuteParams) =>
+  (params.excludedProtocols || [])
+    .filter(protocol => protocol !== 'enso')
+    .map(protocol => `&${ENSO_AGGREGATORS.has(protocol) ? 'ignoreAggregators' : 'ignoreStandards'}=${encodeURIComponent(protocol)}`)
+    .join('');
 
 // KyberSwap sources whose quotes don't last until a multisig executes: RFQ and market
 // makers' quotes, limit orders, prop AMMs (priced by their operator block by block) and
@@ -78,7 +140,9 @@ const kyberswapCommon = { aggregator: "kyberswap", exchangeProxy: '0x6131B5fae19
 // KyberSwap API
 async function getKyberSwapQuote(params: SwapExecuteParams): Promise<SwapQuote> {
   try {
-    const excluded = params.durableOnly ? `&excludedSources=${(await getKyberShortLivedSources()).join(',')}` : '';
+    const excludedSources = [...(params.durableOnly ? await getKyberShortLivedSources() : []), ...(params.excludedProtocols || [])];
+    const excluded = (excludedSources.length ? `&excludedSources=${excludedSources.join(',')}` : '')
+      + (params.excludedPools?.length ? `&excludedPools=${params.excludedPools.join(',')}` : '');
     const response = await fetch(`https://aggregator-api.kyberswap.com/ethereum/api/v1/routes?tokenIn=${params.fromToken}&tokenOut=${params.toToken}&amountIn=${params.amountIn}${excluded}`, {
       headers: {
         "Accept": "application/json",
@@ -98,6 +162,7 @@ async function getKyberSwapQuote(params: SwapExecuteParams): Promise<SwapQuote> 
       amountOut: data.data.routeSummary.amountOut || "0",
       gasEstimate: data.data.routeSummary.gas?.toString(),
       routeSummary: data.data.routeSummary,
+      route: kyberRoute(data.data.routeSummary),
       id: data.requestId,
       priceImpact: data.data.routeSummary.priceImpact ? parseFloat(data.data.routeSummary.priceImpact) * 100 : undefined,
     };
@@ -140,6 +205,8 @@ async function getKyberSwapSwapData(params: SwapExecuteParams): Promise<SwapQuot
       to: data.routerAddress,
       value: data.transactionValue,
       gasEstimate: data.gas?.toString(),
+      // the route it's built on
+      route: kyberRoute(params.routeSummary),
     };
   } catch (error: any) {
     return { aggregator: "kyberswap", amountOut: "0", error: error.message || "KyberSwap error", exchangeProxy: '0x6131B5fae19EA4f9D964eAc0408E4408b66337b5' };
@@ -164,7 +231,7 @@ async function getEnsoQuote(params: SwapExecuteParams): Promise<SwapQuote> {
     const amountIn = params.amountIn;
     const slippage = (params.slippageTolerance * 100).toFixed(0);
 
-    const res = await fetch(`https://api.enso.build/api/v1/shortcuts/quote?chainId=1&fromAddress=${fromAddress}&amountIn=${amountIn}&slippage=${slippage}&tokenIn=${tokenIn}&tokenOut=${tokenOut}&priceImpact=true&routingStrategy=router`, {
+    const res = await fetch(`https://api.enso.build/api/v1/shortcuts/quote?chainId=1&fromAddress=${fromAddress}&amountIn=${amountIn}&slippage=${slippage}&tokenIn=${tokenIn}&tokenOut=${tokenOut}&priceImpact=true&routingStrategy=router${ensoExclusions(params)}`, {
       method: "GET",
       headers: {
         'accept': "*/*",
@@ -195,7 +262,7 @@ async function getEnsoQuote(params: SwapExecuteParams): Promise<SwapQuote> {
         priceImpactBps !== undefined && !Number.isNaN(priceImpactBps)
           ? priceImpactBps / 100
           : undefined,
-      route: data.route,
+      route: ensoRoute(data.route),
     };
   } catch (error: any) {
     return {
@@ -225,7 +292,7 @@ async function getEnsoSwapData(params: SwapExecuteParams): Promise<SwapQuote> {
 
     const refundReceiver = params.refundReceiver || '0x8dF2fBeBc0fe876e4001b9E89361C5aE02d663d2';
 
-    const res = await fetch(`https://api.enso.build/api/v1/shortcuts/route?chainId=1&toEoa=true&fromAddress=${fromAddress}&amountIn=${amountIn}&slippage=${slippage}&tokenIn=${tokenIn}&tokenOut=${tokenOut}&refundReceiver=${refundReceiver}&priceImpact=true&routingStrategy=router`, {
+    const res = await fetch(`https://api.enso.build/api/v1/shortcuts/route?chainId=1&toEoa=true&fromAddress=${fromAddress}&amountIn=${amountIn}&slippage=${slippage}&tokenIn=${tokenIn}&tokenOut=${tokenOut}&refundReceiver=${refundReceiver}&priceImpact=true&routingStrategy=router${ensoExclusions(params)}`, {
       method: "GET",
       headers: {
         'accept': "*/*",
@@ -254,7 +321,7 @@ async function getEnsoSwapData(params: SwapExecuteParams): Promise<SwapQuote> {
         data.gas !== undefined && data.gas !== null
           ? String(data.gas)
           : undefined,
-      route: data.route,
+      route: ensoRoute(data.route),
     };
   } catch (error: any) {
     return {
