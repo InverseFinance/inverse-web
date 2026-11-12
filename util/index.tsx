@@ -1,5 +1,5 @@
 import { getNetworkConfigConstants } from '@app/util/networks'
-import localforage from 'localforage';
+import { localforage } from '@app/util/localforage';
 import { getProvider } from '@app/util/providers';
 import { ADDRESS_ROLES } from '../variables/names';
 

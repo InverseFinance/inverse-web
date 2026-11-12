@@ -2,7 +2,7 @@ import { getMultiDelegatorContract, getGovernanceContract, getINVContract } from
 import { JsonRpcSigner, TransactionReceipt, TransactionResponse } from '@ethersproject/providers';
 import { AbiCoder, isAddress, splitSignature, FunctionFragment, verifyMessage, ParamType } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
-import localforage from 'localforage';
+import { localforage } from '@app/util/localforage';
 import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds, DraftProposal, DraftReview, RefundableTransaction } from '@app/types';
 import { CURRENT_ERA, SIGN_MSG, GRACE_PERIOD_MS, DRAFT_WHITELIST } from '@app/config/constants';
 import { showToast } from './notify';

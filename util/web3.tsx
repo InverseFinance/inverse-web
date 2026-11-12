@@ -4,7 +4,7 @@ import { getNetwork } from '@app/util/networks'
 
 import { hexValue, formatUnits, parseUnits, Interface } from 'ethers/lib/utils'
 import { BigNumber, Contract } from 'ethers';
-import localforage from 'localforage';
+import { localforage } from '@app/util/localforage';
 import { BigNumberList, Token } from '@app/types'
 import { getNewContract } from './contracts'
 import { ERC20_ABI } from '@app/config/abis'

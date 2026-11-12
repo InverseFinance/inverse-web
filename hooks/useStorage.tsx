@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import localforage from 'localforage'
+import { localforage } from '@app/util/localforage'
 import { useEffect, useState } from 'react';
 
 export default function useStorage(key: string): { value: any, setter: (v: any) => void } {

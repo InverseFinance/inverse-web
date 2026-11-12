@@ -7,7 +7,7 @@ import { Contract } from 'ethers';
 import { AlchemyProvider } from '@ethersproject/providers';
 import { NetworkIds } from '@app/types';
 import { useCustomSWR } from '@app/hooks/useCustomSWR';
-import localforage from 'localforage'
+import { localforage } from '@app/util/localforage'
 import { useMemo } from 'react';
 
 const erc721Abi = [
