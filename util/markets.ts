@@ -581,10 +581,10 @@ const getYearnVaultApyViaKong = async (vaultId: string) => {
 };
 
 export const getStYvCrvData = () => getYearnVaultApyViaKong(YEARN_VAULT_IDS.YCRV);
-export const getYvCrvUsdDOLAData = () => getYearnVaultApy(YEARN_VAULT_IDS.CRVUSD_DOLA);
-export const getYvSUSDeDOLAData = () => getYearnVaultApy(YEARN_VAULT_IDS.SUSDE_DOLA);
-export const getYvFraxPyusdDOLAData = () => getYearnVaultApy(YEARN_VAULT_IDS.FRAX_PYUSD_DOLA);
-export const getYvFraxBPDOLAData = () => getYearnVaultApy(YEARN_VAULT_IDS.FRAX_BP_DOLA);
+export const getYvCrvUsdDOLAData = () => getYearnVaultApyViaKong(YEARN_VAULT_IDS.CRVUSD_DOLA);
+export const getYvSUSDeDOLAData = () => getYearnVaultApyViaKong(YEARN_VAULT_IDS.SUSDE_DOLA);
+export const getYvFraxPyusdDOLAData = () => getYearnVaultApyViaKong(YEARN_VAULT_IDS.FRAX_PYUSD_DOLA);
+export const getYvFraxBPDOLAData = () => getYearnVaultApyViaKong(YEARN_VAULT_IDS.FRAX_BP_DOLA);
 
 export const getPendleMarketApy = async (pendleMarketAddress: string) => {
     try {
@@ -758,11 +758,11 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getYvFraxBPDOLAData(),
         getPendleMarketApy('0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce'),
         getYvSUSDeDOLAData(),
-        getYearnVaultApy('0x342D24F2a3233F7Ac8A7347fA239187BFd186066'),
-        getYearnVaultApy('0xbCe40f1840A449cAAaF374Df0A1fEe1e212784CB'),
-        getYearnVaultApy('0x08c0833AF1331831759b8e0BFeF1BC5738436325'),
-        getYearnVaultApy('0xc7C1B907BCD3194C0D9bFA2125251af98BdDAfbb'),
-        getYearnVaultApy('0x57a2c7925bAA1894a939f9f6721Ea33F2EcFD0e2'),
+        getYearnVaultApyViaKong('0x342D24F2a3233F7Ac8A7347fA239187BFd186066'),
+        getYearnVaultApyViaKong('0xbCe40f1840A449cAAaF374Df0A1fEe1e212784CB'),
+        getYearnVaultApyViaKong('0x08c0833AF1331831759b8e0BFeF1BC5738436325'),
+        getYearnVaultApyViaKong('0xc7C1B907BCD3194C0D9bFA2125251af98BdDAfbb'),
+        getYearnVaultApyViaKong('0x57a2c7925bAA1894a939f9f6721Ea33F2EcFD0e2'),
         getPendleMarketApy('0xb162b764044697cf03617c2efbcb1f42e31e4766'),
         getPendleMarketApy('0x4339ffe2b7592dc783ed13cce310531ab366deac'),
         getPendleMarketApy('0xa36b60a14a1a5247912584768c6e53e1a269a9f7'),
@@ -770,13 +770,13 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getPendleMarketApy('0xb6ac3d5da138918ac4e84441e924a20daa60dbdd'),
         getPendleMarketApy('0x4eaa571eafcd96f51728756bd7f396459bb9b869'),
         // wstUSR
-        getYearnVaultApy('0x8A5f20dA6B393fE25aCF1522C828166D22eF8321'),
+        getYearnVaultApyViaKong('0x8A5f20dA6B393fE25aCF1522C828166D22eF8321'),
         getDefiLlamaApy('54c9a039-42a2-4756-896a-50b81b239ba9'),
         // reUSD
-        getYearnVaultApy('0x7c439Df9ADE8831180EA4D546c1E910D4Ba71a86'),
+        getYearnVaultApyViaKong('0x7c439Df9ADE8831180EA4D546c1E910D4Ba71a86'),
         getDefiLlamaApy('7255c661-892b-4c4c-b869-537a1326b669'),
         getSCoinStakingApy('0x3FF361197036Ae1d24B939146D8a449A80F8427d', provider),
-        getYearnVaultApy('0x23346B04a7f55b8760E5860AA5A77383D63491cD'),
+        getYearnVaultApyViaKong('0x23346B04a7f55b8760E5860AA5A77383D63491cD'),
         getMonolithStakedVaultApy('0xfa80c7349cC2357C42A64C2954B24B1a61C29435'),
     ]);
 
