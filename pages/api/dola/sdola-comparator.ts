@@ -428,7 +428,7 @@ export default async function handler(req, res) {
       },
       {
         symbol: 'swanUSD',
-        project: 'Swan',
+        project: 'Swan DAO',
         link: 'https://swanusd.com/',
 
         address: '0xfa80c7349cC2357C42A64C2954B24B1a61C29435',
@@ -446,7 +446,6 @@ export default async function handler(req, res) {
           return { apy: 0 };
         },
         image: 'https://app.monolith.market/coins/0xd0a32f6d4850f9d6df7d4f8f84af1fcd3cf993cc.png',
-        largeImage: 'https://www.swanusd.com/brand/swan-avatar.png',
         underlyingCoingeckoId: 'swanusd',
       },
     ];
