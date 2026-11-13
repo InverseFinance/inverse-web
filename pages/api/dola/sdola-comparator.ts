@@ -53,7 +53,7 @@ export const getOnChainData = async (meta: any[]) => {
 
   const blocks = [
     currentBlockNumber, previousBlock.number, oneHourBlock.number, oneDayBlock.number,
-    // sevenDayAgoBlock, fourteenDayAgoBlock, 
+    // sevenDayAgoBlock, fourteenDayAgoBlock,
     thirtyDaysAgoBlock,
     //  sixtyDaysAgoBlock,
     ninetyDaysAgoBlock,
@@ -62,7 +62,7 @@ export const getOnChainData = async (meta: any[]) => {
 
   const [
     todayRates, previousBlockRates, oneHourRates, oneDayRates,
-    // sevenDayRates, fourteenDayRates, 
+    // sevenDayRates, fourteenDayRates,
     thirtyDayRates,
     // sixtyDayRates,
     ninetyDayRates,
@@ -425,6 +425,29 @@ export default async function handler(req, res) {
         image: 'https://app.aave.com/icons/tokens/sgho.svg',
         largeImage: 'https://www.inverse.finance/assets/projects/sgho.png',
         underlyingCoingeckoId: 'gho',
+      },
+      {
+        symbol: 'swanUSD',
+        project: 'Swan',
+        link: 'https://swanusd.com/',
+
+        address: '0xfa80c7349cC2357C42A64C2954B24B1a61C29435',
+        underlying: '0x9BF2B2F57A2968A0E81546Ed50cBbbb7C9d6e05E',
+        underlyingSymbol: 'swanUSD',
+        currentRateGetter: async () => {
+          try {
+            const res = await fetch(`https://app.monolith.market/api/deployments?cacheFirst=true&factory=0xc68F3e777f28c52FF9DB0276a14F59D96Aa2f931&chainId=1`);
+            const data = await res.json();
+            const swan = data.deployments.find(v => v.id === 2);
+            return { apy: swan.stakingApy * 100 };
+          } catch (e) {
+            console.log(e)
+          }
+          return { apy: 0 };
+        },
+        image: 'https://app.monolith.market/coins/0xd0a32f6d4850f9d6df7d4f8f84af1fcd3cf993cc.png',
+        largeImage: 'https://www.swanusd.com/brand/swan-avatar.png',
+        underlyingCoingeckoId: 'swanusd',
       },
     ];
 
