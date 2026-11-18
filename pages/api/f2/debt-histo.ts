@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     }
 
     // not using fallbackprovider because it's not working with call & blockNumber
-    const provider = getProvider(CHAIN_ID, '', true);
+    const provider = getProvider(CHAIN_ID);
 
     const { data: archivedDailyUtcBlocks } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, false) || { data: ARCHIVED_UTC_DATES_BLOCKS };
     const dateBlockValues = Object.entries(archivedDailyUtcBlocks[CHAIN_ID]).map(([date, block]) => {

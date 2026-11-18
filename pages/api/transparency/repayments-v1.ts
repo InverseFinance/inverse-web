@@ -378,7 +378,7 @@ const getHistoIouExRate = async (debtConverter: Contract, blocks: number[]) => {
 }
 
 const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
-    const provider = getProvider('1', '', true);
+    const provider = getProvider('1');
 
     const currentBlock = await provider.getBlockNumber();
     const anDola = new Contract('0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670', CTOKEN_ABI, provider);

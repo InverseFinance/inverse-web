@@ -51,7 +51,7 @@ export const getHistoricalFrontierPositionsDetails = async ({
         ORACLE,
     } = getNetworkConfigConstants(process.env.NEXT_PUBLIC_CHAIN_ID!);
 
-    const provider = getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!, process.env.POSITIONS_ALCHEMY_API, true);
+    const provider = getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!, process.env.POSITIONS_ALCHEMY_API);
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const allMarkets: string[] = MARKETS.filter(address => !!UNDERLYING[address])

@@ -53,7 +53,7 @@ export default async function handler(req, res) {
       return
     }
 
-    const provider = getProvider(NetworkIds.mainnet, process.env.ALCHEMY_CRON, true);
+    const provider = getProvider(NetworkIds.mainnet, process.env.ALCHEMY_CRON);
     const govContract = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
 
     const proposalCount = getBnToNumber(await govContract.proposalCount(), 0);

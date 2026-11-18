@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     // }
 
     // not using fallbackprovider because it's not working with call & blockNumber
-    const provider = getProvider('1', '', true);
+    const provider = getProvider('1');
 
     const currentBlock = await provider.getBlockNumber();
     const beforeExploit = 14500000;

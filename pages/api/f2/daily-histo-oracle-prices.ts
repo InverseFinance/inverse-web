@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     }
 
     // not using fallbackprovider because it's not working with call & blockNumber
-    const provider = getProvider(CHAIN_ID, '', true);   
+    const provider = getProvider(CHAIN_ID);   
     const paidProvider = getPaidProvider(1);
     _market.underlying = TOKENS[_market.collateral];
 

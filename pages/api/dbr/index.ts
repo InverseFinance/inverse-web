@@ -103,7 +103,7 @@ export default async function handler(req, res) {
       return
     }
 
-    const provider = getProvider(CHAIN_ID, undefined, true);
+    const provider = getProvider(CHAIN_ID);
     const dbr = new Contract(DBR, DBR_ABI, provider);
     const dbrDistributor = new Contract(DBR_DISTRIBUTOR, DBR_DISTRIBUTOR_ABI, provider);
     const balancerVault = new Contract('0xBA12222222228d8Ba445958a75a0704d566BF2C8', BALANCER_VAULT_ABI, provider);

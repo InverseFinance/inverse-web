@@ -10,7 +10,7 @@ export const getEnsName = async (address: string, isBackendSide = false, specifi
   try {
     const rememberedName: string = isBackendSide ? '' : await localforage.getItem(cacheKey) || '';
     if (rememberedName) { return rememberedName }
-    const provider = specificProvider || getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!, process.env.NEXT_PUBLIC_ENS_ALCHEMY_API, true);
+    const provider = specificProvider || getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!, process.env.NEXT_PUBLIC_ENS_ALCHEMY_API);
     const ensName = await provider.lookupAddress(address);
     if (ensName && !isBackendSide) {
       await localforage.setItem(cacheKey, ensName);
