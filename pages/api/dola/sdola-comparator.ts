@@ -379,6 +379,7 @@ export default async function handler(req, res) {
         underlying: '0x6440f144b7e50D6a8439336510312d2F54beB01D',
         underlyingSymbol: 'BOLD',
         underlyingCoingeckoId: 'liquity-bold-2',
+        deprecated: true,
         currentRateGetter: async () => {
           try {
             const res = await fetch(`https://api.liquity.org/v2/ethereum.json`);
