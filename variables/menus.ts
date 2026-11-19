@@ -73,15 +73,13 @@ export const MENUS = {
     },
     {
       label: 'Governance',
-      href: '/governance',
+      href: 'https://dao.inverse.finance/governance',
+       isExternal: true,
       submenus: [
         {
           label: 'Drafts & Proposals',
-          href: '/governance',
-        },
-        {
-          label: 'Passed Proposals',
-          href: '/governance/proposals',
+          href: 'https://dao.inverse.finance/governance',
+           isExternal: true
         },
         {
           label: 'Community',
@@ -93,12 +91,9 @@ export const MENUS = {
           href: '/governance/propose?proposalLinkData=%7B"title"%3A"Draft"%2C"description"%3A"Forum+post+link,+Draft+content"%2C"actions"%3A%5B%5D%7D#',
         },
         {
-          label: 'Archived Drafts',
-          href: '/governance/archived-drafts',
-        },
-        {
           label: 'Delegates',
-          href: '/governance/delegates',
+          href: 'https://dao.inverse.finance/governance/delegates',
+          isExternal: true,
         },
         {
           label: 'Your Profile',
@@ -108,39 +103,48 @@ export const MENUS = {
     },
     {
       label: 'Transparency',
-      href: '/transparency/keymetrics',
+      href: 'https://dao.inverse.finance/transparency/keymetrics',
+      isExternal: true,
       submenus: [
         {
-          href: '/transparency/keymetrics',
+          href: 'https://dao.inverse.finance/transparency/keymetrics',
+          isExternal: true,
           label: 'Key Metrics',
         },
         {
-          href: '/transparency/treasury',
+          href: 'https://dao.inverse.finance/transparency/treasury',
+          isExternal: true,
           label: 'Treasury',
         },
         {
           label: 'Foundation',
-          href: '/transparency/foundation',
+          href: 'https://dao.inverse.finance/transparency/foundation',
+          isExternal: true,
         },
         {
           label: 'INV buybacks',
-          href: '/dbr/auction/inv-buy-backs',
+          href: 'https://dao.inverse.finance/transparency/buybacks',
+           isExternal: true
         },
         {
-          href: '/transparency/veNfts',
+          href: 'https://dao.inverse.finance/transparency/veNfts',
           label: 'veNfts',
+           isExternal: true
         },
         {
           label: 'FiRM users',
-          href: '/transparency/dbr#Users',
+          href: 'https://firm.inverse.finance/stats#users',
+           isExternal: true
         },
         {
-          href: '/transparency/liquidity',
+          href: 'https://dao.inverse.finance/transparency/liquidity',
           label: 'Liquidity',
+           isExternal: true
         },
         {
-          href: '/transparency/dao',
+          href: 'https://dao.inverse.finance/governance/inv',
           label: 'INV & DAO',
+           isExternal: true
         },
         {
           href: 'https://firm.inverse.finance/stats#fees',
@@ -148,20 +152,24 @@ export const MENUS = {
           isExternal: true
         },
         {
-          href: '/transparency/dola',
+          href: 'https://dao.inverse.finance/transparency/dola',
           label: 'DOLA & Feds',
+           isExternal: true
         },
         {
-          href: '/transparency/feds',
+          href: 'https://dao.inverse.finance/transparency/feds',
           label: 'Feds Policy & Income',
+           isExternal: true
         },
         {
-          href: '/transparency/multisigs',
-          label: 'Multisig Wallets',
+          href: 'https://dao.inverse.finance/governance/dao',
+          label: 'DAO & Multisigs',
+           isExternal: true
         },
         {
-          href: '/transparency/bad-debts',
+          href: 'https://dao.inverse.finance/transparency/bad-debts',
           label: 'Bad Debts',
+           isExternal: true
         },
         // {
         //   href: '/transparency/frontier/overview',
@@ -437,11 +445,13 @@ export const MENUS = {
       items: [
         {
           label: 'Voting',
-          href: '/governance',
+          href: 'https://dao.inverse.finance/governance',
+            isExternal: true,
         },
         {
           label: 'Transparency',
-          href: '/transparency',
+          href: 'https://dao.inverse.finance/transparency',
+            isExternal: true,
         },
         {
           label: 'Analytics',
@@ -450,6 +460,7 @@ export const MENUS = {
         {
           label: 'Forum',
           href: 'https://forum.inverse.finance',
+            isExternal: true,
         },
       ],
     },
@@ -459,18 +470,22 @@ export const MENUS = {
         {
           label: 'Docs',
           href: 'https://docs.inverse.finance/',
+            isExternal: true,
         },
         {
           label: 'Audits',
-          href: '/audits',
+          href: 'https://firm.inverse.finance/security',
+            isExternal: true,
         },
         {
           label: 'Risk Gitbook',
           href: 'https://inverse-dao.gitbook.io/inverse-finance-risk/',
+            isExternal: true,
         },
         {
           label: 'Github',
           href: 'https://github.com/InverseFinance',
+            isExternal: true,
         },
         {
           label: 'Research',
@@ -478,7 +493,8 @@ export const MENUS = {
         },
         {
           label: 'About FiRM',
-          href: '/about-firm',
+          href: 'https://firm.inverse.finance/',
+            isExternal: true,
         },
         {
           label: 'Brand Assets',

@@ -45,7 +45,7 @@ const LANDING_NAV_ITEMS = [
   },
   {
     label: 'Community',
-    href: '/governance',
+    href: 'https://dao.inverse.finance/governance',
     type: 'medium',
     submenus: [
       {
@@ -61,40 +61,40 @@ const LANDING_NAV_ITEMS = [
       {
         logo: <Image src="/assets/logo.png" alt="Governance" w={{ base: '32px', md: '64px' }} h="auto" />,
         title: 'Governance',
-        href: '/governance',
+        href: 'https://dao.inverse.finance/governance',
       },
     ],
   },
   {
     label: 'Transparency',
-    href: '/transparency',
+    href: 'https://dao.inverse.finance/transparency',
     type: 'small',
     submenus: [
       {
         logo: <Image src="/assets/landing/transparency/dola.svg" alt="DOLA" w="20px" h="20px" />,
         title: 'DOLA',
-        href: '/transparency/dola',
+        href: 'https://dao.inverse.finance/transparency/dola',
       },
       {
         logo: <Image src="/assets/landing/transparency/dbr.svg" alt="DBR" w="20px" h="20px" />,
         title: 'DBR',
-        href: '/transparency/dbr',
+        href: 'https://firm.inverse.finance/stats#fees',
       },
       {
         logo: <Image src="/assets/landing/transparency/treasury.svg" alt="Treasury" w="20px" h="20px" />,
         title: 'Treasury',
-        href: '/transparency/treasury',
+        href: 'https://dao.inverse.finance/transparency/treasury',
       },
       {
         logo: <Image src="/assets/landing/transparency/keymetrics.svg" alt="Keymetrics" w="20px" h="20px" />,
         title: 'Key Metrics',
-        href: '/transparency/keymetrics',
+        href: 'https://dao.inverse.finance/transparency/keymetrics',
       },
 
       {
         logo: <Image src="/assets/landing/transparency/dao.svg" alt="DAO" w="20px" h="20px" />,
         title: 'DAO',
-        href: '/transparency/dao',
+        href: 'https://dao.inverse.finance/governance/dao',
       },
 
       {
