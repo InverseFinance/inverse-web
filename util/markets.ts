@@ -564,7 +564,7 @@ const getYearnVaultApyViaKong = async (vaultId: string) => {
             "headers": {
                 "content-type": "application/json",
             },
-            "body": "{\"query\":\"query Vault($chainId: Int, $address: String) {\\r\\n  vault(chainId: $chainId, address: $address) {\\r\\n    apy {\\r\\n      net\\r\\n      weeklyNet\\r\\n      monthlyNet\\r\\n      grossApr\\r\\n    }\\r\\n  }\\r\\n}\",\"variables\":{\"chainId\":1,\"address\":\"" + vaultId + "\"},\"operationName\":\"Vault\"}",
+            "body": "{\"query\":\"query Vault($chainId: Int, $address: String) {\\r\\n  vault(chainId: $chainId, address: $address) {\n          apy { net }\n          performance { estimated {\n            apy\n          } }\n                                        }\n}\",\"variables\":{\"chainId\":1,\"address\":\"" + vaultId + "\"},\"operationName\":\"Vault\"}",
             "method": "POST"
         });
 
