@@ -570,7 +570,7 @@ const getYearnVaultApyViaKong = async (vaultId: string) => {
 
         const result = await response.json();
         return {
-            apy: result?.data?.vault?.apy?.net
+            apy: result?.data?.vault?.performance?.estimated ? result?.data?.vault?.performance?.estimated * 100 : result?.data?.vault?.apy?.net
                 ? result.data.vault.apy.net * 100
                 : 0
         };
