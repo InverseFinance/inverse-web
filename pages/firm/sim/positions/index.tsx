@@ -5,6 +5,7 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { FirmMarketsAndPositions } from '@app/components/F2/FirmMarketsAndPositions'
+import { VNET_SIMS_ENABLED } from '@app/config/constants'
 
 export const F2PositionsPage = () => {
     const router = useRouter();
@@ -32,12 +33,12 @@ export const F2PositionsPage = () => {
                 fontWeight="semibold"
                 color={'mainTextColor'}
             >
-                <Text overflow="hidden" textOverflow="ellipsis" textAlign="left" whiteSpace="nowrap" fontWeight="extrabold" color="accentTextColor">{vnetTitle || 'Simulation Mode: '+(vnetPublicId||'')}</Text>
+                <Text overflow="hidden" textOverflow="ellipsis" textAlign="left" whiteSpace="nowrap" fontWeight="extrabold" color="accentTextColor">{!VNET_SIMS_ENABLED ? 'Simulation mode is temporarily disabled' : vnetTitle || 'Simulation Mode: '+(vnetPublicId||'')}</Text>
             </Flex>
             <ErrorBoundary>
                 <VStack w='full' maxW="98%" mt="4">
                     {
-                        <FirmMarketsAndPositions defaultTab="Positions" vnetPublicId={vnetPublicId as string} />
+                        VNET_SIMS_ENABLED && <FirmMarketsAndPositions defaultTab="Positions" vnetPublicId={vnetPublicId as string} />
                     }
                 </VStack>
             </ErrorBoundary>

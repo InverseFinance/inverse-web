@@ -4,7 +4,7 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
 import { getBnToNumber, getFirmMarketsApys } from '@app/util/markets'
-import { CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
+import { CHAIN_ID, ONE_DAY_MS, VNET_SIMS_ENABLED } from '@app/config/constants';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { formatDistributorData, formatMarketData, inverseViewerRaw } from '@app/util/viewer';
 import { BaseProvider, JsonRpcProvider, Web3Provider } from '@ethersproject/providers';
@@ -61,6 +61,10 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
 
   const { cacheFirst, vnetPublicId } = req.query;
+  if (!!vnetPublicId && !VNET_SIMS_ENABLED) {
+    res.status(400).json({ status: 'error', message: 'Simulations are disabled' });
+    return;
+  }
   if (!!vnetPublicId && isInvalidGenericParam(vnetPublicId)) {
     console.log('invalid vnetPublicId');
     res.status(400).json({ status: 'error', message: 'Invalid vnetPublicId' });

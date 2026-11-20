@@ -11,7 +11,7 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/dist/client/router'
 import { ProposalActionPreview } from './ProposalActionPreview'
-import { GRACE_PERIOD_MS } from '@app/config/constants'
+import { GRACE_PERIOD_MS, VNET_SIMS_ENABLED } from '@app/config/constants'
 import { ProposalShareLink } from './ProposalShareLink'
 import { InfoMessage } from '@app/components/common/Messages'
 import { useGovernanceNotifs } from '@app/hooks/useProposals'
@@ -290,7 +290,7 @@ export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Pro
     setMarketsReports([]);
     return simulateOnChainActions(proposal, (result) => {
       setSimulationUrl(result.simUrl || '');
-      setPositionsUrl(result?.vnetPublicId ? `/firm/sim/positions?vnetPublicId=${result.vnetPublicId || ''}&vnetTitle=${result.vnetTitle || ''}` : '');
+      setPositionsUrl(VNET_SIMS_ENABLED && result?.vnetPublicId ? `/firm/sim/positions?vnetPublicId=${result.vnetPublicId || ''}&vnetTitle=${result.vnetTitle || ''}` : '');
       setMarketsReports(result.marketsReports || []);
       showToast({
         duration: 15000,

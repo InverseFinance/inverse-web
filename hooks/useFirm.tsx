@@ -9,7 +9,7 @@ import { useContractEvents, useMultiContractEvents } from "./useContractEvents";
 import { DBR_ABI, ERC20_ABI, F2_ALE_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { ascendingEventsSorter, uniqueBy } from "@app/util/misc";
-import { ALE_V2, ALE_V3, ALE_V4, ALE_V5, BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
+import { ALE_V2, ALE_V3, ALE_V4, ALE_V5, BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS, VNET_SIMS_ENABLED } from "@app/config/constants";
 import useEtherSWR from "./useEtherSWR";
 import { useAccount } from "./misc";
 import { useBlocksTimestamps } from "./useBlockTimestamp";
@@ -26,13 +26,15 @@ const oneYear = ONE_DAY_MS * 365;
 
 const { DBR, DBR_DISTRIBUTOR, F2_MARKETS, INV, F2_ALE, DOLA } = getNetworkConfigConstants();
 
-export const useFirmPositions = (vnetPublicId?: string): SWR & {
+export const useFirmPositions = (_vnetPublicId?: string): SWR & {
   positions: any,
   timestamp: number,
   isLoading: boolean,
   isError: boolean,
   markets: F2Market[],
 } => {
+  // vnet sims disabled: the mainnet positions
+  const vnetPublicId = VNET_SIMS_ENABLED ? _vnetPublicId : undefined;
   const { data, error } = useCacheFirstSWR(`/api/f2/firm-positions?vnetPublicId=${vnetPublicId||''}`, fetcher60sectimeout);
   const { markets, isLoading } = useDBRMarkets(undefined, vnetPublicId);
 

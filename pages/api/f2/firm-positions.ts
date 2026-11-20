@@ -6,7 +6,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
-import { CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
+import { CHAIN_ID, ONE_DAY_MS, VNET_SIMS_ENABLED } from '@app/config/constants';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 import { uniqueBy } from '@app/util/misc';
@@ -193,6 +193,11 @@ export const getFirmPositions = async (provider, paidProvider, vnetPublicId?: st
 
 export default async function handler(req, res) {
   const { cacheFirst, vnetPublicId } = req.query;
+
+  if (!!vnetPublicId && !VNET_SIMS_ENABLED) {
+    res.status(400).json({ status: 'error', message: 'Simulations are disabled' });
+    return;
+  }
 
   if (!!vnetPublicId && isInvalidGenericParam(vnetPublicId)) {
     console.log('invalid vnetPublicId');

@@ -1,4 +1,4 @@
-import { SERVER_BASE_URL } from '@app/config/constants';
+import { SERVER_BASE_URL, VNET_SIMS_ENABLED } from '@app/config/constants';
 import { getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis';
 
 /*
@@ -108,7 +108,8 @@ const fetchApi = async (path: string, signal: AbortSignal, isText = false) => {
 const isValidMarketsData = (data: any) => data?.markets?.length > 0;
 
 export const getSsrFirmMarkets = (vnetPublicId = '') => {
-    if (vnetPublicId) {
+    // vnet sims disabled: the mainnet markets
+    if (vnetPublicId && VNET_SIMS_ENABLED) {
         return getSsrData(
             null,
             (signal) => fetchApi(`/api/f2/fixed-markets?v=1.2&vnetPublicId=${encodeURIComponent(vnetPublicId)}`, signal),

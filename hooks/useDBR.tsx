@@ -8,7 +8,7 @@ import useEtherSWR from "./useEtherSWR"
 import { fetcher, fetcher60sectimeout } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
 import { f2CalcNewHealth, f2approxDbrAndDolaNeeded } from "@app/util/f2";
-import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
+import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS, VNET_SIMS_ENABLED } from "@app/config/constants";
 import { parseUnits } from "@ethersproject/units";
 import useSWR from "swr";
 import { useWeb3React } from "@web3-react/core";
@@ -198,11 +198,13 @@ export const useDBRMarketsReformat = (apiData?: any, marketOrList?: string | str
   }
 }
 
-export const useDBRMarkets = (marketOrList?: string | string[], vnetPublicId?: string): {
+export const useDBRMarkets = (marketOrList?: string | string[], _vnetPublicId?: string): {
   markets: F2Market[]
   isLoading: boolean
   timestamp: number
 } => {
+  // vnet sims disabled: the mainnet markets
+  const vnetPublicId = VNET_SIMS_ENABLED ? _vnetPublicId : undefined;
   const { data: apiData } = useCacheFirstSWR(`/api/f2/fixed-markets${vnetPublicId ? `?vnetPublicId=${vnetPublicId}` : ''}`);
   return useDBRMarketsReformat(apiData, marketOrList, vnetPublicId);
 }

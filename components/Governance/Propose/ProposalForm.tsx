@@ -20,7 +20,7 @@ import { ProposalFloatingPreviewBtn } from './ProposalFloatingPreviewBtn';
 import { useRouter } from 'next/dist/client/router';
 import { Link } from '@app/components/common/Link';
 import { namedAddress } from '@app/util';
-import { DRAFT_WHITELIST } from '@app/config/constants';
+import { DRAFT_WHITELIST, VNET_SIMS_ENABLED } from '@app/config/constants';
 import { handleApiResponse } from '@app/util/misc';
 import { InfoMessage } from '@app/components/common/Messages';
 import Container from '@app/components/common/Container';
@@ -305,7 +305,7 @@ export const ProposalForm = ({
         setMarketsReports([]);
         return simulateOnChainActions(form, (result) => {
             setSimulationUrl(result.simUrl||'');
-            setPositionsUrl(result?.vnetPublicId ? `/firm/sim/positions?vnetPublicId=${result.vnetPublicId||''}&vnetTitle=${result.vnetTitle||''}` : '');
+            setPositionsUrl(VNET_SIMS_ENABLED && result?.vnetPublicId ? `/firm/sim/positions?vnetPublicId=${result.vnetPublicId||''}&vnetTitle=${result.vnetTitle||''}` : '');
             setMarketsReports(result.marketsReports||[]);
             showToast({
                 duration: 15000,
