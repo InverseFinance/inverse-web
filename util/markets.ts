@@ -564,15 +564,25 @@ const getYearnVaultApyViaKong = async (vaultId: string) => {
             "headers": {
                 "content-type": "application/json",
             },
-            "body": "{\"query\":\"query Vault($chainId: Int, $address: String) {\\r\\n  vault(chainId: $chainId, address: $address) {\\r\\n    apy {\\r\\n      net\\r\\n      weeklyNet\\r\\n      monthlyNet\\r\\n      grossApr\\r\\n    }\\r\\n  }\\r\\n}\",\"variables\":{\"chainId\":1,\"address\":\"" + vaultId + "\"},\"operationName\":\"Vault\"}",
+            // built with JSON.stringify: line breaks in the query must be escaped in the json body
+            "body": JSON.stringify({
+                query: `query Vault($chainId: Int, $address: String) {
+                    vault(chainId: $chainId, address: $address) {
+                        apy { net }
+                        performance { estimated { apy } }
+                    }
+                }`,
+                variables: { chainId: 1, address: vaultId },
+                operationName: 'Vault',
+            }),
             "method": "POST"
         });
 
         const result = await response.json();
+        const vault = result?.data?.vault;
+        // the estimated apy in priority, null for some vaults, then the net apy
         return {
-            apy: result?.data?.vault?.apy?.net
-                ? result.data.vault.apy.net * 100
-                : 0
+            apy: (vault?.performance?.estimated?.apy || vault?.apy?.net || 0) * 100,
         };
     } catch (e) {
         console.log(`Failed to fetch APY for Yearn vault ${vaultId}:`, e);
