@@ -16,8 +16,10 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
 export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.1.1'
-export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.91'
+export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.92'
 
+// users and escrows of the markets from their CreateEscrow logs, provider: a mainnet one only,
+// the users, escrows and last block are saved in the shared cache
 export const getFirmMarketUsers = async (provider, cacheDuration = 240) => {
   const { data: _uniqueUsersCacheData, isValid: isUniqueUsersCacheValid } = (await getCacheFromRedisAsObj(F2_UNIQUE_USERS_CACHE_KEY, true, cacheDuration));
   if(isUniqueUsersCacheValid && !!_uniqueUsersCacheData?.firmMarketUsers) {
@@ -85,7 +87,8 @@ const getChunkedMulticallOutput = async (callRequests: Parameters<typeof getMult
   return outputs.flat();
 }
 
-// positions of all the FiRM users, on a tenderly vnet when vnetPublicId is set
+// positions of all the FiRM users, on a tenderly vnet when vnetPublicId is set (provider),
+// paidProvider: a mainnet one, for the users
 export const getFirmPositions = async (provider, paidProvider, vnetPublicId?: string) => {
   const [marketUsersCache, marketsCache] = await Promise.all([
     getFirmMarketUsers(paidProvider),
@@ -220,11 +223,12 @@ export default async function handler(req, res) {
       // }
       // provider = new JsonRpcProvider(vnet.publicRpc);
       provider = new JsonRpcProvider(`https://virtual.mainnet.rpc.tenderly.co/${vnetPublicId}`);
-      paidProvider = provider;
     } else {
       provider = getProvider(CHAIN_ID);
-      paidProvider = getPaidProvider(CHAIN_ID);
     }
+    // the users always come from mainnet, also for a vnet: they are saved in the shared users cache,
+    // the logs of a vnet (any vnet id is accepted) would add fake users and escrows to it
+    paidProvider = getPaidProvider(CHAIN_ID);
 
     const resultData = await getFirmPositions(provider, paidProvider, vnetPublicId);
 
