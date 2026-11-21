@@ -9,18 +9,46 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis';
 import { Contract } from 'ethers';
-import { verifyMessage, hashMessage, isAddress } from 'ethers/lib/utils';
-import { businessChecks, individualInputs } from '../affiliate/register';
+import { verifyMessage, hashMessage, isAddress, getAddress } from 'ethers/lib/utils';
+import { businessChecks, getAffiliateApplicationMsg, individualInputs } from '../affiliate/register';
 import { getAffiliateStatusMsg } from '@app/components/F2/Infos/FirmAffiliateList';
 
 const { DBR, MULTISIGS } = getNetworkConfigConstants();
+
+// applicant values in the team email
+const escapeHtml = (value: any) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
+
+// csv cell: quoted, with a leading formula character neutralized, the csv is opened in spreadsheets
+const toCsvCell = (value: any) => {
+    const str = String(value ?? '');
+    return `"${(/^[=+\-@\t\r]/.test(str) ? `'${str}` : str).replace(/"/g, '""')}"`;
+}
+
+// the message is signed by the account: an eoa signature, or a multisig one checked by the multisig
+const isSignedBy = async (account: string, msg: string, sig: any): Promise<boolean> => {
+    if (!sig || typeof sig !== 'string') {
+        return false;
+    }
+    try {
+        if (verifyMessage(msg, sig).toLowerCase() === account.toLowerCase()) {
+            return true;
+        }
+    } catch (e) { }
+    try {
+        return !!(await verifyMultisigMessage(account, hashMessage(msg), sig))?.valid;
+    } catch (e) {
+        console.log('multisig verify error');
+        console.log(e);
+        return false;
+    }
+}
 
 const sendNotifToTeam = async (data: any) => {
     const basics = { name: data.name, email: data.email, affiliate: data.affiliate, affiliateType: data.affiliateType };
     const isIndividual = data.affiliateType === 'individual';
 
     const mainValues = Object.entries(basics).map(([key, value]) => {
-        return `<li>${key}: <strong>${value}</strong></li>`;
+        return `<li>${key}: <strong>${escapeHtml(value)}</strong></li>`;
     }).join('');
 
     let html = `<h1>A new Affiliate applied!</h1></br></br><p><strong>Main informations:</strong></p><ul>${mainValues}</ul>`
@@ -28,12 +56,12 @@ const sendNotifToTeam = async (data: any) => {
     const socialsAndBusinessInfos = Object.entries(data.infos).map(([key, value]) => {
         const arr = isIndividual ? individualInputs : businessChecks;
         const item = arr.find(item => item.key === key);
-        return !!item ? `<li>${item.text}${isIndividual ? `: <strong>${value}</strong></li>` : ''}` : '';
+        return !!item ? `<li>${item.text}${isIndividual ? `: <strong>${escapeHtml(value)}</strong></li>` : ''}` : '';
     }).join('');
 
     html += `</br></br>${isIndividual ? '<p><strong>Socials:</strong></p>' : '<p><strong>Business sectors:</strong></p>'}<ul>${socialsAndBusinessInfos}</ul>`;
 
-    html += `</br></br><p><strong>Remark</strong>:</p></br><p><i>${data.otherInfo}</i></p>`;
+    html += `</br></br><p><strong>Remark</strong>:</p></br><p><i>${escapeHtml(data.otherInfo)}</i></p>`;
 
     const res = await fetch('https://api.postmarkapp.com/email', {
         method: 'POST',
@@ -61,9 +89,10 @@ const toCsv = (affiliates: any) => {
     let CSV = `${columns}\n`;
     
     affiliates.forEach((a) => {
-        const socialValues = individualInputs.map(ii => a.infos[ii.key]).join(',');
-        const businessValues = businessChecks.map(ii => a.infos[ii.key]).join(',');
-        CSV += `${a.affiliate},${a.name},${a.email},${a.affiliateType},${(new Date(a.timestamp).toUTCString()).replace(/,/g, '')},${a.status},${a.otherInfo||""},${socialValues},${businessValues}\n`;
+        const socialValues = individualInputs.map(ii => toCsvCell(a.infos[ii.key])).join(',');
+        const businessValues = businessChecks.map(ii => toCsvCell(a.infos[ii.key])).join(',');
+        const mainValues = [a.affiliate, a.name, a.email, a.affiliateType, (new Date(a.timestamp).toUTCString()).replace(/,/g, ''), a.status, a.otherInfo || ''].map(toCsvCell).join(',');
+        CSV += `${mainValues},${socialValues},${businessValues}\n`;
     });
     return CSV;
 }
@@ -211,7 +240,7 @@ export default async function handler(req, res) {
                 if (!r || !isAddress(r) || r === BURN_ADDRESS || !account || !isAddress(account) || account === BURN_ADDRESS || r.toLowerCase() === account.toLowerCase()) {
                     res.status(400).json({ status: 'error', message: 'Invalid address' });
                     return;
-                } else if (!!referralData?.referrals[account]) {
+                } else if (!!referralData?.referrals?.[getAddress(account)]) {
                     return res.status(400).json({ status: 'error', message: 'A referral has been already registered' });
                 }
 
@@ -224,30 +253,12 @@ export default async function handler(req, res) {
                 }
 
                 const { sig } = req.body
-                let sigAddress = '';
-
-                const sigText = getReferralMsg(account, r);
-
-                try {
-                    sigAddress = verifyMessage(sigText, sig);
-                } catch (e) {
-                    console.log(e);
+                if (!(await isSignedBy(account, getReferralMsg(account, r), sig))) {
+                    res.status(401).json({ status: 'warning', message: 'Unauthorized' })
+                    return
                 }
-
-                if (sigAddress?.toLowerCase() !== account.toLowerCase() || !sigAddress) {
-                    // try to verify as multisig
-                    let multisigVerifyResult;
-                    try {
-                        multisigVerifyResult = await verifyMultisigMessage(account, hashMessage(sigText), sig);
-                    } catch (e) {
-                        console.log('multisig verify error');
-                        console.log(e);
-                    }
-                    if (!multisigVerifyResult?.valid) {
-                        res.status(401).json({ status: 'warning', message: 'Unauthorized' })
-                        return
-                    }
-                };
+                // the verified account: the address recovered from a multisig signature is not the account
+                const referred = getAddress(account);
 
                 const block = await provider.getBlock('latest');
                 const { number: blockNumber, timestamp: blockTs } = block;
@@ -258,9 +269,9 @@ export default async function handler(req, res) {
                     debt,
                     dueTokensAccrued,
                 ] = await getGroupedMulticallOutputs([
-                    { contract: dbrContract, functionName: 'lastUpdated', params: [sigAddress] },
-                    { contract: dbrContract, functionName: 'debts', params: [sigAddress] },
-                    { contract: dbrContract, functionName: 'dueTokensAccrued', params: [sigAddress] },
+                    { contract: dbrContract, functionName: 'lastUpdated', params: [referred] },
+                    { contract: dbrContract, functionName: 'debts', params: [referred] },
+                    { contract: dbrContract, functionName: 'dueTokensAccrued', params: [referred] },
                 ]);
 
                 const lastUpdatedMs = getBnToNumber(lastUpdated, 0) * 1000;
@@ -270,8 +281,9 @@ export default async function handler(req, res) {
                 const result = {
                     timestamp: now,
                     referrals: {
-                        ...cachedResult?.referrals,
-                        [sigAddress]: {
+                        // the stored referrals by referred account, not the referrals of the api data (a list)
+                        ...referralData?.referrals,
+                        [referred]: {
                             affiliate: r,
                             timestamp: Date.now(),
                             beforeReferralDueTokensAccrued,
@@ -281,7 +293,7 @@ export default async function handler(req, res) {
                 };
 
                 await redisSetWithTimestamp(referralsKey, result);
-                res.status(200).json(result);
+                return res.status(200).json(result);
             } else if (isApply === 'true') {
                 const {
                     wallet,
@@ -291,28 +303,49 @@ export default async function handler(req, res) {
                     affiliateType,
                     infos,
                     otherInfo,
+                    sig,
                 } = req.body;
+
+                // known keys only: a text for a social, a boolean for a business check
+                const isInvalidInfos = !infos || typeof infos !== 'object' || Array.isArray(infos)
+                    || Object.entries(infos).some(([key, value]) => {
+                        if (individualInputs.some(ii => ii.key === key)) {
+                            return typeof value !== 'string' || value.length > 200;
+                        }
+                        return !businessChecks.some(bc => bc.key === key) || typeof value !== 'boolean';
+                    });
+
+                if (!wallet || typeof wallet !== 'string' || !isAddress(wallet) || wallet === BURN_ADDRESS) {
+                    res.status(400).json({ status: 'error', message: 'Invalid address' });
+                    return;
+                }
+                else if (isInvalidInfos) {
+                    res.status(400).json({ status: 'error', message: 'Invalid request' });
+                    return;
+                }
 
                 const isInvalidIndividual = affiliateType === 'individual' && !Object.entries(infos).filter(([key, value]) => individualInputs.map(ii => ii.key).includes(key)).some(([key, value]) => !!value.trim());
                 const isInvalidBusiness = affiliateType === 'business' && !Object.entries(infos).filter(([key, value]) => businessChecks.map(ii => ii.key).includes(key)).some(([key, value]) => !!value);
 
-                if (!wallet || !isAddress(wallet) || wallet === BURN_ADDRESS) {
-                    res.status(400).json({ status: 'error', message: 'Invalid address' });
-                    return;
-                }
-                else if (
-                    !name
-                    || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+                if (
+                    typeof name !== 'string' || !name.trim() || name.length > 100
+                    || typeof email !== 'string' || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
                     || email !== emailConfirm
                     || !['individual', 'business'].includes(affiliateType)
-                    || Object.keys(infos).some(key => !individualInputs.map(ii => ii.key).concat(businessChecks.map(ii => ii.key)).includes(key))
                     || isInvalidIndividual
                     || isInvalidBusiness
-                    || otherInfo.length > 1000
+                    || (otherInfo !== undefined && typeof otherInfo !== 'string')
+                    || (otherInfo || '').length > 1000
                     || /[<>/\\{}]/i.test(name)
-                    || /[<>/\\{}]/i.test(otherInfo)
+                    || /[<>/\\{}]/i.test(otherInfo || '')
                 ) {
                     res.status(400).json({ status: 'error', message: 'Invalid request' });
+                    return;
+                }
+
+                // signed by the payment wallet (eoa or multisig): nobody can apply with the wallet of someone else
+                if (!(await isSignedBy(wallet, getAffiliateApplicationMsg(wallet), sig))) {
+                    res.status(401).json({ status: 'warning', message: 'The application must be signed by the payment wallet' });
                     return;
                 }
 

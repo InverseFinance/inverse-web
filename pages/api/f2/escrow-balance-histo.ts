@@ -17,17 +17,18 @@ import { FEATURE_FLAGS } from '@app/config/features';
 const { F2_MARKETS, DBR, F2_ALE } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-  const { cacheFirst, account, escrow, market, firmActionIndex } = req.query;
+  // the escrow param is ignored: the escrow is the one of the account in the market (from its CreateEscrow event),
+  // otherwise anyone could save the data of an account in the cache of another escrow
+  const { cacheFirst, account, market, firmActionIndex } = req.query;
   if (
     !account || !isAddress(account) || isInvalidGenericParam(account)
     || !market || !isAddress(market) || isInvalidGenericParam(market)
-    || !escrow || !isAddress(escrow) || isInvalidGenericParam(escrow)
     || isInvalidGenericParam(firmActionIndex)
   ) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-escrow-balance-histo-${escrow}-${CHAIN_ID}-v1.1.0`;
+  const cacheKey = `firm-escrow-balance-histo-${market.toLowerCase()}-${account.toLowerCase()}-${CHAIN_ID}-v1.2.0`;
   try {
     const webCacheDuration = 3600;
     const redisCacheDuration = 60;
@@ -41,13 +42,13 @@ export default async function handler(req, res) {
     // not using fallbackprovider because it's not working with call & blockNumber
     const provider = getProvider(CHAIN_ID);
     const eventsProvider = getPaidProvider(CHAIN_ID);
-    const _market = F2_MARKETS.find(m => m.address === market);
-    _market.underlying = TOKENS[_market.collateral];
+    const _market = F2_MARKETS.find(m => m.address.toLowerCase() === market.toLowerCase());
 
     if (!_market) {
       res.status(404).json({ success: false });
       return;
     }
+    _market.underlying = TOKENS[_market.collateral];
 
     const currentBlock = await provider.getBlockNumber();
     const marketContract = new Contract(_market.address, F2_MARKET_ABI, eventsProvider);   
@@ -60,6 +61,12 @@ export default async function handler(req, res) {
     const escrowCreationBlock = escrowCreations.length > 0 ? escrowCreations[0].blockNumber : 0;
 
     if (!escrowCreationBlock) {
+      res.status(400).json({ success: false, msg: 'no escrow' });
+      return;
+    }
+    // the escrow of the account in this market
+    const escrow: string = escrowCreations[0].args?.escrow;
+    if (!escrow) {
       res.status(400).json({ success: false, msg: 'no escrow' });
       return;
     }

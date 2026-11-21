@@ -17,6 +17,13 @@ const { TENDERLY_USER, TENDERLY_KEY } = process.env;
 
 export const SLUG_BASE = process.env.VERCEL_ENV === 'production' ? 'p' : 'd';
 
+// error message for the client: ethers errors contain the rpc url (the admin rpc of the vnet) and the request,
+// only the reason is returned, without any url
+const getSafeErrorMsg = (e: any): string => {
+  const msg = e?.reason || e?.error?.reason || e?.error?.message || e?.message || e?.code || 'Simulation failed';
+  return String(msg).replace(/https?:\/\/\S+/g, '<url>').slice(0, 500);
+}
+
 const getMarketCheckerReport = async (marketAddress: string, vnetId: string) => {
   console.log('getMarketCheckerReport', marketAddress, vnetId);
   const response = await fetch('http://164.92.150.8:5000/api/analyze', {
@@ -226,7 +233,7 @@ export default async function handler(req, res) {
           vnetPublicId: publicId,
           vnetTitle,
           simUrl: `https://dashboard.tenderly.co/explorer/vnet/${publicId}/tx/${txHash}`,
-          errorMsg: e,
+          errorMsg: getSafeErrorMsg(e),
         });
         return;
       }
@@ -288,6 +295,6 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     console.error(err);
-    res.status(200).json({ success: false, hasError: true, errorMsg: err })
+    res.status(200).json({ success: false, hasError: true, errorMsg: getSafeErrorMsg(err) })
   }
 }

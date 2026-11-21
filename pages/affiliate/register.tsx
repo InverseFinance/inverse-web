@@ -7,10 +7,16 @@ import { DashBoardCard } from '@app/components/F2/UserDashboard'
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 import { SplashedText } from '@app/components/common/SplashedText'
 import { Input } from '@app/components/common/Input'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { InfoMessage, SuccessMessage } from '@app/components/common/Messages'
 import { isAddress } from 'ethers/lib/utils'
 import { BURN_ADDRESS } from '@app/config/constants'
+import { useWeb3React } from '@web3-react/core'
+
+// signed by the payment wallet, so that nobody can apply with the wallet of someone else
+export const getAffiliateApplicationMsg = (wallet: string) => {
+    return `Affiliate Program Application signature\n\nPayment wallet:\n${wallet.toLowerCase()}`;
+}
 
 const InputZone = ({
     text,
@@ -81,8 +87,17 @@ export const FirmAffiliateRegisterPage = () => {
     const [wallet, setWallet] = useState('');
     const [otherInfo, setOtherInfo] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
+    const { provider, account } = useWeb3React();
+
+    // the payment wallet signs the application: the connected account by default
+    useEffect(() => {
+        if (!!account && !wallet) {
+            setWallet(account);
+        }
+    }, [account]);
 
     const isInvalidWallet = !!wallet && (!isAddress(wallet) || wallet === BURN_ADDRESS);
+    const isConnectedWallet = !!account && !!wallet && account.toLowerCase() === wallet.toLowerCase();
     const isInvalidEmail = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     const isInvalidIndividual = affiliateType === 'individual' && !Object.entries(infos).filter(([key, value]) => individualInputs.map(ii => ii.key).includes(key)).some(([key, value]) => !!value.trim());
@@ -90,6 +105,13 @@ export const FirmAffiliateRegisterPage = () => {
     const isFormValid = !!wallet && !isInvalidWallet && !!email && email === emailConfirm && !isInvalidEmail && !!name.trim() && !isInvalidIndividual && !isInvalidBusiness;
 
     const register = async () => {
+        if (!provider || !isConnectedWallet) {
+            return { status: 'warning', message: 'Please connect with the payment wallet' };
+        }
+        const sig = await provider.getSigner().signMessage(getAffiliateApplicationMsg(wallet)).catch(() => '');
+        if (!sig) {
+            return { status: 'warning', message: 'The signature of the payment wallet is required' };
+        }
         const res = await fetch(`/api/referral?isApply=true`, {
             method: 'POST',
             body: JSON.stringify({
@@ -100,6 +122,7 @@ export const FirmAffiliateRegisterPage = () => {
                 affiliateType,
                 infos,
                 otherInfo,
+                sig,
             }),
             headers: {
                 'Accept': 'application/json',
@@ -190,13 +213,16 @@ export const FirmAffiliateRegisterPage = () => {
                                     </VStack>
                                     <Divider />
                                     <InputZone text="Wallet Address (for payments)" placeholder={BURN_ADDRESS} fontSize="14px" value={wallet} setter={setWallet} isInvalid={isInvalidWallet} />
+                                    {
+                                        !!wallet && !isInvalidWallet && !isConnectedWallet && <InfoMessage alertProps={{ w: 'full' }} description="Please connect with this wallet: the application is signed by the payment wallet" />
+                                    }
                                     <Text w='full' fontWeight="bold">
                                         Other information we should know:
                                     </Text>
                                     <Textarea color="mainTextColor" placeholder="I'm also interested as a borrower / I have feedback about the product / Other" fontSize="14px" value={otherInfo} onChange={e => setOtherInfo(e.target.value)} />
                                     {
                                         isSuccess ? <SuccessMessage alertProps={{ w: 'full' }} iconProps={{ height: 40, width: 40 }} title="Affiliation request submitted!" description="We will get back to you shortly" />
-                                            : <RSubmitButton onSuccess={() => handleSuccess()} disabled={!isFormValid} p="8" fontSize="22px" onClick={register}>
+                                            : <RSubmitButton onSuccess={() => handleSuccess()} disabled={!isFormValid || !isConnectedWallet} p="8" fontSize="22px" onClick={register}>
                                                 Become an Affiliate
                                             </RSubmitButton>
                                     }
