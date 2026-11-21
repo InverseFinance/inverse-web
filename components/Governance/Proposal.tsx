@@ -11,7 +11,7 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/dist/client/router'
 import { ProposalActionPreview } from './ProposalActionPreview'
-import { GRACE_PERIOD_MS, VNET_SIMS_ENABLED } from '@app/config/constants'
+import { DRAFT_WHITELIST, GRACE_PERIOD_MS, VNET_SIMS_ENABLED } from '@app/config/constants'
 import { ProposalShareLink } from './ProposalShareLink'
 import { InfoMessage } from '@app/components/common/Messages'
 import { useGovernanceNotifs } from '@app/hooks/useProposals'
@@ -275,6 +275,7 @@ export const ProposalDetails = ({
 }
 
 export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Proposal, isEditing?: boolean }) => {
+  const { provider, account } = useWeb3React<Web3Provider>();
   const [simulationUrl, setSimulationUrl] = useState('');
   const [positionsUrl, setPositionsUrl] = useState('');
   const [marketsReports, setMarketsReports] = useState([]);
@@ -283,12 +284,15 @@ export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Pro
   }
 
   const { functions } = proposal
+  // simulations are only for the draft whitelist
+  const canSimulate = !!provider && DRAFT_WHITELIST.includes((account || '').toLowerCase());
 
   const handleSimulation = async () => {
+    if (!provider) { return }
     setSimulationUrl('');
     setPositionsUrl('');
     setMarketsReports([]);
-    return simulateOnChainActions(proposal, (result) => {
+    return simulateOnChainActions(provider.getSigner(), proposal, (result) => {
       setSimulationUrl(result.simUrl || '');
       setPositionsUrl(VNET_SIMS_ENABLED && result?.vnetPublicId ? `/firm/sim/positions?vnetPublicId=${result.vnetPublicId || ''}&vnetTitle=${result.vnetTitle || ''}` : '');
       setMarketsReports(result.marketsReports || []);
@@ -312,7 +316,7 @@ export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Pro
           return <ProposalActionPreview key={i} num={i + 1} target={target} signature={signature} callData={callData} value={value} />
         })}
         {
-          (!!proposal._id || [ProposalStatus.active, ProposalStatus.succeeded, ProposalStatus.queued].includes(proposal.status)) && <Stack alignItems="center" justify="space-evenly" w='full' direction={{ base: 'column', lg: 'row' }}>
+          canSimulate && (!!proposal._id || [ProposalStatus.active, ProposalStatus.succeeded, ProposalStatus.queued].includes(proposal.status)) && <Stack alignItems="center" justify="space-evenly" w='full' direction={{ base: 'column', lg: 'row' }}>
             <RSubmitButton fontSize="16px" w={'fit-content'} onClick={handleSimulation}>
               Simulate Proposal
             </RSubmitButton>

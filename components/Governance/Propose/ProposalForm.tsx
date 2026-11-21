@@ -299,11 +299,15 @@ export const ProposalForm = ({
         status: title ? ProposalStatus.draft : ProposalStatus.active,
     } : {}
 
+    // simulations are only for the draft whitelist
+    const canSimulate = !!provider && DRAFT_WHITELIST.includes((account || '').toLowerCase());
+
     const handleSimulation = async () => {
+        if (!provider) { return }
         setSimulationUrl('');
         setPositionsUrl('');
         setMarketsReports([]);
-        return simulateOnChainActions(form, (result) => {
+        return simulateOnChainActions(provider.getSigner(), form, (result) => {
             setSimulationUrl(result.simUrl||'');
             setPositionsUrl(VNET_SIMS_ENABLED && result?.vnetPublicId ? `/firm/sim/positions?vnetPublicId=${result.vnetPublicId||''}&vnetTitle=${result.vnetTitle||''}` : '');
             setMarketsReports(result.marketsReports||[]);
@@ -397,7 +401,7 @@ export const ProposalForm = ({
                 handleSubmitProposal={handleSubmitProposal}
                 handlePublishDraft={handlePublishDraft}
                 handleDeleteDraft={handleDeleteDraft}
-                handleSimulation={handleSimulation}
+                handleSimulation={canSimulate ? handleSimulation : undefined}
                 addAction={addAction}
                 setPreviewMode={setPreviewMode}
                 showTemplateModal={showTemplateModal}

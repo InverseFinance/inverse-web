@@ -41,7 +41,8 @@ export const ProposalFormBtns = ({
     handleDeleteDraft: () => void,
     setPreviewMode: (v: boolean) => void,
     showTemplateModal: () => void,
-    handleSimulation: () => void,
+    // undefined when the account can't simulate
+    handleSimulation?: () => void,
     addAction: () => void,
 }) => {
     return (
@@ -78,9 +79,11 @@ export const ProposalFormBtns = ({
                                     <CheckIcon mr="1" /> {isPublicDraft && draftId ? 'Update' : 'Publish'} the Draft
                                 </RSubmitButton>
 
-                                <RSubmitButton themeColor="blue.500" disabled={!isFormValid || !nbActions} ml="2" w={{ base: 'full', sm: 'fit-content' }} onClick={handleSimulation}>
-                                    <HamburgerIcon mr="1" /> Simulate Actions
-                                </RSubmitButton>
+                                {
+                                    !!handleSimulation && <RSubmitButton themeColor="blue.500" disabled={!isFormValid || !nbActions} ml="2" w={{ base: 'full', sm: 'fit-content' }} onClick={handleSimulation}>
+                                        <HamburgerIcon mr="1" /> Simulate Actions
+                                    </RSubmitButton>
+                                }
 
                                 <RSubmitButton themeColor="green.500" disabled={!isFormValid || !nbActions} ml="2" w={{ base: 'full', sm: 'fit-content' }} onClick={handleSubmitProposal}>
                                     <CheckCircleIcon mr="1" /> Submit the Proposal

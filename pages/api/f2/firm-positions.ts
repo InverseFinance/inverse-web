@@ -7,6 +7,7 @@ import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_ID, ONE_DAY_MS, VNET_SIMS_ENABLED } from '@app/config/constants';
+import { isAppSimVnet } from '@app/util/sims';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 import { uniqueBy } from '@app/util/misc';
@@ -205,6 +206,12 @@ export default async function handler(req, res) {
     return;
   }
 
+  // only the vnets of the app's simulations, checked before reading the cache: the data of another vnet is never served
+  if (!!vnetPublicId && !(await isAppSimVnet(vnetPublicId).catch(() => false))) {
+    res.status(404).json({ status: 'error', message: 'Simulation not found' });
+    return;
+  }
+
   const cacheKey = vnetPublicId ? `f2positions-sim-${vnetPublicId}` : F2_POSITIONS_CACHE_KEY;
 
   try {
@@ -219,20 +226,12 @@ export default async function handler(req, res) {
 
     let provider, paidProvider;
     if (vnetPublicId) {
-      // const cachedSims = (await getCacheFromRedis(SIMS_CACHE_KEY, false));
-      // const { ids } =  cachedSims || { ids: [] };
-      // const vnet = ids.find(id => id.publicId === vnetPublicId);
-      // if(!vnet) {
-      //   res.status(404).json({ success: false, error: 'Vnet not found' });
-      //   return;
-      // }
-      // provider = new JsonRpcProvider(vnet.publicRpc);
       provider = new JsonRpcProvider(`https://virtual.mainnet.rpc.tenderly.co/${vnetPublicId}`);
     } else {
       provider = getProvider(CHAIN_ID);
     }
     // the users always come from mainnet, also for a vnet: they are saved in the shared users cache,
-    // the logs of a vnet (any vnet id is accepted) would add fake users and escrows to it
+    // the users and escrows that only exist on a vnet must not be added to it
     paidProvider = getPaidProvider(CHAIN_ID);
 
     const resultData = await getFirmPositions(provider, paidProvider, vnetPublicId);

@@ -1,7 +1,7 @@
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { ethers } from 'ethers';
-import { submitProposal } from '@app/util/governance';
+import { checkDraftRights, submitProposal } from '@app/util/governance';
 import { CURRENT_ERA } from '@app/config/constants';
 import { getGovernanceContract } from '@app/util/contracts';
 import { FunctionFragment } from 'ethers/lib/utils';
@@ -9,6 +9,7 @@ import { ProposalStatus } from '@app/types';
 import { genTransactionParams } from '@app/util/web3';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { throttledPromises } from '@app/util/misc';
+import { SIMS_CACHE_KEY } from '@app/util/sims';
 
 const { TREASURY, DEPLOYER, F2_MARKETS, DBR } = getNetworkConfigConstants();
 
@@ -75,10 +76,23 @@ async function mainnetFork(newSimId: number, title: string) {
   );
 }
 
-export const SIMS_CACHE_KEY = 'gp-sim-id';
-
 export default async function handler(req, res) {
-  const form = req.body;
+  if (req.method !== 'POST') {
+    res.status(405).json({ status: 'warning', hasError: true, errorMsg: 'Method not allowed' });
+    return;
+  }
+  const { sig, ...form } = req.body || {};
+  // only for the draft whitelist: a simulation creates a vnet on our tenderly account and executes any actions on it,
+  // its vnet id is then accepted by the apis serving simulation data (util/sims.ts)
+  let sigAddress: string | null = null;
+  try {
+    sigAddress = checkDraftRights(sig);
+  } catch (e) { }
+  if (!sigAddress) {
+    res.status(401).json({ status: 'warning', hasError: true, errorMsg: 'Unauthorized' });
+    return;
+  }
+
   const isNotDraft = !!form.id;
   let proposalId;
 

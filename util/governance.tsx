@@ -449,6 +449,7 @@ export const sendDraftReview = async (
 }
 
 export const simulateOnChainActions = async (
+    signer: JsonRpcSigner,
     form: any,
     onResult: (reviews: DraftReview[]) => void,
 ): Promise<{
@@ -456,6 +457,8 @@ export const simulateOnChainActions = async (
     receipts: TransactionReceipt[],
 }> => {
     try {
+        // simulations are only for the draft whitelist
+        const sig = await signer.signMessage(SIGN_MSG);
 
         const rawResponse = await fetch(`/api/drafts/sim`, {
             method: 'POST',
@@ -463,7 +466,7 @@ export const simulateOnChainActions = async (
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(form)
+            body: JSON.stringify({ ...form, sig })
         });
         const result = await rawResponse.json();
         if (onResult) { onResult(result) }

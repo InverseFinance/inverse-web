@@ -1,6 +1,6 @@
 import 'source-map-support'
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
-import { SIMS_CACHE_KEY } from './drafts/sim';
+import { SIMS_CACHE_KEY } from '@app/util/sims';
 
 const { TENDERLY_USER, TENDERLY_KEY } = process.env;
 

@@ -5,6 +5,7 @@ import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redis
 import { TOKENS } from '@app/variables/tokens'
 import { getBnToNumber, getFirmMarketsApys } from '@app/util/markets'
 import { CHAIN_ID, ONE_DAY_MS, VNET_SIMS_ENABLED } from '@app/config/constants';
+import { isAppSimVnet } from '@app/util/sims';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { formatDistributorData, formatMarketData, inverseViewerRaw } from '@app/util/viewer';
 import { BaseProvider, JsonRpcProvider, Web3Provider } from '@ethersproject/providers';
@@ -70,6 +71,11 @@ export default async function handler(req, res) {
     res.status(400).json({ status: 'error', message: 'Invalid vnetPublicId' });
     return;
   }
+  // only the vnets of the app's simulations, checked before reading the cache: the data of another vnet is never served
+  if (!!vnetPublicId && !(await isAppSimVnet(vnetPublicId).catch(() => false))) {
+    res.status(404).json({ status: 'error', message: 'Simulation not found' });
+    return;
+  }
 
   const cacheKey = vnetPublicId ? `f2markets-sim-${vnetPublicId}` : F2_MARKETS_CACHE_KEY;
 
@@ -82,14 +88,6 @@ export default async function handler(req, res) {
 
     let provider;
     if (vnetPublicId) {
-      // const cachedSims = (await getCacheFromRedis(SIMS_CACHE_KEY, false));
-      // const { ids } =  cachedSims || { ids: [] };
-      // const vnet = ids.find(id => id.publicId === vnetPublicId);
-      // if(!vnet) {
-      //   res.status(404).json({ success: false, error: 'Vnet not found' });
-      //   return;
-      // }
-      // provider = new JsonRpcProvider(vnet.adminRpc);
       provider = new JsonRpcProvider(`https://virtual.mainnet.rpc.tenderly.co/${vnetPublicId}`);
     } else {
       provider = getProvider(CHAIN_ID);
