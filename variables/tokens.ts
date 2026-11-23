@@ -190,6 +190,7 @@ const chainTokenAddresses = {
     SwanUSD: '0x9BF2B2F57A2968A0E81546Ed50cBbbb7C9d6e05E',
     sSwanUSD: '0xfa80c7349cC2357C42A64C2954B24B1a61C29435',
     SWAN: '0xD0a32F6d4850F9D6DF7d4F8f84af1Fcd3Cf993CC',
+    DOLASWANUSDCLP: '0x123B0134930BD5cF8f26b3E3c621acbc791A294b',
     // PAL: '0xAB846Fb6C81370327e784Ae7CbB6d6a6af6Ff4BF',
   },
   "250": {
@@ -1770,6 +1771,22 @@ const chainTokens = {
       ],
       image: TOKEN_IMAGES.DOLA,
       link: 'https://www.curve.finance/dex/ethereum/pools/0x48d670d189b4b48757992d36897bca6e3f889040/deposit',
+    },
+    [chainTokenAddresses["1"].DOLASWANUSDCLP]: {
+      address: chainTokenAddresses["1"].DOLASWANUSDCLP,
+      name: 'DOLA-SwanUSD',
+      symbol: 'DOLA-SwanUSD clp',
+      protocolImage: PROTOCOL_IMAGES.CRV,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isCrvLP: true,
+      // in the order of the pool coins
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].SwanUSD
+      ],
+      image: TOKEN_IMAGES.DOLA,
+      link: 'https://www.curve.finance/dex/ethereum/pools/0x123b0134930bd5cf8f26b3e3c621acbc791a294b/deposit',
     },
     [chainTokenAddresses["1"].YVSDOLASCRVUSDCLP]: {
       address: chainTokenAddresses["1"].YVSDOLASCRVUSDCLP,

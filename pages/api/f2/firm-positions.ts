@@ -17,7 +17,7 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
 export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.1.1'
-export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.92'
+export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.93'
 
 // users and escrows of the markets from their CreateEscrow logs, provider: a mainnet one only,
 // the users, escrows and last block are saved in the shared cache
