@@ -38,6 +38,20 @@ export const getDefiLlamaApy = async (poolId: string, strictAvg = true) => {
     }
 };
 
+// APY in percent of a Stake DAO v2 Curve vault from the Stake DAO api: trading fees and boosted CRV rewards,
+// for a vault not listed on DefiLlama yet
+export const getStakedaoVaultApy = async (vault: string) => {
+    try {
+        const response = await fetch('https://api.stakedao.org/api/strategies/v2/curve/1.json');
+        const strategies = await response.json();
+        const strategy = (Array.isArray(strategies) ? strategies : []).find(s => s?.vault?.toLowerCase() === vault.toLowerCase());
+        return { apy: strategy?.apr?.current?.total || 0 };
+    } catch (e) {
+        console.log(`Failed to fetch the Stake DAO APY of vault ${vault}:`, e);
+        return { apy: 0 };
+    }
+};
+
 export const getMonthlyRate = (balance: number, apy: number) => {
     return (balance || 0) * (apy || 0) / 100 / 12;
 }
@@ -788,6 +802,8 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getSCoinStakingApy('0x3FF361197036Ae1d24B939146D8a449A80F8427d', provider),
         getYearnVaultApyViaKong('0x23346B04a7f55b8760E5860AA5A77383D63491cD'),
         getMonolithStakedVaultApy('0xfa80c7349cC2357C42A64C2954B24B1a61C29435'),
+        // SwanUSD-DOLA, stakedao
+        getStakedaoVaultApy('0xfb77f231D8006A5da17503aa3EF38bFd2092453F'),
     ]);
 
     let [
@@ -823,6 +839,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         sinvUSData,
         ysyBOLDData,
         sSwanUSDData,
+        swanUsdDolaStakedaoData,
     ] = externalYieldResults.map(r => {
         return r.status === 'fulfilled' ? r.value : {};
     });
@@ -881,6 +898,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'sinvUSD': sinvUSData?.apy || 0,
         'ysyBOLD': ysyBOLDData?.apy || 0,
         'sSwanUSD': sSwanUSDData?.apy || 0,
+        'SwanUSD-DOLA': swanUsdDolaStakedaoData?.apy || 0,
     };
 }
 
