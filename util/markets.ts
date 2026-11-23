@@ -898,7 +898,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'sinvUSD': sinvUSData?.apy || 0,
         'ysyBOLD': ysyBOLDData?.apy || 0,
         'sSwanUSD': sSwanUSDData?.apy || 0,
-        'SwanUSD-DOLA': swanUsdDolaStakedaoData?.apy || 0,
+        'swanUSD-DOLA': swanUsdDolaStakedaoData?.apy || 0,
     };
 }
 
