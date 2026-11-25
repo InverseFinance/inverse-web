@@ -901,6 +901,7 @@ export const FIRM_MARKETS = [
       badgeInfo: 'Monolith vault',
       rewardTypeLabel: 'Yield-bearing',
       underlyingSymbol: 'invUSD',
+      aleTransformerType: 'marketAddress',
       badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
       isERC4626Collateral: true,
       startingBlock: 26157005,
