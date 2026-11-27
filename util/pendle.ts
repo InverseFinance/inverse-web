@@ -1,8 +1,10 @@
 import { ALE_V3, BURN_ADDRESS } from "@app/config/constants";
+import { PT_USDE_HELPER, PT_USDE_MARKETS } from "@app/variables/firm-markets";
 
 import useSWR from "swr";
 
 export const PENDLE_HELPER = '0x4809fE7d314c2AE5b2Eb7fa19C1B166434D29141';
+const PENDLE_ROUTER = '0x888888888889758f76e7103c6cbf23abbf58f946';
 
 // list of active markets: https://api-v2.pendle.finance/core/v1/1/markets/active
 // ptToken => ptMarketAddress
@@ -14,6 +16,7 @@ export const ptMarkets = {
     '0xBC6736d346a5eBC0dEbc997397912CD9b8FAe10a': '0x6d98a2b6cdbf44939362a3e99793339ba2016af4',
     '0xe6A934089BBEe34F832060CE98848359883749B3': '0xb6ac3d5da138918ac4e84441e924a20daa60dbdd',
     '0x62C6E813b9589C3631Ba0Cdb013acdB8544038B7': '0x4eaa571eafcd96f51728756bd7f396459bb9b869',
+    ...Object.fromEntries(PT_USDE_MARKETS.map(m => [m.collateral, m.pendleMarket])),
 }
 
 // ptToken => ytToken
@@ -84,15 +87,75 @@ export const useUserPtApys = (ptTokens: string[], user: string) => {
     }
 }
 
-// give slippage in percentage, if 1% slippage, give 1, will be converted to 0.01 for the api
-// if expired: redeem case, if not expired: swap case
+type PendleRoute = {
+    tx: { to: string; data: string; value?: string; gasPrice?: string };
+    outputs: { token: string; amount: string }[];
+};
+
+const getPtUsdeSwapData = async (
+    buyToken: string,
+    sellToken: string,
+    sellAmount: string,
+    slippagePercentage: string,
+    receiver: string,
+    isLeverage: boolean,
+) => {
+    const baseUrl = 'https://api-v2.pendle.finance/core/v3/sdk/1/convert';
+    const slippage = Number(slippagePercentage) / 100;
+    const response = await fetch(baseUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            receiver,
+            slippage,
+            enableAggregator: true,
+            inputs: [{ token: sellToken, amount: sellAmount }],
+            outputs: [buyToken],
+        }),
+    });
+    const data = await response.json();
+    // The helper only accepts these Pendle entry points and forwards no ETH.
+    const selectors = isLeverage ? ['0xc81f847a'] : ['0x594a88cc', '0x47f1de22'];
+    const encodedReceiver = receiver.slice(2).toLowerCase().padStart(64, '0');
+    const route = response.ok && (data.routes as PendleRoute[] | undefined)?.find(({ tx, outputs }) => (
+        tx.to.toLowerCase() === PENDLE_ROUTER &&
+        selectors.includes(tx.data.slice(0, 10)) &&
+        tx.data.slice(10, 74).toLowerCase() === encodedReceiver &&
+        Number(tx.value ?? 0) === 0 &&
+        outputs[0]?.token.toLowerCase() === buyToken.toLowerCase() &&
+        /^[1-9][0-9]*$/.test(outputs[0].amount)
+    ));
+
+    return {
+        error: !route,
+        msg: route ? undefined : data.message || 'No compatible Pendle route found',
+        buyAmount: route ? route.outputs[0].amount : '0',
+        data: route ? route.tx.data : '0x',
+        gasPrice: route ? route.tx.gasPrice || '0' : '0',
+        to: route ? route.tx.to : '0x',
+        receiver,
+        baseUrl,
+    };
+};
+
+// Give slippage in percent. Pendle takes 0.01 for 1%.
 export const getPendleSwapData = async (
     buyToken: string,
     sellToken: string,
     sellAmount: string,
     slippagePercentage: string,
     isExpired: boolean,
+    aleAddress: string,
 ) => {
+    const ptUsdeMarket = PT_USDE_MARKETS.find(({ collateral }) =>
+        collateral === buyToken.toLowerCase() || collateral === sellToken.toLowerCase()
+    );
+    if (ptUsdeMarket) {
+        const isLeverage = ptUsdeMarket.collateral === buyToken.toLowerCase();
+        const receiver = isLeverage ? PT_USDE_HELPER : aleAddress;
+        return getPtUsdeSwapData(buyToken, sellToken, sellAmount, slippagePercentage, receiver, isLeverage);
+    }
+
     const ptMarketAddress = Object.entries(ptMarkets).find(([col, m]) => [buyToken.toLowerCase(), sellToken.toLowerCase()].includes(col.toLowerCase()))[1];
     const isLeverageCase = !!Object.entries(ptMarkets).find(([col, m]) => [buyToken.toLowerCase()].includes(col.toLowerCase()));
     // receiver = helper or ale

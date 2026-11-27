@@ -8,7 +8,7 @@ import { getAvgOnLastItems, getNextThursdayTimestamp, lowercaseObjectKeys, remov
 import { getProvider } from './providers';
 import { NETWORKS_BY_NAME } from '@app/config/networks';
 import { fetchWithTimeout } from './web3';
-import { FIRM_MARKETS } from '@app/variables/firm-markets';
+import { FIRM_MARKETS, PT_USDE_MARKETS } from '@app/variables/firm-markets';
 import { getConvexPoolsAprs } from './convex';
 import { CONVEX_REWARD_POOL } from '@app/config/abis';
 
@@ -760,6 +760,10 @@ export const getHistoricalTokenData = async (cgId: string, fromTsSec?: number, t
 
 export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
     const convexMarkets = FIRM_MARKETS.filter(m => !!m.convexRewardsAddress);
+    const ptUsdeApysPromise = Promise.all(PT_USDE_MARKETS.map(async market => {
+        const { apy } = await getPendleMarketApy(market.pendleMarket);
+        return [market.name, apy || 0] as const;
+    }));
     // Convex LPs: APRs as shown by the Convex UI
     const convexPoolsAprsPromise = getConvexPoolsAprs(convexMarkets.map(m => m.convexRewardsAddress as string), provider)
         .catch((e): { [rewardContract: string]: number | undefined } => {
@@ -890,6 +894,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'PT-USDe-25SEP25': ptUSDe25SEP25Data?.apy || 0,
         'PT-sUSDe-27NOV25': ptSUSDe27NOV25Data?.apy || 0,
         'PT-USDe-27NOV25': ptUSDe27NOV25Data?.apy || 0,
+        ...Object.fromEntries(await ptUsdeApysPromise),
         'yv-wstUSR-DOLA': yvwstUSRDOLAData?.apy || 0,
         // stakedao
         'scrvUSD-sDOLA': scrvUSDsDOLAStakedaoData?.apy || 0,

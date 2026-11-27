@@ -2,6 +2,7 @@ import { HAS_REWARD_TOKEN, JDOLA_AUCTION_ADDRESS, SINV_ADDRESS } from '@app/conf
 import { Token, TokenList } from '@app/types';
 import { isAddress } from 'ethers/lib/utils';
 import { PROTOCOLS_BY_IMG, PROTOCOL_IMAGES, TOKEN_IMAGES } from './images';
+import { PT_USDE_MARKETS } from './firm-markets';
 
 // TODO: refacto in cleaner way with markets and tokens
 
@@ -2062,6 +2063,14 @@ const chainTokens = {
       decimals: 18,
       isStable: true,
     },
+    ...Object.fromEntries(PT_USDE_MARKETS.map(({ collateral, name }) => [collateral, {
+      address: collateral,
+      name,
+      symbol: name,
+      image: TOKEN_IMAGES.USDe,
+      decimals: 18,
+      isStable: true,
+    }])),
     [chainTokenAddresses["1"].USDE]: {
       address: chainTokenAddresses["1"].USDE,
       name: 'USDe',

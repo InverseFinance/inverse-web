@@ -16,10 +16,12 @@ import { ERC20_ABI } from '@app/config/abis';
 import { calculateNetApy, getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 import { getMerklFirmOpportunities, getMerklMarketIncentives } from '@app/util/merkl';
 import { F2Market } from '@app/types';
+import { PT_USDE_HELPER, PT_USDE_MARKETS } from '@app/variables/firm-markets';
 
 const { F2_MARKETS, F2_ALE } = getNetworkConfigConstants();
+const PT_USDE_ADDRESSES = new Set(PT_USDE_MARKETS.map(m => m.address));
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.8.93`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.8.94`;
 
 // same source as /api/dbr, null if unavailable so that the markets data does not depend on it
 const getDbrPriceUsd = async (provider: BaseProvider) => {
@@ -103,13 +105,15 @@ export default async function handler(req, res) {
       invAprData,
       dbrDistributorData,
       aleAllowancesChecks,
+      pendleHelperAle,
     ] = await getGroupedMulticallOutputs([
       { contract: ifvr.firmContract, functionName: 'getMarketListData', params: [F2_MARKETS.map(m => m.hasNowInvalidFeed ? '0x0000000000000000000000000000000000000000' : m.address)] },
       { contract: ifvr.tokensContract, functionName: 'getInvApr', params: [] },
       { contract: ifvr.tokensContract, functionName: 'getDbrDistributorInfo', params: [] },
       F2_MARKETS.map(m => {
         return { contract: new Contract(m.collateral, ERC20_ABI, provider), functionName: 'allowance', params: [F2_ALE, m.address] }
-      })
+      }),
+      { contract: new Contract(PT_USDE_HELPER, ['function ale() view returns (address)'], provider), functionName: 'ale' },
     ], 1, undefined, provider);
 
     const [formattedMarketData, invApr, formattedDistrubutorData] = [
@@ -145,7 +149,8 @@ export default async function handler(req, res) {
       const isLeverageSuspended = suspendAllLeverage || marketCustomDisplay?.isLeverageSuspended || m.isLeverageSuspended;
       const isPendle = m.name.startsWith('PT-');
       const supplyApy = externalApys[underlying.symbol] || externalApys[m.name] || 0;
-      const isPendleMatured = isPendle && !supplyApy;
+      const isPendleMatured = isPendle && (m.expiry ? now >= Date.parse(m.expiry) : !supplyApy);
+      const isPtUsdeHelperPending = PT_USDE_ADDRESSES.has(m.address) && pendleHelperAle?.toLowerCase() !== F2_ALE.toLowerCase();
       const marketOverrides = m.hasNowInvalidFeed ? { ...marketData, price: 0, totalDebt: 0, ...m} : {...m,...marketData}
       const extraApy = m.isInv ? dbrApr : 0;
       const collateralFactor = marketOverrides.collateralFactor;
@@ -206,7 +211,7 @@ export default async function handler(req, res) {
         isPhasingOut: marketCustomDisplay?.isPhasingOut || m.isPhasingOut,
         isLeverageSuspended: isLeverageSuspended,
         isBorrowingSuspended: isBorrowingSuspended,
-        isLeverageComingSoon: isLeverageSuspended || m.isLeverageComingSoon,
+        isLeverageComingSoon: isLeverageSuspended || m.isLeverageComingSoon || isPtUsdeHelperPending,
         phasingOutComment: marketCustomDisplay?.phasingOutComment || m.phasingOutComment || '',
         isPendle,
         isPendleMatured,
