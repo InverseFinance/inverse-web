@@ -59,7 +59,7 @@ export default async function handler(req, res) {
       const firmMarket = F2_MARKETS.find(m => [buyToken.toLowerCase(), sellToken.toLowerCase()].includes(m.collateral.toLowerCase()));
       const isExpired = firmMarket?.expiry ? new Date(firmMarket.expiry) < new Date() : false;
      
-      const pendleData = await getPendleSwapData(buyToken, sellToken, sellAmount, slippagePercentage, isExpired);
+      const pendleData = await getPendleSwapData(buyToken, sellToken, sellAmount, slippagePercentage, isExpired, F2_ALE);
       return res.status(200).json({
         error: pendleData.error,
         msg: pendleData.msg,

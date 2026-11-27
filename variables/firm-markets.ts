@@ -18,6 +18,57 @@ export enum FIRM_ESCROWS {
 // end of the points programs: start of Thursday Oct 1st 2026 UTC, the api then shows 0 points
 const POINTS_EXPIRY_TIMESTAMP = Date.parse('2026-10-01T00:00:00Z');
 
+export const PT_USDE_HELPER = '0x719C47071bea36fD2b2287bBe6efa872A594Fb78';
+
+export const PT_USDE_MARKETS = [
+    {
+        name: 'PT-USDe-28FEB27',
+        collateral: '0x65bc0a0cf38ecdfc95e553de01af01a56da225ce',
+        address: '0xffb150c2d9c4999c99125260bc401763080f4462',
+        pendleMarket: '0xf1f53912c156a8c06927746cb20ba11ecec526ce',
+        startingBlock: 26508400,
+        expiry: '2027-02-28T00:00:00.000Z',
+    },
+    {
+        name: 'PT-USDe-31MAY27',
+        collateral: '0x2757eea99c54dcb9e319ae00f08fe841e4574450',
+        address: '0x5013b887de98bbd9ee5ba28c2e23080237d3d6f5',
+        pendleMarket: '0x00b0d4645233b74fd84f39ea3df52bd0202a1448',
+        startingBlock: 26508402,
+        expiry: '2027-05-31T00:00:00.000Z',
+    },
+    {
+        name: 'PT-USDe-31AUG27',
+        collateral: '0x9327c9743d06efce3f784049f1aeed3d63a05be6',
+        address: '0x720c49714696f78ec4473a1a0646c25cf2e6325e',
+        pendleMarket: '0x1abe622fb6876b98f3aa1cf2ed86a32af954b3f9',
+        startingBlock: 26508402,
+        expiry: '2027-08-31T00:00:00.000Z',
+    },
+    {
+        name: 'PT-USDe-30NOV27',
+        collateral: '0x247934a535e4a37b95c13feb7efef778e39dc7e5',
+        address: '0x9a4ead4aad49dc6411b5a53f3191eb66f14c555d',
+        pendleMarket: '0x3f714e7623c33cd9bf1f30c6f1326a4ea933d45b',
+        startingBlock: 26508403,
+        expiry: '2027-11-30T00:00:00.000Z',
+    },
+];
+
+const PT_USDE_MARKET_CONFIG = {
+    escrowImplementation: FIRM_ESCROWS.simple,
+    helper: true,
+    oracleType: "discountedNAV",
+    badgeInfo: 'Pendle',
+    rewardTypeLabel: 'Fixed Yield',
+    badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
+    isInv: false,
+    noZap: true,
+    fixedFeed: false,
+    aleTransformerType: 'marketAddressAndAmountAndPendleData' as const,
+};
+const [ptUsdeFebruary, ptUsdeMay, ptUsdeAugust, ptUsdeNovember] = PT_USDE_MARKETS;
+
 export const FIRM_MARKETS = [
     {
         name: 'WETH',
@@ -962,4 +1013,8 @@ export const FIRM_MARKETS = [
       rewardAccountant: '0x93b4B9bd266fFA8AF68e39EDFa8cFe2A62011Ce0',
       isInv: false,
   },
+  { ...ptUsdeFebruary, ...PT_USDE_MARKET_CONFIG },
+  { ...ptUsdeMay, ...PT_USDE_MARKET_CONFIG },
+  { ...ptUsdeAugust, ...PT_USDE_MARKET_CONFIG },
+  { ...ptUsdeNovember, ...PT_USDE_MARKET_CONFIG },
 ];

@@ -1,6 +1,6 @@
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
 import { RTOKEN_SYMBOL, UNDERLYING } from './tokens'
-import { FIRM_MARKETS } from './firm-markets';
+import { FIRM_MARKETS, PT_USDE_MARKETS } from './firm-markets';
 
 const namedAddresses: { [key: string]: string } = {
     '0xE8929AFd47064EfD36A7fB51dA3F8C5eb40c4cb4': 'FrontierOracle',
@@ -247,6 +247,7 @@ const namedAddresses: { [key: string]: string } = {
     '0xBC6736d346a5eBC0dEbc997397912CD9b8FAe10a': 'PT-USDe-25SEP25',
     '0xe6A934089BBEe34F832060CE98848359883749B3': 'PT-sUSDe-27NOV25',
   '0x62C6E813b9589C3631Ba0Cdb013acdB8544038B7': 'PT-USDe-27NOV25',
+  ...Object.fromEntries(PT_USDE_MARKETS.map(({ collateral, name }) => [collateral, name])),
     // FiRM strategies rewards
     '0xC94208D230EEdC4cDC4F80141E21aA485A515660': 'ConvexRewards-crvUSD-DOLA',
     '0xE8cBdBFD4A1D776AB1146B63ABD1718b2F92a823': 'ConvexRewards-FraxPyUSD-DOLA',
